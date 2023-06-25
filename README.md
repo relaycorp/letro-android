@@ -2,7 +2,7 @@
 
 # Letro for Android
 
-[Letro](https://letro.app/en) is a service like email, but end-to-end encrypted, spam-free, phishing-free and works without the Internet too.
+[Letro](https://letro.app/en) is a service like email, but end-to-end encrypted, spam-free, phishing-free and works without the Internet too -- all thanks to [Awala](https://awala.network)!
 
 ## Contributing
 
