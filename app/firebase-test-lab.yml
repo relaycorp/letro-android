@@ -22,8 +22,8 @@ spec:
       locale: en
       orientation: portrait
 
-    # LG LM-Q910 (physical)
-    - model: phoenix_sprout
+    # Samsung SM-T827V (physical)
+    - model: gts3lltevzw
       version: 28   # Android 9.0
       locale: en
       orientation: portrait
