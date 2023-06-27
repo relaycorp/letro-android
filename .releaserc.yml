@@ -1,4 +1,4 @@
-branch: REPLACE-WITH-MAIN-ONCE-WE-ARE-READY-TO-RELEASE-TO-PLAY-STORE
+branches: [REPLACE-WITH-MAIN-ONCE-WE-ARE-READY-TO-RELEASE-TO-PLAY-STORE]
 plugins:
   - "@semantic-release/commit-analyzer"
   - - "@semantic-release/release-notes-generator"
