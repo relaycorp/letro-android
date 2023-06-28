@@ -3,26 +3,17 @@ package tech.realycorp.letro.ui.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
+import tech.realycorp.letro.Route
+import tech.realycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
 
-private val OnboardingGraphRoutePattern = "onboarding"
-
-//fun NavGraphBuilder.onboardingGraph(navController: NavController) {
-//    navigation(
-//        startDestination = OnboardingGraphRoutePattern,
-//        route = OnboardingGraphRoutePattern,
-//    )
-//}
 fun NavGraphBuilder.gatewayNotAvailableScreen(
     onNavigateToGooglePlayStore: () -> Unit,
 ) {
-    composable("gatewayNotAvailable") {
-
+    composable(Route.GatewayNotInstalled.name) {
+        GatewayNotInstalledScreen(onNavigateToGooglePlay = onNavigateToGooglePlayStore)
     }
 }
 
 fun NavController.navigateToGatewayNotAvailableScreen() {
-    this.navigate("gatewayNotAvailable")
+    this.navigate(Route.GatewayNotInstalled.name)
 }
-
-

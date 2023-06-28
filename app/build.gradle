@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'org.jlleitschuh.gradle.ktlint' version '11.4.2'
 }
 
 android {
@@ -34,6 +35,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        allWarningsAsErrors = true
     }
     buildFeatures {
         compose true
@@ -45,6 +47,12 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+    lintOptions {
+        checkAllWarnings true
+        warningsAsErrors true
+        abortOnError true
+        lintConfig file('lint.xml')
     }
 }
 
@@ -83,4 +91,8 @@ dependencies {
 // Allow references to generated code
 kapt {
     correctErrorTypes true
+}
+
+ktlint {
+    version.set("0.49.1")
 }
