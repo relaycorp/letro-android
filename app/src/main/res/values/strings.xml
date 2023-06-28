@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Letro</string>
+
+    <string name="onboarding_awala_not_installed">Awala doesn’t appear to be installed.</string>
+    <string name="onbaording_install_awala">Install Awala so that you can use this app.</string>
+    <string name="onboarding_download_awala">Download Awala</string>
+
 </resources>
