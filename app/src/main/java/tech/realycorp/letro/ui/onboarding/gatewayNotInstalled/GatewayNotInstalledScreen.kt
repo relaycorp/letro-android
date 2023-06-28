@@ -5,17 +5,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import tech.realycorp.letro.R
 import tech.realycorp.letro.ui.custom.LetroButton
 import tech.realycorp.letro.ui.theme.LetroTheme
 
 @Composable
 fun GatewayNotInstalledScreen(
-    // TODO navController: NavController,
+    navController: NavController,
 ) {
     GatewayNotInstalledView(
         navigateToGooglePlay = {
-            // TODO navController.
+//            navController.navigate(Route.)
         },
     )
 }
