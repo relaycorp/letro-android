@@ -1,5 +1,7 @@
 package tech.realycorp.letro.ui.main
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -56,7 +58,6 @@ class MainActivity : ComponentActivity() {
             }
 
             LetroTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
@@ -70,7 +71,14 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Route.GatewayNotInstalled.name) {
                             GatewayNotInstalledScreen(
-                                onNavigateToGooglePlay = { /*TODO*/ },
+                                onNavigateToGooglePlay = {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://play.google.com/store/apps/details?id=tech.relaycorp.gateway")
+                                        )
+                                    )
+                                },
                             )
                         }
                         composable(Route.Splash.name) {
