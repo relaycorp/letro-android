@@ -35,6 +35,12 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: "app:assembleDebug app:assembleDebugAndroidTest"
+      - name: Save APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 3
       - name: Run tests on physical and virtual devices
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
         with:
