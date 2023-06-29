@@ -21,19 +21,23 @@ val Inter = FontFamily(
 )
 
 val Typography = Typography(
-    bodyLarge = TextStyle(
+    bodyLarge = TextStyle( // Inter/16/Normal
         fontFamily = Inter,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 19.sp,
-        letterSpacing = 0.5.sp,
     ),
-    titleLarge = TextStyle(
+    titleLarge = TextStyle( // Inter/20/SemiBold
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.sp,
+    ),
+    headlineMedium = TextStyle( // Inter/28/Medium
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
     ),
     // TODO
     labelSmall = TextStyle(
@@ -41,6 +45,5 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp,
     ),
 )
