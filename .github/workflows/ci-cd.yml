@@ -1,7 +1,8 @@
 name: CI and automatic releases
 on:
+  pull_request:
   push:
-    branches-ignore: [gh-pages]
+    branches: [main]
 jobs:
   static-checks:
     name: Static checks
