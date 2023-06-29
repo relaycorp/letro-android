@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import tech.realycorp.letro.R
 import tech.realycorp.letro.ui.theme.ItemPadding
-import tech.realycorp.letro.ui.theme.TextFieldCornerRadius
 import tech.realycorp.letro.ui.theme.LetroTheme
 import tech.realycorp.letro.ui.theme.PrimaryMain
+import tech.realycorp.letro.ui.theme.TextFieldCornerRadius
 
 @Composable
 fun LetroButton(
@@ -97,7 +97,7 @@ fun LetroTextField(
         placeholder = {
             Text(
                 text = placeHolderText,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         },
         keyboardOptions = keyboardOptions,
@@ -121,7 +121,6 @@ fun HyperlinkText(
         append(fullText)
 
         for ((key, value) in hyperLinks) {
-
             val startIndex = fullText.indexOf(key)
             val endIndex = startIndex + key.length
             addStyle(
@@ -129,24 +128,24 @@ fun HyperlinkText(
                     color = linkTextColor,
                     fontSize = fontSize,
                     fontWeight = linkTextFontWeight,
-                    textDecoration = linkTextDecoration
+                    textDecoration = linkTextDecoration,
                 ),
                 start = startIndex,
-                end = endIndex
+                end = endIndex,
             )
             addStringAnnotation(
                 tag = "URL",
                 annotation = value,
                 start = startIndex,
-                end = endIndex
+                end = endIndex,
             )
         }
         addStyle(
             style = SpanStyle(
-                fontSize = fontSize
+                fontSize = fontSize,
             ),
             start = 0,
-            end = fullText.length
+            end = fullText.length,
         )
     }
 
@@ -161,7 +160,7 @@ fun HyperlinkText(
                 .firstOrNull()?.let { stringAnnotation ->
                     uriHandler.openUri(stringAnnotation.item)
                 }
-        }
+        },
     )
 }
 
@@ -194,7 +193,7 @@ fun CustomViewsPreview() {
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                 hyperLinks = mapOf(
                     stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                            to "https://letro.app/en/terms"
+                        to "https://letro.app/en/terms",
                 ),
             )
             Spacer(modifier = Modifier.height(ItemPadding))

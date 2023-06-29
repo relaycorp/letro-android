@@ -31,7 +31,6 @@ import tech.realycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.realycorp.letro.ui.theme.ItemPadding
 import tech.realycorp.letro.ui.theme.LargePadding
 import tech.realycorp.letro.ui.theme.LetroTheme
-import tech.realycorp.letro.ui.theme.TextFieldCornerRadius
 import tech.realycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
@@ -62,7 +61,7 @@ fun AccountCreationScreen() {
             fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
             hyperLinks = mapOf(
                 stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                        to "https://letro.app/en/terms"
+                    to "https://letro.app/en/terms",
             ),
         )
         Row(
@@ -72,7 +71,7 @@ fun AccountCreationScreen() {
                 .background(
                     color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(BoxCornerRadius),
-                )
+                ),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.info),

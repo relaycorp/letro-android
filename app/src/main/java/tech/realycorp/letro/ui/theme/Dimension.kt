@@ -10,4 +10,3 @@ val ItemPadding = 8.dp
 
 val TextFieldCornerRadius = 4.dp
 val BoxCornerRadius = 8.dp
-
