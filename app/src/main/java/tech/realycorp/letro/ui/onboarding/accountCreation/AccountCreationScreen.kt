@@ -21,12 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import tech.realycorp.letro.R
 import tech.realycorp.letro.ui.custom.ButtonType
 import tech.realycorp.letro.ui.custom.HyperlinkText
 import tech.realycorp.letro.ui.custom.LetroButton
 import tech.realycorp.letro.ui.custom.LetroTextField
 import tech.realycorp.letro.ui.theme.BoxCornerRadius
+import tech.realycorp.letro.ui.theme.Grey90
 import tech.realycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.realycorp.letro.ui.theme.ItemPadding
 import tech.realycorp.letro.ui.theme.LargePadding
@@ -35,78 +37,93 @@ import tech.realycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
 fun AccountCreationScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                horizontal = HorizontalScreenPadding,
-                vertical = VerticalScreenPadding,
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.letro_logo),
-            contentDescription = null,
-        )
-        Spacer(modifier = Modifier.height(LargePadding))
-        Text(text = stringResource(id = R.string.onboarding_create_account_id))
-        Spacer(modifier = Modifier.height(ItemPadding))
-        LetroTextField(
-            value = "",
-            onValueChange = { /*TODO*/ },
-            placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
-        )
-        // Make Text read a string resource with a link
-        HyperlinkText(
-            fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
-            hyperLinks = mapOf(
-                stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                    to "https://letro.app/en/terms",
-            ),
-        )
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(ItemPadding)
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(BoxCornerRadius),
+                .padding(
+                    horizontal = HorizontalScreenPadding,
+                    vertical = VerticalScreenPadding,
                 ),
         ) {
             Image(
-                painter = painterResource(id = R.drawable.info),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                painter = painterResource(id = R.drawable.letro_logo),
                 contentDescription = null,
             )
-            Spacer(modifier = Modifier.width(ItemPadding))
-            Text(text = stringResource(id = R.string.onboarding_create_account_no_internet_connection))
-        }
-        LetroButton(
-            text = stringResource(id = R.string.onboarding_create_account_button),
-            onClick = {
-                // TODO
-            },
-        )
-        Spacer(modifier = Modifier.height(LargePadding))
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Divider(modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(40.dp))
             Text(
-                text = stringResource(id = R.string.onboarding_create_account_or),
+                text = stringResource(id = R.string.onboarding_create_account_id),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.height(ItemPadding))
+            LetroTextField(
+                value = "",
+                onValueChange = { /*TODO*/ },
+                placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
+            )
+            // Make Text read a string resource with a link
+            HyperlinkText(
+                fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
+                hyperLinks = mapOf(
+                    stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
+                        to "https://letro.app/en/terms",
+                ),
+            )
+            Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(ItemPadding)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(BoxCornerRadius),
+                    ),
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.info),
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(ItemPadding))
+                Text(
+                    text = stringResource(id = R.string.onboarding_create_account_no_internet_connection),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Spacer(modifier = Modifier.height(VerticalScreenPadding))
+            LetroButton(
+                text = stringResource(id = R.string.onboarding_create_account_button),
+                onClick = {
+                    // TODO
+                },
+            )
+            Spacer(modifier = Modifier.height(LargePadding))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Divider(modifier = Modifier.fillMaxWidth())
+                Text(
+                    text = stringResource(id = R.string.onboarding_create_account_or),
+                    modifier = Modifier
+                        .padding(ItemPadding)
+                        .background(MaterialTheme.colorScheme.surface),
+                    style = MaterialTheme.typography.bodySmall, // TODO Update when design is ready
+                    color = Grey90,
+                )
+            }
+            Spacer(modifier = Modifier.height(LargePadding))
+            LetroButton(
+                text = stringResource(id = R.string.onboarding_create_account_use_existing_account),
+                buttonType = ButtonType.Outlined,
+                onClick = {
+                    // TODO
+                },
             )
         }
-        Spacer(modifier = Modifier.height(LargePadding))
-        LetroButton(
-            text = stringResource(id = R.string.onboarding_create_account_use_existing_account),
-            buttonType = ButtonType.Outlined,
-            onClick = {
-                // TODO
-            },
-        )
     }
 }
 
