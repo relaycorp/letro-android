@@ -1,4 +1,4 @@
-package tech.realycorp.letro.ui.onboarding.waiting
+package tech.realycorp.letro.ui.onboarding.actionTaking
 
 import androidx.annotation.StringRes
 import tech.realycorp.letro.R

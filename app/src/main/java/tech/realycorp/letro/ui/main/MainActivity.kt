@@ -28,9 +28,9 @@ import tech.realycorp.letro.Route
 import tech.realycorp.letro.getRouteByName
 import tech.realycorp.letro.ui.SplashScreen
 import tech.realycorp.letro.ui.onboarding.accountCreation.AccountCreationScreen
+import tech.realycorp.letro.ui.onboarding.actionTaking.ActionTakingScreen
+import tech.realycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.realycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
-import tech.realycorp.letro.ui.onboarding.waiting.ActionTakingScreen
-import tech.realycorp.letro.ui.onboarding.waiting.ActionTakingScreenUIStateModel
 import tech.realycorp.letro.ui.theme.LetroTheme
 
 @AndroidEntryPoint
@@ -55,8 +55,16 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(mainViewModel) {
                 mainViewModel.firstNavigationUIModelFlow.collect { firstNavigation ->
                     when (firstNavigation) {
-                        FirstNavigationUIModel.AccountCreation -> navController.navigate(Route.AccountCreation.name)
-                        FirstNavigationUIModel.NoGateway -> navController.navigate(Route.GatewayNotInstalled.name)
+                        FirstNavigationUIModel.AccountCreation -> navController.navigate(Route.AccountCreation.name) {
+                            popUpTo(Route.Splash.name) {
+                                inclusive = true
+                            }
+                        }
+                        FirstNavigationUIModel.NoGateway -> navController.navigate(Route.GatewayNotInstalled.name) {
+                            popUpTo(Route.Splash.name) {
+                                inclusive = true
+                            }
+                        }
                         else -> {}
                     }
                 }

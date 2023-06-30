@@ -23,8 +23,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             gatewayRepository.gatewayAvailabilityDataModel.collect { gatewayAvailability ->
                 when (gatewayAvailability) {
-                    GatewayAvailabilityDataModel.Available -> _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.AccountCreation)
-                    GatewayAvailabilityDataModel.Unavailable -> _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.NoGateway)
+                    GatewayAvailabilityDataModel.Available -> _firstNavigationUIModelFlow.emit(
+                        FirstNavigationUIModel.AccountCreation,
+                    )
+
+                    GatewayAvailabilityDataModel.Unavailable -> _firstNavigationUIModelFlow.emit(
+                        FirstNavigationUIModel.NoGateway,
+                    )
+
                     else -> {}
                 }
             }
