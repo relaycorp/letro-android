@@ -111,7 +111,7 @@ fun AccountCreationScreen() {
                     modifier = Modifier
                         .padding(ItemPadding)
                         .background(MaterialTheme.colorScheme.surface),
-                    style = MaterialTheme.typography.bodySmall, // TODO Update when design is ready
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Grey90,
                 )
             }

@@ -15,4 +15,15 @@
     <string name="onboarding_create_account_or">OR</string>
     <string name="onboarding_create_account_use_existing_account">Use existing account</string>
 
+    <string name="onboarding_waiting_title">Hold tight!</string>
+    <string name="onboarding_waiting_message">We are creating your account…</string>
+
+    <string name="onboarding_account_confirmation">You\'re all set up!</string>
+    <string name="onboarding_account_confirmation_pair_with_others">Pair with others</string>
+    <string name="onboarding_account_confirmation_share_your_id">Share your id</string>
+
+    <string name="onboarding_pairing_request_sent_title">Pairing request sent!</string>
+    <string name="onboarding_pairing_request_sent_message">You’ll receive a notification once you and %s are connected.</string>
+    <string name="onboarding_pairing_request_sent_button">Got it</string>
+
 </resources>
