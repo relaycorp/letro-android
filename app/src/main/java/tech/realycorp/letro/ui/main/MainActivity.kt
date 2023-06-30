@@ -27,6 +27,8 @@ import tech.realycorp.letro.getRouteByName
 import tech.realycorp.letro.ui.SplashScreen
 import tech.realycorp.letro.ui.onboarding.accountCreation.AccountCreationScreen
 import tech.realycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
+import tech.realycorp.letro.ui.onboarding.waiting.ActionTakingScreen
+import tech.realycorp.letro.ui.onboarding.waiting.ActionTakingScreenUIStateModel
 import tech.realycorp.letro.ui.theme.LetroTheme
 
 @AndroidEntryPoint
@@ -66,6 +68,9 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Route.Splash.name,
                     ) {
+                        composable(Route.AccountConfirmation.name) {
+                            ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation)
+                        }
                         composable(Route.AccountCreation.name) {
                             AccountCreationScreen()
                         }
@@ -81,8 +86,14 @@ class MainActivity : ComponentActivity() {
                                 },
                             )
                         }
+                        composable(Route.PairingRequestSent.name) {
+                            ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent)
+                        }
                         composable(Route.Splash.name) {
                             SplashScreen()
+                        }
+                        composable(Route.WaitingForAccountCreation.name) {
+                            ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
                         }
                     }
                 }
