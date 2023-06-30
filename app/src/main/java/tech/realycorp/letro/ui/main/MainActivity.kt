@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import tech.realycorp.letro.Route
 import tech.realycorp.letro.getRouteByName
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
+            val systemUiController: SystemUiController = rememberSystemUiController()
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -69,12 +72,26 @@ class MainActivity : ComponentActivity() {
                         startDestination = Route.Splash.name,
                     ) {
                         composable(Route.AccountConfirmation.name) {
+                            systemUiController.isStatusBarVisible = true
                             ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation)
                         }
                         composable(Route.AccountCreation.name) {
-                            AccountCreationScreen()
+                            systemUiController.isStatusBarVisible = false
+                            AccountCreationScreen(
+                                onCreateAccount = {
+                                    navController.navigate(
+                                        Route.WaitingForAccountCreation.name,
+                                    ) // TODO Change to correct functionality
+                                },
+                                onUseExistingAccount = {
+                                    navController.navigate(
+                                        Route.AccountConfirmation.name,
+                                    ) // TODO Change to correct functionality
+                                },
+                            )
                         }
                         composable(Route.GatewayNotInstalled.name) {
+                            systemUiController.isStatusBarVisible = false
                             GatewayNotInstalledScreen(
                                 onNavigateToGooglePlay = {
                                     startActivity(
@@ -87,12 +104,15 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Route.PairingRequestSent.name) {
+                            systemUiController.isStatusBarVisible = true
                             ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent)
                         }
                         composable(Route.Splash.name) {
+                            systemUiController.isStatusBarVisible = false
                             SplashScreen()
                         }
                         composable(Route.WaitingForAccountCreation.name) {
+                            systemUiController.isStatusBarVisible = true
                             ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
                         }
                     }

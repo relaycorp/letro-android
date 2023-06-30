@@ -36,7 +36,10 @@ import tech.realycorp.letro.ui.theme.LetroTheme
 import tech.realycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
-fun AccountCreationScreen() {
+fun AccountCreationScreen(
+    onCreateAccount: () -> Unit,
+    onUseExistingAccount: () -> Unit,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -96,9 +99,7 @@ fun AccountCreationScreen() {
             Spacer(modifier = Modifier.height(VerticalScreenPadding))
             LetroButton(
                 text = stringResource(id = R.string.onboarding_create_account_button),
-                onClick = {
-                    // TODO
-                },
+                onClick = onCreateAccount,
             )
             Spacer(modifier = Modifier.height(LargePadding))
             Box(
@@ -119,9 +120,7 @@ fun AccountCreationScreen() {
             LetroButton(
                 text = stringResource(id = R.string.onboarding_create_account_use_existing_account),
                 buttonType = ButtonType.Outlined,
-                onClick = {
-                    // TODO
-                },
+                onClick = onUseExistingAccount,
             )
         }
     }
@@ -131,6 +130,6 @@ fun AccountCreationScreen() {
 @Composable
 fun AccountCreationPreview() {
     LetroTheme {
-        AccountCreationScreen()
+        AccountCreationScreen({}, {})
     }
 }
