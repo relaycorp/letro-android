@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'tech.realycorp.letro'
+    namespace 'tech.relaycorp.letro'
     compileSdk 34
 
     defaultConfig {
-        applicationId "tech.realycorp.letro"
+        applicationId "tech.relaycorp.letro"
         minSdk 23
         targetSdk 34
         versionCode 1
@@ -73,6 +73,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
     implementation 'androidx.navigation:navigation-compose:2.6.0'
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
