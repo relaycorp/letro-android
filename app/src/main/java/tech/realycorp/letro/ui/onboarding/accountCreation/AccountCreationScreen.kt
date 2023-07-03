@@ -16,12 +16,15 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import tech.realycorp.letro.R
 import tech.realycorp.letro.ui.custom.ButtonType
 import tech.realycorp.letro.ui.custom.HyperlinkText
@@ -36,9 +39,27 @@ import tech.realycorp.letro.ui.theme.LetroTheme
 import tech.realycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
+fun AccountCreationRoute(
+    onCreateAccount: () -> Unit, // TODO Remove when real data is used
+    onUseExistingAccount: () -> Unit, // TODO Remove when real data is used
+    viewModel: AccountCreationViewModel = hiltViewModel(),
+) {
+    val accountCreationUIState by viewModel.accountCreationUIState.collectAsState()
+
+    AccountCreationScreen(
+        accountCreationUIState = accountCreationUIState,
+        onCreateAccount = onCreateAccount,
+        onUseExistingAccount = onUseExistingAccount,
+        onUserUpdatedUsername = viewModel::onUsernameChanged,
+    )
+}
+
+@Composable
 fun AccountCreationScreen(
+    accountCreationUIState: AccountCreationUIState,
     onCreateAccount: () -> Unit,
     onUseExistingAccount: () -> Unit,
+    onUserUpdatedUsername: (String) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -65,8 +86,8 @@ fun AccountCreationScreen(
             )
             Spacer(modifier = Modifier.height(ItemPadding))
             LetroTextField(
-                value = "",
-                onValueChange = { /*TODO*/ },
+                value = accountCreationUIState.username,
+                onValueChange = onUserUpdatedUsername,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
             )
             // Make Text read a string resource with a link
@@ -130,6 +151,6 @@ fun AccountCreationScreen(
 @Composable
 fun AccountCreationPreview() {
     LetroTheme {
-        AccountCreationScreen({}, {})
+        AccountCreationScreen(AccountCreationUIState(), {}, {}, {})
     }
 }

@@ -6,11 +6,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import tech.realycorp.letro.Route
 import tech.realycorp.letro.getRouteByName
 import tech.realycorp.letro.ui.SplashScreen
-import tech.realycorp.letro.ui.onboarding.accountCreation.AccountCreationScreen
+import tech.realycorp.letro.ui.onboarding.accountCreation.AccountCreationRoute
 import tech.realycorp.letro.ui.onboarding.actionTaking.ActionTakingScreen
 import tech.realycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.realycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
@@ -44,6 +49,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
             val systemUiController: SystemUiController = rememberSystemUiController()
+            val accountUsername by mainViewModel.accountUsernameFlow.collectAsState()
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -59,50 +65,61 @@ class MainActivity : ComponentActivity() {
                                 inclusive = true
                             }
                         }
+
                         FirstNavigationUIModel.NoGateway -> navController.navigate(Route.GatewayNotInstalled.name) {
                             popUpTo(Route.Splash.name) {
                                 inclusive = true
                             }
                         }
+
                         else -> {}
                     }
                 }
             }
 
             LetroTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                ) {
-                    NavHostContainer(
-                        navController = navController,
-                        showStatusBar = { show ->
-                            systemUiController.isStatusBarVisible = show
-                        },
-                        onNavigateToGooglePlay = {
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://play.google.com/store/apps/details?id=tech.relaycorp.gateway"),
-                                ),
-                            )
-                        },
-                    )
-                }
+                Scaffold(
+                    topBar = {
+                        LetroTopBar(
+                            accountUsername = accountUsername,
+                        )
+                    },
+                    content = {
+                        LetroNavHostContainer(
+                            navController = navController,
+                            paddingValues = it,
+                            showStatusBar = { show ->
+                                systemUiController.isStatusBarVisible = show
+                            },
+                            onNavigateToGooglePlay = {
+                                startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(
+                                            "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway",
+                                        ),
+                                    ),
+                                )
+                            },
+                        )
+                    },
+                )
             }
         }
     }
 }
 
 @Composable
-fun NavHostContainer(
+fun LetroNavHostContainer(
     navController: NavHostController,
     showStatusBar: (Boolean) -> Unit,
     onNavigateToGooglePlay: () -> Unit,
+    paddingValues: PaddingValues,
 ) {
     NavHost(
         navController = navController,
         startDestination = Route.Splash.name,
+        modifier = Modifier.padding(paddingValues),
     ) {
         composable(Route.AccountConfirmation.name) {
             showStatusBar(true)
@@ -110,7 +127,7 @@ fun NavHostContainer(
         }
         composable(Route.AccountCreation.name) {
             showStatusBar(false)
-            AccountCreationScreen(
+            AccountCreationRoute(
                 onCreateAccount = {
                     navController.navigate(
                         Route.WaitingForAccountCreation.name,
@@ -142,4 +159,22 @@ fun NavHostContainer(
             ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LetroTopBar(
+    accountUsername: String,
+    modifier: Modifier = Modifier,
+) {
+    TopAppBar(
+        modifier = modifier,
+        title = {
+            Text(
+                text = accountUsername,
+                style = MaterialTheme.typography.titleMedium,
+//       TODO maybe remove             color = MaterialTheme.colors.onPrimary
+            )
+        },
+    )
 }
