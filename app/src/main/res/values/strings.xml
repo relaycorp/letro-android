@@ -25,4 +25,10 @@
     <string name="onboarding_pairing_request_sent_message">You’ll receive a notification once you and %s are connected.</string>
     <string name="onboarding_pairing_request_sent_button">Got it</string>
 
+    <string name="top_bar_change_account">Change account</string>
+    <string name="top_bar_settings">Settings</string>
+    <string name="top_bar_tab_messages">Messages</string>
+    <string name="top_bar_tab_contacts">Contacts</string>
+    <string name="top_bar_tab_notifications">Notifications</string>
+
 </resources>
