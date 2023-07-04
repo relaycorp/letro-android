@@ -2,8 +2,8 @@ package tech.relaycorp.letro.ui.onboarding.useExistingAccount
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
 @HiltViewModel
 class UseExistingAccountViewModel @Inject constructor() : ViewModel() {

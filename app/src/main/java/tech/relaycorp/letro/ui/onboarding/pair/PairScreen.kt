@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.ui.onboarding.useExistingAccount
+package tech.relaycorp.letro.ui.onboarding.pair
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,36 +27,36 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
-fun UseExistingAccountRoute(
+fun PairWithPeopleRoute(
     navigateBack: () -> Unit,
-    navigateToAccountConfirmationScreen: () -> Unit,
-    viewModel: UseExistingAccountViewModel = hiltViewModel(),
+    navigateToPairingRequestSentScreen: () -> Unit,
+    viewModel: PairViewModel = hiltViewModel(),
 ) {
-    val domain by viewModel.domainNameUIFlow.collectAsState()
-    val token by viewModel.tokenUIFlow.collectAsState()
+    val domain by viewModel.idUIFlow.collectAsState()
+    val token by viewModel.aliasUIFlow.collectAsState()
 
-    UseExistingAccountScreen(
+    PairWithPeopleScreen(
         navigateBack = navigateBack,
-        domain = domain,
-        onDomainInput = {
-            viewModel.onDomainNameInput(it)
+        id = domain,
+        onIdInput = {
+            viewModel.onIdInput(it)
         },
-        token = token,
-        onTokenInput = {
-            viewModel.onTokenInput(it)
+        alias = token,
+        onAliasInput = {
+            viewModel.onAliasInput(it)
         },
-        onConfirmClicked = navigateToAccountConfirmationScreen, // TODO Replace when real data is used
+        onRequestPairingClicked = navigateToPairingRequestSentScreen, // TODO Replace when real data is used
     )
 }
 
 @Composable
-fun UseExistingAccountScreen(
+fun PairWithPeopleScreen(
     navigateBack: () -> Unit,
-    domain: String,
-    onDomainInput: (String) -> Unit,
-    token: String,
-    onTokenInput: (String) -> Unit,
-    onConfirmClicked: () -> Unit,
+    id: String,
+    onIdInput: (String) -> Unit,
+    alias: String,
+    onAliasInput: (String) -> Unit,
+    onRequestPairingClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(
@@ -72,34 +72,34 @@ fun UseExistingAccountScreen(
                 )
             }
             Text(
-                text = stringResource(id = R.string.general_use_existing_account),
+                text = stringResource(id = R.string.general_pair_with_others),
                 style = MaterialTheme.typography.titleLarge,
             )
         }
         Spacer(modifier = Modifier.height(VerticalScreenPadding))
         Text(
-            text = stringResource(id = R.string.onboarding_use_existing_account_domain),
+            text = stringResource(id = R.string.general_id),
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(ItemPadding))
         LetroTextField(
-            value = domain,
-            onValueChange = onDomainInput,
+            value = id,
+            onValueChange = onIdInput,
         )
         Spacer(modifier = Modifier.height(VerticalScreenPadding))
         Text(
-            text = stringResource(id = R.string.onboarding_use_existing_account_token),
+            text = stringResource(id = R.string.onboarding_pair_with_people_alias),
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(ItemPadding))
         LetroTextField(
-            value = token,
-            onValueChange = onTokenInput,
+            value = alias,
+            onValueChange = onAliasInput,
         )
         Spacer(modifier = Modifier.weight(1f))
         LetroButton(
-            text = stringResource(id = R.string.onboarding_use_existing_account_button),
-            onClick = onConfirmClicked,
+            text = stringResource(id = R.string.onboarding_pair_with_people_button),
+            onClick = onRequestPairingClicked,
         )
     }
 }
@@ -108,13 +108,13 @@ fun UseExistingAccountScreen(
 @Composable
 fun UseExistingAccountPreview() {
     LetroTheme {
-        UseExistingAccountScreen(
+        PairWithPeopleScreen(
             navigateBack = {},
-            domain = "bbc.com",
-            onDomainInput = {},
-            token = "12b46543-e26a-4284-87a1-8a25d4f79d65",
-            onTokenInput = {},
-            onConfirmClicked = {},
+            id = "jamesbond@cuppa.uk",
+            onIdInput = {},
+            alias = "James Bond",
+            onAliasInput = {},
+            onRequestPairingClicked = {},
         )
     }
 }
