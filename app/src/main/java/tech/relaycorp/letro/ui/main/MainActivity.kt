@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity() {
             val systemUiController: SystemUiController = rememberSystemUiController()
             val accountUsername by mainViewModel.accountUsernameFlow.collectAsState()
             var tabIndex by remember { mutableIntStateOf(0) }
+            val awalaGatewayAppLink = stringResource(id = R.string.url_awala_gateway_app)
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -120,9 +121,7 @@ class MainActivity : ComponentActivity() {
                                 startActivity(
                                     Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse(
-                                            "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway",
-                                        ),
+                                        Uri.parse(awalaGatewayAppLink),
                                     ),
                                 )
                             },
