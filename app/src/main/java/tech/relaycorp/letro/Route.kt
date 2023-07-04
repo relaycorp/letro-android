@@ -10,6 +10,7 @@ sealed class Route(val name: String) {
     object Notifications : Route("notifications")
     object PairingRequestSent : Route("pairingRequestSent")
     object Splash : Route("splash")
+    object UseExistingAccount : Route("useExistingAccount")
     object WaitingForAccountCreation : Route("waitingForAccountCreation")
 }
 
@@ -24,6 +25,7 @@ fun String?.getRouteByName(): Route {
             Route.Notifications.name -> Route.Notifications
             Route.PairingRequestSent.name -> Route.PairingRequestSent
             Route.Splash.name -> Route.Splash
+            Route.UseExistingAccount.name -> Route.UseExistingAccount
             Route.WaitingForAccountCreation.name -> Route.WaitingForAccountCreation
             else -> throw IllegalArgumentException("Define the Route by the name of the Route")
         }

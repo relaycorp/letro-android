@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -50,6 +51,7 @@ import tech.relaycorp.letro.ui.onboarding.accountCreation.AccountCreationRoute
 import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
+import tech.relaycorp.letro.ui.onboarding.useExistingAccount.UseExistingAccountRoute
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
@@ -98,25 +100,25 @@ class MainActivity : ComponentActivity() {
             }
 
             LetroTheme {
+                val topBarUIState = getTopBarUIState(currentRoute)
+                systemUiController.isStatusBarVisible = topBarUIState.showStatusBar
+
                 Scaffold(
                     topBar = {
                         LetroTopBar(
                             accountUsername = accountUsername,
-                            currentRoute = currentRoute,
                             onChangeAccountClicked = { /*TODO*/ },
                             onSettingsClicked = { /*TODO*/ },
                             tabIndex = tabIndex,
                             updateTabIndex = { tabIndex = it },
                             navigateToHomeScreen = { /*TODO*/ },
+                            topBarUIState = topBarUIState,
                         )
                     },
                     content = {
                         LetroNavHostContainer(
                             navController = navController,
                             paddingValues = it,
-                            showStatusBar = { show ->
-                                systemUiController.isStatusBarVisible = show
-                            },
                             onNavigateToGooglePlay = {
                                 startActivity(
                                     Intent(
@@ -136,7 +138,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LetroNavHostContainer(
     navController: NavHostController,
-    showStatusBar: (Boolean) -> Unit,
     onNavigateToGooglePlay: () -> Unit,
     paddingValues: PaddingValues,
 ) {
@@ -146,11 +147,9 @@ fun LetroNavHostContainer(
         modifier = Modifier.padding(paddingValues),
     ) {
         composable(Route.AccountConfirmation.name) {
-            showStatusBar(true)
             ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation)
         }
         composable(Route.AccountCreation.name) {
-            showStatusBar(false)
             AccountCreationRoute(
                 onCreateAccount = {
                     navController.navigate(
@@ -159,27 +158,33 @@ fun LetroNavHostContainer(
                 },
                 onUseExistingAccount = {
                     navController.navigate(
-                        Route.AccountConfirmation.name,
+                        Route.UseExistingAccount.name,
                     ) // TODO Change to correct functionality
                 },
             )
         }
         composable(Route.GatewayNotInstalled.name) {
-            showStatusBar(false)
             GatewayNotInstalledScreen(
                 onNavigateToGooglePlay = onNavigateToGooglePlay,
             )
         }
         composable(Route.PairingRequestSent.name) {
-            showStatusBar(true)
             ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent)
         }
         composable(Route.Splash.name) {
-            showStatusBar(false)
             SplashScreen()
         }
+        composable(Route.UseExistingAccount.name) {
+            UseExistingAccountRoute(
+                navigateBack = {
+                    navController.popBackStack()
+                },
+                navigateToAccountConfirmationScreen = {
+                    navController.navigate(Route.AccountConfirmation.name)
+                },
+            )
+        }
         composable(Route.WaitingForAccountCreation.name) {
-            showStatusBar(true)
             ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
         }
     }
@@ -189,67 +194,74 @@ fun LetroNavHostContainer(
 @Composable
 fun LetroTopBar(
     accountUsername: String,
-    currentRoute: Route,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
     tabIndex: Int,
     updateTabIndex: (Int) -> Unit,
     navigateToHomeScreen: (Route) -> Unit,
+    topBarUIState: TopBarUIState,
 ) {
-    if (currentRoute != Route.Splash &&
-        currentRoute != Route.AccountCreation
-    ) {
+    if (topBarUIState.showTopBar) {
         Column(modifier = Modifier.fillMaxWidth()) {
             TopAppBar(
                 modifier = modifier,
                 title = {
-                    Row(
-                        modifier = Modifier
-                            .clickable { onChangeAccountClicked() }
-                            .padding(
-                                horizontal = HorizontalScreenPadding,
-                                vertical = VerticalScreenPadding,
-                            ),
-                    ) {
-                        Text(
-                            text = accountUsername,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                        Spacer(modifier = Modifier.width(ItemPadding))
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.width(ItemPadding))
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow_down), // TODO Replace with settings icon
-                            contentDescription = stringResource(id = R.string.top_bar_change_account),
-                        )
+                    if (topBarUIState.showAccountName) {
+                        Row(
+                            modifier = Modifier
+                                .clickable { onChangeAccountClicked() }
+                                .padding(
+                                    horizontal = HorizontalScreenPadding,
+                                    vertical = VerticalScreenPadding,
+                                ),
+                        ) {
+                            Text(
+                                text = accountUsername,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                            Spacer(modifier = Modifier.width(ItemPadding))
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.width(ItemPadding))
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_down),
+                                contentDescription = stringResource(id = R.string.top_bar_change_account),
+                            )
+                        }
                     }
                 },
                 actions = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_down),
-                        contentDescription = stringResource(id = R.string.top_bar_settings),
-                        modifier = Modifier
-                            .clickable { onSettingsClicked() }
-                            .padding(
-                                horizontal = HorizontalScreenPadding,
-                                vertical = VerticalScreenPadding,
-                            ),
-                    )
+                    IconButton(onClick = onSettingsClicked) {
+                        Icon(
+                            painterResource(id = R.drawable.settings),
+                            contentDescription = stringResource(id = R.string.top_bar_settings),
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                 ),
             )
-            LetroTabs(
-                tabIndex = tabIndex,
-                updateTabIndex = updateTabIndex,
-                navigateToHomeScreen = navigateToHomeScreen,
-            )
+            if (topBarUIState.showTabs) {
+                LetroTabs(
+                    tabIndex = tabIndex,
+                    updateTabIndex = updateTabIndex,
+                    navigateToHomeScreen = navigateToHomeScreen,
+                )
+            }
         }
     }
 }
+
+private fun showTopBar(currentRoute: Route): Boolean = currentRoute != Route.Splash
+        && currentRoute != Route.AccountCreation
+
+private fun showTabs(currentRoute: Route): Boolean = currentRoute.name.contains(Route.Messages.name)
+        || currentRoute.name.contains(Route.Contacts.name)
+        || currentRoute.name.contains(Route.Notifications.name)
+
+private fun showAccountName(currentRoute: Route): Boolean = currentRoute != Route.AccountCreation
 
 private const val TAB_MESSAGES = 0
 private const val TAB_CONTACTS = 1
