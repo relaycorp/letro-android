@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.ui.custom.ButtonType
 import tech.relaycorp.letro.ui.custom.LetroButton
+import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
@@ -24,7 +26,12 @@ fun ActionTakingScreen(
     actionTakingScreenUIStateModel: ActionTakingScreenUIStateModel,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = HorizontalScreenPadding,
+                vertical = VerticalScreenPadding,
+            ),
         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
     ) {
         CircularProgressIndicator(
@@ -45,7 +52,7 @@ fun ActionTakingScreen(
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
             LetroButton(
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonFilledStringRes),
-                onClick = actionTakingScreenUIStateModel.buttonFilledOnClick,
+                onClick = actionTakingScreenUIStateModel.buttonFilledOnClicked,
             )
         }
         if (actionTakingScreenUIStateModel.buttonOutlinedStringRes != null) {
@@ -53,7 +60,7 @@ fun ActionTakingScreen(
             LetroButton(
                 buttonType = ButtonType.Outlined,
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonOutlinedStringRes),
-                onClick = actionTakingScreenUIStateModel.buttonOutlinedOnClick,
+                onClick = actionTakingScreenUIStateModel.buttonOutlinedOnClicked,
             )
         }
     }
@@ -71,7 +78,7 @@ fun WaitingScreenPreview() {
 @Composable
 fun AccountConfirmationScreenPreview() {
     LetroTheme {
-        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation)
+        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation({}, {}))
     }
 }
 
@@ -79,6 +86,6 @@ fun AccountConfirmationScreenPreview() {
 @Composable
 fun PairingRequestSentScreenPreview() {
     LetroTheme {
-        ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent)
+        ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent {})
     }
 }

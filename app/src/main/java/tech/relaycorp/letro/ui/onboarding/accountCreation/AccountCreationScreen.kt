@@ -82,7 +82,7 @@ fun AccountCreationScreen(
             )
             Spacer(modifier = Modifier.height(40.dp))
             Text(
-                text = stringResource(id = R.string.onboarding_create_account_id),
+                text = stringResource(id = R.string.general_id),
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(ItemPadding))
@@ -91,12 +91,11 @@ fun AccountCreationScreen(
                 onValueChange = onUserUpdatedUsername,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
             )
-            // Make Text read a string resource with a link
             HyperlinkText(
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                 hyperLinks = mapOf(
                     stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                        to "https://letro.app/en/terms",
+                        to stringResource(id = R.string.url_letro_terms_and_conditions),
                 ),
             )
             Row(
@@ -140,7 +139,7 @@ fun AccountCreationScreen(
             }
             Spacer(modifier = Modifier.height(LargePadding))
             LetroButton(
-                text = stringResource(id = R.string.onboarding_create_account_use_existing_account),
+                text = stringResource(id = R.string.general_use_existing_account),
                 buttonType = ButtonType.Outlined,
                 onClick = onUseExistingAccount,
             )
