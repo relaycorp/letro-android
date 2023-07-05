@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.PrimaryMain
@@ -84,6 +85,7 @@ fun LetroTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeHolderText: String = "",
+    suffixText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     isError: Boolean = false,
     maxLines: Int = 1,
@@ -100,6 +102,15 @@ fun LetroTextField(
                 text = placeHolderText,
                 style = MaterialTheme.typography.bodyLarge,
             )
+        },
+        suffix = {
+            if (suffixText != null) {
+                Text(
+                    suffixText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Grey90,
+                )
+            }
         },
         keyboardOptions = keyboardOptions,
         maxLines = maxLines,
@@ -165,7 +176,7 @@ fun HyperlinkText(
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CustomViewsPreview() {
     LetroTheme {
@@ -184,6 +195,8 @@ fun CustomViewsPreview() {
             Spacer(modifier = Modifier.height(ItemPadding))
 
             LetroTextField(value = "some value", onValueChange = {})
+            Spacer(modifier = Modifier.height(ItemPadding))
+            LetroTextField(value = "marian", onValueChange = {}, suffixText = "@guarapo.cafe")
             Spacer(modifier = Modifier.height(ItemPadding))
             LetroTextField(value = "", onValueChange = {})
             Spacer(modifier = Modifier.height(ItemPadding))
