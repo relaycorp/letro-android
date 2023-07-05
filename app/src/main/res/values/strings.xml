@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Letro</string>
 
+    <string name="general_domain_name">\@nautilus.ink</string>
     <string name="general_navigate_back">Go back</string>
     <string name="general_pair_with_others">Pair with others</string>
     <string name="general_id">Id</string>
