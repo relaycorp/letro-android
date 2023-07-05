@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,9 +49,9 @@ import tech.relaycorp.letro.Route
 import tech.relaycorp.letro.getRouteByName
 import tech.relaycorp.letro.ui.SplashScreen
 import tech.relaycorp.letro.ui.onboarding.accountCreation.AccountCreationRoute
-import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreen
+import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingRoute
 import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
-import tech.relaycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledScreen
+import tech.relaycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledRoute
 import tech.relaycorp.letro.ui.onboarding.pair.PairWithPeopleRoute
 import tech.relaycorp.letro.ui.onboarding.useExistingAccount.UseExistingAccountRoute
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
@@ -83,16 +84,14 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(mainViewModel) {
                 mainViewModel.firstNavigationUIModelFlow.collect { firstNavigation ->
                     when (firstNavigation) {
-                        FirstNavigationUIModel.AccountCreation -> navController.navigate(Route.AccountCreation.name) {
-                            popUpTo(Route.Splash.name) {
-                                inclusive = true
-                            }
+                        FirstNavigationUIModel.AccountCreation -> {
+                            navController.popBackStack()
+                            navController.navigate(Route.AccountCreation.name)
                         }
 
-                        FirstNavigationUIModel.NoGateway -> navController.navigate(Route.GatewayNotInstalled.name) {
-                            popUpTo(Route.Splash.name) {
-                                inclusive = true
-                            }
+                        FirstNavigationUIModel.NoGateway -> {
+                            navController.popBackStack()
+                            navController.navigate(Route.GatewayNotInstalled.name)
                         }
 
                         else -> {}
@@ -147,7 +146,7 @@ fun LetroNavHostContainer(
         modifier = Modifier.padding(paddingValues),
     ) {
         composable(Route.AccountConfirmation.name) {
-            ActionTakingScreen(
+            ActionTakingRoute(
                 ActionTakingScreenUIStateModel.AccountConfirmation(
                     onPairWithPeople = {
                         navController.navigate(Route.PairWithPeople.name)
@@ -173,7 +172,7 @@ fun LetroNavHostContainer(
             )
         }
         composable(Route.GatewayNotInstalled.name) {
-            GatewayNotInstalledScreen(
+            GatewayNotInstalledRoute(
                 onNavigateToGooglePlay = onNavigateToGooglePlay,
             )
         }
@@ -188,7 +187,7 @@ fun LetroNavHostContainer(
             )
         }
         composable(Route.PairingRequestSent.name) {
-            ActionTakingScreen(
+            ActionTakingRoute(
                 ActionTakingScreenUIStateModel.PairingRequestSent(
                     onGotItClicked = {
                         // TODO Add going to messages
@@ -210,7 +209,7 @@ fun LetroNavHostContainer(
             )
         }
         composable(Route.WaitingForAccountCreation.name) {
-            ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
+            ActionTakingRoute(ActionTakingScreenUIStateModel.Waiting)
         }
     }
 }
@@ -232,7 +231,7 @@ fun LetroTopBar(
             TopAppBar(
                 modifier = modifier,
                 title = {
-                    if (currentRoute.showAccountName) {
+                    if (currentRoute.showAccountNameAndActions) {
                         Row(
                             modifier = Modifier
                                 .clickable { onChangeAccountClicked() }
@@ -254,18 +253,36 @@ fun LetroTopBar(
                                 contentDescription = stringResource(id = R.string.top_bar_change_account),
                             )
                         }
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onSettingsClicked) {
-                        Icon(
-                            painterResource(id = R.drawable.arrow_down), // TODO Change to settings icon
-                            contentDescription = stringResource(id = R.string.top_bar_settings),
+                    } else {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(id = R.string.app_name),
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            color = if (currentRoute.isTopBarContainerColorPrimary) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
                         )
                     }
                 },
+                actions = {
+                    if (currentRoute.showAccountNameAndActions) {
+                        IconButton(onClick = onSettingsClicked) {
+                            Icon(
+                                painterResource(id = R.drawable.settings),
+                                contentDescription = stringResource(id = R.string.top_bar_settings),
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = if (currentRoute.isTopBarContainerColorPrimary) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
                 ),
             )
             if (currentRoute.showTabs) {

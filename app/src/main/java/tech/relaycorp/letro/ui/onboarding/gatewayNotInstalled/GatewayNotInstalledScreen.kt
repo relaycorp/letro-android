@@ -9,19 +9,40 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.custom.LetroButton
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
+import tech.relaycorp.letro.utility.rememberLifecycleEvent
 
 @Composable
-fun GatewayNotInstalledScreen(
+fun GatewayNotInstalledRoute(
+    onNavigateToGooglePlay: () -> Unit,
+    viewModel: GatewayNotInstalledViewModel = hiltViewModel(),
+) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    LaunchedEffect(lifecycleEvent) {
+        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+            viewModel.onScreenResumed()
+        }
+    }
+
+    GatewayNotInstalledScreen(
+        onNavigateToGooglePlay = onNavigateToGooglePlay,
+    )
+}
+
+@Composable
+private fun GatewayNotInstalledScreen(
     onNavigateToGooglePlay: () -> Unit,
 ) {
     Column(
@@ -55,7 +76,7 @@ fun GatewayNotInstalledScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun GatewayNotInstalledPreview() {
+private fun GatewayNotInstalledPreview() {
     LetroTheme {
         GatewayNotInstalledScreen {}
     }

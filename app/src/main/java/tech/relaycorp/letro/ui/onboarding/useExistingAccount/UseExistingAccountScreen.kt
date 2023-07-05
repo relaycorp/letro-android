@@ -50,7 +50,7 @@ fun UseExistingAccountRoute(
 }
 
 @Composable
-fun UseExistingAccountScreen(
+private fun UseExistingAccountScreen(
     navigateBack: () -> Unit,
     domain: String,
     onDomainInput: (String) -> Unit,
@@ -106,7 +106,7 @@ fun UseExistingAccountScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun UseExistingAccountPreview() {
+private fun UseExistingAccountPreview() {
     LetroTheme {
         UseExistingAccountScreen(
             navigateBack = {},

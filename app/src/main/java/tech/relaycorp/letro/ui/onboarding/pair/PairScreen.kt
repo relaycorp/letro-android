@@ -50,7 +50,7 @@ fun PairWithPeopleRoute(
 }
 
 @Composable
-fun PairWithPeopleScreen(
+private fun PairWithPeopleScreen(
     navigateBack: () -> Unit,
     id: String,
     onIdInput: (String) -> Unit,
@@ -106,7 +106,7 @@ fun PairWithPeopleScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun UseExistingAccountPreview() {
+private fun UseExistingAccountPreview() {
     LetroTheme {
         PairWithPeopleScreen(
             navigateBack = {},

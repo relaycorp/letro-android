@@ -22,7 +22,14 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
 
 @Composable
-fun ActionTakingScreen(
+fun ActionTakingRoute(
+    actionTakingScreenUIStateModel: ActionTakingScreenUIStateModel,
+) {
+    ActionTakingScreen(actionTakingScreenUIStateModel = actionTakingScreenUIStateModel)
+}
+
+@Composable
+private fun ActionTakingScreen(
     actionTakingScreenUIStateModel: ActionTakingScreenUIStateModel,
 ) {
     Column(
@@ -68,7 +75,7 @@ fun ActionTakingScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun WaitingScreenPreview() {
+private fun WaitingScreenPreview() {
     LetroTheme {
         ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
     }
@@ -76,7 +83,7 @@ fun WaitingScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun AccountConfirmationScreenPreview() {
+private fun AccountConfirmationScreenPreview() {
     LetroTheme {
         ActionTakingScreen(ActionTakingScreenUIStateModel.AccountConfirmation({}, {}))
     }
@@ -84,7 +91,7 @@ fun AccountConfirmationScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun PairingRequestSentScreenPreview() {
+private fun PairingRequestSentScreenPreview() {
     LetroTheme {
         ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent {})
     }
