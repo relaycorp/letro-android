@@ -7,10 +7,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.repository.GatewayRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class AccountCreationViewModel @Inject constructor() : ViewModel() {
+class AccountCreationViewModel @Inject constructor(
+    private val gatewayRepository: GatewayRepository,
+) : ViewModel() {
 
     private val _accountCreationUIState: MutableStateFlow<AccountCreationUIState> =
         MutableStateFlow(AccountCreationUIState())
@@ -20,5 +23,9 @@ class AccountCreationViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _accountCreationUIState.update { it.copy(username = username) }
         }
+    }
+
+    fun onScreenResumed() {
+        gatewayRepository.checkIfGatewayIsAvailable()
     }
 }

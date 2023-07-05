@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.custom.ButtonType
 import tech.relaycorp.letro.ui.custom.HyperlinkText
@@ -38,6 +40,7 @@ import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LargePadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
+import tech.relaycorp.letro.utility.rememberLifecycleEvent
 
 @Composable
 fun AccountCreationRoute(
@@ -46,6 +49,13 @@ fun AccountCreationRoute(
     viewModel: AccountCreationViewModel = hiltViewModel(),
 ) {
     val accountCreationUIState by viewModel.accountCreationUIState.collectAsState()
+
+    val lifecycleEvent = rememberLifecycleEvent()
+    LaunchedEffect(lifecycleEvent) {
+        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+            viewModel.onScreenResumed()
+        }
+    }
 
     AccountCreationScreen(
         accountCreationUIState = accountCreationUIState,
@@ -56,7 +66,7 @@ fun AccountCreationRoute(
 }
 
 @Composable
-fun AccountCreationScreen(
+private fun AccountCreationScreen(
     accountCreationUIState: AccountCreationUIState,
     onCreateAccount: () -> Unit,
     onUseExistingAccount: () -> Unit,
@@ -149,7 +159,7 @@ fun AccountCreationScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun AccountCreationPreview() {
+private fun AccountCreationPreview() {
     LetroTheme {
         AccountCreationScreen(AccountCreationUIState(), {}, {}, {})
     }

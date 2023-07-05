@@ -4,7 +4,8 @@ sealed class Route(
     val name: String,
     val showStatusBar: Boolean = true,
     val showTopBar: Boolean = true,
-    val showAccountName: Boolean = true,
+    val isTopBarContainerColorPrimary: Boolean = true,
+    val showAccountNameAndActions: Boolean = true,
     val showTabs: Boolean = true,
 ) {
 
@@ -15,15 +16,19 @@ sealed class Route(
 
     object AccountCreation : Route(
         name = "accountCreation",
+        showStatusBar = false,
+        showTopBar = false,
         showTabs = false,
     )
 
     object Contacts : Route(name = "contacts")
+
     object GatewayNotInstalled : Route(
         name = "gatewayNotInstalled",
         showStatusBar = false,
-        showTopBar = false, // TODO Maybe should be true
-        showAccountName = false,
+        showTopBar = true,
+        isTopBarContainerColorPrimary = false,
+        showAccountNameAndActions = false,
         showTabs = false,
     )
 
@@ -43,13 +48,13 @@ sealed class Route(
         name = "splash",
         showStatusBar = false,
         showTopBar = false,
-        showAccountName = false,
+        showAccountNameAndActions = false,
         showTabs = false,
     )
 
     object UseExistingAccount : Route(
         name = "useExistingAccount",
-        showAccountName = false,
+        showAccountNameAndActions = false,
         showTabs = false,
     )
 
@@ -57,7 +62,7 @@ sealed class Route(
         name = "waitingForAccountCreation",
         showStatusBar = true,
         showTopBar = true,
-        showAccountName = true,
+        showAccountNameAndActions = true,
         showTabs = false,
     )
 }

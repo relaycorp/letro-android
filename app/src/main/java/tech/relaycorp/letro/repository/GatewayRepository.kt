@@ -14,7 +14,6 @@ import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Still not sure should this be called a Repository, Service or Manager but maybe it will be more clear down the line
 @Singleton
 class GatewayRepository @Inject constructor(@ApplicationContext var context: Context) {
 
@@ -25,6 +24,10 @@ class GatewayRepository @Inject constructor(@ApplicationContext var context: Con
     private val gatewayScope = CoroutineScope(Dispatchers.IO)
 
     init {
+        checkIfGatewayIsAvailable()
+    }
+
+    fun checkIfGatewayIsAvailable() {
         gatewayScope.launch {
             Awala.setUp(context)
             try {

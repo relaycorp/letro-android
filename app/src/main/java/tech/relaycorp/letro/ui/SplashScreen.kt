@@ -26,7 +26,7 @@ fun SplashScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun SplashPreview() {
+private fun SplashPreview() {
     LetroTheme {
         SplashScreen()
     }
