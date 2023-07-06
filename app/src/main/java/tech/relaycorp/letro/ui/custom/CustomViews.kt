@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,6 +41,7 @@ fun LetroButton(
     modifier: Modifier = Modifier,
     buttonType: ButtonType = ButtonType.Filled,
     enabled: Boolean = true,
+    leadingIconResId: Int? = null,
     onClick: () -> Unit,
 ) {
     Button(
@@ -67,6 +70,12 @@ fun LetroButton(
         },
         onClick = onClick,
     ) {
+        if (leadingIconResId != null) {
+            Icon(
+                painter = painterResource(id = leadingIconResId),
+                contentDescription = null,
+            )
+        }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
