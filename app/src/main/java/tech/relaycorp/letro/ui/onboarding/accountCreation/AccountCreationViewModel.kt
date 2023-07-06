@@ -1,12 +1,10 @@
 package tech.relaycorp.letro.ui.onboarding.accountCreation
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import tech.relaycorp.letro.repository.GatewayRepository
 import javax.inject.Inject
 
@@ -20,9 +18,7 @@ class AccountCreationViewModel @Inject constructor(
     val accountCreationUIState: StateFlow<AccountCreationUIState> get() = _accountCreationUIState
 
     fun onUsernameChanged(username: String) {
-        viewModelScope.launch {
-            _accountCreationUIState.update { it.copy(username = username) }
-        }
+        _accountCreationUIState.update { it.copy(username = username) }
     }
 
     fun onScreenResumed() {

@@ -14,10 +14,10 @@ class UserRepository @Inject constructor() {
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
-    val _allUsersDataFlow: MutableStateFlow<List<UserDataModel>> = MutableStateFlow(emptyList())
+    private val _allUsersDataFlow: MutableStateFlow<List<UserDataModel>> = MutableStateFlow(emptyList())
     val allUsersDataFlow: StateFlow<List<UserDataModel>> get() = _allUsersDataFlow
 
-    val _currentUserDataFlow: MutableStateFlow<UserDataModel?> = MutableStateFlow(null)
+    private val _currentUserDataFlow: MutableStateFlow<UserDataModel?> = MutableStateFlow(null)
     val currentUserDataFlow: StateFlow<UserDataModel?> get() = _currentUserDataFlow
 
     init {

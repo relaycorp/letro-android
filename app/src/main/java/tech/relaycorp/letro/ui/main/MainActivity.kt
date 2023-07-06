@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,9 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.Route
 import tech.relaycorp.letro.getRouteByName
 import tech.relaycorp.letro.ui.SplashScreen
+import tech.relaycorp.letro.ui.conversations.ConversationsRoute
+import tech.relaycorp.letro.ui.conversations.messages.MessagesRoute
+import tech.relaycorp.letro.ui.conversations.newMessage.NewMessageRoute
 import tech.relaycorp.letro.ui.onboarding.accountCreation.AccountCreationRoute
 import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingRoute
 import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
@@ -110,7 +114,10 @@ class MainActivity : ComponentActivity() {
                             onSettingsClicked = { /*TODO*/ },
                             tabIndex = tabIndex,
                             updateTabIndex = { tabIndex = it },
-                            navigateToHomeScreen = { /*TODO*/ },
+                            navigateToHomeScreen = { route ->
+                                navController.popBackStack()
+                                navController.navigate(route.name)
+                            },
                             currentRoute = currentRoute,
                         )
                     },
@@ -127,6 +134,27 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                         )
+                    },
+                    floatingActionButton = {
+//                        if (currentRoute == Route.Messages) {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.navigate(Route.NewMessage.name)
+                            },
+                            modifier = Modifier.padding(
+                                bottom = VerticalScreenPadding,
+                                end = HorizontalScreenPadding,
+                            ),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.pencil),
+                                contentDescription = stringResource(
+                                    id = R.string.general_start_conversation,
+                                ),
+                            )
+                        }
+//                        }
                     },
                 )
             }
@@ -152,7 +180,9 @@ fun LetroNavHostContainer(
                         navController.navigate(Route.PairWithPeople.name)
                     },
                     onShareId = {
-                        // TODO Add going to messages
+                        // TODO Replace with sharing id functionality
+                        navController.popBackStack()
+                        navController.navigate(Route.Conversations.name)
                     },
                 ),
             )
@@ -171,10 +201,28 @@ fun LetroNavHostContainer(
                 },
             )
         }
+        composable(Route.Conversations.name) {
+            ConversationsRoute(onChangeConversationsTypeClicked = { /*TODO*/ })
+        }
         composable(Route.GatewayNotInstalled.name) {
             GatewayNotInstalledRoute(
                 onNavigateToGooglePlay = onNavigateToGooglePlay,
             )
+        }
+        composable(Route.Messages.name) {
+            MessagesRoute(
+                onBackClicked = {
+                    navController.popBackStack()
+                },
+                onReplyClicked = {
+                    navController.navigate(Route.NewMessage.name)
+                },
+            )
+        }
+        composable(Route.NewMessage.name) {
+            NewMessageRoute(onBackClicked = {
+                navController.popBackStack()
+            })
         }
         composable(Route.PairWithPeople.name) {
             PairWithPeopleRoute(
@@ -190,7 +238,8 @@ fun LetroNavHostContainer(
             ActionTakingRoute(
                 ActionTakingScreenUIStateModel.PairingRequestSent(
                     onGotItClicked = {
-                        // TODO Add going to messages
+                        navController.popBackStack()
+                        navController.navigate(Route.Conversations.name)
                     },
                 ),
             )
@@ -273,6 +322,7 @@ fun LetroTopBar(
                             Icon(
                                 painterResource(id = R.drawable.settings),
                                 contentDescription = stringResource(id = R.string.top_bar_settings),
+                                tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
                     }
@@ -307,7 +357,7 @@ fun LetroTabs(
     navigateToHomeScreen: (Route) -> Unit,
 ) {
     val tabTitles = listOf(
-        stringResource(id = R.string.top_bar_tab_messages),
+        stringResource(id = R.string.top_bar_tab_conversations),
         stringResource(id = R.string.top_bar_tab_contacts),
         stringResource(id = R.string.top_bar_tab_notifications),
     )
@@ -322,7 +372,7 @@ fun LetroTabs(
                 onClick = {
                     updateTabIndex(index)
                     when (index) {
-                        TAB_MESSAGES -> navigateToHomeScreen(Route.Messages)
+                        TAB_MESSAGES -> navigateToHomeScreen(Route.Conversations)
                         TAB_CONTACTS -> navigateToHomeScreen(Route.Contacts)
                         TAB_NOTIFICATIONS -> navigateToHomeScreen(Route.Notifications)
                     }
