@@ -1,7 +1,8 @@
-package tech.relaycorp.letro
+package tech.relaycorp.letro.ui.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import tech.relaycorp.letro.R
 
 sealed class Route(
     val name: String,
@@ -42,7 +43,7 @@ sealed class Route(
             iconResource = R.drawable.pencil,
             contentDescriptionResource = R.string.general_start_conversation,
             routeToNavigateTo = NewMessage,
-        )
+        ),
     )
 
     object Messages : Route(name = "messages")
