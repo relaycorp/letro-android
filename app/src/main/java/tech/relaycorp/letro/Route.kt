@@ -1,5 +1,8 @@
 package tech.relaycorp.letro
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+
 sealed class Route(
     val name: String,
     val showStatusBar: Boolean = true,
@@ -7,6 +10,7 @@ sealed class Route(
     val isTopBarContainerColorPrimary: Boolean = true,
     val showAccountNameAndActions: Boolean = true,
     val showTabs: Boolean = true,
+    val floatingActionButtonFeatures: FloatingActionButtonFeatures? = null,
 ) {
 
     object AccountConfirmation : Route(
@@ -32,13 +36,24 @@ sealed class Route(
         showTabs = false,
     )
 
-    object Conversations : Route(name = "conversations")
+    object Conversations : Route(
+        name = "conversations",
+        floatingActionButtonFeatures = FloatingActionButtonFeatures(
+            iconResource = R.drawable.pencil,
+            contentDescriptionResource = R.string.general_start_conversation,
+            routeToNavigateTo = NewMessage,
+        )
+    )
+
     object Messages : Route(name = "messages")
+
     object NewMessage : Route(
         name = "newMessage",
         showTabs = false,
     )
+
     object Notifications : Route(name = "notifications")
+
     object PairWithPeople : Route(
         name = "pairWithPeople",
         showTabs = false,
@@ -71,6 +86,12 @@ sealed class Route(
         showTabs = false,
     )
 }
+
+data class FloatingActionButtonFeatures(
+    @DrawableRes val iconResource: Int,
+    @StringRes val contentDescriptionResource: Int,
+    val routeToNavigateTo: Route,
+)
 
 fun String?.getRouteByName(): Route {
     this?.let {

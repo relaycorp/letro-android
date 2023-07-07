@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,6 +63,7 @@ import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
+import tech.relaycorp.letro.utility.navigateWithPoppingAllBackStack
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -89,13 +91,11 @@ class MainActivity : ComponentActivity() {
                 mainViewModel.firstNavigationUIModelFlow.collect { firstNavigation ->
                     when (firstNavigation) {
                         FirstNavigationUIModel.AccountCreation -> {
-                            navController.popBackStack()
-                            navController.navigate(Route.AccountCreation.name)
+                            navController.navigateWithPoppingAllBackStack(Route.AccountCreation)
                         }
 
                         FirstNavigationUIModel.NoGateway -> {
-                            navController.popBackStack()
-                            navController.navigate(Route.GatewayNotInstalled.name)
+                            navController.navigateWithPoppingAllBackStack(Route.GatewayNotInstalled)
                         }
 
                         else -> {}
@@ -115,8 +115,7 @@ class MainActivity : ComponentActivity() {
                             tabIndex = tabIndex,
                             updateTabIndex = { tabIndex = it },
                             navigateToHomeScreen = { route ->
-                                navController.popBackStack()
-                                navController.navigate(route.name)
+                                navController.navigateWithPoppingAllBackStack(route)
                             },
                             currentRoute = currentRoute,
                         )
@@ -136,25 +135,25 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     floatingActionButton = {
-//                        if (currentRoute == Route.Messages) {
-                        FloatingActionButton(
-                            onClick = {
-                                navController.navigate(Route.NewMessage.name)
-                            },
-                            modifier = Modifier.padding(
-                                bottom = VerticalScreenPadding,
-                                end = HorizontalScreenPadding,
-                            ),
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pencil),
-                                contentDescription = stringResource(
-                                    id = R.string.general_start_conversation,
+                        currentRoute.floatingActionButtonFeatures?.let { features ->
+                            FloatingActionButton(
+                                onClick = {
+                                    navController.navigate(features.routeToNavigateTo.name)
+                                },
+                                modifier = Modifier.padding(
+                                    bottom = VerticalScreenPadding,
+                                    end = HorizontalScreenPadding,
                                 ),
-                            )
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = features.iconResource),
+                                    contentDescription = stringResource(
+                                        id = features.contentDescriptionResource,
+                                    ),
+                                )
+                            }
                         }
-//                        }
                     },
                 )
             }
@@ -181,8 +180,7 @@ fun LetroNavHostContainer(
                     },
                     onShareId = {
                         // TODO Replace with sharing id functionality
-                        navController.popBackStack()
-                        navController.navigate(Route.Conversations.name)
+                        navController.navigateWithPoppingAllBackStack(Route.Conversations)
                     },
                 ),
             )
@@ -238,8 +236,7 @@ fun LetroNavHostContainer(
             ActionTakingRoute(
                 ActionTakingScreenUIStateModel.PairingRequestSent(
                     onGotItClicked = {
-                        navController.popBackStack()
-                        navController.navigate(Route.Conversations.name)
+                        navController.navigateWithPoppingAllBackStack(Route.Conversations)
                     },
                 ),
             )
