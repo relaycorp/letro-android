@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -15,6 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +48,7 @@ fun LetroButton(
     onClick: () -> Unit,
 ) {
     Button(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         shape = CircleShape,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
@@ -75,12 +78,32 @@ fun LetroButton(
                 painter = painterResource(id = leadingIconResId),
                 contentDescription = null,
             )
+            Spacer(modifier = Modifier.width(ItemPadding))
         }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
         )
     }
+}
+
+@Composable
+fun LetroButtonMaxWidthFilled(
+    text: String,
+    modifier: Modifier = Modifier,
+    buttonType: ButtonType = ButtonType.Filled,
+    enabled: Boolean = true,
+    leadingIconResId: Int? = null,
+    onClick: () -> Unit,
+) {
+    LetroButton(
+        text = text,
+        modifier = modifier.fillMaxWidth(),
+        buttonType = buttonType,
+        enabled = enabled,
+        leadingIconResId = leadingIconResId,
+        onClick = onClick,
+    )
 }
 
 sealed interface ButtonType {
@@ -90,6 +113,42 @@ sealed interface ButtonType {
 
 @Composable
 fun LetroTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeHolderText: String = "",
+    enabled: Boolean = true,
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+) {
+    TextField(
+        modifier = modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = MaterialTheme.typography.bodyLarge,
+        enabled = enabled,
+        singleLine = singleLine,
+        placeholder = {
+            Text(
+                text = placeHolderText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Grey90,
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+        ),
+        keyboardOptions = keyboardOptions,
+    )
+}
+
+@Composable
+fun LetroOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -190,26 +249,31 @@ fun HyperlinkText(
 fun CustomViewsPreview() {
     LetroTheme {
         Column {
-            LetroButton(text = "Filled Button") {}
+            LetroButtonMaxWidthFilled(text = "Filled Button") {}
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 text = "Outlined Button",
                 buttonType = ButtonType.Outlined,
             ) {}
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 text = "Disabled Button",
                 enabled = false,
             ) {}
             Spacer(modifier = Modifier.height(ItemPadding))
 
-            LetroTextField(value = "some value", onValueChange = {})
+            LetroOutlinedTextField(value = "some value", onValueChange = {})
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroTextField(value = "marian", onValueChange = {}, suffixText = "@guarapo.cafe")
+            LetroOutlinedTextField(value = "marian", onValueChange = {}, suffixText = "@guarapo.cafe")
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroTextField(value = "", onValueChange = {})
+            LetroOutlinedTextField(value = "", onValueChange = {})
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroTextField(value = "", onValueChange = {}, isError = true)
+            LetroOutlinedTextField(value = "", onValueChange = {}, isError = true)
+            Spacer(modifier = Modifier.height(ItemPadding))
+
+            LetroTextField(value = "sender", onValueChange = {}, placeHolderText = "")
+            Spacer(modifier = Modifier.height(ItemPadding))
+            LetroTextField(value = "", onValueChange = {}, placeHolderText = "placeholder")
             Spacer(modifier = Modifier.height(ItemPadding))
 
             HyperlinkText(

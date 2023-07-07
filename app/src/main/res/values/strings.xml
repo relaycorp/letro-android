@@ -15,8 +15,8 @@
 
     <string name="new_message_attach">Attach</string>
     <string name="new_message_send">Send</string>
-    <string name="new_message_from">FROM</string>
-    <string name="new_message_to">TO</string>
+    <string name="new_message_from">From</string>
+    <string name="new_message_to">To</string>
     <string name="new_message_subject_hint">Subject</string>
     <string name="new_message_body_hint">Type your message…</string>
 

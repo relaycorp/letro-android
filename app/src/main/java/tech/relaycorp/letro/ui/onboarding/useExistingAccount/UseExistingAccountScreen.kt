@@ -19,8 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.custom.LetroButton
-import tech.relaycorp.letro.ui.custom.LetroTextField
+import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
+import tech.relaycorp.letro.ui.custom.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
@@ -82,7 +82,7 @@ private fun UseExistingAccountScreen(
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(ItemPadding))
-        LetroTextField(
+        LetroOutlinedTextField(
             value = domain,
             onValueChange = onDomainInput,
         )
@@ -92,12 +92,12 @@ private fun UseExistingAccountScreen(
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(ItemPadding))
-        LetroTextField(
+        LetroOutlinedTextField(
             value = token,
             onValueChange = onTokenInput,
         )
         Spacer(modifier = Modifier.weight(1f))
-        LetroButton(
+        LetroButtonMaxWidthFilled(
             text = stringResource(id = R.string.onboarding_use_existing_account_button),
             onClick = onConfirmClicked,
         )

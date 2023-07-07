@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.ui.custom.ButtonType
-import tech.relaycorp.letro.ui.custom.LetroButton
+import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
@@ -57,14 +57,14 @@ private fun ActionTakingScreen(
             )
         }
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonFilledStringRes),
                 onClick = actionTakingScreenUIStateModel.buttonFilledOnClicked,
             )
         }
         if (actionTakingScreenUIStateModel.buttonOutlinedStringRes != null) {
             Spacer(modifier = Modifier.height(VerticalScreenPadding))
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 buttonType = ButtonType.Outlined,
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonOutlinedStringRes),
                 onClick = actionTakingScreenUIStateModel.buttonOutlinedOnClicked,

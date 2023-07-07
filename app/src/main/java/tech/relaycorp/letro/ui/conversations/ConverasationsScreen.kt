@@ -82,7 +82,10 @@ private fun ConversationsScreen(
                             vertical = ItemPadding,
                         ),
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
                             text = conversation.contact + conversation.numberOfMessages,
                             style = MaterialTheme.typography.bodyLarge,
@@ -95,7 +98,10 @@ private fun ConversationsScreen(
                             textAlign = TextAlign.End,
                         )
                     }
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
                             text = conversation.subject,
                             style = MaterialTheme.typography.bodyMedium,

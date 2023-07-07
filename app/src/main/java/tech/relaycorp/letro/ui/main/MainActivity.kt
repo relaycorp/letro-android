@@ -8,12 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -34,34 +34,26 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.Route
-import tech.relaycorp.letro.getRouteByName
-import tech.relaycorp.letro.ui.SplashScreen
-import tech.relaycorp.letro.ui.conversations.ConversationsRoute
-import tech.relaycorp.letro.ui.conversations.messages.MessagesRoute
-import tech.relaycorp.letro.ui.conversations.newMessage.NewMessageRoute
-import tech.relaycorp.letro.ui.onboarding.accountCreation.AccountCreationRoute
-import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingRoute
-import tech.relaycorp.letro.ui.onboarding.actionTaking.ActionTakingScreenUIStateModel
-import tech.relaycorp.letro.ui.onboarding.gatewayNotInstalled.GatewayNotInstalledRoute
-import tech.relaycorp.letro.ui.onboarding.pair.PairWithPeopleRoute
-import tech.relaycorp.letro.ui.onboarding.useExistingAccount.UseExistingAccountRoute
+import tech.relaycorp.letro.ui.navigation.LetroNavHostContainer
+import tech.relaycorp.letro.ui.navigation.Route
+import tech.relaycorp.letro.ui.navigation.getRouteByName
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
+import tech.relaycorp.letro.utility.navigateWithPoppingAllBackStack
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -89,13 +81,11 @@ class MainActivity : ComponentActivity() {
                 mainViewModel.firstNavigationUIModelFlow.collect { firstNavigation ->
                     when (firstNavigation) {
                         FirstNavigationUIModel.AccountCreation -> {
-                            navController.popBackStack()
-                            navController.navigate(Route.AccountCreation.name)
+                            navController.navigateWithPoppingAllBackStack(Route.AccountCreation)
                         }
 
                         FirstNavigationUIModel.NoGateway -> {
-                            navController.popBackStack()
-                            navController.navigate(Route.GatewayNotInstalled.name)
+                            navController.navigateWithPoppingAllBackStack(Route.GatewayNotInstalled)
                         }
 
                         else -> {}
@@ -104,58 +94,22 @@ class MainActivity : ComponentActivity() {
             }
 
             LetroTheme {
-                systemUiController.isStatusBarVisible = currentRoute.showStatusBar
-
-                Scaffold(
-                    topBar = {
-                        LetroTopBar(
-                            accountUsername = accountUsername,
-                            onChangeAccountClicked = { /*TODO*/ },
-                            onSettingsClicked = { /*TODO*/ },
-                            tabIndex = tabIndex,
-                            updateTabIndex = { tabIndex = it },
-                            navigateToHomeScreen = { route ->
-                                navController.popBackStack()
-                                navController.navigate(route.name)
-                            },
-                            currentRoute = currentRoute,
-                        )
-                    },
-                    content = {
-                        LetroNavHostContainer(
-                            navController = navController,
-                            paddingValues = it,
-                            onNavigateToGooglePlay = {
-                                startActivity(
-                                    Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(awalaGatewayAppLink),
-                                    ),
-                                )
-                            },
-                        )
-                    },
-                    floatingActionButton = {
-//                        if (currentRoute == Route.Messages) {
-                        FloatingActionButton(
-                            onClick = {
-                                navController.navigate(Route.NewMessage.name)
-                            },
-                            modifier = Modifier.padding(
-                                bottom = VerticalScreenPadding,
-                                end = HorizontalScreenPadding,
+                MainScreen(
+                    systemUiController = systemUiController,
+                    navController = navController,
+                    currentRoute = currentRoute,
+                    accountUsername = accountUsername,
+                    tabIndex = tabIndex,
+                    onTabIndexChanged = { tabIndex = it },
+                    onNavigateToGooglePlay = {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(awalaGatewayAppLink),
                             ),
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pencil),
-                                contentDescription = stringResource(
-                                    id = R.string.general_start_conversation,
-                                ),
-                            )
-                        }
-//                        }
+                        )
                     },
+
                 )
             }
         }
@@ -163,109 +117,66 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LetroNavHostContainer(
+fun MainScreen(
+    systemUiController: SystemUiController,
     navController: NavHostController,
+    currentRoute: Route,
+    accountUsername: String,
+    tabIndex: Int,
+    onTabIndexChanged: (Int) -> Unit,
     onNavigateToGooglePlay: () -> Unit,
-    paddingValues: PaddingValues,
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Route.Splash.name,
-        modifier = Modifier.padding(paddingValues),
-    ) {
-        composable(Route.AccountConfirmation.name) {
-            ActionTakingRoute(
-                ActionTakingScreenUIStateModel.AccountConfirmation(
-                    onPairWithPeople = {
-                        navController.navigate(Route.PairWithPeople.name)
-                    },
-                    onShareId = {
-                        // TODO Replace with sharing id functionality
-                        navController.popBackStack()
-                        navController.navigate(Route.Conversations.name)
-                    },
-                ),
-            )
-        }
-        composable(Route.AccountCreation.name) {
-            AccountCreationRoute(
-                onCreateAccount = {
-                    navController.navigate(
-                        Route.WaitingForAccountCreation.name,
-                    ) // TODO Change to correct functionality
+    systemUiController.isStatusBarVisible = currentRoute.showStatusBar
+
+    Scaffold(
+        topBar = {
+            LetroTopBar(
+                accountUsername = accountUsername,
+                onChangeAccountClicked = { /*TODO*/ },
+                onSettingsClicked = { /*TODO*/ },
+                tabIndex = tabIndex,
+                updateTabIndex = onTabIndexChanged,
+                navigateToHomeScreen = { route ->
+                    navController.navigateWithPoppingAllBackStack(route)
                 },
-                onUseExistingAccount = {
-                    navController.navigate(
-                        Route.UseExistingAccount.name,
-                    ) // TODO Change to correct functionality
-                },
+                currentRoute = currentRoute,
             )
-        }
-        composable(Route.Conversations.name) {
-            ConversationsRoute(onChangeConversationsTypeClicked = { /*TODO*/ })
-        }
-        composable(Route.GatewayNotInstalled.name) {
-            GatewayNotInstalledRoute(
+        },
+        content = {
+            LetroNavHostContainer(
+                navController = navController,
+                paddingValues = it,
                 onNavigateToGooglePlay = onNavigateToGooglePlay,
             )
-        }
-        composable(Route.Messages.name) {
-            MessagesRoute(
-                onBackClicked = {
-                    navController.popBackStack()
-                },
-                onReplyClicked = {
-                    navController.navigate(Route.NewMessage.name)
-                },
-            )
-        }
-        composable(Route.NewMessage.name) {
-            NewMessageRoute(onBackClicked = {
-                navController.popBackStack()
-            })
-        }
-        composable(Route.PairWithPeople.name) {
-            PairWithPeopleRoute(
-                navigateBack = {
-                    navController.popBackStack()
-                },
-                navigateToPairingRequestSentScreen = {
-                    navController.navigate(Route.PairingRequestSent.name)
-                },
-            )
-        }
-        composable(Route.PairingRequestSent.name) {
-            ActionTakingRoute(
-                ActionTakingScreenUIStateModel.PairingRequestSent(
-                    onGotItClicked = {
-                        navController.popBackStack()
-                        navController.navigate(Route.Conversations.name)
+        },
+        floatingActionButton = {
+            currentRoute.floatingActionButtonFeatures?.let { features ->
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(features.routeToNavigateTo.name)
                     },
-                ),
-            )
-        }
-        composable(Route.Splash.name) {
-            SplashScreen()
-        }
-        composable(Route.UseExistingAccount.name) {
-            UseExistingAccountRoute(
-                navigateBack = {
-                    navController.popBackStack()
-                },
-                navigateToAccountConfirmationScreen = {
-                    navController.navigate(Route.AccountConfirmation.name)
-                },
-            )
-        }
-        composable(Route.WaitingForAccountCreation.name) {
-            ActionTakingRoute(ActionTakingScreenUIStateModel.Waiting)
-        }
-    }
+                    modifier = Modifier.padding(
+                        bottom = VerticalScreenPadding,
+                        end = HorizontalScreenPadding,
+                    ),
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                ) {
+                    Icon(
+                        painter = painterResource(id = features.iconResource),
+                        contentDescription = stringResource(
+                            id = features.contentDescriptionResource,
+                        ),
+                    )
+                }
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LetroTopBar(
+private fun LetroTopBar(
     accountUsername: String,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
@@ -288,6 +199,7 @@ fun LetroTopBar(
                                     horizontal = HorizontalScreenPadding,
                                     vertical = VerticalScreenPadding,
                                 ),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 text = accountUsername,
@@ -351,7 +263,7 @@ private const val TAB_CONTACTS = 1
 private const val TAB_NOTIFICATIONS = 2
 
 @Composable
-fun LetroTabs(
+private fun LetroTabs(
     tabIndex: Int,
     updateTabIndex: (Int) -> Unit,
     navigateToHomeScreen: (Route) -> Unit,
@@ -385,5 +297,53 @@ fun LetroTabs(
                 },
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LetroTopBarPreview() {
+    LetroTheme {
+        LetroTopBar(
+            accountUsername = "John Doe",
+            onChangeAccountClicked = {},
+            onSettingsClicked = {},
+            tabIndex = 0,
+            updateTabIndex = {},
+            navigateToHomeScreen = {},
+            currentRoute = Route.Conversations,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LetroTopBarPreviewDark() {
+    LetroTheme(darkTheme = true) {
+        LetroTopBar(
+            accountUsername = "John Doe",
+            onChangeAccountClicked = {},
+            onSettingsClicked = {},
+            tabIndex = 0,
+            updateTabIndex = {},
+            navigateToHomeScreen = {},
+            currentRoute = Route.Conversations,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ConversationsPreview() {
+    LetroTheme {
+        MainScreen(
+            systemUiController = rememberSystemUiController(),
+            navController = rememberNavController(),
+            currentRoute = Route.Conversations,
+            accountUsername = "John Doe",
+            tabIndex = 0,
+            onTabIndexChanged = {},
+            onNavigateToGooglePlay = {},
+        )
     }
 }

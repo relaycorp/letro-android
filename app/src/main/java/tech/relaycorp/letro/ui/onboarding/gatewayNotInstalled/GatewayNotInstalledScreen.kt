@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.custom.LetroButton
+import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.utility.rememberLifecycleEvent
@@ -67,7 +67,7 @@ private fun GatewayNotInstalledScreen(
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(32.dp))
-        LetroButton(
+        LetroButtonMaxWidthFilled(
             text = stringResource(id = R.string.onboarding_install_awala_button),
             onClick = onNavigateToGooglePlay,
         )
