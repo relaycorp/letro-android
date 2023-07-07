@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.MessageDataModel
-import tech.relaycorp.letro.ui.custom.LetroButton
+import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 
@@ -48,14 +49,17 @@ private fun MessagesScreen(
     onReplyClicked: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             IconButton(onClick = onBackClicked) {
                 Icon(
                     painter = painterResource(id = R.drawable.arrow_back),
                     contentDescription = stringResource(id = R.string.general_navigate_back),
                 )
             }
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 modifier = Modifier.fillMaxWidth(0f),
                 leadingIconResId = R.drawable.reply,
                 text = stringResource(id = R.string.messages_reply),
@@ -72,7 +76,10 @@ private fun MessagesScreen(
                             vertical = ItemPadding,
                         ),
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
                             text = message.sender,
                             style = MaterialTheme.typography.bodyLarge,

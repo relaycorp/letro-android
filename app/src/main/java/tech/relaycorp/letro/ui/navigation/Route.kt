@@ -50,7 +50,7 @@ sealed class Route(
 
     object NewMessage : Route(
         name = "newMessage",
-        showTabs = false,
+        showTopBar = false,
     )
 
     object Notifications : Route(name = "notifications")

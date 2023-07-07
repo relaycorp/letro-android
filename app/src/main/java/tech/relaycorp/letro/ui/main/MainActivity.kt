@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -116,7 +117,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MainScreen(
+fun MainScreen(
     systemUiController: SystemUiController,
     navController: NavHostController,
     currentRoute: Route,
@@ -198,6 +199,7 @@ private fun LetroTopBar(
                                     horizontal = HorizontalScreenPadding,
                                     vertical = VerticalScreenPadding,
                                 ),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 text = accountUsername,

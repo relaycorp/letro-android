@@ -31,8 +31,8 @@ import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.custom.ButtonType
 import tech.relaycorp.letro.ui.custom.HyperlinkText
-import tech.relaycorp.letro.ui.custom.LetroButton
-import tech.relaycorp.letro.ui.custom.LetroTextField
+import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
+import tech.relaycorp.letro.ui.custom.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.BoxCornerRadius
 import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
@@ -96,7 +96,7 @@ private fun AccountCreationScreen(
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(ItemPadding))
-            LetroTextField(
+            LetroOutlinedTextField(
                 value = accountCreationUIState.username,
                 onValueChange = onUserUpdatedUsername,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
@@ -117,6 +117,7 @@ private fun AccountCreationScreen(
                         color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(BoxCornerRadius),
                     ),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.info),
@@ -129,7 +130,7 @@ private fun AccountCreationScreen(
                 )
             }
             Spacer(modifier = Modifier.height(VerticalScreenPadding))
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.onboarding_create_account_button),
                 onClick = onCreateAccount,
             )
@@ -149,7 +150,7 @@ private fun AccountCreationScreen(
                 )
             }
             Spacer(modifier = Modifier.height(LargePadding))
-            LetroButton(
+            LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.general_use_existing_account),
                 buttonType = ButtonType.Outlined,
                 onClick = onUseExistingAccount,
