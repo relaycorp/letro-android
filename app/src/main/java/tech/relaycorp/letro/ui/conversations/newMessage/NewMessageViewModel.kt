@@ -6,14 +6,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.ConversationDataModel
-import tech.relaycorp.letro.data.createNewConversation
-import tech.relaycorp.letro.repository.UserRepository
+import tech.relaycorp.letro.data.entity.ConversationDataModel
+import tech.relaycorp.letro.data.entity.createNewConversation
+import tech.relaycorp.letro.repository.AccountRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class NewMessageViewModel @Inject constructor(
-    userRepository: UserRepository,
+    userRepository: AccountRepository,
 // TODO add    conversationRepository: ConversationRepository,
 ) : ViewModel() {
 

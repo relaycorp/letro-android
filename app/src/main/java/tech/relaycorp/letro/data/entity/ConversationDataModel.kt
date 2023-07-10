@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.data
+package tech.relaycorp.letro.data.entity
 
 data class ConversationDataModel(
     val id: String,

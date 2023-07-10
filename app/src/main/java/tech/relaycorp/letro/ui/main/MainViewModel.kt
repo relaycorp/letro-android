@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
 import tech.relaycorp.letro.repository.GatewayRepository
-import tech.relaycorp.letro.repository.UserRepository
+import tech.relaycorp.letro.repository.AccountRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     gatewayRepository: GatewayRepository,
-    userRepository: UserRepository,
+    userRepository: AccountRepository,
 ) : ViewModel() {
 
     private val _firstNavigationUIModelFlow: MutableStateFlow<FirstNavigationUIModel> =
