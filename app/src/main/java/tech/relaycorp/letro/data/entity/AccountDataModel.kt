@@ -8,6 +8,7 @@ const val ACCOUNT_TABLE_NAME = "account"
 @Entity(tableName = ACCOUNT_TABLE_NAME)
 data class AccountDataModel(
     @PrimaryKey
+    val id: Long,
     val address: String,
-    val connections: List<String> = emptyList(),
+//    val contacts: List<String> = emptyList(), // TODO Add Contact entity here
 )

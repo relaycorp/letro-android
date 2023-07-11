@@ -26,8 +26,11 @@ interface AccountDao {
     @Delete
     suspend fun delete(entity: AccountDataModel): Int
 
-    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE nodeId=:nodeId")
-    suspend fun getByNodeId(nodeId: String): AccountDataModel
+    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE address=:address")
+    suspend fun getByAddress(address: String): AccountDataModel
+
+    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE id=:id")
+    suspend fun getById(id: Long): AccountDataModel
 
     @Transaction
     @Query("SELECT * FROM $ACCOUNT_TABLE_NAME")

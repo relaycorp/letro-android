@@ -3,6 +3,7 @@ package tech.relaycorp.letro.repository
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,30 +20,43 @@ class PreferencesDataStoreRepository @Inject constructor(@ApplicationContext val
 
     private val preferencesDataStore: DataStore<Preferences> = context.dataStore
 
-    private val serverFirstPartyEndpointKey = stringPreferencesKey("firstPartyEndpointId")
-    private val serverThirdPartyEndpointKey = stringPreferencesKey("thirdPartyEndpointId")
+    private val serverFirstPartyEndpointKey = stringPreferencesKey("serverFirstPartyEndpointId")
+    private val serverThirdPartyEndpointKey = stringPreferencesKey("serverThirdPartyEndpointId")
+    private val authorizedReceivingMessagesFromServer = booleanPreferencesKey("authorizedReceivingMessagesFromServer")
 
-    suspend fun saveFirstPartyEndpointNodeId(value: String) {
+    suspend fun saveServerFirstPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
-            preferences[firstPartyEndpointKey] = value
+            preferences[serverFirstPartyEndpointKey] = value
         }
     }
 
-    fun getFirstPartyEndpoint(): Flow<String?> {
+    fun getServerFirstPartyEndpointNodeId(): Flow<String?> {
         return preferencesDataStore.data.map { preferences ->
-            preferences[firstPartyEndpointKey]
+            preferences[serverFirstPartyEndpointKey]
         }
     }
 
-    suspend fun saveThirdPartyEndpointNodeId(value: String) {
+    suspend fun saveServerThirdPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
-            preferences[thirdPartyEndpointKey] = value
+            preferences[serverThirdPartyEndpointKey] = value
         }
     }
 
-    fun getThirdPartyEndpoint(): Flow<String?> {
+    fun getServerThirdPartyEndpointNodeId(): Flow<String?> {
         return preferencesDataStore.data.map { preferences ->
-            preferences[thirdPartyEndpointKey]
+            preferences[serverThirdPartyEndpointKey]
+        }
+    }
+
+    suspend fun saveAuthorizedReceivingMessagesFromServer(value: Boolean) {
+        preferencesDataStore.edit { preferences ->
+            preferences[authorizedReceivingMessagesFromServer] = value
+        }
+    }
+
+    fun getAuthorizedReceivingMessagesFromServer(): Flow<Boolean?> {
+        return preferencesDataStore.data.map { preferences ->
+            preferences[authorizedReceivingMessagesFromServer]
         }
     }
 }

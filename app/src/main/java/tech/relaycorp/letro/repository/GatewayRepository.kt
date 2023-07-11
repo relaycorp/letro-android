@@ -3,6 +3,7 @@ package tech.relaycorp.letro.repository
 import android.content.Context
 import android.content.res.Resources
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,14 @@ import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
+import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
+
+private const val EXPIRY_DAYS = 180L
 
 @Singleton
 class GatewayRepository @Inject constructor(
@@ -32,11 +36,65 @@ class GatewayRepository @Inject constructor(
         MutableStateFlow(GatewayAvailabilityDataModel.Unknown)
     val gatewayAvailabilityDataModel: StateFlow<GatewayAvailabilityDataModel> get() = _gatewayAvailabilityDataModel
 
-    private val _firstPartyEndpointNodeId: Flow<String?> = preferencesDataStoreRepository.getFirstPartyEndpoint()
-    private val _thirdPartyEndpointNodeId: Flow<String?> = preferencesDataStoreRepository.getThirdPartyEndpoint()
+    private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _authorizedReceivingMessagesFromServer: MutableStateFlow<Boolean> =
+        MutableStateFlow(false)
 
     init {
         checkIfGatewayIsAvailable()
+
+        gatewayScope.launch {
+            preferencesDataStoreRepository.getServerFirstPartyEndpointNodeId().collect {
+                if (it != null) {
+                    _serverFirstPartyEndpointNodeId.emit(it)
+                } else {
+                    registerFirstPartyEndpoint()
+                }
+            }
+        }
+
+        gatewayScope.launch {
+            preferencesDataStoreRepository.getServerThirdPartyEndpointNodeId().collect {
+                if (it != null) {
+                    _serverThirdPartyEndpointNodeId.emit(it)
+                } else {
+                    importPublicThirdPartyEndpoint()
+                }
+            }
+        }
+
+        gatewayScope.launch {
+            preferencesDataStoreRepository.getAuthorizedReceivingMessagesFromServer().collect {
+                if (it != null) {
+                    _authorizedReceivingMessagesFromServer.emit(it)
+                } else {
+                    _authorizedReceivingMessagesFromServer.emit(false)
+                }
+            }
+        }
+
+        combine( // TODO: Maybe use something else than combine
+            _gatewayAvailabilityDataModel,
+            _serverFirstPartyEndpointNodeId,
+            _serverThirdPartyEndpointNodeId,
+            _authorizedReceivingMessagesFromServer,
+        ) { gatewayAvailability,
+            firstPartyEndpointNodeId,
+            thirdPartyEndpointNodeId,
+            authorizedReceivingMessagesFromServer ->
+
+            if (!authorizedReceivingMessagesFromServer
+                && gatewayAvailability == GatewayAvailabilityDataModel.Available
+                && firstPartyEndpointNodeId != null
+                && thirdPartyEndpointNodeId != null
+            ) {
+                authoriseReceivingMessagesFromThirdPartyEndpoint(
+                    firstPartyEndpointNodeId,
+                    thirdPartyEndpointNodeId,
+                )
+            }
+        }
     }
 
     fun checkIfGatewayIsAvailable() {
@@ -44,38 +102,58 @@ class GatewayRepository @Inject constructor(
             Awala.setUp(context)
             try {
                 GatewayClient.bind()
+                _gatewayAvailabilityDataModel.emit(GatewayAvailabilityDataModel.Available)
             } catch (exp: GatewayBindingException) {
                 _gatewayAvailabilityDataModel.emit(GatewayAvailabilityDataModel.Unavailable)
-                return@launch
-            } finally {
-                registerFirstPartyEndpointIfNeeded()
-                importThirdPartyEndpointIfNeeded()
-                _gatewayAvailabilityDataModel.emit(GatewayAvailabilityDataModel.Available)
             }
         }
     }
 
-    private suspend fun registerFirstPartyEndpointIfNeeded() {
-        if (_firstPartyEndpointNodeId != null) return
-
+    private suspend fun registerFirstPartyEndpoint() {
         val endpoint = FirstPartyEndpoint.register()
-        preferencesDataStoreRepository.setFirstPartyEndpointAddress(endpoint.nodeId)
+        preferencesDataStoreRepository.saveServerFirstPartyEndpointNodeId(endpoint.nodeId)
     }
 
-    private suspend fun importThirdPartyEndpointIfNeeded() {
-        if (preferencesDataStoreRepository.thirdPartyEndpointAddress() != null) return
-
-        val endpoint = importThirdPartyEndpoint(
+    private suspend fun importPublicThirdPartyEndpoint() {
+        val endpoint = importPublicThirdPartyEndpoint(
             Resources.getSystem().openRawResource(R.raw.server_connection_params).use {
                 it.readBytes()
             }
         )
 
-        preferencesDataStoreRepository.setThirdPartyEndpointAddress(endpoint.nodeId)
+        preferencesDataStoreRepository.saveServerThirdPartyEndpointNodeId(endpoint.nodeId)
+    }
+
+    private suspend fun authoriseReceivingMessagesFromThirdPartyEndpoint(
+        firstPartyEndpointNodeId: String,
+        thirdPartyEndpointNodeId: String,
+    ) {
+        val firstPartyEndpoint = FirstPartyEndpoint.load(firstPartyEndpointNodeId)
+        val thirdPartyEndpoint = PublicThirdPartyEndpoint.load(thirdPartyEndpointNodeId)
+
+        if (firstPartyEndpoint == null || thirdPartyEndpoint == null) {
+            return
+        }
+
+        // Create the Parcel Delivery Authorisation (PDA)
+        val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
+
+        // Send it to the server
+        val authMessage = OutgoingMessage.build(
+            "application/vnd+relaycorp.awala.pda-path",
+            auth,
+            firstPartyEndpoint,
+            thirdPartyEndpoint,
+            ZonedDateTime.now().plusDays(EXPIRY_DAYS),
+        )
+
+        GatewayClient.sendMessage(authMessage)
+
+        preferencesDataStoreRepository.saveAuthorizedReceivingMessagesFromServer(true)
     }
 
     @Throws(InvalidConnectionParams::class)
-    private suspend fun importThirdPartyEndpoint(connectionParams: ByteArray): PublicThirdPartyEndpoint {
+    private suspend fun importPublicThirdPartyEndpoint(connectionParams: ByteArray): PublicThirdPartyEndpoint {
         val endpoint = try {
             PublicThirdPartyEndpoint.import(connectionParams)
         } catch (e: InvalidThirdPartyEndpoint) {

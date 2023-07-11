@@ -13,7 +13,7 @@ import tech.relaycorp.letro.data.entity.AccountDataModel
     entities = [
         AccountDataModel::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class LetroDatabase : RoomDatabase() {
