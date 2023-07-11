@@ -44,7 +44,7 @@ import tech.relaycorp.letro.utility.rememberLifecycleEvent
 
 @Composable
 fun AccountCreationRoute(
-    onCreateAccount: () -> Unit, // TODO Remove when real data is used
+    onNavigateToAccountCreationWaitingScreen: () -> Unit,
     onUseExistingAccount: () -> Unit, // TODO Remove when real data is used
     viewModel: AccountCreationViewModel = hiltViewModel(),
 ) {
@@ -57,20 +57,24 @@ fun AccountCreationRoute(
         }
     }
 
+    if (accountCreationUIState.isLoading) {
+        onNavigateToAccountCreationWaitingScreen()
+    }
+
     AccountCreationScreen(
         accountCreationUIState = accountCreationUIState,
-        onCreateAccount = onCreateAccount,
-        onUseExistingAccount = onUseExistingAccount,
-        onUpdateUsername = viewModel::onUsernameChanged,
+        onCreateAccountClicked = viewModel::onCreateAccountClicked,
+        onUseExistingAccountClicked = onUseExistingAccount,
+        onUsernameInput = viewModel::onUsernameInput,
     )
 }
 
 @Composable
 private fun AccountCreationScreen(
     accountCreationUIState: AccountCreationUIState,
-    onCreateAccount: () -> Unit,
-    onUseExistingAccount: () -> Unit,
-    onUpdateUsername: (String) -> Unit,
+    onCreateAccountClicked: () -> Unit,
+    onUseExistingAccountClicked: () -> Unit,
+    onUsernameInput: (String) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -98,7 +102,7 @@ private fun AccountCreationScreen(
             Spacer(modifier = Modifier.height(ItemPadding))
             LetroOutlinedTextField(
                 value = accountCreationUIState.username,
-                onValueChange = onUpdateUsername,
+                onValueChange = onUsernameInput,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
                 suffixText = stringResource(id = R.string.general_domain_name),
             )
@@ -132,7 +136,7 @@ private fun AccountCreationScreen(
             Spacer(modifier = Modifier.height(VerticalScreenPadding))
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.onboarding_create_account_button),
-                onClick = onCreateAccount,
+                onClick = onCreateAccountClicked,
             )
             Spacer(modifier = Modifier.height(LargePadding))
             Box(
@@ -153,7 +157,7 @@ private fun AccountCreationScreen(
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.general_use_existing_account),
                 buttonType = ButtonType.Outlined,
-                onClick = onUseExistingAccount,
+                onClick = onUseExistingAccountClicked,
             )
         }
     }

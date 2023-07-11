@@ -15,14 +15,18 @@ import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.combine
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
+import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.data.ContentType
 
-private const val EXPIRY_DAYS = 180L
 
 @Singleton
 class GatewayRepository @Inject constructor(
@@ -41,8 +45,17 @@ class GatewayRepository @Inject constructor(
     private val _authorizedReceivingMessagesFromServer: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
 
+    private val _incomingMessagesFromServer: MutableSharedFlow<IncomingMessage> = MutableSharedFlow()
+    val incomingMessagesFromServer: SharedFlow<IncomingMessage> get() = _incomingMessagesFromServer
+
     init {
         checkIfGatewayIsAvailable()
+
+        gatewayScope.launch {
+            GatewayClient.receiveMessages().collect {
+                _incomingMessagesFromServer.emit(it)
+            }
+        }
 
         gatewayScope.launch {
             preferencesDataStoreRepository.getServerFirstPartyEndpointNodeId().collect {
@@ -140,11 +153,10 @@ class GatewayRepository @Inject constructor(
 
         // Send it to the server
         val authMessage = OutgoingMessage.build(
-            "application/vnd+relaycorp.awala.pda-path",
+            ContentType.AuthorizeReceivingFromServer.value,
             auth,
             firstPartyEndpoint,
             thirdPartyEndpoint,
-            ZonedDateTime.now().plusDays(EXPIRY_DAYS),
         )
 
         GatewayClient.sendMessage(authMessage)

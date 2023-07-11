@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 @Singleton
-class PreferencesDataStoreRepository @Inject constructor(@ApplicationContext val context: Context) {
+class PreferencesDataStoreRepository @Inject constructor(
+    @ApplicationContext val context: Context
+) {
 
     private val Context.dataStore by preferencesDataStore(name = "letro_preferences")
 
@@ -22,7 +24,8 @@ class PreferencesDataStoreRepository @Inject constructor(@ApplicationContext val
 
     private val serverFirstPartyEndpointKey = stringPreferencesKey("serverFirstPartyEndpointId")
     private val serverThirdPartyEndpointKey = stringPreferencesKey("serverThirdPartyEndpointId")
-    private val authorizedReceivingMessagesFromServer = booleanPreferencesKey("authorizedReceivingMessagesFromServer")
+    private val authorizedReceivingMessagesFromServer =
+        booleanPreferencesKey("authorizedReceivingMessagesFromServer")
 
     suspend fun saveServerFirstPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->

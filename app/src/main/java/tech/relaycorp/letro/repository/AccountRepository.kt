@@ -8,37 +8,107 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.entity.AccountDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import tech.relaycorp.awaladroid.GatewayClient
+import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
+import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
+import tech.relaycorp.awaladroid.messaging.OutgoingMessage
+import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.dao.AccountDao
 
 @Singleton
 class AccountRepository @Inject constructor(
     private val accountDao: AccountDao,
+    private val preferencesDataStoreRepository: PreferencesDataStoreRepository,
+    private val gatewayRepository: GatewayRepository,
 ) {
-
+    private val preferencesScope: CoroutineScope = CoroutineScope(Job())
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val _allAccountsDataFlow: MutableStateFlow<List<AccountDataModel>> =
         MutableStateFlow(emptyList())
     val allAccountsDataFlow: StateFlow<List<AccountDataModel>> get() = _allAccountsDataFlow
 
-    private val account: Flow<List<AccountDataModel>> = accountDao.getAll()
+    private val accounts: Flow<List<AccountDataModel>> = accountDao.getAll()
 
-    private val _currentAccountDataFlow: MutableStateFlow<AccountDataModel?> = MutableStateFlow(null)
+    private val _currentAccountDataFlow: MutableStateFlow<AccountDataModel?> =
+        MutableStateFlow(null)
     val currentAccountDataFlow: StateFlow<AccountDataModel?> get() = _currentAccountDataFlow
 
+    private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
+    private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
+
     init {
+        databaseScope.launch {
+            gatewayRepository.incomingMessagesFromServer.collect { message ->
+                if (message.type == ContentType.AccountCreationCompleted.value) {
+                    val account = AccountDataModel(address = message.senderAddress)
+                    insertNewAccountToDatabase(account)
+                }
+            }
+        }
+        databaseScope.launch {
+            accounts.collect {
+                _allAccountsDataFlow.emit(it)
+            }
+        }
+
         databaseScope.launch {
             _allAccountsDataFlow.collect {
                 _currentAccountDataFlow.emit(it.firstOrNull())
             }
         }
+
+        preferencesScope.launch {
+            preferencesDataStoreRepository.getServerFirstPartyEndpointNodeId().collect {
+                if (it != null) {
+                    _serverFirstPartyEndpointNodeId.emit(it)
+                }
+            }
+        }
+
+        preferencesScope.launch {
+            preferencesDataStoreRepository.getServerThirdPartyEndpointNodeId().collect {
+                if (it != null) {
+                    _serverThirdPartyEndpointNodeId.emit(it)
+                }
+            }
+        }
     }
 
-    fun createNewAccount(username: String) {
-        databaseScope.launch {
-
+    fun createNewAccount(address: String) {
+        if (_serverFirstPartyEndpointNodeId.value.isEmpty() || _serverThirdPartyEndpointNodeId.value.isEmpty()) {
+            return // TODO Show error
         }
+
+        databaseScope.launch {
+            sendCreateAccountRequest(address)
+        }
+
+        val account = AccountDataModel(address = address)
+        databaseScope.launch {
+            insertNewAccountToDatabase(account)
+        }
+    }
+
+    private suspend fun sendCreateAccountRequest(address: String) {
+        val firstPartyEndpoint = FirstPartyEndpoint.load(_serverFirstPartyEndpointNodeId.value)
+        val thirdPartyEndpoint =
+            PublicThirdPartyEndpoint.load(_serverThirdPartyEndpointNodeId.value)
+
+        if (firstPartyEndpoint == null || thirdPartyEndpoint == null) {
+            return
+        }
+
+        val message = OutgoingMessage.build(
+            type = ContentType.AccountCreationRequest.value,
+            content = address.toByteArray(),
+            senderEndpoint = firstPartyEndpoint,
+            recipientEndpoint = thirdPartyEndpoint,
+        )
+
+        GatewayClient.sendMessage(message)
     }
 
     private fun insertNewAccountToDatabase(dataModel: AccountDataModel) {

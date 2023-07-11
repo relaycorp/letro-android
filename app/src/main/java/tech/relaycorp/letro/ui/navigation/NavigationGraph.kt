@@ -45,10 +45,10 @@ fun LetroNavHostContainer(
         }
         composable(Route.AccountCreation.name) {
             AccountCreationRoute(
-                onCreateAccount = {
+                onNavigateToAccountCreationWaitingScreen = {
                     navController.navigate(
                         Route.WaitingForAccountCreation.name,
-                    ) // TODO Change to correct functionality
+                    )
                 },
                 onUseExistingAccount = {
                     navController.navigate(
