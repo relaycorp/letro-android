@@ -19,8 +19,8 @@ class PreferencesDataStoreRepository @Inject constructor(@ApplicationContext val
 
     private val preferencesDataStore: DataStore<Preferences> = context.dataStore
 
-    private val firstPartyEndpointKey = stringPreferencesKey("firstPartyEndpointNodeId")
-    private val thirdPartyEndpointKey = stringPreferencesKey("thirdPartyEndpointNodeId")
+    private val serverFirstPartyEndpointKey = stringPreferencesKey("firstPartyEndpointId")
+    private val serverThirdPartyEndpointKey = stringPreferencesKey("thirdPartyEndpointId")
 
     suspend fun saveFirstPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
