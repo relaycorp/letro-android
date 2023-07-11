@@ -20,6 +20,6 @@ object LetroDatabaseModule {
         LetroDatabase.getDatabase(context)
 
     @Provides
-    fun provideUserDao(database: LetroDatabase): AccountDao =
+    fun provideAccountDao(database: LetroDatabase): AccountDao =
         database.accountDao()
 }

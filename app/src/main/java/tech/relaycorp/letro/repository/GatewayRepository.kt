@@ -66,7 +66,7 @@ class GatewayRepository @Inject constructor(
         if (preferencesDataStoreRepository.thirdPartyEndpointAddress() != null) return
 
         val endpoint = importThirdPartyEndpoint(
-            Resources.getSystem().openRawResource(R.raw.default_public_peer_connection_params).use {
+            Resources.getSystem().openRawResource(R.raw.server_connection_params).use {
                 it.readBytes()
             }
         )

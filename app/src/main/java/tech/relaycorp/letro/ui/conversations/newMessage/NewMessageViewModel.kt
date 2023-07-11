@@ -13,14 +13,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewMessageViewModel @Inject constructor(
-    userRepository: AccountRepository,
+    accountRepository: AccountRepository,
 // TODO add    conversationRepository: ConversationRepository,
 ) : ViewModel() {
 
-    private val _currentUser = userRepository.currentUserDataFlow
+    private val _currentAccount = accountRepository.currentAccountDataFlow
     private val _currentConversationDataFlow: MutableStateFlow<ConversationDataModel> = MutableStateFlow(
         createNewConversation(
-            sender = _currentUser.value?.username.toString(),
+            sender = _currentAccount.value?.address.toString(),
         ),
     )
     val currentConversationDataFlow: MutableStateFlow<ConversationDataModel> get() = _currentConversationDataFlow

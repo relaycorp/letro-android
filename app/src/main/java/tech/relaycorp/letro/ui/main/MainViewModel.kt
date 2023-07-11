@@ -14,14 +14,14 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     gatewayRepository: GatewayRepository,
-    userRepository: AccountRepository,
+    accountRepository: AccountRepository,
 ) : ViewModel() {
 
     private val _firstNavigationUIModelFlow: MutableStateFlow<FirstNavigationUIModel> =
         MutableStateFlow(FirstNavigationUIModel.Splash)
     val firstNavigationUIModelFlow: StateFlow<FirstNavigationUIModel> get() = _firstNavigationUIModelFlow
 
-    val _accountUsernameFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val _accountUsernameFlow: MutableStateFlow<String> = MutableStateFlow("")
     val accountUsernameFlow: StateFlow<String> get() = _accountUsernameFlow
 
     init {
@@ -42,8 +42,8 @@ class MainViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            userRepository.currentUserDataFlow.collect { currentUserDataModel ->
-                _accountUsernameFlow.emit(currentUserDataModel?.username ?: "")
+            accountRepository.currentAccountDataFlow.collect { dataModel ->
+                _accountUsernameFlow.emit(dataModel?.address ?: "")
             }
         }
     }

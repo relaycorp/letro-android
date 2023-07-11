@@ -3,12 +3,11 @@ package tech.relaycorp.letro.data.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-const val USER_TABLE_NAME = "user"
+const val ACCOUNT_TABLE_NAME = "account"
 
-@Entity(tableName = USER_TABLE_NAME)
+@Entity(tableName = ACCOUNT_TABLE_NAME)
 data class AccountDataModel(
     @PrimaryKey
-    val nodeId: String,
-    val username: String,
+    val address: String,
     val connections: List<String> = emptyList(),
 )

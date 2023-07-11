@@ -61,7 +61,7 @@ fun AccountCreationRoute(
         accountCreationUIState = accountCreationUIState,
         onCreateAccount = onCreateAccount,
         onUseExistingAccount = onUseExistingAccount,
-        onUserUpdatedUsername = viewModel::onUsernameChanged,
+        onUpdateUsername = viewModel::onUsernameChanged,
     )
 }
 
@@ -70,7 +70,7 @@ private fun AccountCreationScreen(
     accountCreationUIState: AccountCreationUIState,
     onCreateAccount: () -> Unit,
     onUseExistingAccount: () -> Unit,
-    onUserUpdatedUsername: (String) -> Unit,
+    onUpdateUsername: (String) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -98,7 +98,7 @@ private fun AccountCreationScreen(
             Spacer(modifier = Modifier.height(ItemPadding))
             LetroOutlinedTextField(
                 value = accountCreationUIState.username,
-                onValueChange = onUserUpdatedUsername,
+                onValueChange = onUpdateUsername,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
                 suffixText = stringResource(id = R.string.general_domain_name),
             )

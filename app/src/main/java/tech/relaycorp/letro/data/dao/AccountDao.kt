@@ -8,7 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import tech.relaycorp.letro.data.entity.USER_TABLE_NAME
+import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
 
 @Dao
@@ -26,13 +26,13 @@ interface AccountDao {
     @Delete
     suspend fun delete(entity: AccountDataModel): Int
 
-    @Query("SELECT * FROM $USER_TABLE_NAME WHERE nodeId=:nodeId")
+    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE nodeId=:nodeId")
     suspend fun getByNodeId(nodeId: String): AccountDataModel
 
     @Transaction
-    @Query("SELECT * FROM $USER_TABLE_NAME")
+    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME")
     fun getAll(): Flow<List<AccountDataModel>>
 
-    @Query("DELETE FROM $USER_TABLE_NAME")
+    @Query("DELETE FROM $ACCOUNT_TABLE_NAME")
     suspend fun deleteAll()
 }

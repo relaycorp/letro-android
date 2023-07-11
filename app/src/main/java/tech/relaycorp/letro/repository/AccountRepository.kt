@@ -13,24 +13,24 @@ import tech.relaycorp.letro.data.dao.AccountDao
 
 @Singleton
 class AccountRepository @Inject constructor(
-    private val userDao: AccountDao,
+    private val accountDao: AccountDao,
 ) {
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val _allUsersDataFlow: MutableStateFlow<List<AccountDataModel>> =
+    private val _allAccountsDataFlow: MutableStateFlow<List<AccountDataModel>> =
         MutableStateFlow(emptyList())
-    val allUsersDataFlow: StateFlow<List<AccountDataModel>> get() = _allUsersDataFlow
+    val allAccountsDataFlow: StateFlow<List<AccountDataModel>> get() = _allAccountsDataFlow
 
-    private val user: Flow<List<AccountDataModel>> = userDao.getAll()
+    private val account: Flow<List<AccountDataModel>> = accountDao.getAll()
 
-    private val _currentUserDataFlow: MutableStateFlow<AccountDataModel?> = MutableStateFlow(null)
-    val currentUserDataFlow: StateFlow<AccountDataModel?> get() = _currentUserDataFlow
+    private val _currentAccountDataFlow: MutableStateFlow<AccountDataModel?> = MutableStateFlow(null)
+    val currentAccountDataFlow: StateFlow<AccountDataModel?> get() = _currentAccountDataFlow
 
     init {
         databaseScope.launch {
-            _allUsersDataFlow.collect {
-                _currentUserDataFlow.emit(it.firstOrNull())
+            _allAccountsDataFlow.collect {
+                _currentAccountDataFlow.emit(it.firstOrNull())
             }
         }
     }
@@ -43,8 +43,8 @@ class AccountRepository @Inject constructor(
 
     private fun insertNewAccountToDatabase(dataModel: AccountDataModel) {
         databaseScope.launch {
-            userDao.insert(dataModel)
-            _currentUserDataFlow.emit(dataModel)
+            accountDao.insert(dataModel)
+            _currentAccountDataFlow.emit(dataModel)
         }
     }
 }
