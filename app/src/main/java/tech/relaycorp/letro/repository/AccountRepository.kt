@@ -40,8 +40,8 @@ class AccountRepository @Inject constructor(
     private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
 
     init {
-        databaseScope.launch {
-            preferencesDataStoreRepository.getCurrentAccountId().collect {
+        preferencesScope.launch {
+            preferencesDataStoreRepository.currentAccountId.collect {
                 if (it != null) {
                     _currentAccountDataFlow.emit(accountDao.getById(it))
                 }
@@ -61,7 +61,7 @@ class AccountRepository @Inject constructor(
         }
 
         preferencesScope.launch {
-            preferencesDataStoreRepository.getServerFirstPartyEndpointNodeId().collect {
+            preferencesDataStoreRepository.serverFirstPartyEndpointNodeId.collect {
                 if (it != null) {
                     _serverFirstPartyEndpointNodeId.emit(it)
                 }
@@ -69,7 +69,7 @@ class AccountRepository @Inject constructor(
         }
 
         preferencesScope.launch {
-            preferencesDataStoreRepository.getServerThirdPartyEndpointNodeId().collect {
+            preferencesDataStoreRepository.serverThirdPartyEndpointNodeId.collect {
                 if (it != null) {
                     _serverThirdPartyEndpointNodeId.emit(it)
                 }
@@ -85,9 +85,6 @@ class AccountRepository @Inject constructor(
         val account = AccountDataModel(address = address)
         databaseScope.launch {
             insertNewAccountToDatabase(account)
-        }
-
-        databaseScope.launch {
             sendCreateAccountRequest(address)
         }
     }

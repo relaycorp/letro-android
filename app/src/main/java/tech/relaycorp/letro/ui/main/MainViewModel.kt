@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
 import tech.relaycorp.letro.repository.AccountRepository
 import tech.relaycorp.letro.repository.GatewayRepository
 import javax.inject.Inject
@@ -31,13 +30,13 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            gatewayRepository.gatewayAvailabilityDataModel.collect { gatewayAvailability ->
+            gatewayRepository.isGatewayAvailable.collect { gatewayAvailability ->
                 when (gatewayAvailability) {
-                    GatewayAvailabilityDataModel.Available -> _firstNavigationUIModelFlow.emit(
+                    true -> _firstNavigationUIModelFlow.emit(
                         FirstNavigationUIModel.AccountCreation,
                     )
 
-                    GatewayAvailabilityDataModel.Unavailable -> _firstNavigationUIModelFlow.emit(
+                    false -> _firstNavigationUIModelFlow.emit(
                         FirstNavigationUIModel.NoGateway,
                     )
 

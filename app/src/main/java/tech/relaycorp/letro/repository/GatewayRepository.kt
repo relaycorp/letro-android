@@ -19,7 +19,7 @@ import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.ContentType
-import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
+import tech.relaycorp.letro.data.EndpointPairDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,14 +31,12 @@ class GatewayRepository @Inject constructor(
 
     private val gatewayScope = CoroutineScope(Dispatchers.IO)
 
-    private val _gatewayAvailabilityDataModel: MutableStateFlow<GatewayAvailabilityDataModel> =
-        MutableStateFlow(GatewayAvailabilityDataModel.Unknown)
-    val gatewayAvailabilityDataModel: StateFlow<GatewayAvailabilityDataModel> get() = _gatewayAvailabilityDataModel
+    private val _isGatewayAvailable: MutableStateFlow<Boolean?> =
+        MutableStateFlow(null)
+    val isGatewayAvailable: StateFlow<Boolean?> get() = _isGatewayAvailable
 
-    private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
-    private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
-    private val _authorizedReceivingMessagesFromServer: MutableStateFlow<Boolean> =
-        MutableStateFlow(false)
+    private val _isGatewayFullySetup: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup // TODO Maybe use to control UI
 
     private val _accountCreatedConfirmationReceived: MutableSharedFlow<Unit> = MutableSharedFlow()
     val accountCreatedConfirmationReceived: SharedFlow<Unit> get() = _accountCreatedConfirmationReceived
@@ -47,8 +45,87 @@ class GatewayRepository @Inject constructor(
         checkIfGatewayIsAvailable()
 
         gatewayScope.launch {
-            _authorizedReceivingMessagesFromServer.collect { authorized ->
-                if (authorized) {
+            _isGatewayAvailable.collect {
+                if (it == true) {
+                    registerServerFirstPartyEndpointIfNeeded()
+                    importServerThirdPartyEndpointIfNeeded()
+                    collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer()
+                    updateIsGatewayFullySetup()
+                    startReceivingMessages()
+                }
+            }
+        }
+    }
+
+    // TODO Maybe use something else than combine
+    private fun collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer() {
+        gatewayScope.launch {
+            combine(
+                preferencesDataStoreRepository.serverFirstPartyEndpointNodeId,
+                preferencesDataStoreRepository.serverThirdPartyEndpointNodeId,
+                preferencesDataStoreRepository.isGatewayAuthorizedToReceiveMessagesFromServer,
+            ) {
+                    firstPartyEndpointNodeId,
+                    thirdPartyEndpointNodeId,
+                    authorizedReceivingMessagesFromServer,
+                ->
+
+                if (shouldAuthorizeReceivingMessages(
+                        firstPartyEndpointNodeId,
+                        thirdPartyEndpointNodeId,
+                        authorizedReceivingMessagesFromServer,
+                    )
+                ) {
+                    EndpointPairDataModel(
+                        firstPartyEndpointNodeId = firstPartyEndpointNodeId!!,
+                        thirdPartyEndpointNodeId = thirdPartyEndpointNodeId!!,
+                    )
+                } else {
+                    null
+                }
+            }.collect { endpointPair ->
+                endpointPair?.let {
+                    authoriseReceivingMessagesFromThirdPartyEndpoint(
+                        it.firstPartyEndpointNodeId,
+                        it.thirdPartyEndpointNodeId,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateIsGatewayFullySetup() {
+        gatewayScope.launch {
+            preferencesDataStoreRepository.isGatewayAuthorizedToReceiveMessagesFromServer.collect { isAuthorized ->
+                _isGatewayFullySetup.emit(isAuthorized == true)
+            }
+        }
+    }
+
+    private fun importServerThirdPartyEndpointIfNeeded() {
+        gatewayScope.launch {
+            preferencesDataStoreRepository.serverThirdPartyEndpointNodeId.collect {
+                if (it == null) {
+                    importPublicThirdPartyEndpoint()
+                }
+            }
+        }
+    }
+
+    private fun registerServerFirstPartyEndpointIfNeeded() {
+        gatewayScope.launch {
+            preferencesDataStoreRepository.serverFirstPartyEndpointNodeId.collect {
+                if (it == null) {
+                    registerFirstPartyEndpoint()
+                }
+            }
+        }
+    }
+
+    private fun startReceivingMessages() {
+        gatewayScope.launch {
+            preferencesDataStoreRepository.isGatewayAuthorizedToReceiveMessagesFromServer.collect { authorized ->
+                if (authorized == true) {
                     GatewayClient.receiveMessages().collect { message ->
                         if (message.type == ContentType.AccountCreationCompleted.value) {
                             _accountCreatedConfirmationReceived.emit(Unit)
@@ -58,69 +135,24 @@ class GatewayRepository @Inject constructor(
                 }
             }
         }
-
-        gatewayScope.launch {
-            preferencesDataStoreRepository.getServerFirstPartyEndpointNodeId().collect {
-                if (it != null) {
-                    _serverFirstPartyEndpointNodeId.emit(it)
-                } else {
-                    registerFirstPartyEndpoint()
-                }
-            }
-        }
-
-        gatewayScope.launch {
-            preferencesDataStoreRepository.getServerThirdPartyEndpointNodeId().collect {
-                if (it != null) {
-                    _serverThirdPartyEndpointNodeId.emit(it)
-                } else {
-                    importPublicThirdPartyEndpoint()
-                }
-            }
-        }
-
-        gatewayScope.launch {
-            preferencesDataStoreRepository.getAuthorizedReceivingMessagesFromServer().collect {
-                if (it != null) {
-                    _authorizedReceivingMessagesFromServer.emit(it)
-                } else {
-                    _authorizedReceivingMessagesFromServer.emit(false)
-                }
-            }
-        }
-
-        combine( // TODO: Maybe use something else than combine
-            _gatewayAvailabilityDataModel,
-            _serverFirstPartyEndpointNodeId,
-            _serverThirdPartyEndpointNodeId,
-            _authorizedReceivingMessagesFromServer,
-        ) { gatewayAvailability,
-            firstPartyEndpointNodeId,
-            thirdPartyEndpointNodeId,
-            authorizedReceivingMessagesFromServer,
-            ->
-
-            if (!authorizedReceivingMessagesFromServer &&
-                gatewayAvailability == GatewayAvailabilityDataModel.Available &&
-                firstPartyEndpointNodeId != null &&
-                thirdPartyEndpointNodeId != null
-            ) {
-                authoriseReceivingMessagesFromThirdPartyEndpoint(
-                    firstPartyEndpointNodeId,
-                    thirdPartyEndpointNodeId,
-                )
-            }
-        }
     }
+
+    private fun shouldAuthorizeReceivingMessages(
+        firstPartyEndpointNodeId: String?,
+        thirdPartyEndpointNodeId: String?,
+        authorizedReceivingMessagesFromServer: Boolean?,
+    ) = authorizedReceivingMessagesFromServer != true &&
+        firstPartyEndpointNodeId != null &&
+        thirdPartyEndpointNodeId != null
 
     fun checkIfGatewayIsAvailable() {
         gatewayScope.launch {
             Awala.setUp(context)
             try {
                 GatewayClient.bind()
-                _gatewayAvailabilityDataModel.emit(GatewayAvailabilityDataModel.Available)
+                _isGatewayAvailable.emit(true)
             } catch (exp: GatewayBindingException) {
-                _gatewayAvailabilityDataModel.emit(GatewayAvailabilityDataModel.Unavailable)
+                _isGatewayAvailable.emit(false)
             }
         }
     }
