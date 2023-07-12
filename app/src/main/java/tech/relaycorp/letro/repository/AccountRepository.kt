@@ -2,20 +2,20 @@ package tech.relaycorp.letro.repository
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.entity.AccountDataModel
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.dao.AccountDao
+import tech.relaycorp.letro.data.entity.AccountDataModel
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class AccountRepository @Inject constructor(
@@ -41,22 +41,22 @@ class AccountRepository @Inject constructor(
 
     init {
         databaseScope.launch {
-            gatewayRepository.incomingMessagesFromServer.collect { message ->
-                if (message.type == ContentType.AccountCreationCompleted.value) {
-                    val account = AccountDataModel(address = message.senderAddress)
-                    insertNewAccountToDatabase(account)
+            preferencesDataStoreRepository.getCurrentAccountId().collect {
+                if (it != null) {
+                    _currentAccountDataFlow.emit(accountDao.getById(it))
                 }
-            }
-        }
-        databaseScope.launch {
-            accounts.collect {
-                _allAccountsDataFlow.emit(it)
             }
         }
 
         databaseScope.launch {
-            _allAccountsDataFlow.collect {
-                _currentAccountDataFlow.emit(it.firstOrNull())
+            gatewayRepository.accountCreatedConfirmationReceived.collect {
+                accountDao.update(_currentAccountDataFlow.value!!.copy(isCreationConfirmed = true))
+            }
+        }
+
+        databaseScope.launch {
+            accounts.collect {
+                _allAccountsDataFlow.emit(it)
             }
         }
 
@@ -82,13 +82,13 @@ class AccountRepository @Inject constructor(
             return // TODO Show error
         }
 
-        databaseScope.launch {
-            sendCreateAccountRequest(address)
-        }
-
         val account = AccountDataModel(address = address)
         databaseScope.launch {
             insertNewAccountToDatabase(account)
+        }
+
+        databaseScope.launch {
+            sendCreateAccountRequest(address)
         }
     }
 
@@ -113,8 +113,8 @@ class AccountRepository @Inject constructor(
 
     private fun insertNewAccountToDatabase(dataModel: AccountDataModel) {
         databaseScope.launch {
-            accountDao.insert(dataModel)
-            _currentAccountDataFlow.emit(dataModel)
+            val id = accountDao.insert(dataModel)
+            preferencesDataStoreRepository.saveCurrentAccountId(id)
         }
     }
 }

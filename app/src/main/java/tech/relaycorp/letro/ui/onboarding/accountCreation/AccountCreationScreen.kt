@@ -57,8 +57,8 @@ fun AccountCreationRoute(
         }
     }
 
-    if (accountCreationUIState.isLoading) {
-        onNavigateToAccountCreationWaitingScreen()
+    LaunchedEffect(Unit) {
+        viewModel.goToLoadingScreen.collect { onNavigateToAccountCreationWaitingScreen() }
     }
 
     AccountCreationScreen(

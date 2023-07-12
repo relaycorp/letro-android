@@ -5,17 +5,18 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class PreferencesDataStoreRepository @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
 ) {
 
     private val Context.dataStore by preferencesDataStore(name = "letro_preferences")
@@ -26,6 +27,7 @@ class PreferencesDataStoreRepository @Inject constructor(
     private val serverThirdPartyEndpointKey = stringPreferencesKey("serverThirdPartyEndpointId")
     private val authorizedReceivingMessagesFromServer =
         booleanPreferencesKey("authorizedReceivingMessagesFromServer")
+    private val currentAccountId = longPreferencesKey("currentAccountId")
 
     suspend fun saveServerFirstPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
@@ -60,6 +62,18 @@ class PreferencesDataStoreRepository @Inject constructor(
     fun getAuthorizedReceivingMessagesFromServer(): Flow<Boolean?> {
         return preferencesDataStore.data.map { preferences ->
             preferences[authorizedReceivingMessagesFromServer]
+        }
+    }
+
+    suspend fun saveCurrentAccountId(value: Long) {
+        preferencesDataStore.edit { preferences ->
+            preferences[currentAccountId] = value
+        }
+    }
+
+    fun getCurrentAccountId(): Flow<Long?> {
+        return preferencesDataStore.data.map { preferences ->
+            preferences[currentAccountId]
         }
     }
 }

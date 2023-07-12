@@ -3,14 +3,15 @@ package tech.relaycorp.letro.ui.onboarding.accountCreation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import tech.relaycorp.letro.repository.AccountRepository
 import tech.relaycorp.letro.repository.GatewayRepository
 import javax.inject.Inject
-import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.ContentType
-import tech.relaycorp.letro.repository.AccountRepository
 
 @HiltViewModel
 class AccountCreationViewModel @Inject constructor(
@@ -22,15 +23,8 @@ class AccountCreationViewModel @Inject constructor(
         MutableStateFlow(AccountCreationUIState())
     val accountCreationUIState: StateFlow<AccountCreationUIState> get() = _accountCreationUIState
 
-    init {
-        viewModelScope.launch {
-            gatewayRepository.incomingMessagesFromServer.collect { message ->
-                if (message.type == ContentType.AccountCreationCompleted.value) {
-                    _accountCreationUIState.update { it.copy(isLoading = false) }
-                }
-            }
-        }
-    }
+    private val _goToLoadingScreen: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val goToLoadingScreen: SharedFlow<Unit> get() = _goToLoadingScreen
 
     fun onUsernameInput(username: String) {
         _accountCreationUIState.update { it.copy(username = username) }
@@ -41,9 +35,11 @@ class AccountCreationViewModel @Inject constructor(
     }
 
     fun onCreateAccountClicked() {
-        _accountCreationUIState.update { it.copy(isLoading = true) }
         accountRepository.createNewAccount(
-            _accountCreationUIState.value.username + "@" + _accountCreationUIState.value.domain,
+            address = _accountCreationUIState.value.username + "@" + _accountCreationUIState.value.domain,
         )
+        viewModelScope.launch {
+            _goToLoadingScreen.emit(Unit)
+        }
     }
 }

@@ -45,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.navigation.LetroNavHostContainer
 import tech.relaycorp.letro.ui.navigation.Route
@@ -90,6 +91,12 @@ class MainActivity : ComponentActivity() {
 
                         else -> {}
                     }
+                }
+            }
+
+            LaunchedEffect(mainViewModel) {
+                mainViewModel.continueAppFlowAfterAccountCreationConfirmed.collect {
+                    navController.navigateWithPoppingAllBackStack(Route.AccountConfirmation)
                 }
             }
 

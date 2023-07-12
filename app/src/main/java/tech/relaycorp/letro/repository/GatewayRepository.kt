@@ -3,30 +3,26 @@ package tech.relaycorp.letro.repository
 import android.content.Context
 import android.content.res.Resources
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.Awala
 import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
-import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.combine
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
-import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.ContentType
-
+import tech.relaycorp.letro.data.GatewayAvailabilityDataModel
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class GatewayRepository @Inject constructor(
@@ -45,15 +41,22 @@ class GatewayRepository @Inject constructor(
     private val _authorizedReceivingMessagesFromServer: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
 
-    private val _incomingMessagesFromServer: MutableSharedFlow<IncomingMessage> = MutableSharedFlow()
-    val incomingMessagesFromServer: SharedFlow<IncomingMessage> get() = _incomingMessagesFromServer
+    private val _accountCreatedConfirmationReceived: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val accountCreatedConfirmationReceived: SharedFlow<Unit> get() = _accountCreatedConfirmationReceived
 
     init {
         checkIfGatewayIsAvailable()
 
         gatewayScope.launch {
-            GatewayClient.receiveMessages().collect {
-                _incomingMessagesFromServer.emit(it)
+            _authorizedReceivingMessagesFromServer.collect { authorized ->
+                if (authorized) {
+                    GatewayClient.receiveMessages().collect { message ->
+                        if (message.type == ContentType.AccountCreationCompleted.value) {
+                            _accountCreatedConfirmationReceived.emit(Unit)
+                            message.ack()
+                        }
+                    }
+                }
             }
         }
 
@@ -95,12 +98,13 @@ class GatewayRepository @Inject constructor(
         ) { gatewayAvailability,
             firstPartyEndpointNodeId,
             thirdPartyEndpointNodeId,
-            authorizedReceivingMessagesFromServer ->
+            authorizedReceivingMessagesFromServer,
+            ->
 
-            if (!authorizedReceivingMessagesFromServer
-                && gatewayAvailability == GatewayAvailabilityDataModel.Available
-                && firstPartyEndpointNodeId != null
-                && thirdPartyEndpointNodeId != null
+            if (!authorizedReceivingMessagesFromServer &&
+                gatewayAvailability == GatewayAvailabilityDataModel.Available &&
+                firstPartyEndpointNodeId != null &&
+                thirdPartyEndpointNodeId != null
             ) {
                 authoriseReceivingMessagesFromThirdPartyEndpoint(
                     firstPartyEndpointNodeId,
@@ -131,7 +135,7 @@ class GatewayRepository @Inject constructor(
         val endpoint = importPublicThirdPartyEndpoint(
             Resources.getSystem().openRawResource(R.raw.server_connection_params).use {
                 it.readBytes()
-            }
+            },
         )
 
         preferencesDataStoreRepository.saveServerThirdPartyEndpointNodeId(endpoint.nodeId)

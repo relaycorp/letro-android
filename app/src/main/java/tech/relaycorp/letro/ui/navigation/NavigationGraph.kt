@@ -113,7 +113,7 @@ fun LetroNavHostContainer(
             )
         }
         composable(Route.WaitingForAccountCreation.name) {
-            ActionTakingRoute(ActionTakingScreenUIStateModel.Waiting)
+            ActionTakingRoute(ActionTakingScreenUIStateModel.Loading)
         }
     }
 }

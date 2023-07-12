@@ -8,13 +8,9 @@ sealed class ActionTakingScreenUIStateModel(
     @StringRes val messageStringRes: Int? = null,
     @StringRes val buttonFilledStringRes: Int? = null,
     @StringRes val buttonOutlinedStringRes: Int? = null,
-    val buttonFilledOnClicked: () -> Unit = {},
-    val buttonOutlinedOnClicked: () -> Unit = {},
+    val onButtonFilledClicked: () -> Unit = {},
+    val onButtonOutlinedClicked: () -> Unit = {},
 ) {
-    object Waiting : ActionTakingScreenUIStateModel(
-        titleStringRes = R.string.onboarding_waiting_title,
-        messageStringRes = R.string.onboarding_waiting_message,
-    )
 
     class AccountConfirmation(
         onPairWithPeople: () -> Unit,
@@ -23,8 +19,13 @@ sealed class ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_account_confirmation,
         buttonFilledStringRes = R.string.general_pair_with_others,
         buttonOutlinedStringRes = R.string.onboarding_account_confirmation_share_your_id,
-        buttonFilledOnClicked = onPairWithPeople,
-        buttonOutlinedOnClicked = onShareId,
+        onButtonFilledClicked = onPairWithPeople,
+        onButtonOutlinedClicked = onShareId,
+    )
+
+    object Loading : ActionTakingScreenUIStateModel(
+        titleStringRes = R.string.onboarding_waiting_title,
+        messageStringRes = R.string.onboarding_waiting_message,
     )
 
     class PairingRequestSent(
@@ -33,6 +34,6 @@ sealed class ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_pairing_request_sent_title,
         messageStringRes = R.string.onboarding_pairing_request_sent_message,
         buttonFilledStringRes = R.string.onboarding_pairing_request_sent_button,
-        buttonFilledOnClicked = onGotItClicked,
+        onButtonFilledClicked = onGotItClicked,
     )
 }
