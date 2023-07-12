@@ -133,7 +133,7 @@ class GatewayRepository @Inject constructor(
 
     private suspend fun importPublicThirdPartyEndpoint() {
         val endpoint = importPublicThirdPartyEndpoint(
-            Resources.getSystem().openRawResource(R.raw.server_connection_params).use {
+            context.resources.openRawResource(R.raw.server_connection_params).use {
                 it.readBytes()
             },
         )
