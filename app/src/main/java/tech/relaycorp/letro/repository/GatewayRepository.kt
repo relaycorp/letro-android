@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.repository
 
 import android.content.Context
-import android.content.res.Resources
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
