@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.repository.AccountRepository
 import tech.relaycorp.letro.repository.GatewayRepository
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,13 +31,23 @@ class AccountCreationViewModel @Inject constructor(
         _accountCreationUIState.update { it.copy(username = username) }
     }
 
+    init {
+        val locale = Locale.getDefault()
+        val domain = when (locale.toString()) {
+            "en_US" -> "@applepie.fans"
+            "es_ve" -> "@guarapo.cafe"
+            else -> "@nautilus.ink"
+        }
+        _accountCreationUIState.update { it.copy(domain = domain) }
+    }
+
     fun onScreenResumed() { // TODO Maybe not needed
         gatewayRepository.checkIfGatewayIsAvailable()
     }
 
     fun onCreateAccountClicked() {
         accountRepository.createNewAccount(
-            address = _accountCreationUIState.value.username + "@" + _accountCreationUIState.value.domain,
+            address = _accountCreationUIState.value.username + _accountCreationUIState.value.domain,
         )
         viewModelScope.launch {
             _goToLoadingScreen.emit(Unit)

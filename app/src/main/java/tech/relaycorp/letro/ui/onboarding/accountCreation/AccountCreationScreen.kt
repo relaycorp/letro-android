@@ -104,7 +104,7 @@ private fun AccountCreationScreen(
                 value = accountCreationUIState.username,
                 onValueChange = onUsernameInput,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
-                suffixText = stringResource(id = R.string.general_domain_name),
+                suffixText = accountCreationUIState.domain,
             )
             HyperlinkText(
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
