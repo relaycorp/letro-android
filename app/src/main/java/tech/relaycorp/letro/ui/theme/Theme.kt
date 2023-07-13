@@ -104,7 +104,6 @@ fun LetroTheme(
     )
 }
 
-
 @Composable
 private fun LetroThemeContent() {
     Column {
@@ -148,4 +147,3 @@ private fun LetroThemeDarkPreview() {
         LetroThemeContent()
     }
 }
-

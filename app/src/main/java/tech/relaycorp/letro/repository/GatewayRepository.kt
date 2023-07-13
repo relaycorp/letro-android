@@ -123,14 +123,10 @@ class GatewayRepository @Inject constructor(
 
     private fun startReceivingMessages() {
         gatewayScope.launch {
-            preferencesDataStoreRepository.isGatewayAuthorizedToReceiveMessagesFromServer.collect { authorized ->
-                if (authorized == true) {
-                    GatewayClient.receiveMessages().collect { message ->
-                        if (message.type == ContentType.AccountCreationCompleted.value) {
-                            _accountCreatedConfirmationReceived.emit(Unit)
-                            message.ack()
-                        }
-                    }
+            GatewayClient.receiveMessages().collect { message ->
+                if (message.type == ContentType.AccountCreationCompleted.value) {
+                    _accountCreatedConfirmationReceived.emit(Unit)
+                    message.ack()
                 }
             }
         }
@@ -144,9 +140,15 @@ class GatewayRepository @Inject constructor(
         firstPartyEndpointNodeId != null &&
         thirdPartyEndpointNodeId != null
 
+    // TODO Clean the implementation of this when possible
+    private var awalaIsSetup = false
+
     fun checkIfGatewayIsAvailable() {
         gatewayScope.launch {
-            Awala.setUp(context)
+            if (!awalaIsSetup) {
+                Awala.setUp(context)
+                awalaIsSetup = true
+            }
             try {
                 GatewayClient.bind()
                 _isGatewayAvailable.emit(true)
