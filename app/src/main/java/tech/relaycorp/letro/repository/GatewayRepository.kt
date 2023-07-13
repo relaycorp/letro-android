@@ -31,12 +31,11 @@ class GatewayRepository @Inject constructor(
 
     private val gatewayScope = CoroutineScope(Dispatchers.IO)
 
-    private val _isGatewayAvailable: MutableStateFlow<Boolean?> =
-        MutableStateFlow(null)
+    private val _isGatewayAvailable: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     val isGatewayAvailable: StateFlow<Boolean?> get() = _isGatewayAvailable
 
     private val _isGatewayFullySetup: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup // TODO Maybe use to control UI
+    val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup
 
     private val _accountCreatedConfirmationReceived: MutableSharedFlow<Unit> = MutableSharedFlow()
     val accountCreatedConfirmationReceived: SharedFlow<Unit> get() = _accountCreatedConfirmationReceived

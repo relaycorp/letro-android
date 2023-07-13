@@ -25,22 +25,24 @@ class MainViewModel @Inject constructor(
     private val _accountUsernameFlow: MutableStateFlow<String> = MutableStateFlow("")
     val accountUsernameFlow: StateFlow<String> get() = _accountUsernameFlow
 
-    private val _continueAppFlowAfterAccountCreationConfirmed: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val continueAppFlowAfterAccountCreationConfirmed: SharedFlow<Unit> get() = _continueAppFlowAfterAccountCreationConfirmed
+    private val _continueAppFlowAfterAccountCreationConfirmed: MutableSharedFlow<Unit> =
+        MutableSharedFlow()
+    val continueAppFlowAfterAccountCreationConfirmed: SharedFlow<Unit>
+        get() = _continueAppFlowAfterAccountCreationConfirmed
 
     init {
         viewModelScope.launch {
             gatewayRepository.isGatewayAvailable.collect { gatewayAvailability ->
-                when (gatewayAvailability) {
-                    true -> _firstNavigationUIModelFlow.emit(
-                        FirstNavigationUIModel.AccountCreation,
-                    )
+                if (gatewayAvailability == false) {
+                    _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.NoGateway)
+                }
+            }
+        }
 
-                    false -> _firstNavigationUIModelFlow.emit(
-                        FirstNavigationUIModel.NoGateway,
-                    )
-
-                    else -> {}
+        viewModelScope.launch {
+            gatewayRepository.isGatewayFullySetup.collect { gatewaySetup ->
+                if (gatewaySetup) {
+                    _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.AccountCreation)
                 }
             }
         }
