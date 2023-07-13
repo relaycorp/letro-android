@@ -34,7 +34,6 @@ import tech.relaycorp.letro.ui.custom.HyperlinkText
 import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.custom.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.BoxCornerRadius
-import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LargePadding
@@ -150,7 +149,7 @@ private fun AccountCreationScreen(
                         .padding(ItemPadding)
                         .background(MaterialTheme.colorScheme.surface),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Grey90,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
             Spacer(modifier = Modifier.height(LargePadding))

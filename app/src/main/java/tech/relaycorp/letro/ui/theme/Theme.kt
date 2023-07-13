@@ -17,24 +17,49 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    // TODO Change dark color scheme when it's decided to use Material3
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    primary = Primary80,
+    onPrimary = Grey100,
+    // TODO Maybe uncomment if the designs change
+//    secondary = SecondarySkyBlue,
+//    onSecondary = Color.White,
+//    tertiary = SecondaryPink,
+//    onTertiary = Color.White,
+    surface = Grey100,
+    onSurface = Grey20,
+    surfaceVariant = Grey80,
+    onSurfaceVariant = Grey40,
+    primaryContainer = Grey80,
+    onPrimaryContainer = Primary20,
+    secondaryContainer = Grey60,
+    background = Grey100,
+    onBackground = Grey20,
+    outline = Grey50,
+    outlineVariant = Grey60,
+    error = Error2,
+    onError = Grey100,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryMain,
-    secondary = SecondarySkyBlue,
-    tertiary = SecondaryPink,
-    // TODO Change next colors
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = Primary100,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
+    // TODO Maybe uncomment if the designs change
+//    secondary = SecondarySkyBlue,
+//    onSecondary = Color.White,
+//    tertiary = SecondaryPink,
+//    onTertiary = Color.White,
+    primaryContainer = Grey80,
+    onPrimaryContainer = Grey50, // Currently used for the "disabled" state
+    secondaryContainer = Grey20,
+    surface = Color.White,
+    onSurface = BlueGrey100,
+    surfaceVariant = Primary100,
+    onSurfaceVariant = Primary40,
+    background = Color.White,
+    onBackground = BlueGrey100,
+    outline = BlueGrey60,
+    outlineVariant = BlueGrey10,
+    error = Error1,
+    onError = Color.White,
 )
 
 @Composable

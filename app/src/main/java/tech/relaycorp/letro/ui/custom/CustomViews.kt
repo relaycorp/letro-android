@@ -32,10 +32,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
-import tech.relaycorp.letro.ui.theme.PrimaryMain
+import tech.relaycorp.letro.ui.theme.Primary100
 import tech.relaycorp.letro.ui.theme.TextFieldCornerRadius
 
 @Composable
@@ -53,19 +52,19 @@ fun LetroButton(
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = when (buttonType) {
-                ButtonType.Filled -> PrimaryMain
+                ButtonType.Filled -> Primary100
                 ButtonType.Outlined -> Color.Transparent
             },
             contentColor = when (buttonType) {
                 ButtonType.Filled -> Color.White
-                ButtonType.Outlined -> PrimaryMain
+                ButtonType.Outlined -> Primary100
             },
             disabledContainerColor = Color.Gray,
             disabledContentColor = Color.White,
         ),
         border = if (buttonType == ButtonType.Outlined) {
             BorderStroke(
-                color = PrimaryMain,
+                color = Primary100,
                 width = 1.dp,
             )
         } else {
@@ -132,7 +131,7 @@ fun LetroTextField(
             Text(
                 text = placeHolderText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Grey90,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         },
         colors = TextFieldDefaults.colors(
@@ -176,7 +175,7 @@ fun LetroOutlinedTextField(
                 Text(
                     suffixText,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Grey90,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
         },
@@ -192,7 +191,7 @@ fun HyperlinkText(
     fullText: String,
     hyperLinks: Map<String, String>,
     modifier: Modifier = Modifier,
-    linkTextColor: Color = PrimaryMain,
+    linkTextColor: Color = Primary100,
     linkTextFontWeight: FontWeight = FontWeight.Normal,
     linkTextDecoration: TextDecoration = TextDecoration.Underline,
     fontSize: TextUnit = TextUnit.Unspecified,
