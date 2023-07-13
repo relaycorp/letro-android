@@ -3,9 +3,7 @@ package tech.relaycorp.letro.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.repository.AccountRepository
@@ -22,13 +20,8 @@ class MainViewModel @Inject constructor(
         MutableStateFlow(FirstNavigationUIModel.Splash)
     val firstNavigationUIModelFlow: StateFlow<FirstNavigationUIModel> get() = _firstNavigationUIModelFlow
 
-    private val _accountUsernameFlow: MutableStateFlow<String> = MutableStateFlow("")
-    val accountUsernameFlow: StateFlow<String> get() = _accountUsernameFlow
-
-    private val _continueAppFlowAfterAccountCreationConfirmed: MutableSharedFlow<Unit> =
-        MutableSharedFlow()
-    val continueAppFlowAfterAccountCreationConfirmed: SharedFlow<Unit>
-        get() = _continueAppFlowAfterAccountCreationConfirmed
+    private val _mainUIStateFlow: MutableStateFlow<MainUIState> = MutableStateFlow(MainUIState())
+    val mainUIStateFlow: StateFlow<MainUIState> get() = _mainUIStateFlow
 
     init {
         viewModelScope.launch {
@@ -50,10 +43,12 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             accountRepository.currentAccountDataFlow.collect {
                 it?.let { dataModel ->
-                    _accountUsernameFlow.emit(dataModel.address)
-                    if (dataModel.isCreationConfirmed) {
-                        _continueAppFlowAfterAccountCreationConfirmed.emit(Unit)
-                    }
+                    _mainUIStateFlow.emit(
+                        MainUIState(
+                            address = dataModel.address,
+                            isAccountCreated = dataModel.isCreationConfirmed,
+                        ),
+                    )
                 }
             }
         }

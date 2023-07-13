@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -33,7 +32,6 @@ class PreferencesDataStoreRepository @Inject constructor(
     private val serverThirdPartyEndpointKey = stringPreferencesKey("serverThirdPartyEndpointId")
     private val authorizedReceivingMessagesFromServerKey =
         booleanPreferencesKey("authorizedReceivingMessagesFromServer")
-    private val currentAccountIdKey = longPreferencesKey("currentAccountId")
 
     private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
     val serverFirstPartyEndpointNodeId: StateFlow<String?> get() = _serverFirstPartyEndpointNodeId
@@ -44,9 +42,6 @@ class PreferencesDataStoreRepository @Inject constructor(
     private val _isGatewayAuthorizedToReceiveMessagesFromServer: MutableStateFlow<Boolean?> =
         MutableStateFlow(null)
     val isGatewayAuthorizedToReceiveMessagesFromServer: StateFlow<Boolean?> get() = _isGatewayAuthorizedToReceiveMessagesFromServer
-
-    private val _currentAccountId: MutableStateFlow<Long?> = MutableStateFlow(null)
-    val currentAccountId: StateFlow<Long?> get() = _currentAccountId
 
     init {
         preferencesScope.launch {
@@ -64,12 +59,6 @@ class PreferencesDataStoreRepository @Inject constructor(
         preferencesScope.launch {
             getAuthorizedReceivingMessagesFromServer().collect {
                 _isGatewayAuthorizedToReceiveMessagesFromServer.emit(it)
-            }
-        }
-
-        preferencesScope.launch {
-            getCurrentAccountId().collect {
-                _currentAccountId.emit(it)
             }
         }
     }
@@ -107,18 +96,6 @@ class PreferencesDataStoreRepository @Inject constructor(
     private fun getAuthorizedReceivingMessagesFromServer(): Flow<Boolean?> {
         return preferencesDataStore.data.map { preferences ->
             preferences[authorizedReceivingMessagesFromServerKey]
-        }
-    }
-
-    suspend fun saveCurrentAccountId(value: Long) {
-        preferencesDataStore.edit { preferences ->
-            preferences[currentAccountIdKey] = value
-        }
-    }
-
-    private fun getCurrentAccountId(): Flow<Long?> {
-        return preferencesDataStore.data.map { preferences ->
-            preferences[currentAccountIdKey]
         }
     }
 }

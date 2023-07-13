@@ -3,7 +3,6 @@ package tech.relaycorp.letro.repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,8 +29,6 @@ class AccountRepository @Inject constructor(
         MutableStateFlow(emptyList())
     val allAccountsDataFlow: StateFlow<List<AccountDataModel>> get() = _allAccountsDataFlow
 
-    private val accounts: Flow<List<AccountDataModel>> = accountDao.getAll()
-
     private val _currentAccountDataFlow: MutableStateFlow<AccountDataModel?> =
         MutableStateFlow(null)
     val currentAccountDataFlow: StateFlow<AccountDataModel?> get() = _currentAccountDataFlow
@@ -40,23 +37,23 @@ class AccountRepository @Inject constructor(
     private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
 
     init {
-        preferencesScope.launch {
-            preferencesDataStoreRepository.currentAccountId.collect {
-                if (it != null) {
-                    _currentAccountDataFlow.emit(accountDao.getById(it))
+        databaseScope.launch {
+            accountDao.getAll().collect {
+                _allAccountsDataFlow.emit(it)
+            }
+        }
+
+        databaseScope.launch {
+            allAccountsDataFlow.collect { list ->
+                list.firstOrNull { it.isCurrent }?.let {
+                    _currentAccountDataFlow.emit(it)
                 }
             }
         }
 
         databaseScope.launch {
             gatewayRepository.accountCreatedConfirmationReceived.collect {
-                accountDao.update(_currentAccountDataFlow.value!!.copy(isCreationConfirmed = true))
-            }
-        }
-
-        databaseScope.launch {
-            accounts.collect {
-                _allAccountsDataFlow.emit(it)
+                accountDao.setCurrentAccount(_currentAccountDataFlow.value!!.address)
             }
         }
 
@@ -110,8 +107,8 @@ class AccountRepository @Inject constructor(
 
     private fun insertNewAccountToDatabase(dataModel: AccountDataModel) {
         databaseScope.launch {
-            val id = accountDao.insert(dataModel)
-            preferencesDataStoreRepository.saveCurrentAccountId(id)
+            accountDao.insert(dataModel)
+            accountDao.setCurrentAccount(dataModel.address)
         }
     }
 }

@@ -10,6 +10,7 @@ data class AccountDataModel(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val address: String,
+    val isCurrent: Boolean = false,
     val isCreationConfirmed: Boolean = false,
 //    val contacts: List<String> = emptyList(), // TODO Add Contact entity here
 )
