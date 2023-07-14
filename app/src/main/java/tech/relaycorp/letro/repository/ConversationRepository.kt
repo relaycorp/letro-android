@@ -5,8 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.ConversationDataModel
-import tech.relaycorp.letro.data.MessageDataModel
+import tech.relaycorp.letro.data.entity.ConversationDataModel
+import tech.relaycorp.letro.data.entity.MessageDataModel
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.MessageDataModel
+import tech.relaycorp.letro.data.entity.MessageDataModel
 import tech.relaycorp.letro.repository.ConversationRepository
 import javax.inject.Inject
 

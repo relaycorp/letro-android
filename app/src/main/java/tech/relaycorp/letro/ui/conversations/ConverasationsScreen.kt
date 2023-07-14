@@ -24,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
@@ -109,7 +108,7 @@ private fun ConversationsScreen(
                         Text(
                             text = " - " + conversation.lastMessageText,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Grey90,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
                 }

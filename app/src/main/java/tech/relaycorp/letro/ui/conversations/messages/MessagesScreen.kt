@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.data.MessageDataModel
+import tech.relaycorp.letro.data.entity.MessageDataModel
 import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding

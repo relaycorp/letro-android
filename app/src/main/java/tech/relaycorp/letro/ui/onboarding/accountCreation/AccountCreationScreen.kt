@@ -34,7 +34,6 @@ import tech.relaycorp.letro.ui.custom.HyperlinkText
 import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.custom.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.BoxCornerRadius
-import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
 import tech.relaycorp.letro.ui.theme.LargePadding
@@ -44,7 +43,7 @@ import tech.relaycorp.letro.utility.rememberLifecycleEvent
 
 @Composable
 fun AccountCreationRoute(
-    onCreateAccount: () -> Unit, // TODO Remove when real data is used
+    onNavigateToAccountCreationWaitingScreen: () -> Unit,
     onUseExistingAccount: () -> Unit, // TODO Remove when real data is used
     viewModel: AccountCreationViewModel = hiltViewModel(),
 ) {
@@ -57,20 +56,24 @@ fun AccountCreationRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.goToLoadingScreen.collect { onNavigateToAccountCreationWaitingScreen() }
+    }
+
     AccountCreationScreen(
         accountCreationUIState = accountCreationUIState,
-        onCreateAccount = onCreateAccount,
-        onUseExistingAccount = onUseExistingAccount,
-        onUserUpdatedUsername = viewModel::onUsernameChanged,
+        onCreateAccountClicked = viewModel::onCreateAccountClicked,
+        onUseExistingAccountClicked = onUseExistingAccount,
+        onUsernameInput = viewModel::onUsernameInput,
     )
 }
 
 @Composable
 private fun AccountCreationScreen(
     accountCreationUIState: AccountCreationUIState,
-    onCreateAccount: () -> Unit,
-    onUseExistingAccount: () -> Unit,
-    onUserUpdatedUsername: (String) -> Unit,
+    onCreateAccountClicked: () -> Unit,
+    onUseExistingAccountClicked: () -> Unit,
+    onUsernameInput: (String) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -98,9 +101,9 @@ private fun AccountCreationScreen(
             Spacer(modifier = Modifier.height(ItemPadding))
             LetroOutlinedTextField(
                 value = accountCreationUIState.username,
-                onValueChange = onUserUpdatedUsername,
+                onValueChange = onUsernameInput,
                 placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
-                suffixText = stringResource(id = R.string.general_domain_name),
+                suffixText = accountCreationUIState.domain,
             )
             HyperlinkText(
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
@@ -132,7 +135,7 @@ private fun AccountCreationScreen(
             Spacer(modifier = Modifier.height(VerticalScreenPadding))
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.onboarding_create_account_button),
-                onClick = onCreateAccount,
+                onClick = onCreateAccountClicked,
             )
             Spacer(modifier = Modifier.height(LargePadding))
             Box(
@@ -146,14 +149,14 @@ private fun AccountCreationScreen(
                         .padding(ItemPadding)
                         .background(MaterialTheme.colorScheme.surface),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Grey90,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
             Spacer(modifier = Modifier.height(LargePadding))
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.general_use_existing_account),
                 buttonType = ButtonType.Outlined,
-                onClick = onUseExistingAccount,
+                onClick = onUseExistingAccountClicked,
             )
         }
     }

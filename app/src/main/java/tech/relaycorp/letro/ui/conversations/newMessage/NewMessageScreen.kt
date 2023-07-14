@@ -25,7 +25,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.custom.LetroButton
 import tech.relaycorp.letro.ui.custom.LetroTextField
-import tech.relaycorp.letro.ui.theme.Grey90
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.VerticalScreenPadding
 
@@ -101,7 +100,7 @@ private fun NewMessageScreen(
             Text(
                 text = stringResource(id = R.string.new_message_from),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Grey90,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             LetroTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -120,7 +119,7 @@ private fun NewMessageScreen(
             Text(
                 text = stringResource(id = R.string.new_message_to),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Grey90,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             LetroTextField(
                 value = recipient,

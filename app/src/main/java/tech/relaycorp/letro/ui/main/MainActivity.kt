@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
             val systemUiController: SystemUiController = rememberSystemUiController()
-            val accountUsername by mainViewModel.accountUsernameFlow.collectAsState()
+            val mainUIState by mainViewModel.mainUIStateFlow.collectAsState()
             var tabIndex by remember { mutableIntStateOf(0) }
             val awalaGatewayAppLink = stringResource(id = R.string.url_awala_gateway_app)
 
@@ -75,6 +75,10 @@ class MainActivity : ComponentActivity() {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
                     currentRoute = backStackEntry.destination.route.getRouteByName()
                 }
+            }
+
+            if (currentRoute == Route.WaitingForAccountCreation && mainUIState.isAccountCreated) {
+                navController.navigateWithPoppingAllBackStack(Route.Conversations)
             }
 
             LaunchedEffect(mainViewModel) {
@@ -98,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     systemUiController = systemUiController,
                     navController = navController,
                     currentRoute = currentRoute,
-                    accountUsername = accountUsername,
+                    uiState = mainUIState,
                     tabIndex = tabIndex,
                     onTabIndexChanged = { tabIndex = it },
                     onNavigateToGooglePlay = {
@@ -121,7 +125,7 @@ fun MainScreen(
     systemUiController: SystemUiController,
     navController: NavHostController,
     currentRoute: Route,
-    accountUsername: String,
+    uiState: MainUIState,
     tabIndex: Int,
     onTabIndexChanged: (Int) -> Unit,
     onNavigateToGooglePlay: () -> Unit,
@@ -131,7 +135,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             LetroTopBar(
-                accountUsername = accountUsername,
+                accountAddress = uiState.address,
                 onChangeAccountClicked = { /*TODO*/ },
                 onSettingsClicked = { /*TODO*/ },
                 tabIndex = tabIndex,
@@ -177,7 +181,7 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LetroTopBar(
-    accountUsername: String,
+    accountAddress: String,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
@@ -202,7 +206,7 @@ private fun LetroTopBar(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = accountUsername,
+                                text = accountAddress,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
@@ -305,7 +309,7 @@ private fun LetroTabs(
 private fun LetroTopBarPreview() {
     LetroTheme {
         LetroTopBar(
-            accountUsername = "John Doe",
+            accountAddress = "John Doe",
             onChangeAccountClicked = {},
             onSettingsClicked = {},
             tabIndex = 0,
@@ -321,7 +325,7 @@ private fun LetroTopBarPreview() {
 private fun LetroTopBarPreviewDark() {
     LetroTheme(darkTheme = true) {
         LetroTopBar(
-            accountUsername = "John Doe",
+            accountAddress = "John Doe",
             onChangeAccountClicked = {},
             onSettingsClicked = {},
             tabIndex = 0,
@@ -340,7 +344,9 @@ private fun ConversationsPreview() {
             systemUiController = rememberSystemUiController(),
             navController = rememberNavController(),
             currentRoute = Route.Conversations,
-            accountUsername = "John Doe",
+            uiState = MainUIState(
+                address = "John Doe",
+            ),
             tabIndex = 0,
             onTabIndexChanged = {},
             onNavigateToGooglePlay = {},

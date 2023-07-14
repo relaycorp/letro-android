@@ -59,7 +59,7 @@ private fun ActionTakingScreen(
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonFilledStringRes),
-                onClick = actionTakingScreenUIStateModel.buttonFilledOnClicked,
+                onClick = actionTakingScreenUIStateModel.onButtonFilledClicked,
             )
         }
         if (actionTakingScreenUIStateModel.buttonOutlinedStringRes != null) {
@@ -67,7 +67,7 @@ private fun ActionTakingScreen(
             LetroButtonMaxWidthFilled(
                 buttonType = ButtonType.Outlined,
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonOutlinedStringRes),
-                onClick = actionTakingScreenUIStateModel.buttonOutlinedOnClicked,
+                onClick = actionTakingScreenUIStateModel.onButtonOutlinedClicked,
             )
         }
     }
@@ -77,7 +77,7 @@ private fun ActionTakingScreen(
 @Composable
 private fun WaitingScreenPreview() {
     LetroTheme {
-        ActionTakingScreen(ActionTakingScreenUIStateModel.Waiting)
+        ActionTakingScreen(ActionTakingScreenUIStateModel.Loading)
     }
 }
 
