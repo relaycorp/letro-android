@@ -53,7 +53,10 @@ class AccountRepository @Inject constructor(
 
         databaseScope.launch {
             gatewayRepository.accountCreatedConfirmationReceived.collect {
-                accountDao.setCurrentAccount(_currentAccountDataFlow.value!!.address)
+                _currentAccountDataFlow.value?.let { accountData ->
+                    accountDao.setCurrentAccount(accountData.address)
+                    accountDao.setAccountCreationConfirmed(accountData.address)
+                }
             }
         }
 
