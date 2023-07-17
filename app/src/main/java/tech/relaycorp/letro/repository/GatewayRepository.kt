@@ -21,9 +21,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class GatewayRepository @Inject constructor(
     @ApplicationContext var context: Context,
     private val preferencesDataStoreRepository: PreferencesDataStoreRepository,

@@ -6,7 +6,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -14,6 +13,7 @@ import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.letro.repository.PreferencesDataStoreRepository
 import tech.relaycorp.letro.ui.main.MainActivity
+import javax.inject.Inject
 
 @HiltAndroidTest
 class InitialAppRunTest {
@@ -33,14 +33,15 @@ class InitialAppRunTest {
     }
 
     @Test
-    fun assert_allViewsAreDisplayed_in_CreateAccountScreen() {
+    fun assert_allViewsAreDisplayed_on_GatewayNotInstalledScreen() {
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_install_awala_title)).assertIsDisplayed()
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onbaording_install_awala_message)).assertIsDisplayed()
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_install_awala_button)).assertIsDisplayed()
     }
 
+    // TODO Fix "There are multiple DataStores active for the same file" issue
     @Test
-    fun click_CreateAccountButton_goesTo_WaitingForAccountCreationScreen() {
+    fun click_DownloadGatewayButton_goesTo_GooglePlayStore() {
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_install_awala_button)).performClick()
         // TODO Assert that the next screen is displayed
     }

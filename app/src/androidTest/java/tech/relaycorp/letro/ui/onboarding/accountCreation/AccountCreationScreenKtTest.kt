@@ -5,17 +5,16 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.main.MainActivity
 import tech.relaycorp.letro.ui.theme.LetroTheme
 
-@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class AccountCreationScreenKtTest {
 
     @get:Rule(order = 0)
@@ -32,18 +31,24 @@ class AccountCreationScreenKtTest {
                 AccountCreationRoute(
                     onNavigateToAccountCreationWaitingScreen = {},
                     onUseExistingAccount = {},
+                    viewModel = hiltViewModel(),
                 )
             }
         }
     }
 
-    @Test
-    fun verify_CreateAccountButton_isDisplayed() {
+    private fun verify_UseExistingAccountButton_isDisplayed() {
+        composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_use_existing_account_button)).assertIsDisplayed()
+    }
+
+    private fun verify_CreateAccountButton_isDisplayed() {
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_create_account_button)).assertIsDisplayed()
     }
 
     @Test
     fun click_CreateAccountButton_goesTo_WaitingForAccountCreationScreen() {
+        verify_CreateAccountButton_isDisplayed()
+
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_create_account_button)).performClick()
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_waiting_title)).assertIsDisplayed()
     }
@@ -69,7 +74,9 @@ class AccountCreationScreenKtTest {
     }
 
     @Test
-    fun verify_UseExistingAccountButton_isDisplayed() {
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_use_existing_account_button)).assertIsDisplayed()
+    fun click_UseExistingAccountButton_goesTo_UseExistingAccountScreen() {
+        verify_UseExistingAccountButton_isDisplayed()
+
+        // TODO
     }
 }

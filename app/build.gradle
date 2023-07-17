@@ -84,7 +84,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.2'
 
     // Hilt
-    def hilt_version = "2.46.1"
+    def hilt_version = '2.47'
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
@@ -100,14 +100,15 @@ dependencies {
     androidTestImplementation platform('androidx.compose:compose-bom:2023.06.01')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
 
-    def androidXTestVersion = "1.4.0"
+    def androidXTestVersion = '1.4.0'
     androidTestImplementation "androidx.test:runner:$androidXTestVersion"
     androidTestImplementation "androidx.test:rules:$androidXTestVersion"
+    androidTestImplementation 'org.mockito:mockito-android:5.4.0'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
-    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.44'
-    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.44'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.47'
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.47'
 }
 
 // Allow references to generated code

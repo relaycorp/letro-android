@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object LetroDatabaseModule {
+object DatabaseModule {
 
     @Singleton
     @Provides
