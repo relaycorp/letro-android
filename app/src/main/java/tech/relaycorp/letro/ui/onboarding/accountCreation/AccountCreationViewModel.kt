@@ -46,7 +46,7 @@ class AccountCreationViewModel @Inject constructor(
     }
 
     fun onCreateAccountClicked() {
-        accountRepository.createNewAccount(
+        accountRepository.startCreatingNewAccount(
             address = _accountCreationUIState.value.username + _accountCreationUIState.value.domain,
         )
         viewModelScope.launch {
