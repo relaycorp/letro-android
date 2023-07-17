@@ -21,6 +21,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.AccountCreatedDataModel
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
+import java.nio.charset.Charset
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -130,7 +131,7 @@ class GatewayRepository @Inject constructor(
         gatewayScope.launch {
             GatewayClient.receiveMessages().collect { message ->
                 if (message.type == ContentType.AccountCreationCompleted.value) {
-                    val addresses = message.content.toString().split(",")
+                    val addresses = message.content.toString(Charset.defaultCharset()).split(",")
                     _accountCreatedConfirmationReceived.emit(
                         AccountCreatedDataModel(
                             addresses[0],
