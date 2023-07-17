@@ -98,4 +98,10 @@ class PreferencesDataStoreRepository @Inject constructor(
             preferences[authorizedReceivingMessagesFromServerKey]
         }
     }
+
+    suspend fun clear() {
+        preferencesDataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }
