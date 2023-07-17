@@ -36,7 +36,9 @@ interface AccountDao {
     @Query("UPDATE $ACCOUNT_TABLE_NAME SET isCurrent = CASE WHEN address = :address THEN 1 ELSE 0 END")
     suspend fun setCurrentAccount(address: String)
 
-    // Update isCreationConfirmed to true for the account with the given address
     @Query("UPDATE $ACCOUNT_TABLE_NAME SET isCreationConfirmed = 1 WHERE address = :address")
     suspend fun setAccountCreationConfirmed(address: String)
+
+    @Query("UPDATE $ACCOUNT_TABLE_NAME SET address = :address WHERE id = :id")
+    suspend fun updateAddress(id: Long, address: String)
 }
