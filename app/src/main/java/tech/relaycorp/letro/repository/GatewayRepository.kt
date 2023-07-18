@@ -18,8 +18,10 @@ import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.data.AccountCreatedDataModel
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
+import java.nio.charset.Charset
 import javax.inject.Inject
 
 class GatewayRepository @Inject constructor(
@@ -35,8 +37,12 @@ class GatewayRepository @Inject constructor(
     private val _isGatewayFullySetup: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup
 
-    private val _accountCreatedConfirmationReceived: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val accountCreatedConfirmationReceived: SharedFlow<Unit> get() = _accountCreatedConfirmationReceived
+    private val _accountCreatedConfirmationReceived: MutableSharedFlow<AccountCreatedDataModel> =
+        MutableSharedFlow()
+    val accountCreatedConfirmationReceived: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceived
+
+    val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
+    val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
 
     init {
         checkIfGatewayIsAvailable()
@@ -58,8 +64,8 @@ class GatewayRepository @Inject constructor(
     private fun collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer() {
         gatewayScope.launch {
             combine(
-                preferencesDataStoreRepository.serverFirstPartyEndpointNodeId,
-                preferencesDataStoreRepository.serverThirdPartyEndpointNodeId,
+                serverFirstPartyEndpointNodeId,
+                serverThirdPartyEndpointNodeId,
                 preferencesDataStoreRepository.isGatewayAuthorizedToReceiveMessagesFromServer,
             ) {
                     firstPartyEndpointNodeId,
@@ -123,7 +129,13 @@ class GatewayRepository @Inject constructor(
         gatewayScope.launch {
             GatewayClient.receiveMessages().collect { message ->
                 if (message.type == ContentType.AccountCreationCompleted.value) {
-                    _accountCreatedConfirmationReceived.emit(Unit)
+                    val addresses = message.content.toString(Charset.defaultCharset()).split(",")
+                    _accountCreatedConfirmationReceived.emit(
+                        AccountCreatedDataModel(
+                            addresses[0],
+                            addresses[1],
+                        ),
+                    )
                     message.ack()
                 }
             }

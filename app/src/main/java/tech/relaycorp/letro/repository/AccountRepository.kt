@@ -2,7 +2,6 @@ package tech.relaycorp.letro.repository
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,10 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class AccountRepository @Inject constructor(
     private val accountDao: AccountDao,
-    private val preferencesDataStoreRepository: PreferencesDataStoreRepository,
     private val gatewayRepository: GatewayRepository,
 ) {
-    private val preferencesScope: CoroutineScope = CoroutineScope(Job())
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val _allAccountsDataFlow: MutableStateFlow<List<AccountDataModel>> =
@@ -60,32 +57,46 @@ class AccountRepository @Inject constructor(
             }
         }
 
-        preferencesScope.launch {
-            preferencesDataStoreRepository.serverFirstPartyEndpointNodeId.collect {
+        databaseScope.launch {
+            gatewayRepository.serverFirstPartyEndpointNodeId.collect {
                 if (it != null) {
                     _serverFirstPartyEndpointNodeId.emit(it)
                 }
             }
         }
 
-        preferencesScope.launch {
-            preferencesDataStoreRepository.serverThirdPartyEndpointNodeId.collect {
+        databaseScope.launch {
+            gatewayRepository.serverThirdPartyEndpointNodeId.collect {
                 if (it != null) {
                     _serverThirdPartyEndpointNodeId.emit(it)
                 }
             }
         }
+
+        databaseScope.launch {
+            gatewayRepository.accountCreatedConfirmationReceived.collect {
+                accountCreatedOnTheServer(it.requestedAddress, it.assignedAddress)
+            }
+        }
     }
 
-    fun createNewAccount(address: String) {
+    fun startCreatingNewAccount(address: String) {
         if (_serverFirstPartyEndpointNodeId.value.isEmpty() || _serverThirdPartyEndpointNodeId.value.isEmpty()) {
             return // TODO Show error
         }
 
         val account = AccountDataModel(address = address)
         databaseScope.launch {
-            insertNewAccountToDatabase(account)
+            insertNewAccountIntoDatabase(account)
             sendCreateAccountRequest(address)
+        }
+    }
+
+    private fun accountCreatedOnTheServer(requestedAddress: String, assignedAddress: String) {
+        databaseScope.launch {
+            val account = accountDao.getByAddress(requestedAddress)
+            accountDao.updateAddress(account.id, assignedAddress)
+            accountDao.setAccountCreationConfirmed(assignedAddress)
         }
     }
 
@@ -108,7 +119,7 @@ class AccountRepository @Inject constructor(
         GatewayClient.sendMessage(message)
     }
 
-    private fun insertNewAccountToDatabase(dataModel: AccountDataModel) {
+    private fun insertNewAccountIntoDatabase(dataModel: AccountDataModel) {
         databaseScope.launch {
             accountDao.insert(dataModel)
             accountDao.setCurrentAccount(dataModel.address)
