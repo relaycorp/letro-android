@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.repository.AccountRepository
 import tech.relaycorp.letro.repository.GatewayRepository
@@ -33,11 +35,22 @@ class MainViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            gatewayRepository.isGatewayFullySetup.collect { gatewaySetup ->
+            combine(
+                gatewayRepository.isGatewayFullySetup,
+                accountRepository.currentAccountDataFlow,
+            ) { gatewaySetup, accountDataModel ->
                 if (gatewaySetup) {
-                    _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.AccountCreation)
+                    if (accountDataModel == null) {
+                        _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.AccountCreation)
+                    } else {
+                        if (accountDataModel.isCreationConfirmed) {
+                            _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.Conversations)
+                        } else {
+                            _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.WaitingForAccountCreationConfirmation)
+                        }
+                    }
                 }
-            }
+            }.collect()
         }
 
         viewModelScope.launch {

@@ -92,6 +92,14 @@ class MainActivity : ComponentActivity() {
                             navController.navigateWithPoppingAllBackStack(Route.GatewayNotInstalled)
                         }
 
+                        FirstNavigationUIModel.Conversations -> {
+                            navController.navigateWithPoppingAllBackStack(Route.Conversations)
+                        }
+
+                        FirstNavigationUIModel.WaitingForAccountCreationConfirmation -> {
+                            navController.navigateWithPoppingAllBackStack(Route.WaitingForAccountCreation)
+                        }
+
                         else -> {}
                     }
                 }
