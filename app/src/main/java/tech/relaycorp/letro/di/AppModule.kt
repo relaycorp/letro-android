@@ -6,6 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.data.dao.AccountDao
+import tech.relaycorp.letro.repository.AccountRepository
 import tech.relaycorp.letro.repository.GatewayRepository
 import tech.relaycorp.letro.repository.PreferencesDataStoreRepository
 import javax.inject.Singleton
@@ -26,4 +28,12 @@ object AppModule {
     @Provides
     fun providePreferencesDataStoreRepository(@ApplicationContext context: Context): PreferencesDataStoreRepository =
         PreferencesDataStoreRepository(context)
+
+    @Singleton
+    @Provides
+    fun provideAccountRepository(
+        accountDao: AccountDao,
+        gatewayRepository: GatewayRepository,
+    ): AccountRepository =
+        AccountRepository(accountDao, gatewayRepository)
 }

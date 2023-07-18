@@ -1,4 +1,4 @@
-package tech.relaycorp.letro
+package tech.relaycorp.letro.test
 
 import android.app.Application
 import android.content.Context

@@ -26,23 +26,23 @@ import javax.inject.Inject
 
 class GatewayRepository @Inject constructor(
     @ApplicationContext var context: Context,
-    private val preferencesDataStoreRepository: PreferencesDataStoreRepository,
-) {
+    private val preferencesDataStoreRepository: IPreferencesDataStoreRepository,
+) : IGatewayRepository {
 
     private val gatewayScope = CoroutineScope(Dispatchers.IO)
 
     private val _isGatewayAvailable: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    val isGatewayAvailable: StateFlow<Boolean?> get() = _isGatewayAvailable
+    override val isGatewayAvailable: StateFlow<Boolean?> get() = _isGatewayAvailable
 
     private val _isGatewayFullySetup: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup
+    override val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup
 
     private val _accountCreatedConfirmationReceived: MutableSharedFlow<AccountCreatedDataModel> =
         MutableSharedFlow()
-    val accountCreatedConfirmationReceived: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceived
+    override val accountCreatedConfirmationReceived: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceived
 
-    val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
-    val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
+    override val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
+    override val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
 
     init {
         checkIfGatewayIsAvailable()
@@ -153,7 +153,7 @@ class GatewayRepository @Inject constructor(
     // TODO Clean the implementation of this when possible
     private var awalaIsSetup = false
 
-    fun checkIfGatewayIsAvailable() {
+    override fun checkIfGatewayIsAvailable() {
         gatewayScope.launch {
             if (!awalaIsSetup) {
                 Awala.setUp(context)

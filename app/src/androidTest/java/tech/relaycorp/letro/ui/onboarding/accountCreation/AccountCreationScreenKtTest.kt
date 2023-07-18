@@ -1,18 +1,16 @@
 package tech.relaycorp.letro.ui.onboarding.accountCreation
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.theme.LetroTheme
+import tech.relaycorp.letro.ui.main.MainActivity
 
 @HiltAndroidTest
 class AccountCreationScreenKtTest {
@@ -21,20 +19,12 @@ class AccountCreationScreenKtTest {
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setUp() {
         hiltRule.inject()
-        composeRule.setContent {
-            LetroTheme {
-                AccountCreationRoute(
-                    onNavigateToAccountCreationWaitingScreen = {},
-                    onUseExistingAccount = {},
-                    viewModel = hiltViewModel(),
-                )
-            }
-        }
+        // TODO mock dependencies
     }
 
     private fun verify_UseExistingAccountButton_isDisplayed() {

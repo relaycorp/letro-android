@@ -13,22 +13,20 @@ import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.dao.AccountDao
 import tech.relaycorp.letro.data.entity.AccountDataModel
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class AccountRepository @Inject constructor(
     private val accountDao: AccountDao,
-    private val gatewayRepository: GatewayRepository,
-) {
+    private val gatewayRepository: IGatewayRepository,
+) : IAccountRepository {
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val _allAccountsDataFlow: MutableStateFlow<List<AccountDataModel>> =
         MutableStateFlow(emptyList())
-    val allAccountsDataFlow: StateFlow<List<AccountDataModel>> get() = _allAccountsDataFlow
+    override val allAccountsDataFlow: StateFlow<List<AccountDataModel>> get() = _allAccountsDataFlow
 
     private val _currentAccountDataFlow: MutableStateFlow<AccountDataModel?> =
         MutableStateFlow(null)
-    val currentAccountDataFlow: StateFlow<AccountDataModel?> get() = _currentAccountDataFlow
+    override val currentAccountDataFlow: StateFlow<AccountDataModel?> get() = _currentAccountDataFlow
 
     private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
     private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String> = MutableStateFlow("")
@@ -80,7 +78,7 @@ class AccountRepository @Inject constructor(
         }
     }
 
-    fun startCreatingNewAccount(address: String) {
+    override fun startCreatingNewAccount(address: String) {
         if (_serverFirstPartyEndpointNodeId.value.isEmpty() || _serverThirdPartyEndpointNodeId.value.isEmpty()) {
             return // TODO Show error
         }

@@ -47,6 +47,8 @@
     <string name="onboarding_waiting_title">Hold tight!</string>
     <string name="onboarding_waiting_message">We are creating your account…</string>
 
+    <string name="splash_welcome">Welcome to Letro</string>
+
     <string name="top_bar_change_account">Change account</string>
     <string name="top_bar_settings">Settings</string>
     <string name="top_bar_tab_conversations">Conversations</string>

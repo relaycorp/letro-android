@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 class PreferencesDataStoreRepository @Inject constructor(
     @ApplicationContext val context: Context,
-) {
+) : IPreferencesDataStoreRepository {
     private val preferencesScope = CoroutineScope(Dispatchers.IO)
 
     private val Context.dataStore by preferencesDataStore(name = "letro_preferences")
@@ -32,14 +32,14 @@ class PreferencesDataStoreRepository @Inject constructor(
         booleanPreferencesKey("authorizedReceivingMessagesFromServer")
 
     private val _serverFirstPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
-    val serverFirstPartyEndpointNodeId: StateFlow<String?> get() = _serverFirstPartyEndpointNodeId
+    override val serverFirstPartyEndpointNodeId: StateFlow<String?> get() = _serverFirstPartyEndpointNodeId
 
     private val _serverThirdPartyEndpointNodeId: MutableStateFlow<String?> = MutableStateFlow(null)
-    val serverThirdPartyEndpointNodeId: StateFlow<String?> get() = _serverThirdPartyEndpointNodeId
+    override val serverThirdPartyEndpointNodeId: StateFlow<String?> get() = _serverThirdPartyEndpointNodeId
 
     private val _isGatewayAuthorizedToReceiveMessagesFromServer: MutableStateFlow<Boolean?> =
         MutableStateFlow(null)
-    val isGatewayAuthorizedToReceiveMessagesFromServer: StateFlow<Boolean?> get() = _isGatewayAuthorizedToReceiveMessagesFromServer
+    override val isGatewayAuthorizedToReceiveMessagesFromServer: StateFlow<Boolean?> get() = _isGatewayAuthorizedToReceiveMessagesFromServer
 
     init {
         preferencesScope.launch {
@@ -61,7 +61,7 @@ class PreferencesDataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun saveServerFirstPartyEndpointNodeId(value: String) {
+    override suspend fun saveServerFirstPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
             preferences[serverFirstPartyEndpointKey] = value
         }
@@ -73,7 +73,7 @@ class PreferencesDataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun saveServerThirdPartyEndpointNodeId(value: String) {
+    override suspend fun saveServerThirdPartyEndpointNodeId(value: String) {
         preferencesDataStore.edit { preferences ->
             preferences[serverThirdPartyEndpointKey] = value
         }
@@ -85,7 +85,7 @@ class PreferencesDataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun saveAuthorizedReceivingMessagesFromServer(value: Boolean) {
+    override suspend fun saveAuthorizedReceivingMessagesFromServer(value: Boolean) {
         preferencesDataStore.edit { preferences ->
             preferences[authorizedReceivingMessagesFromServerKey] = value
         }
@@ -97,7 +97,7 @@ class PreferencesDataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun clear() {
+    override suspend fun clear() {
         preferencesDataStore.edit { preferences ->
             preferences.clear()
         }
