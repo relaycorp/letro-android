@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.repository
 
 import android.content.Context
+import android.util.Base64
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,12 +16,17 @@ import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
+import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.AccountCreatedDataModel
+import tech.relaycorp.letro.data.AddressesForPairingRequest
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
+import tech.relaycorp.letro.data.PairingMatchDataModel
+import tech.relaycorp.letro.utility.loadNonNullFirstPartyEndpoint
+import tech.relaycorp.letro.utility.loadNonNullThirdPartyEndpoint
 import java.nio.charset.Charset
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,8 +49,16 @@ class GatewayRepository @Inject constructor(
         MutableSharedFlow()
     val accountCreatedConfirmationReceived: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceived
 
-    val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
-    val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
+    private val _pairingRequestSent: MutableSharedFlow<AddressesForPairingRequest> =
+        MutableSharedFlow()
+    val pairingRequestSent: SharedFlow<AddressesForPairingRequest> get() = _pairingRequestSent
+
+    private val _pairingMatchReceived: MutableSharedFlow<PairingMatchDataModel> =
+        MutableSharedFlow()
+    val pairingMatchReceived: SharedFlow<PairingMatchDataModel> get() = _pairingMatchReceived
+
+    private val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
+    private val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
 
     init {
         checkIfGatewayIsAvailable()
@@ -59,6 +73,155 @@ class GatewayRepository @Inject constructor(
                     startReceivingMessages()
                 }
             }
+        }
+    }
+
+    // TODO Clean the implementation of this when possible
+    private var awalaIsSetup = false
+
+    fun checkIfGatewayIsAvailable() {
+        gatewayScope.launch {
+            if (!awalaIsSetup) {
+                Awala.setUp(context)
+                awalaIsSetup = true
+            }
+            try {
+                GatewayClient.bind()
+                _isGatewayAvailable.emit(true)
+            } catch (exp: GatewayBindingException) {
+                _isGatewayAvailable.emit(false)
+            }
+        }
+    }
+
+    fun sendCreateAccountRequest(address: String) {
+        gatewayScope.launch {
+            val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
+            val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
+
+            val message = OutgoingMessage.build(
+                type = ContentType.AccountCreationRequest.value,
+                content = address.toByteArray(),
+                senderEndpoint = firstPartyEndpoint,
+                recipientEndpoint = thirdPartyEndpoint,
+            )
+
+            GatewayClient.sendMessage(message)
+        }
+    }
+
+    fun startPairingWithContact(addressesForPairingRequest: AddressesForPairingRequest) {
+        gatewayScope.launch {
+            val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
+            val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
+
+            val pairingRequestContent: ByteArray = generatePairingRequest(
+                addressesForPairingRequest.requesterVeraId,
+                addressesForPairingRequest.contactVeraId,
+                firstPartyEndpoint,
+            )
+
+            val pairingRequestMessage = OutgoingMessage.build(
+                ContentType.ContactPairingRequest.value,
+                pairingRequestContent,
+                firstPartyEndpoint,
+                thirdPartyEndpoint,
+            )
+
+            GatewayClient.sendMessage(pairingRequestMessage)
+            _pairingRequestSent.emit(addressesForPairingRequest)
+        }
+    }
+
+    private fun startReceivingMessages() {
+        gatewayScope.launch {
+            GatewayClient.receiveMessages().collect { message ->
+                when (message.type) {
+                    ContentType.AccountCreationCompleted.value -> {
+                        val addresses =
+                            message.content.toString(Charset.defaultCharset()).split(",")
+                        _accountCreatedConfirmationReceived.emit(
+                            AccountCreatedDataModel(
+                                addresses[0],
+                                addresses[1],
+                            ),
+                        )
+                        message.ack()
+                    }
+                    ContentType.ContactPairingMatch.value -> {
+                        val pairingMatch = parsePairingMatch(message.content)
+                        _pairingMatchReceived.emit(pairingMatch)
+                        message.ack()
+                    }
+                    else -> {
+                        throw Exception("Unknown message type: ${message.type}")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun shouldAuthorizeReceivingMessages(
+        firstPartyEndpointNodeId: String?,
+        thirdPartyEndpointNodeId: String?,
+        authorizedReceivingMessagesFromServer: Boolean?,
+    ) = authorizedReceivingMessagesFromServer != true &&
+            firstPartyEndpointNodeId != null &&
+            thirdPartyEndpointNodeId != null
+
+    private fun generatePairingRequest(
+        requesterVeraId: String,
+        contactVeraId: String,
+        requesterEndpoint: FirstPartyEndpoint
+    ): ByteArray {
+        val publicKey = requesterEndpoint.publicKey
+        val publicKeyBase64 = Base64.encodeToString(publicKey.encoded, Base64.NO_WRAP)
+        val content = "$requesterVeraId,$contactVeraId,$publicKeyBase64"
+        return content.toByteArray()
+    }
+
+    private fun parsePairingMatch(content: ByteArray): PairingMatchDataModel {
+        val contentString = content.toString(Charset.defaultCharset())
+        val parts = contentString.split(",")
+        return PairingMatchDataModel(
+            requesterVeraId = parts[0],
+            contactVeraId = parts[1],
+            contactEndpointId = parts[2],
+            contactEndpointPublicKey = Base64.decode(parts[3], Base64.NO_WRAP)
+        )
+    }
+
+    private fun generatePairingAuth(
+        match: PairingMatchDataModel,
+        firstPartyEndpoint: FirstPartyEndpoint,
+    ): ByteArray {
+        // Implement some app-specific logic to check that the pairing request exists.
+        if (!contactRequestExists(match.requesterVeraId, match.contactVeraId)) {
+            // Granting authorisation is a sensitive operation and we shouldn't blindly
+            // trust the server.
+            throw PairingRequestException("Pairing request does not exist ($match)")
+        }
+
+        // Implement some app-specific logic to store the contact's Awala endpoint id, as
+        // we'll need it later to (a) complete pairing and (b) send messages to them.
+        storeContactAwalaId(
+            match.requesterVeraId,
+            match.contactVeraId,
+            match.contactEndpointId,
+        )
+
+        return firstPartyEndpoint.authorizeIndefinitely(
+            match.contactEndpointPublicKey,
+        )
+    }
+
+    private fun importPairingAuth(auth: ByteArray) {
+        val contactEndpoint = PrivateThirdPartyEndpoint.import(auth)
+
+        // Do whatever you need to mark the pairing as complete. For example:
+        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
+        for (contact in contacts) {
+            contact.markPairingAsComplete()
         }
     }
 
@@ -123,49 +286,6 @@ class GatewayRepository @Inject constructor(
                 if (it == null) {
                     registerFirstPartyEndpoint()
                 }
-            }
-        }
-    }
-
-    private fun startReceivingMessages() {
-        gatewayScope.launch {
-            GatewayClient.receiveMessages().collect { message ->
-                if (message.type == ContentType.AccountCreationCompleted.value) {
-                    val addresses = message.content.toString(Charset.defaultCharset()).split(",")
-                    _accountCreatedConfirmationReceived.emit(
-                        AccountCreatedDataModel(
-                            addresses[0],
-                            addresses[1],
-                        ),
-                    )
-                    message.ack()
-                }
-            }
-        }
-    }
-
-    private fun shouldAuthorizeReceivingMessages(
-        firstPartyEndpointNodeId: String?,
-        thirdPartyEndpointNodeId: String?,
-        authorizedReceivingMessagesFromServer: Boolean?,
-    ) = authorizedReceivingMessagesFromServer != true &&
-        firstPartyEndpointNodeId != null &&
-        thirdPartyEndpointNodeId != null
-
-    // TODO Clean the implementation of this when possible
-    private var awalaIsSetup = false
-
-    fun checkIfGatewayIsAvailable() {
-        gatewayScope.launch {
-            if (!awalaIsSetup) {
-                Awala.setUp(context)
-                awalaIsSetup = true
-            }
-            try {
-                GatewayClient.bind()
-                _isGatewayAvailable.emit(true)
-            } catch (exp: GatewayBindingException) {
-                _isGatewayAvailable.emit(false)
             }
         }
     }

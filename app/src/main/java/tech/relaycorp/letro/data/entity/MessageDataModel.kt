@@ -1,7 +1,12 @@
 package tech.relaycorp.letro.data.entity
 
+import androidx.room.Entity
+
+const val MESSAGE_TABLE_NAME = "message"
+
+@Entity(tableName = MESSAGE_TABLE_NAME)
 data class MessageDataModel(
-    val id: String,
+    val id: Long = 0L,
     val sender: String,
     val body: String,
     val timestamp: Long,
@@ -9,7 +14,6 @@ data class MessageDataModel(
 )
 
 fun createNewMessage(sender: String) = MessageDataModel(
-    id = "0", // TODO Change this
     sender = sender,
     body = "",
     timestamp = System.currentTimeMillis(),

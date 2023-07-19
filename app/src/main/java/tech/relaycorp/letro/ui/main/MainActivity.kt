@@ -96,6 +96,10 @@ class MainActivity : ComponentActivity() {
                             navController.navigateWithPoppingAllBackStack(Route.Conversations)
                         }
 
+                        FirstNavigationUIModel.PairWithPeople -> {
+                            navController.navigateWithPoppingAllBackStack(Route.PairWithPeople)
+                        }
+
                         FirstNavigationUIModel.WaitingForAccountCreationConfirmation -> {
                             navController.navigateWithPoppingAllBackStack(Route.WaitingForAccountCreation)
                         }

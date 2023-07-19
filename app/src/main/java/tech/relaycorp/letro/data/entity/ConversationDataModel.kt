@@ -1,7 +1,12 @@
 package tech.relaycorp.letro.data.entity
 
+import androidx.room.Entity
+
+const val CONVERSATION_TABLE_NAME = "conversation"
+
+@Entity(tableName = CONVERSATION_TABLE_NAME)
 data class ConversationDataModel(
-    val id: String,
+    val id: Long = 0L,
     val contact: String,
     val sender: String,
     val recipient: String,
@@ -14,7 +19,6 @@ data class ConversationDataModel(
 fun createNewConversation(
     sender: String,
 ) = ConversationDataModel(
-    id = "0", // TODO Change this
     contact = "",
     sender = sender,
     recipient = "",

@@ -12,5 +12,5 @@ data class AccountDataModel(
     val address: String,
     val isCurrent: Boolean = false,
     val isCreationConfirmed: Boolean = false,
-//    val contacts: List<String> = emptyList(), // TODO Add Contact entity here
+    val contacts: List<ContactDataModel> = emptyList(),
 )
