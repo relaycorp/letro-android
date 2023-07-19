@@ -16,7 +16,7 @@ import javax.inject.Singleton
     entities = [
         AccountDataModel::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class LetroDatabase : RoomDatabase() {

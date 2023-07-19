@@ -44,7 +44,8 @@ class MainViewModel @Inject constructor(
                         _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.AccountCreation)
                     } else {
                         if (accountDataModel.isCreationConfirmed) {
-                            _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.Conversations)
+                            // TODO Go to Conversations if there are contacts paired
+                            _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.PairWithPeople)
                         } else {
                             _firstNavigationUIModelFlow.emit(FirstNavigationUIModel.WaitingForAccountCreationConfirmation)
                         }

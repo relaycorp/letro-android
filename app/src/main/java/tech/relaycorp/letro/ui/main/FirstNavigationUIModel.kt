@@ -5,5 +5,6 @@ sealed interface FirstNavigationUIModel {
     object AccountCreation : FirstNavigationUIModel
     object WaitingForAccountCreationConfirmation : FirstNavigationUIModel
     object Conversations : FirstNavigationUIModel
+    object PairWithPeople : FirstNavigationUIModel
     object Splash : FirstNavigationUIModel
 }
