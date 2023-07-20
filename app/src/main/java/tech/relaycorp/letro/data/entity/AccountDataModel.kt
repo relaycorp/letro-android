@@ -14,3 +14,6 @@ data class AccountDataModel(
     val isCreationConfirmed: Boolean = false,
     val contacts: List<ContactDataModel> = emptyList(),
 )
+
+fun AccountDataModel.findContactByAddress(contactAddress: String): ContactDataModel? =
+    contacts.firstOrNull { it.address == contactAddress }

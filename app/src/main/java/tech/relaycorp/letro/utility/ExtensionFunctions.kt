@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.utility
 
 import androidx.navigation.NavController
-import tech.relaycorp.awaladroid.endpoint.Endpoint
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.letro.ui.navigation.Route
