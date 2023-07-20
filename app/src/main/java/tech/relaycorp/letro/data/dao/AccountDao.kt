@@ -8,7 +8,6 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
-import tech.relaycorp.letro.data.entity.AccountWithContacts
 
 @Dao
 interface AccountDao {
@@ -43,6 +42,7 @@ interface AccountDao {
     @Query("UPDATE $ACCOUNT_TABLE_NAME SET address = :address WHERE id = :id")
     suspend fun updateAddress(id: Long, address: String)
 
-    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE id = :accountId")
-    fun getAccountWithContacts(accountId: Long): Flow<AccountWithContacts>
+    // TODO IDEA for contact, conversation and message adding/deleting
+//    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE id = :accountId")
+//    fun getAccountWithContacts(accountId: Long): Flow<AccountWithContacts>
 }
