@@ -2,6 +2,8 @@ package tech.relaycorp.letro.repository
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.PairingMatchDataModel
 import tech.relaycorp.letro.data.PairingRequestAdresses
@@ -18,7 +20,16 @@ class ContactRepository @Inject constructor(
 ) {
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
+    private val _pairedContactsExist: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val pairedContactsExist: StateFlow<Boolean> get() = _pairedContactsExist
+
     init {
+        databaseScope.launch {
+            contactDao.getAll().collect { contacts ->
+                _pairedContactsExist.value = contacts.any { it.status == PairingStatus.Complete }
+            }
+        }
+
         databaseScope.launch {
             gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestAdresses ->
                 val contactToUpdate = getContactFromDatabase(

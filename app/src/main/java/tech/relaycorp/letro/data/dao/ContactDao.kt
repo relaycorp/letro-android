@@ -18,6 +18,9 @@ interface ContactDao {
     @Update
     suspend fun update(contact: ContactDataModel)
 
+    @Query("SELECT * FROM $CONTACT_TABLE_NAME")
+    fun getAll(): Flow<List<ContactDataModel>>
+
     @Query("SELECT * FROM $CONTACT_TABLE_NAME WHERE accountId = :accountId")
     fun getContactsForAccount(accountId: Long): Flow<List<ContactDataModel>>
 

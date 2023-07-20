@@ -81,31 +81,15 @@ class MainActivity : ComponentActivity() {
                 navController.navigateWithPoppingAllBackStack(Route.Conversations)
             }
 
-            LaunchedEffect(mainViewModel) {
+            LaunchedEffect(Unit) {
                 mainViewModel.firstNavigationUIModelFlow.collect { firstNavigation ->
-                    when (firstNavigation) {
-                        FirstNavigationUIModel.AccountCreation -> {
-                            navController.navigateWithPoppingAllBackStack(Route.AccountCreation)
-                        }
+                    handleFirstNavigation(navController, firstNavigation)
+                }
+            }
 
-                        FirstNavigationUIModel.NoGateway -> {
-                            navController.navigateWithPoppingAllBackStack(Route.GatewayNotInstalled)
-                        }
-
-                        FirstNavigationUIModel.Conversations -> {
-                            navController.navigateWithPoppingAllBackStack(Route.Conversations)
-                        }
-
-                        FirstNavigationUIModel.PairWithPeople -> {
-                            navController.navigateWithPoppingAllBackStack(Route.PairWithPeople)
-                        }
-
-                        FirstNavigationUIModel.WaitingForAccountCreationConfirmation -> {
-                            navController.navigateWithPoppingAllBackStack(Route.WaitingForAccountCreation)
-                        }
-
-                        else -> {}
-                    }
+            LaunchedEffect(Unit) {
+                mainViewModel.replayInitialAppNavigation.collect {
+                    handleFirstNavigation(navController, mainViewModel.firstNavigationUIModelFlow.value)
                 }
             }
 
@@ -125,9 +109,38 @@ class MainActivity : ComponentActivity() {
                             ),
                         )
                     },
-
+                    onGotItClickedAfterPairingRequestSent = mainViewModel::onGotItClickedAfterPairingRequestSent,
                 )
             }
+        }
+    }
+
+    private fun handleFirstNavigation(
+        navController: NavHostController,
+        firstNavigation: InitialAppNavigationUIModel,
+    ) {
+        when (firstNavigation) {
+            InitialAppNavigationUIModel.AccountCreation -> {
+                navController.navigateWithPoppingAllBackStack(Route.AccountCreation)
+            }
+
+            InitialAppNavigationUIModel.NoGateway -> {
+                navController.navigateWithPoppingAllBackStack(Route.GatewayNotInstalled)
+            }
+
+            InitialAppNavigationUIModel.Conversations -> {
+                navController.navigateWithPoppingAllBackStack(Route.Conversations)
+            }
+
+            InitialAppNavigationUIModel.AccountCreationConfirmed -> {
+                navController.navigateWithPoppingAllBackStack(Route.AccountConfirmation)
+            }
+
+            InitialAppNavigationUIModel.WaitingForAccountCreationConfirmation -> {
+                navController.navigateWithPoppingAllBackStack(Route.WaitingForAccountCreation)
+            }
+
+            else -> {}
         }
     }
 }
@@ -141,6 +154,7 @@ fun MainScreen(
     tabIndex: Int,
     onTabIndexChanged: (Int) -> Unit,
     onNavigateToGooglePlay: () -> Unit,
+    onGotItClickedAfterPairingRequestSent: () -> Unit,
 ) {
     systemUiController.isStatusBarVisible = currentRoute.showStatusBar
 
@@ -163,6 +177,7 @@ fun MainScreen(
                 navController = navController,
                 paddingValues = it,
                 onNavigateToGooglePlay = onNavigateToGooglePlay,
+                onGotItClickedAfterPairingRequestSent = onGotItClickedAfterPairingRequestSent,
             )
         },
         floatingActionButton = {
@@ -362,6 +377,7 @@ private fun ConversationsPreview() {
             tabIndex = 0,
             onTabIndexChanged = {},
             onNavigateToGooglePlay = {},
+            onGotItClickedAfterPairingRequestSent = {},
         )
     }
 }

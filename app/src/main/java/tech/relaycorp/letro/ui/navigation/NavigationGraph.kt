@@ -23,6 +23,7 @@ import tech.relaycorp.letro.utility.navigateWithPoppingAllBackStack
 fun LetroNavHostContainer(
     navController: NavHostController,
     onNavigateToGooglePlay: () -> Unit,
+    onGotItClickedAfterPairingRequestSent: () -> Unit,
     paddingValues: PaddingValues,
 ) {
     NavHost(
@@ -93,9 +94,7 @@ fun LetroNavHostContainer(
         composable(Route.PairingRequestSent.name) {
             ActionTakingRoute(
                 ActionTakingScreenUIStateModel.PairingRequestSent(
-                    onGotItClicked = {
-                        navController.navigateWithPoppingAllBackStack(Route.Conversations)
-                    },
+                    onGotItClicked = onGotItClickedAfterPairingRequestSent,
                 ),
             )
         }
