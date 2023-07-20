@@ -5,13 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import tech.relaycorp.letro.data.dao.AccountDao
 import tech.relaycorp.letro.data.dao.ContactDao
 import tech.relaycorp.letro.data.dao.ConversationDao
 import tech.relaycorp.letro.data.dao.MessageDao
-import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
 import tech.relaycorp.letro.data.entity.ContactDataModel
 import tech.relaycorp.letro.data.entity.ConversationDataModel
@@ -26,7 +23,7 @@ import javax.inject.Singleton
         ConversationDataModel::class,
         MessageDataModel::class,
     ],
-    version = 4,
+    version = 1,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -52,13 +49,7 @@ abstract class LetroDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(context, LetroDatabase::class.java, DATABASE_NAME)
-                .addMigrations(MIGRATION_2_3)
+                .fallbackToDestructiveMigrationOnDowngrade()
                 .build()
-    }
-}
-
-val MIGRATION_2_3 = object : Migration(2, 3) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE $ACCOUNT_TABLE_NAME ADD COLUMN isCurrent INTEGER NOT NULL DEFAULT 0")
     }
 }

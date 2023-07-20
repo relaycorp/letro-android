@@ -185,7 +185,7 @@ class GatewayRepository @Inject constructor(
                         message.ack()
                     }
                     else -> {
-                        throw Exception("Unknown message type: ${message.type}")
+// TODO throw Exception("Unknown message type: ${message.type}")
                     }
                 }
             }
