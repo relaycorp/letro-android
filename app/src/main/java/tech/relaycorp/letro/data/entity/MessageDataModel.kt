@@ -2,6 +2,7 @@ package tech.relaycorp.letro.data.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 const val MESSAGE_TABLE_NAME = "message"
@@ -10,11 +11,13 @@ const val MESSAGE_TABLE_NAME = "message"
     tableName = MESSAGE_TABLE_NAME,
     foreignKeys = [
         ForeignKey(
-            entity = ContactDataModel::class,
+            entity = ConversationDataModel::class,
             parentColumns = ["id"],
             childColumns = ["conversationId"],
+            onDelete = ForeignKey.CASCADE,
         ),
     ],
+    indices = [Index("conversationId")],
 )
 data class MessageDataModel(
     @PrimaryKey(autoGenerate = true)
