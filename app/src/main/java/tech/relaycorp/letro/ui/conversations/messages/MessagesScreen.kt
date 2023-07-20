@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.data.entity.MessageDataModel
 import tech.relaycorp.letro.ui.custom.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.ItemPadding
@@ -34,9 +33,9 @@ fun MessagesRoute(
     onReplyClicked: () -> Unit,
     viewModel: MessagesViewModel = hiltViewModel(),
 ) {
-    val messages by viewModel.messagesDataFlow.collectAsState()
+    val uiState by viewModel.messagesUIStateFlow.collectAsState()
     MessagesScreen(
-        messages = messages,
+        uiState = uiState,
         onBackClicked = onBackClicked,
         onReplyClicked = onReplyClicked,
     )
@@ -44,7 +43,7 @@ fun MessagesRoute(
 
 @Composable
 private fun MessagesScreen(
-    messages: List<MessageDataModel>,
+    uiState: MessagesUIStateModel,
     onBackClicked: () -> Unit,
     onReplyClicked: () -> Unit,
 ) {
@@ -67,7 +66,7 @@ private fun MessagesScreen(
             )
         }
         LazyColumn {
-            items(messages) { message ->
+            items(uiState.messages) { message ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -81,7 +80,7 @@ private fun MessagesScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = message.sender,
+                            text = message.senderAddress,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(modifier = Modifier.width(HorizontalScreenPadding))
@@ -105,5 +104,5 @@ private fun MessagesScreen(
 @Preview(showBackground = true)
 @Composable
 private fun MessagesScreenPreview() {
-    MessagesScreen(emptyList(), {}, {})
+    MessagesScreen(MessagesUIStateModel(), {}, {})
 }
