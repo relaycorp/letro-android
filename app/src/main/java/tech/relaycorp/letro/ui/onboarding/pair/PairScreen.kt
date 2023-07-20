@@ -10,6 +10,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,17 +36,19 @@ fun PairWithPeopleRoute(
     val domain by viewModel.idUIFlow.collectAsState()
     val token by viewModel.aliasUIFlow.collectAsState()
 
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToPairingRequestSent.collect {
+            navigateToPairingRequestSentScreen()
+        }
+    }
+
     PairWithPeopleScreen(
         navigateBack = navigateBack,
         id = domain,
-        onIdInput = {
-            viewModel.onIdInput(it)
-        },
+        onIdInput = viewModel::onIdInput,
         alias = token,
-        onAliasInput = {
-            viewModel.onAliasInput(it)
-        },
-        onRequestPairingClicked = navigateToPairingRequestSentScreen, // TODO Replace when real data is used
+        onAliasInput = viewModel::onAliasInput,
+        onRequestPairingClicked = viewModel::onRequestPairingClicked,
     )
 }
 

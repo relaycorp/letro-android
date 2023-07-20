@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.ui.conversations.newMessage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,30 +21,38 @@ class NewMessageViewModel @Inject constructor(
     private val _currentAccount = accountRepository.currentAccountDataFlow
     private val _currentConversationDataFlow: MutableStateFlow<ConversationDataModel> = MutableStateFlow(
         createNewConversation(
-            sender = _currentAccount.value?.address.toString(),
+            contactId = 0L, // TODO Update
         ),
     )
-    val currentConversationDataFlow: MutableStateFlow<ConversationDataModel> get() = _currentConversationDataFlow
+
+    private val _newMessageUIStateModelFlow: MutableStateFlow<NewMessageUIStateModel> =
+        MutableStateFlow(NewMessageUIStateModel())
+    val newMessageUIStateModelFlow: MutableStateFlow<NewMessageUIStateModel> get() = _newMessageUIStateModelFlow
 
     fun onRecipientInput(recipient: String) {
-        viewModelScope.launch {
-            _currentConversationDataFlow.update {
-                it.copy(recipient = recipient)
-            }
-        }
+        // TODO
+        Log.d("NewMessageViewModel", "onRecipientInput: $recipient")
+//        viewModelScope.launch {
+//            _currentConversationDataFlow.update {
+//                it.copy(contactAddress = recipient)
+//            }
+//        }
     }
 
     fun onContentInput(content: String) {
-        viewModelScope.launch {
-            _currentConversationDataFlow.update {
-                val newMessage = it.messages.last().copy(body = content)
-                val newMessages = it.messages.dropLast(1) + newMessage
-                it.copy(messages = newMessages)
-            }
-        }
+        // TODO
+        Log.d("NewMessageViewModel", "onContentInput: $content")
+//        viewModelScope.launch {
+//            _currentConversationDataFlow.update {dataModel: ConversationDataModel ->
+//                val newMessage = dataModel.messages.last().copy(body = content)
+//                val newMessages = dataModel.messages.dropLast(1) + newMessage
+//                dataModel.copy(messages = newMessages)
+//            }
+//        }
     }
 
     fun onSubjectInput(subject: String) {
+        // TODO Update
         viewModelScope.launch {
             _currentConversationDataFlow.update {
                 it.copy(subject = subject)

@@ -4,24 +4,38 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import tech.relaycorp.letro.data.dao.AccountDao
+import tech.relaycorp.letro.data.dao.ContactDao
+import tech.relaycorp.letro.data.dao.ConversationDao
+import tech.relaycorp.letro.data.dao.MessageDao
 import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
+import tech.relaycorp.letro.data.entity.ContactDataModel
+import tech.relaycorp.letro.data.entity.ConversationDataModel
+import tech.relaycorp.letro.data.entity.MessageDataModel
 import javax.inject.Singleton
 
 @Singleton
 @Database(
     entities = [
         AccountDataModel::class,
+        ContactDataModel::class,
+        ConversationDataModel::class,
+        MessageDataModel::class,
     ],
     version = 4,
     exportSchema = true,
 )
+@TypeConverters(Converters::class)
 abstract class LetroDatabase : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
+    abstract fun contactDao(): ContactDao
+    abstract fun conversationDao(): ConversationDao
+    abstract fun messageDao(): MessageDao
 
     companion object {
         private const val DATABASE_NAME = "letro"

@@ -33,13 +33,13 @@ fun NewMessageRoute(
     onBackClicked: () -> Unit,
     viewModel: NewMessageViewModel = hiltViewModel(),
 ) {
-    val conversationDataModel by viewModel.currentConversationDataFlow.collectAsState()
+    val uiState by viewModel.newMessageUIStateModelFlow.collectAsState()
 
     NewMessageScreen(
-        sender = conversationDataModel.sender,
-        recipient = conversationDataModel.recipient,
-        subject = conversationDataModel.subject,
-        body = conversationDataModel.messages.last().body,
+        sender = uiState.senderAddress,
+        recipient = uiState.recipientAddress,
+        subject = uiState.subject,
+        body = uiState.body,
         onRecipientInput = viewModel::onRecipientInput,
         onBodyInput = viewModel::onContentInput,
         onSubjectInput = viewModel::onSubjectInput,

@@ -5,23 +5,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.data.entity.MessageDataModel
-import tech.relaycorp.letro.repository.ConversationRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class MessagesViewModel @Inject constructor(
-    conversationRepository: ConversationRepository,
-) : ViewModel() {
+class MessagesViewModel @Inject constructor() : ViewModel() {
 
-    private val _messagesDataFlow: MutableStateFlow<List<MessageDataModel>> = MutableStateFlow(emptyList())
-    val messagesDataFlow: MutableStateFlow<List<MessageDataModel>> get() = _messagesDataFlow
+    private val _messagesUIStateFlow: MutableStateFlow<MessagesUIStateModel> = MutableStateFlow(MessagesUIStateModel())
+    val messagesUIStateFlow: MutableStateFlow<MessagesUIStateModel> get() = _messagesUIStateFlow
 
     init {
         viewModelScope.launch {
-            conversationRepository.conversationsDataFlow.collect { conversations ->
-                _messagesDataFlow.emit(conversations.first().messages)
-            }
+            // TODO
         }
     }
 }
