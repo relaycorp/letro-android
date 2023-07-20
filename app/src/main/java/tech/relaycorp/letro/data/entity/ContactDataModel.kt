@@ -13,15 +13,14 @@ data class ContactDataModel(
     val alias: String,
     val contactEndpointId: String? = null,
     val contactEndpointPublicKey: ByteArray? = null,
-    val status: ContactStatus = ContactStatus.Unpaired,
+    val status: PairingStatus = PairingStatus.Unpaired,
     val conversations: List<ConversationDataModel> = emptyList(),
 )
 
-sealed interface ContactStatus {
-    object Unpaired : ContactStatus
-    object PairingRequestSent : ContactStatus
-    object PairingMatch : ContactStatus
-    object AuthorizationSent : ContactStatus
-    object AuthorizationReceived : ContactStatus
-    object PairedAndAuthorized : ContactStatus
+sealed interface PairingStatus {
+    object Unpaired : PairingStatus
+    object RequestSent : PairingStatus
+    object Match : PairingStatus
+    object AuthorizationSent : PairingStatus
+    object Complete : PairingStatus
 }

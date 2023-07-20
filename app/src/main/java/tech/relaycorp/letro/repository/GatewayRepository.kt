@@ -16,15 +16,14 @@ import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
-import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.data.AccountCreatedDataModel
-import tech.relaycorp.letro.data.AddressesForPairingRequest
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
 import tech.relaycorp.letro.data.PairingMatchDataModel
+import tech.relaycorp.letro.data.PairingRequestAdresses
 import tech.relaycorp.letro.utility.loadNonNullFirstPartyEndpoint
 import tech.relaycorp.letro.utility.loadNonNullThirdPartyEndpoint
 import java.nio.charset.Charset
@@ -45,17 +44,25 @@ class GatewayRepository @Inject constructor(
     private val _isGatewayFullySetup: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isGatewayFullySetup: StateFlow<Boolean> get() = _isGatewayFullySetup
 
-    private val _accountCreatedConfirmationReceived: MutableSharedFlow<AccountCreatedDataModel> =
+    private val _accountCreatedConfirmationReceivedFromServer: MutableSharedFlow<AccountCreatedDataModel> =
         MutableSharedFlow()
-    val accountCreatedConfirmationReceived: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceived
+    val accountCreationConfirmationReceivedFromServer: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceivedFromServer
 
-    private val _pairingRequestSent: MutableSharedFlow<AddressesForPairingRequest> =
+    private val _pairingRequestSent: MutableSharedFlow<PairingRequestAdresses> =
         MutableSharedFlow()
-    val pairingRequestSent: SharedFlow<AddressesForPairingRequest> get() = _pairingRequestSent
+    val pairingRequestSent: SharedFlow<PairingRequestAdresses> get() = _pairingRequestSent
 
     private val _pairingMatchReceived: MutableSharedFlow<PairingMatchDataModel> =
         MutableSharedFlow()
     val pairingMatchReceived: SharedFlow<PairingMatchDataModel> get() = _pairingMatchReceived
+
+    private val _pairingAuthorizationSent: MutableSharedFlow<PairingMatchDataModel> =
+        MutableSharedFlow()
+    val pairingAuthorizationSent: SharedFlow<PairingMatchDataModel> get() = _pairingAuthorizationSent
+
+    private val _pairingAuthorizationReceived: MutableSharedFlow<PairingMatchDataModel> =
+        MutableSharedFlow()
+    val pairingAuthorizationReceived: SharedFlow<PairingMatchDataModel> get() = _pairingAuthorizationReceived
 
     private val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
     private val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
@@ -64,8 +71,8 @@ class GatewayRepository @Inject constructor(
         checkIfGatewayIsAvailable()
 
         gatewayScope.launch {
-            _isGatewayAvailable.collect {
-                if (it == true) {
+            _isGatewayAvailable.collect { isAvailable: Boolean? ->
+                if (isAvailable == true) {
                     registerServerFirstPartyEndpointIfNeeded()
                     importServerThirdPartyEndpointIfNeeded()
                     collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer()
@@ -110,14 +117,14 @@ class GatewayRepository @Inject constructor(
         }
     }
 
-    fun startPairingWithContact(addressesForPairingRequest: AddressesForPairingRequest) {
+    fun startPairingWithContact(pairingRequestAdresses: PairingRequestAdresses) {
         gatewayScope.launch {
             val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
             val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
 
             val pairingRequestContent: ByteArray = generatePairingRequest(
-                addressesForPairingRequest.requesterVeraId,
-                addressesForPairingRequest.contactVeraId,
+                pairingRequestAdresses.requesterVeraId,
+                pairingRequestAdresses.contactVeraId,
                 firstPartyEndpoint,
             )
 
@@ -129,7 +136,26 @@ class GatewayRepository @Inject constructor(
             )
 
             GatewayClient.sendMessage(pairingRequestMessage)
-            _pairingRequestSent.emit(addressesForPairingRequest)
+            _pairingRequestSent.emit(pairingRequestAdresses)
+        }
+    }
+
+    fun sendPairingAuthorizationRequest(match: PairingMatchDataModel) {
+        gatewayScope.launch {
+            val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
+            val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
+
+            val pairingAuth = generatePairingAuth(match, firstPartyEndpoint)
+
+            val pairingAuthMessage = OutgoingMessage.build(
+                ContentType.ContactPairingAuthorization.value,
+                pairingAuth,
+                firstPartyEndpoint,
+                thirdPartyEndpoint,
+            )
+
+            GatewayClient.sendMessage(pairingAuthMessage)
+            _pairingAuthorizationSent.emit(match)
         }
     }
 
@@ -140,7 +166,7 @@ class GatewayRepository @Inject constructor(
                     ContentType.AccountCreationCompleted.value -> {
                         val addresses =
                             message.content.toString(Charset.defaultCharset()).split(",")
-                        _accountCreatedConfirmationReceived.emit(
+                        _accountCreatedConfirmationReceivedFromServer.emit(
                             AccountCreatedDataModel(
                                 addresses[0],
                                 addresses[1],
@@ -151,6 +177,11 @@ class GatewayRepository @Inject constructor(
                     ContentType.ContactPairingMatch.value -> {
                         val pairingMatch = parsePairingMatch(message.content)
                         _pairingMatchReceived.emit(pairingMatch)
+                        message.ack()
+                    }
+                    ContentType.ContactPairingAuthorization.value -> {
+                        val pairingMatch = parsePairingMatch(message.content)
+                        _pairingAuthorizationReceived.emit(pairingMatch)
                         message.ack()
                     }
                     else -> {
@@ -166,13 +197,13 @@ class GatewayRepository @Inject constructor(
         thirdPartyEndpointNodeId: String?,
         authorizedReceivingMessagesFromServer: Boolean?,
     ) = authorizedReceivingMessagesFromServer != true &&
-            firstPartyEndpointNodeId != null &&
-            thirdPartyEndpointNodeId != null
+        firstPartyEndpointNodeId != null &&
+        thirdPartyEndpointNodeId != null
 
     private fun generatePairingRequest(
         requesterVeraId: String,
         contactVeraId: String,
-        requesterEndpoint: FirstPartyEndpoint
+        requesterEndpoint: FirstPartyEndpoint,
     ): ByteArray {
         val publicKey = requesterEndpoint.publicKey
         val publicKeyBase64 = Base64.encodeToString(publicKey.encoded, Base64.NO_WRAP)
@@ -184,46 +215,54 @@ class GatewayRepository @Inject constructor(
         val contentString = content.toString(Charset.defaultCharset())
         val parts = contentString.split(",")
         return PairingMatchDataModel(
-            requesterVeraId = parts[0],
-            contactVeraId = parts[1],
-            contactEndpointId = parts[2],
-            contactEndpointPublicKey = Base64.decode(parts[3], Base64.NO_WRAP)
+            senderVeraId = parts[0],
+            receiverVeraId = parts[1],
+            receiverEndpointId = parts[2],
+            receiverEndpointPublicKey = Base64.decode(parts[3], Base64.NO_WRAP),
         )
     }
 
-    private fun generatePairingAuth(
+    private suspend fun generatePairingAuth(
         match: PairingMatchDataModel,
         firstPartyEndpoint: FirstPartyEndpoint,
     ): ByteArray {
-        // Implement some app-specific logic to check that the pairing request exists.
-        if (!contactRequestExists(match.requesterVeraId, match.contactVeraId)) {
-            // Granting authorisation is a sensitive operation and we shouldn't blindly
-            // trust the server.
-            throw PairingRequestException("Pairing request does not exist ($match)")
-        }
-
-        // Implement some app-specific logic to store the contact's Awala endpoint id, as
-        // we'll need it later to (a) complete pairing and (b) send messages to them.
-        storeContactAwalaId(
-            match.requesterVeraId,
-            match.contactVeraId,
-            match.contactEndpointId,
-        )
+        // TODO DELETE THIS COMMENTED CODE
+        // NOTE to Gus: All this logic is done before in the AccountRepository
+//        // Implement some app-specific logic to check that the pairing request exists.
+//        if (!contactRequestExists(match.requesterVeraId, match.contactVeraId)) {
+//            // Granting authorisation is a sensitive operation and we shouldn't blindly
+//            // trust the server.
+//            throw PairingRequestException("Pairing request does not exist ($match)")
+//        }
+//
+//        // Implement some app-specific logic to store the contact's Awala endpoint id, as
+//        // we'll need it later to (a) complete pairing and (b) send messages to them.
+//        storeContactAwalaId(
+//            match.requesterVeraId,
+//            match.contactVeraId,
+//            match.contactEndpointId,
+//        )
 
         return firstPartyEndpoint.authorizeIndefinitely(
-            match.contactEndpointPublicKey,
+            match.receiverEndpointPublicKey,
         )
     }
 
-    private fun importPairingAuth(auth: ByteArray) {
-        val contactEndpoint = PrivateThirdPartyEndpoint.import(auth)
-
-        // Do whatever you need to mark the pairing as complete. For example:
-        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
-        for (contact in contacts) {
-            contact.markPairingAsComplete()
-        }
-    }
+    // TODO Potentially delete the following function
+    // NOTE to Gus: In this implementation this function is not needed.
+    // Only if you tell me that the import has to be done for Gateway to function properly
+//    private suspend fun importPairingAuth(auth: ByteArray) {
+//        // For the following line, I'm getting Cannot access class 'tech.relaycorp.relaynet.SessionKey'. Check your module classpath for missing or conflicting dependencies
+//        val contactEndpoint = PrivateThirdPartyEndpoint.import(auth)
+//
+//        // TODO DELETE THIS COMMENTED CODE
+//        // NOTE to Gus: All this logic is done after in the AccountRepository
+// //        // Do whatever you need to mark the pairing as complete. For example:
+// //        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
+// //        for (contact in contacts) {
+// //            contact.markPairingAsComplete()
+// //        }
+//    }
 
     // TODO Maybe use something else than combine
     private fun collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer() {
