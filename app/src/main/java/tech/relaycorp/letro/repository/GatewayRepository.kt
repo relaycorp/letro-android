@@ -176,17 +176,19 @@ class GatewayRepository @Inject constructor(
                         message.ack()
                     }
                     ContentType.ContactPairingMatch.value -> {
+                        // TODO Simplify this by moving to the ContactRepository
                         val pairingMatch = parsePairingMatch(message.content)
                         _pairingMatchReceived.emit(pairingMatch)
                         message.ack()
                     }
                     ContentType.ContactPairingAuthorization.value -> {
+                        // TODO Simplify this by moving to the ContactRepository
                         val privateThirdPartyEndpoint = importPairingAuth(message.content)
                         _pairingAuthorizationReceived.emit(privateThirdPartyEndpoint.nodeId)
                         message.ack()
                     }
                     else -> {
-// TODO throw Exception("Unknown message type: ${message.type}")
+                        // TODO Log rather than throw
                     }
                 }
             }
@@ -227,23 +229,6 @@ class GatewayRepository @Inject constructor(
         match: PairingMatchDataModel,
         firstPartyEndpoint: FirstPartyEndpoint,
     ): ByteArray {
-        // TODO DELETE THIS COMMENTED CODE
-        // NOTE to Gus: All this logic is done before in the ContactRepository
-//        // Implement some app-specific logic to check that the pairing request exists.
-//        if (!contactRequestExists(match.requesterVeraId, match.contactVeraId)) {
-//            // Granting authorisation is a sensitive operation and we shouldn't blindly
-//            // trust the server.
-//            throw PairingRequestException("Pairing request does not exist ($match)")
-//        }
-//
-//        // Implement some app-specific logic to store the contact's Awala endpoint id, as
-//        // we'll need it later to (a) complete pairing and (b) send messages to them.
-//        storeContactAwalaId(
-//            match.requesterVeraId,
-//            match.contactVeraId,
-//            match.contactEndpointId,
-//        )
-
         return firstPartyEndpoint.authorizeIndefinitely(
             match.contactEndpointPublicKey,
         )
@@ -251,14 +236,6 @@ class GatewayRepository @Inject constructor(
 
     private suspend fun importPairingAuth(auth: ByteArray): PrivateThirdPartyEndpoint {
         return PrivateThirdPartyEndpoint.import(auth)
-
-        // TODO DELETE THIS COMMENTED CODE
-        // NOTE to Gus: All this logic is done after in the ContactRepository
-        //        // Do whatever you need to mark the pairing as complete. For example:
-        //        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
-        //        for (contact in contacts) {
-        //            contact.markPairingAsComplete()
-        //        }
     }
 
     // TODO Maybe use something else than combine
