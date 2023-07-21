@@ -87,7 +87,12 @@ class ContactRepository @Inject constructor(
         return contactDao.getContactByAddress(accountId = account.id, address = contactAddress)
     }
 
-    fun startPairingWithContact(accountId: Long, contactAddress: String, contactAlias: String) {
+    fun startPairingWithContact(
+        accountId: Long,
+        accountAddress: String,
+        contactAddress: String,
+        contactAlias: String,
+    ) {
         databaseScope.launch {
             val contact = ContactDataModel(
                 accountId = accountId,
@@ -100,13 +105,11 @@ class ContactRepository @Inject constructor(
                 return@launch
             }
 
-            val account = accountDao.getById(accountId)
-                ?: // TODO Show error
-                return@launch
-
-            startPairingWithContact(
-                accountAddress = account.address,
-                contactAddress = contactAddress,
+            gatewayRepository.startPairingWithContact(
+                PairingRequestAddressesDataModel(
+                    requesterVeraId = accountAddress,
+                    contactVeraId = contactAddress,
+                ),
             )
         }
     }
@@ -126,18 +129,6 @@ class ContactRepository @Inject constructor(
         currentAccountsContacts: List<ContactDataModel>,
     ): Boolean {
         return currentAccountsContacts.any { it.address == contactAddress }
-    }
-
-    private fun startPairingWithContact(
-        accountAddress: String,
-        contactAddress: String,
-    ) {
-        gatewayRepository.startPairingWithContact(
-            PairingRequestAddressesDataModel(
-                requesterVeraId = accountAddress,
-                contactVeraId = contactAddress,
-            ),
-        )
     }
 
 //    private fun showError(errorMessage: String) {

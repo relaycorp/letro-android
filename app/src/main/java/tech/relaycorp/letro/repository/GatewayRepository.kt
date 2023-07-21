@@ -118,14 +118,14 @@ class GatewayRepository @Inject constructor(
         }
     }
 
-    fun startPairingWithContact(pairingRequestAdresses: PairingRequestAddressesDataModel) {
+    fun startPairingWithContact(pairingRequestAddresses: PairingRequestAddressesDataModel) {
         gatewayScope.launch {
             val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
             val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
 
             val pairingRequestContent: ByteArray = generatePairingRequest(
-                pairingRequestAdresses.requesterVeraId,
-                pairingRequestAdresses.contactVeraId,
+                pairingRequestAddresses.requesterVeraId,
+                pairingRequestAddresses.contactVeraId,
                 firstPartyEndpoint,
             )
 
@@ -137,7 +137,7 @@ class GatewayRepository @Inject constructor(
             )
 
             GatewayClient.sendMessage(pairingRequestMessage)
-            _pairingRequestSent.emit(pairingRequestAdresses)
+            _pairingRequestSent.emit(pairingRequestAddresses)
         }
     }
 
