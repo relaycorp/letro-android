@@ -46,6 +46,7 @@ class AccountRepository @Inject constructor(
                 databaseScope.launch {
                     val account = accountDao.getByAddress(dataModel.requestedAddress)
                     if (account != null) {
+                        // TODO Make an update function in the DAO
                         accountDao.updateAddress(account.id, dataModel.assignedAddress)
                         accountDao.setAccountCreationConfirmed(dataModel.assignedAddress)
                     }
