@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.PairingMatchDataModel
-import tech.relaycorp.letro.data.PairingRequestAdresses
+import tech.relaycorp.letro.data.PairingRequestAddressesDataModel
 import tech.relaycorp.letro.data.dao.AccountDao
 import tech.relaycorp.letro.data.dao.ContactDao
 import tech.relaycorp.letro.data.entity.ContactDataModel
@@ -31,7 +31,7 @@ class ContactRepository @Inject constructor(
         }
 
         databaseScope.launch {
-            gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestAdresses ->
+            gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestAddressesDataModel ->
                 val contactToUpdate = getContactFromDatabase(
                     requesterAddress = dataModel.requesterVeraId,
                     contactAddress = dataModel.contactVeraId,
@@ -88,15 +88,26 @@ class ContactRepository @Inject constructor(
     }
 
     fun startPairingWithContact(accountId: Long, contactAddress: String, contactAlias: String) {
-        val contact = ContactDataModel(
-            accountId = accountId,
-            address = contactAddress,
-            alias = contactAlias,
-        )
-
         databaseScope.launch {
-            contactDao.insert(contact)
-            startPairingWithContactInRepository(contactAddress)
+            val contact = ContactDataModel(
+                accountId = accountId,
+                address = contactAddress,
+                alias = contactAlias,
+            )
+            val newContactInDatabaseId = contactDao.insert(contact)
+            if (newContactInDatabaseId == -1L) {
+                // TODO Show error
+                return@launch
+            }
+
+            val account = accountDao.getById(accountId)
+                ?: // TODO Show error
+                return@launch
+
+            startPairingWithContact(
+                accountAddress = account.address,
+                contactAddress = contactAddress,
+            )
         }
     }
 
@@ -117,10 +128,13 @@ class ContactRepository @Inject constructor(
         return currentAccountsContacts.any { it.address == contactAddress }
     }
 
-    private fun startPairingWithContactInRepository(contactAddress: String) {
+    private fun startPairingWithContact(
+        accountAddress: String,
+        contactAddress: String,
+    ) {
         gatewayRepository.startPairingWithContact(
-            PairingRequestAdresses(
-                requesterVeraId = contactAddress,
+            PairingRequestAddressesDataModel(
+                requesterVeraId = accountAddress,
                 contactVeraId = contactAddress,
             ),
         )

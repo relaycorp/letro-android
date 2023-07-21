@@ -33,8 +33,7 @@ fun PairWithPeopleRoute(
     navigateToPairingRequestSentScreen: () -> Unit,
     viewModel: PairViewModel = hiltViewModel(),
 ) {
-    val domain by viewModel.idUIFlow.collectAsState()
-    val token by viewModel.aliasUIFlow.collectAsState()
+    val uiState = viewModel.uiStateFlow.collectAsState()
 
     LaunchedEffect(viewModel) {
         viewModel.navigateToPairingRequestSent.collect {
@@ -44,9 +43,9 @@ fun PairWithPeopleRoute(
 
     PairWithPeopleScreen(
         navigateBack = navigateBack,
-        id = domain,
-        onIdInput = viewModel::onIdInput,
-        alias = token,
+        id = uiState.value.address,
+        onIdInput = viewModel::onAddressInput,
+        alias = uiState.value.alias,
         onAliasInput = viewModel::onAliasInput,
         onRequestPairingClicked = viewModel::onRequestPairingClicked,
     )

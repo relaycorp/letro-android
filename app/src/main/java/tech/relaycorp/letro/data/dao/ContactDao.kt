@@ -13,7 +13,7 @@ import tech.relaycorp.letro.data.entity.ContactDataModel
 interface ContactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(contact: ContactDataModel)
+    suspend fun insert(contact: ContactDataModel): Long
 
     @Update
     suspend fun update(contact: ContactDataModel)
