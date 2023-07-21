@@ -256,7 +256,7 @@ class GatewayRepository @Inject constructor(
 //        val contactEndpoint = PrivateThirdPartyEndpoint.import(auth)
 //
 //        // TODO DELETE THIS COMMENTED CODE
-//        // NOTE to Gus: All this logic is done after in the AccountRepository
+//        // NOTE to Gus: All this logic is done after in the ContactRepository
 // //        // Do whatever you need to mark the pairing as complete. For example:
 // //        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
 // //        for (contact in contacts) {
