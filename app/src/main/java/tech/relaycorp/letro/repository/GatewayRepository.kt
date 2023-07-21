@@ -16,6 +16,7 @@ import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
+import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
@@ -60,9 +61,9 @@ class GatewayRepository @Inject constructor(
         MutableSharedFlow()
     val pairingAuthorizationSent: SharedFlow<PairingMatchDataModel> get() = _pairingAuthorizationSent
 
-    private val _pairingAuthorizationReceived: MutableSharedFlow<PairingMatchDataModel> =
+    private val _pairingAuthorizationReceived: MutableSharedFlow<String> =
         MutableSharedFlow()
-    val pairingAuthorizationReceived: SharedFlow<PairingMatchDataModel> get() = _pairingAuthorizationReceived
+    val pairingAuthorizationReceived: SharedFlow<String> get() = _pairingAuthorizationReceived
 
     private val serverFirstPartyEndpointNodeId = preferencesDataStoreRepository.serverFirstPartyEndpointNodeId
     private val serverThirdPartyEndpointNodeId = preferencesDataStoreRepository.serverThirdPartyEndpointNodeId
@@ -180,8 +181,8 @@ class GatewayRepository @Inject constructor(
                         message.ack()
                     }
                     ContentType.ContactPairingAuthorization.value -> {
-                        val pairingMatch = parsePairingMatch(message.content)
-                        _pairingAuthorizationReceived.emit(pairingMatch)
+                        val privateThirdPartyEndpoint = importPairingAuth(message.content)
+                        _pairingAuthorizationReceived.emit(privateThirdPartyEndpoint.nodeId)
                         message.ack()
                     }
                     else -> {
@@ -248,21 +249,17 @@ class GatewayRepository @Inject constructor(
         )
     }
 
-    // TODO Potentially delete the following function
-    // NOTE to Gus: In this implementation this function is not needed.
-    // Only if you tell me that the import has to be done for Gateway to function properly
-//    private suspend fun importPairingAuth(auth: ByteArray) {
-//        // For the following line, I'm getting Cannot access class 'tech.relaycorp.relaynet.SessionKey'. Check your module classpath for missing or conflicting dependencies
-//        val contactEndpoint = PrivateThirdPartyEndpoint.import(auth)
-//
-//        // TODO DELETE THIS COMMENTED CODE
-//        // NOTE to Gus: All this logic is done after in the ContactRepository
-// //        // Do whatever you need to mark the pairing as complete. For example:
-// //        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
-// //        for (contact in contacts) {
-// //            contact.markPairingAsComplete()
-// //        }
-//    }
+    private suspend fun importPairingAuth(auth: ByteArray): PrivateThirdPartyEndpoint {
+        return PrivateThirdPartyEndpoint.import(auth)
+
+        // TODO DELETE THIS COMMENTED CODE
+        // NOTE to Gus: All this logic is done after in the ContactRepository
+        //        // Do whatever you need to mark the pairing as complete. For example:
+        //        val contacts = getContactsByAwalaId(contactEndpoint.nodeId)
+        //        for (contact in contacts) {
+        //            contact.markPairingAsComplete()
+        //        }
+    }
 
     // TODO Maybe use something else than combine
     private fun collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer() {

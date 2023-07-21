@@ -67,13 +67,12 @@ class ContactRepository @Inject constructor(
         }
 
         databaseScope.launch {
-            gatewayRepository.pairingAuthorizationReceived.collect { dataModel: PairingMatchDataModel ->
-                val contactToUpdate = getContactFromDatabase(
-                    requesterAddress = dataModel.requesterVeraId,
-                    contactAddress = dataModel.contactVeraId,
-                ) ?: return@collect
+            gatewayRepository.pairingAuthorizationReceived.collect { contactNodeId: String ->
+                val contactsToUpdate = contactDao.getContactsByContactEndpointId(contactNodeId)
 
-                contactDao.update(contactToUpdate.copy(status = PairingStatus.Complete))
+                for (contactToUpdate in contactsToUpdate) {
+                    contactDao.update(contactToUpdate.copy(status = PairingStatus.Complete))
+                }
             }
         }
     }
