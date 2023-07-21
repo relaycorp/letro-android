@@ -227,7 +227,7 @@ class GatewayRepository @Inject constructor(
         firstPartyEndpoint: FirstPartyEndpoint,
     ): ByteArray {
         // TODO DELETE THIS COMMENTED CODE
-        // NOTE to Gus: All this logic is done before in the AccountRepository
+        // NOTE to Gus: All this logic is done before in the ContactRepository
 //        // Implement some app-specific logic to check that the pairing request exists.
 //        if (!contactRequestExists(match.requesterVeraId, match.contactVeraId)) {
 //            // Granting authorisation is a sensitive operation and we shouldn't blindly
