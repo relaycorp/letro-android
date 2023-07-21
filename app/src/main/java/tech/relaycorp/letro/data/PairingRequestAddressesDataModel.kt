@@ -1,6 +1,6 @@
 package tech.relaycorp.letro.data
 
-data class PairingRequestAdresses(
+data class PairingRequestAddressesDataModel(
     val requesterVeraId: String,
     val contactVeraId: String,
 )

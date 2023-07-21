@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.entity.AccountDataModel
@@ -18,29 +19,26 @@ class PairViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
 ) : ViewModel() {
 
-    private val _addressUIFlow: MutableStateFlow<String> = MutableStateFlow("")
-    val idUIFlow get() = _addressUIFlow
-
-    private val _aliasUIFlow: MutableStateFlow<String> = MutableStateFlow("")
-    val aliasUIFlow get() = _aliasUIFlow
+    private val _uiStateFlow: MutableStateFlow<PairUIStateModel> = MutableStateFlow(PairUIStateModel())
+    val uiStateFlow: StateFlow<PairUIStateModel> get() = _uiStateFlow
 
     private val _navigateToPairingRequestSent: MutableSharedFlow<Unit> = MutableSharedFlow()
     val navigateToPairingRequestSent get() = _navigateToPairingRequestSent
 
-    fun onIdInput(id: String) {
-        _addressUIFlow.update { id }
+    fun onAddressInput(address: String) {
+        _uiStateFlow.update { it.copy(address = address) }
     }
 
     fun onAliasInput(alias: String) {
-        _aliasUIFlow.update { alias }
+        _uiStateFlow.update { it.copy(alias = alias) }
     }
 
     fun onRequestPairingClicked() {
         accountRepository.currentAccountDataFlow.value?.let { currentAccount: AccountDataModel ->
             contactRepository.startPairingWithContact(
                 accountId = currentAccount.id,
-                contactAddress = _aliasUIFlow.value,
-                contactAlias = _addressUIFlow.value,
+                contactAddress = _uiStateFlow.value.address,
+                contactAlias = _uiStateFlow.value.alias,
             )
         }
 

@@ -24,7 +24,7 @@ import tech.relaycorp.letro.data.AccountCreatedDataModel
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
 import tech.relaycorp.letro.data.PairingMatchDataModel
-import tech.relaycorp.letro.data.PairingRequestAdresses
+import tech.relaycorp.letro.data.PairingRequestAddressesDataModel
 import tech.relaycorp.letro.utility.loadNonNullFirstPartyEndpoint
 import tech.relaycorp.letro.utility.loadNonNullThirdPartyEndpoint
 import java.nio.charset.Charset
@@ -49,9 +49,9 @@ class GatewayRepository @Inject constructor(
         MutableSharedFlow()
     val accountCreationConfirmationReceivedFromServer: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceivedFromServer
 
-    private val _pairingRequestSent: MutableSharedFlow<PairingRequestAdresses> =
+    private val _pairingRequestSent: MutableSharedFlow<PairingRequestAddressesDataModel> =
         MutableSharedFlow()
-    val pairingRequestSent: SharedFlow<PairingRequestAdresses> get() = _pairingRequestSent
+    val pairingRequestSent: SharedFlow<PairingRequestAddressesDataModel> get() = _pairingRequestSent
 
     private val _pairingMatchReceived: MutableSharedFlow<PairingMatchDataModel> =
         MutableSharedFlow()
@@ -118,7 +118,7 @@ class GatewayRepository @Inject constructor(
         }
     }
 
-    fun startPairingWithContact(pairingRequestAdresses: PairingRequestAdresses) {
+    fun startPairingWithContact(pairingRequestAdresses: PairingRequestAddressesDataModel) {
         gatewayScope.launch {
             val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
             val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
