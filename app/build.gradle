@@ -76,7 +76,7 @@ dependencies {
     implementation 'com.google.accompanist:accompanist-systemuicontroller:0.31.5-beta'
 
     // Awala
-    implementation 'com.github.relaycorp:awala-endpoint-android:1.13.15'
+    implementation 'com.github.relaycorp:awala-endpoint-android:1.13.19'
 
     // Compose
     implementation platform('androidx.compose:compose-bom:2023.06.01')
