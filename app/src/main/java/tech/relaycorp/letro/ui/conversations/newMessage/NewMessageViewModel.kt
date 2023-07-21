@@ -34,7 +34,7 @@ class NewMessageViewModel @Inject constructor(
         Log.d("NewMessageViewModel", "onRecipientInput: $recipient")
 //        viewModelScope.launch {
 //            _currentConversationDataFlow.update {
-//                it.copy(contactAddress = recipient)
+//                it.copy(contactVeraId = recipient)
 //            }
 //        }
     }

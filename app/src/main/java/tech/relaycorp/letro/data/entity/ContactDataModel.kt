@@ -23,7 +23,7 @@ data class ContactDataModel(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val accountId: Long,
-    val address: String,
+    val veraId: String,
     val alias: String,
     val contactEndpointId: String? = null,
     val status: PairingStatus = PairingStatus.Unpaired,

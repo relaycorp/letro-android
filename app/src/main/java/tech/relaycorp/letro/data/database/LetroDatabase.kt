@@ -11,6 +11,7 @@ import tech.relaycorp.letro.data.dao.AccountDao
 import tech.relaycorp.letro.data.dao.ContactDao
 import tech.relaycorp.letro.data.dao.ConversationDao
 import tech.relaycorp.letro.data.dao.MessageDao
+import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
 import tech.relaycorp.letro.data.entity.CONTACT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.ContactDataModel
@@ -26,7 +27,7 @@ import javax.inject.Singleton
         ConversationDataModel::class,
         MessageDataModel::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -52,7 +53,7 @@ abstract class LetroDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(context, LetroDatabase::class.java, DATABASE_NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .build()
     }
@@ -78,6 +79,52 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 
         database.execSQL("DROP TABLE $CONTACT_TABLE_NAME")
         database.execSQL("ALTER TABLE `new_contact` RENAME TO $CONTACT_TABLE_NAME")
-        database.execSQL("CREATE INDEX `index_contact_accountId` ON `contact` (`accountId`)")
+        database.execSQL("CREATE INDEX `index_contact_accountId` ON $CONTACT_TABLE_NAME (`accountId`)")
+    }
+}
+
+val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // First, create temporary tables that include the `veraId` column
+        database.execSQL(
+            """
+            CREATE TABLE new_account 
+            (id INTEGER PRIMARY KEY NOT NULL, veraId TEXT NOT NULL, isCurrent INTEGER NOT NULL, isCreationConfirmed INTEGER NOT NULL)
+        """,
+        )
+
+        database.execSQL(
+            """
+            CREATE TABLE new_contact 
+            (id INTEGER PRIMARY KEY NOT NULL, accountId INTEGER NOT NULL, veraId TEXT NOT NULL, alias TEXT NOT NULL, 
+            contactEndpointId TEXT, status TEXT NOT NULL, FOREIGN KEY(accountId) REFERENCES account(id) ON DELETE CASCADE)
+        """,
+        )
+
+        // Copy the data from the old tables to the new tables, mapping `address` to `veraId`
+        database.execSQL(
+            """
+            INSERT INTO new_account (id, veraId, isCurrent, isCreationConfirmed)
+            SELECT id, address, isCurrent, isCreationConfirmed FROM account
+        """,
+        )
+
+        database.execSQL(
+            """
+            INSERT INTO new_contact (id, accountId, veraId, alias, contactEndpointId, status)
+            SELECT id, accountId, address, alias, contactEndpointId, status FROM contact
+        """,
+        )
+
+        // Remove the old tables
+        database.execSQL("DROP TABLE $ACCOUNT_TABLE_NAME")
+        database.execSQL("DROP TABLE $CONTACT_TABLE_NAME")
+
+        // Rename the new tables to the names of the old tables
+        database.execSQL("ALTER TABLE new_account RENAME TO $ACCOUNT_TABLE_NAME")
+        database.execSQL("ALTER TABLE new_contact RENAME TO $CONTACT_TABLE_NAME")
+
+        // Create a new index on accountId in the contact table
+        database.execSQL("CREATE INDEX index_contact_accountId ON $CONTACT_TABLE_NAME (accountId)")
     }
 }

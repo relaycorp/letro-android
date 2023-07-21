@@ -36,8 +36,8 @@ fun NewMessageRoute(
     val uiState by viewModel.newMessageUIStateModelFlow.collectAsState()
 
     NewMessageScreen(
-        sender = uiState.senderAddress,
-        recipient = uiState.recipientAddress,
+        sender = uiState.senderVeraId,
+        recipient = uiState.recipientVeraId,
         subject = uiState.subject,
         body = uiState.body,
         onRecipientInput = viewModel::onRecipientInput,

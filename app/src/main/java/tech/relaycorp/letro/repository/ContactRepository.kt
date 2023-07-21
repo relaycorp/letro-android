@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.data.PairingMatchDataModel
-import tech.relaycorp.letro.data.PairingRequestAddressesDataModel
+import tech.relaycorp.letro.data.PairingRequestVeraIdsDataModel
 import tech.relaycorp.letro.data.dao.AccountDao
 import tech.relaycorp.letro.data.dao.ContactDao
 import tech.relaycorp.letro.data.entity.ContactDataModel
@@ -31,10 +31,10 @@ class ContactRepository @Inject constructor(
         }
 
         databaseScope.launch {
-            gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestAddressesDataModel ->
+            gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestVeraIdsDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    requesterAddress = dataModel.requesterVeraId,
-                    contactAddress = dataModel.contactVeraId,
+                    requesterVeraId = dataModel.requesterVeraId,
+                    contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.RequestSent))
@@ -44,8 +44,8 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingMatchReceived.collect { dataModel: PairingMatchDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    requesterAddress = dataModel.requesterVeraId,
-                    contactAddress = dataModel.contactVeraId,
+                    requesterVeraId = dataModel.requesterVeraId,
+                    contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 val updatedContact = updateContactWithPairingMatchData(contactToUpdate, dataModel)
@@ -58,8 +58,8 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingAuthorizationSent.collect { dataModel: PairingMatchDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    requesterAddress = dataModel.requesterVeraId,
-                    contactAddress = dataModel.contactVeraId,
+                    requesterVeraId = dataModel.requesterVeraId,
+                    contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.AuthorizationSent))
@@ -78,25 +78,25 @@ class ContactRepository @Inject constructor(
     }
 
     private suspend fun getContactFromDatabase(
-        requesterAddress: String,
-        contactAddress: String,
+        requesterVeraId: String,
+        contactVeraId: String,
     ): ContactDataModel? {
-        val account = accountDao.getByAddress(requesterAddress)
+        val account = accountDao.getByVeraId(requesterVeraId)
             ?: return null
 
-        return contactDao.getContactByAddress(accountId = account.id, address = contactAddress)
+        return contactDao.getContactByVeraId(accountId = account.id, veraId = contactVeraId)
     }
 
     fun startPairingWithContact(
         accountId: Long,
-        accountAddress: String,
-        contactAddress: String,
+        accountVeraId: String,
+        contactVeraId: String,
         contactAlias: String,
     ) {
         databaseScope.launch {
             val contact = ContactDataModel(
                 accountId = accountId,
-                address = contactAddress,
+                veraId = contactVeraId,
                 alias = contactAlias,
             )
             val newContactInDatabaseId = contactDao.insert(contact)
@@ -106,9 +106,9 @@ class ContactRepository @Inject constructor(
             }
 
             gatewayRepository.startPairingWithContact(
-                PairingRequestAddressesDataModel(
-                    requesterVeraId = accountAddress,
-                    contactVeraId = contactAddress,
+                PairingRequestVeraIdsDataModel(
+                    requesterVeraId = accountVeraId,
+                    contactVeraId = contactVeraId,
                 ),
             )
         }
@@ -125,10 +125,10 @@ class ContactRepository @Inject constructor(
     }
 
     private fun contactExistsInCurrentAccount(
-        contactAddress: String,
+        contactVeraId: String,
         currentAccountsContacts: List<ContactDataModel>,
     ): Boolean {
-        return currentAccountsContacts.any { it.address == contactAddress }
+        return currentAccountsContacts.any { it.veraId == contactVeraId }
     }
 
 //    private fun showError(errorMessage: String) {

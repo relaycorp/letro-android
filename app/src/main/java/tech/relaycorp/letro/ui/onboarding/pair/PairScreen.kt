@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -43,8 +42,8 @@ fun PairWithPeopleRoute(
 
     PairWithPeopleScreen(
         navigateBack = navigateBack,
-        id = uiState.value.address,
-        onIdInput = viewModel::onAddressInput,
+        id = uiState.value.veraId,
+        onVeraIdInput = viewModel::onVeraIdInput,
         alias = uiState.value.alias,
         onAliasInput = viewModel::onAliasInput,
         onRequestPairingClicked = viewModel::onRequestPairingClicked,
@@ -55,7 +54,7 @@ fun PairWithPeopleRoute(
 private fun PairWithPeopleScreen(
     navigateBack: () -> Unit,
     id: String,
-    onIdInput: (String) -> Unit,
+    onVeraIdInput: (String) -> Unit,
     alias: String,
     onAliasInput: (String) -> Unit,
     onRequestPairingClicked: () -> Unit,
@@ -86,7 +85,7 @@ private fun PairWithPeopleScreen(
         Spacer(modifier = Modifier.height(ItemPadding))
         LetroOutlinedTextField(
             value = id,
-            onValueChange = onIdInput,
+            onValueChange = onVeraIdInput,
         )
         Spacer(modifier = Modifier.height(VerticalScreenPadding))
         Text(
@@ -113,7 +112,7 @@ private fun UseExistingAccountPreview() {
         PairWithPeopleScreen(
             navigateBack = {},
             id = "jamesbond@cuppa.uk",
-            onIdInput = {},
+            onVeraIdInput = {},
             alias = "James Bond",
             onAliasInput = {},
             onRequestPairingClicked = {},

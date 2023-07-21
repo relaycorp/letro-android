@@ -5,8 +5,8 @@ data class MessagesUIStateModel(
 )
 
 data class MessageUIModel(
-    val senderAddress: String = "",
-    val recipientAddress: String = "",
+    val senderVeraId: String = "",
+    val recipientVeraId: String = "",
     val body: String = "",
     val timestamp: String = "",
 )

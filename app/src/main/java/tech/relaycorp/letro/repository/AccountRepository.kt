@@ -44,27 +44,26 @@ class AccountRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.accountCreationConfirmationReceivedFromServer.collect { dataModel: AccountCreatedDataModel ->
                 databaseScope.launch {
-                    val account = accountDao.getByAddress(dataModel.requestedAddress)
+                    val account = accountDao.getByVeraId(dataModel.requestedVeraId)
                     if (account != null) {
-                        // TODO Make an update function in the DAO
-                        accountDao.updateAddress(account.id, dataModel.assignedAddress)
-                        accountDao.setAccountCreationConfirmed(dataModel.assignedAddress)
+                        accountDao.update(
+                            account.copy(
+                                veraId = dataModel.assignedVeraId,
+                                isCreationConfirmed = true,
+                            ),
+                        )
                     }
                 }
             }
         }
     }
 
-    fun startCreatingNewAccount(address: String) {
-        val account = AccountDataModel(address = address)
+    fun startCreatingNewAccount(veraId: String) {
+        val account = AccountDataModel(veraId = veraId)
         databaseScope.launch {
-            insertNewAccountIntoDatabase(account)
-            gatewayRepository.sendCreateAccountRequest(address)
+            accountDao.insert(account)
+            accountDao.setCurrentAccount(account.veraId)
+            gatewayRepository.sendCreateAccountRequest(veraId)
         }
-    }
-
-    private suspend fun insertNewAccountIntoDatabase(dataModel: AccountDataModel) {
-        accountDao.insert(dataModel)
-        accountDao.setCurrentAccount(dataModel.address)
     }
 }

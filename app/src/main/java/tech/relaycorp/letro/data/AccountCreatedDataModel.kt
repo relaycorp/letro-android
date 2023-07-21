@@ -1,6 +1,6 @@
 package tech.relaycorp.letro.data
 
 data class AccountCreatedDataModel(
-    val requestedAddress: String,
-    val assignedAddress: String,
+    val requestedVeraId: String,
+    val assignedVeraId: String,
 )

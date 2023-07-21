@@ -161,7 +161,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             LetroTopBar(
-                accountAddress = uiState.address,
+                accountVeraId = uiState.veraId,
                 onChangeAccountClicked = { /*TODO*/ },
                 onSettingsClicked = { /*TODO*/ },
                 tabIndex = tabIndex,
@@ -208,7 +208,7 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LetroTopBar(
-    accountAddress: String,
+    accountVeraId: String,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
@@ -233,7 +233,7 @@ private fun LetroTopBar(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = accountAddress,
+                                text = accountVeraId,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
@@ -336,7 +336,7 @@ private fun LetroTabs(
 private fun LetroTopBarPreview() {
     LetroTheme {
         LetroTopBar(
-            accountAddress = "John Doe",
+            accountVeraId = "John Doe",
             onChangeAccountClicked = {},
             onSettingsClicked = {},
             tabIndex = 0,
@@ -352,7 +352,7 @@ private fun LetroTopBarPreview() {
 private fun LetroTopBarPreviewDark() {
     LetroTheme(darkTheme = true) {
         LetroTopBar(
-            accountAddress = "John Doe",
+            accountVeraId = "John Doe",
             onChangeAccountClicked = {},
             onSettingsClicked = {},
             tabIndex = 0,
@@ -372,7 +372,7 @@ private fun ConversationsPreview() {
             navController = rememberNavController(),
             currentRoute = Route.Conversations,
             uiState = MainUIState(
-                address = "John Doe",
+                veraId = "John Doe",
             ),
             tabIndex = 0,
             onTabIndexChanged = {},

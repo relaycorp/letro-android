@@ -9,7 +9,7 @@ const val ACCOUNT_TABLE_NAME = "account"
 data class AccountDataModel(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
-    val address: String,
+    val veraId: String,
     val isCurrent: Boolean = false,
     val isCreationConfirmed: Boolean = false,
 )
