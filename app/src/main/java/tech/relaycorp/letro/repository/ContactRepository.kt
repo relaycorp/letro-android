@@ -107,7 +107,6 @@ class ContactRepository @Inject constructor(
     ): ContactDataModel {
         return contact.copy(
             contactEndpointId = dataModel.contactEndpointId,
-            contactEndpointPublicKey = dataModel.contactEndpointPublicKey,
             status = PairingStatus.Match,
         )
     }
