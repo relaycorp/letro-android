@@ -26,7 +26,6 @@ data class ContactDataModel(
     val address: String,
     val alias: String,
     val contactEndpointId: String? = null,
-    val contactEndpointPublicKey: ByteArray? = null, // TODO NOTE to Gus: Do we have to store this?
     val status: PairingStatus = PairingStatus.Unpaired,
 )
 
