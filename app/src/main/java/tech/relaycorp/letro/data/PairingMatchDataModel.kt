@@ -1,8 +1,8 @@
 package tech.relaycorp.letro.data
 
 data class PairingMatchDataModel(
-    val senderVeraId: String,
-    val receiverVeraId: String,
-    val receiverEndpointId: String,
-    val receiverEndpointPublicKey: ByteArray,
+    val requesterVeraId: String,
+    val contactVeraId: String,
+    val contactEndpointId: String,
+    val contactEndpointPublicKey: ByteArray,
 )

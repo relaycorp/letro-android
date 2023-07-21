@@ -215,10 +215,10 @@ class GatewayRepository @Inject constructor(
         val contentString = content.toString(Charset.defaultCharset())
         val parts = contentString.split(",")
         return PairingMatchDataModel(
-            senderVeraId = parts[0],
-            receiverVeraId = parts[1],
-            receiverEndpointId = parts[2],
-            receiverEndpointPublicKey = Base64.decode(parts[3], Base64.NO_WRAP),
+            requesterVeraId = parts[0],
+            contactVeraId = parts[1],
+            contactEndpointId = parts[2],
+            contactEndpointPublicKey = Base64.decode(parts[3], Base64.NO_WRAP),
         )
     }
 
@@ -244,7 +244,7 @@ class GatewayRepository @Inject constructor(
 //        )
 
         return firstPartyEndpoint.authorizeIndefinitely(
-            match.receiverEndpointPublicKey,
+            match.contactEndpointPublicKey,
         )
     }
 
