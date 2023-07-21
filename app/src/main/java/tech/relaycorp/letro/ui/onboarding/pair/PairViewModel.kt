@@ -25,8 +25,8 @@ class PairViewModel @Inject constructor(
     private val _navigateToPairingRequestSent: MutableSharedFlow<Unit> = MutableSharedFlow()
     val navigateToPairingRequestSent get() = _navigateToPairingRequestSent
 
-    fun onAddressInput(address: String) {
-        _uiStateFlow.update { it.copy(address = address) }
+    fun onVeraIdInput(veraId: String) {
+        _uiStateFlow.update { it.copy(veraId = veraId) }
     }
 
     fun onAliasInput(alias: String) {
@@ -37,8 +37,8 @@ class PairViewModel @Inject constructor(
         accountRepository.currentAccountDataFlow.value?.let { currentAccount: AccountDataModel ->
             contactRepository.startPairingWithContact(
                 accountId = currentAccount.id,
-                accountAddress = currentAccount.address,
-                contactAddress = _uiStateFlow.value.address,
+                accountVeraId = currentAccount.veraId,
+                contactVeraId = _uiStateFlow.value.veraId,
                 contactAlias = _uiStateFlow.value.alias,
             )
         }

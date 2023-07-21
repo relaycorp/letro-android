@@ -70,7 +70,7 @@ class MainViewModel @Inject constructor(
                 it?.let { dataModel ->
                     _mainUIStateFlow.emit(
                         MainUIState(
-                            address = dataModel.address,
+                            veraId = dataModel.veraId,
                             isAccountCreated = dataModel.isCreationConfirmed,
                         ),
                     )

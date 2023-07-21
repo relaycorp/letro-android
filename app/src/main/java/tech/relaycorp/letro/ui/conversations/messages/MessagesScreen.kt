@@ -80,7 +80,7 @@ private fun MessagesScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = message.senderAddress,
+                            text = message.senderVeraId,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(modifier = Modifier.width(HorizontalScreenPadding))

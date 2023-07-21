@@ -24,7 +24,7 @@ import tech.relaycorp.letro.data.AccountCreatedDataModel
 import tech.relaycorp.letro.data.ContentType
 import tech.relaycorp.letro.data.EndpointPairDataModel
 import tech.relaycorp.letro.data.PairingMatchDataModel
-import tech.relaycorp.letro.data.PairingRequestAddressesDataModel
+import tech.relaycorp.letro.data.PairingRequestVeraIdsDataModel
 import tech.relaycorp.letro.utility.loadNonNullFirstPartyEndpoint
 import tech.relaycorp.letro.utility.loadNonNullThirdPartyEndpoint
 import java.nio.charset.Charset
@@ -49,9 +49,9 @@ class GatewayRepository @Inject constructor(
         MutableSharedFlow()
     val accountCreationConfirmationReceivedFromServer: SharedFlow<AccountCreatedDataModel> get() = _accountCreatedConfirmationReceivedFromServer
 
-    private val _pairingRequestSent: MutableSharedFlow<PairingRequestAddressesDataModel> =
+    private val _pairingRequestSent: MutableSharedFlow<PairingRequestVeraIdsDataModel> =
         MutableSharedFlow()
-    val pairingRequestSent: SharedFlow<PairingRequestAddressesDataModel> get() = _pairingRequestSent
+    val pairingRequestSent: SharedFlow<PairingRequestVeraIdsDataModel> get() = _pairingRequestSent
 
     private val _pairingMatchReceived: MutableSharedFlow<PairingMatchDataModel> =
         MutableSharedFlow()
@@ -102,14 +102,14 @@ class GatewayRepository @Inject constructor(
         }
     }
 
-    fun sendCreateAccountRequest(address: String) {
+    fun sendCreateAccountRequest(veraId: String) {
         gatewayScope.launch {
             val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
             val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
 
             val message = OutgoingMessage.build(
                 type = ContentType.AccountCreationRequest.value,
-                content = address.toByteArray(),
+                content = veraId.toByteArray(),
                 senderEndpoint = firstPartyEndpoint,
                 recipientEndpoint = thirdPartyEndpoint,
             )
@@ -118,14 +118,14 @@ class GatewayRepository @Inject constructor(
         }
     }
 
-    fun startPairingWithContact(pairingRequestAddresses: PairingRequestAddressesDataModel) {
+    fun startPairingWithContact(pairingRequestVeraIds: PairingRequestVeraIdsDataModel) {
         gatewayScope.launch {
             val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(serverFirstPartyEndpointNodeId.value)
             val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(serverThirdPartyEndpointNodeId.value)
 
             val pairingRequestContent: ByteArray = generatePairingRequest(
-                pairingRequestAddresses.requesterVeraId,
-                pairingRequestAddresses.contactVeraId,
+                pairingRequestVeraIds.requesterVeraId,
+                pairingRequestVeraIds.contactVeraId,
                 firstPartyEndpoint,
             )
 
@@ -137,7 +137,7 @@ class GatewayRepository @Inject constructor(
             )
 
             GatewayClient.sendMessage(pairingRequestMessage)
-            _pairingRequestSent.emit(pairingRequestAddresses)
+            _pairingRequestSent.emit(pairingRequestVeraIds)
         }
     }
 
@@ -163,14 +163,17 @@ class GatewayRepository @Inject constructor(
     private fun startReceivingMessages() {
         gatewayScope.launch {
             GatewayClient.receiveMessages().collect { message ->
+                // TODO Remove first message.ack() before publishing the app.
+                // It's here to avoid the server getting stuck with messages that can't be processed.
+                message.ack()
                 when (message.type) {
                     ContentType.AccountCreationCompleted.value -> {
-                        val addresses =
+                        val veraIds =
                             message.content.toString(Charset.defaultCharset()).split(",")
                         _accountCreatedConfirmationReceivedFromServer.emit(
                             AccountCreatedDataModel(
-                                addresses[0],
-                                addresses[1],
+                                veraIds[0],
+                                veraIds[1],
                             ),
                         )
                         message.ack()

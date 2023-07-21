@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.letro.data.entity.ACCOUNT_TABLE_NAME
 import tech.relaycorp.letro.data.entity.AccountDataModel
@@ -18,11 +19,14 @@ interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg entities: AccountDataModel): LongArray
 
+    @Update
+    suspend fun update(entity: AccountDataModel): Int
+
     @Delete
     suspend fun delete(entity: AccountDataModel): Int
 
-    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE address=:address")
-    suspend fun getByAddress(address: String): AccountDataModel?
+    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE veraId=:veraId")
+    suspend fun getByVeraId(veraId: String): AccountDataModel?
 
     @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE id=:id")
     suspend fun getById(id: Long): AccountDataModel?
@@ -33,14 +37,9 @@ interface AccountDao {
     @Query("DELETE FROM $ACCOUNT_TABLE_NAME")
     suspend fun deleteAll()
 
-    @Query("UPDATE $ACCOUNT_TABLE_NAME SET isCurrent = CASE WHEN address = :address THEN 1 ELSE 0 END")
-    suspend fun setCurrentAccount(address: String)
-
-    @Query("UPDATE $ACCOUNT_TABLE_NAME SET isCreationConfirmed = 1 WHERE address = :address")
-    suspend fun setAccountCreationConfirmed(address: String)
-
-    @Query("UPDATE $ACCOUNT_TABLE_NAME SET address = :address WHERE id = :id")
-    suspend fun updateAddress(id: Long, address: String)
+    // Use only this method to set current account, not the update above
+    @Query("UPDATE $ACCOUNT_TABLE_NAME SET isCurrent = CASE WHEN veraId = :veraId THEN 1 ELSE 0 END")
+    suspend fun setCurrentAccount(veraId: String)
 
     // TODO IDEA for contact, conversation and message adding/deleting
 //    @Query("SELECT * FROM $ACCOUNT_TABLE_NAME WHERE id = :accountId")

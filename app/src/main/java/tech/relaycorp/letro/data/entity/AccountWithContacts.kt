@@ -10,5 +10,5 @@ package tech.relaycorp.letro.data.entity
 //    val contacts: List<ContactDataModel>,
 // )
 //
-// fun AccountWithContacts.findContactByAddress(contactAddress: String): ContactDataModel? =
-//    contacts.firstOrNull { it.address == contactAddress }
+// fun AccountWithContacts.findContactByVeraId(contactVeraId: String): ContactDataModel? =
+//    contacts.firstOrNull { it.veraId == contactVeraId }
