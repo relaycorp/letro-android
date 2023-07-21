@@ -37,6 +37,7 @@ class PairViewModel @Inject constructor(
         accountRepository.currentAccountDataFlow.value?.let { currentAccount: AccountDataModel ->
             contactRepository.startPairingWithContact(
                 accountId = currentAccount.id,
+                accountAddress = currentAccount.address,
                 contactAddress = _uiStateFlow.value.address,
                 contactAlias = _uiStateFlow.value.alias,
             )
