@@ -33,7 +33,7 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingRequestSent.collect { dataModel: PairingRequestAdresses ->
                 val contactToUpdate = getContactFromDatabase(
-                    accountAddress = dataModel.requesterVeraId,
+                    requesterAddress = dataModel.requesterVeraId,
                     contactAddress = dataModel.contactVeraId,
                 ) ?: return@collect
 
@@ -44,8 +44,8 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingMatchReceived.collect { dataModel: PairingMatchDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    accountAddress = dataModel.receiverVeraId, // TODO DELETE NOTE to Gus: Notice the switch here. Is this correct?
-                    contactAddress = dataModel.senderVeraId,
+                    requesterAddress = dataModel.requesterVeraId,
+                    contactAddress = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 val updatedContact = updateContactWithPairingMatchData(contactToUpdate, dataModel)
@@ -58,8 +58,8 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingAuthorizationSent.collect { dataModel: PairingMatchDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    accountAddress = dataModel.senderVeraId,
-                    contactAddress = dataModel.receiverVeraId,
+                    requesterAddress = dataModel.requesterVeraId,
+                    contactAddress = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.AuthorizationSent))
@@ -69,8 +69,8 @@ class ContactRepository @Inject constructor(
         databaseScope.launch {
             gatewayRepository.pairingAuthorizationReceived.collect { dataModel: PairingMatchDataModel ->
                 val contactToUpdate = getContactFromDatabase(
-                    accountAddress = dataModel.receiverVeraId, // TODO DELETE NOTE to Gus: Notice the switch here. Is this correct?
-                    contactAddress = dataModel.senderVeraId,
+                    requesterAddress = dataModel.requesterVeraId,
+                    contactAddress = dataModel.contactVeraId,
                 ) ?: return@collect
 
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.Complete))
@@ -79,10 +79,10 @@ class ContactRepository @Inject constructor(
     }
 
     private suspend fun getContactFromDatabase(
-        accountAddress: String,
+        requesterAddress: String,
         contactAddress: String,
     ): ContactDataModel? {
-        val account = accountDao.getByAddress(accountAddress)
+        val account = accountDao.getByAddress(requesterAddress)
             ?: return null
 
         return contactDao.getContactByAddress(accountId = account.id, address = contactAddress)
@@ -106,8 +106,8 @@ class ContactRepository @Inject constructor(
         dataModel: PairingMatchDataModel,
     ): ContactDataModel {
         return contact.copy(
-            contactEndpointId = dataModel.receiverEndpointId,
-            contactEndpointPublicKey = dataModel.receiverEndpointPublicKey,
+            contactEndpointId = dataModel.contactEndpointId,
+            contactEndpointPublicKey = dataModel.contactEndpointPublicKey,
             status = PairingStatus.Match,
         )
     }
