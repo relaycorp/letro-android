@@ -172,7 +172,13 @@ class GatewayRepository @Inject constructor(
         }
     }
 
+    private var isReceivingMessages: Boolean = false
+
     private fun startReceivingMessages() {
+        if (isReceivingMessages) {
+            return
+        }
+
         gatewayScope.launch {
             GatewayClient.receiveMessages().collect { message ->
                 // TODO Remove first message.ack() before publishing the app.
@@ -208,6 +214,8 @@ class GatewayRepository @Inject constructor(
                 }
             }
         }
+
+        isReceivingMessages = true
     }
 
     private fun shouldAuthorizeReceivingMessages(
