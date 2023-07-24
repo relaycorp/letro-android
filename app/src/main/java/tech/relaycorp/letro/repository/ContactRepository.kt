@@ -48,8 +48,12 @@ class ContactRepository @Inject constructor(
                     contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
 
-                val updatedContact = updateContactWithPairingMatchData(contactToUpdate, dataModel)
-                contactDao.update(updatedContact)
+                contactDao.update(
+                    contactToUpdate.copy(
+                        contactEndpointId = dataModel.contactEndpointId,
+                        status = PairingStatus.Match,
+                    ),
+                )
 
                 gatewayRepository.sendPairingAuthorizationRequest(dataModel)
             }
@@ -112,16 +116,6 @@ class ContactRepository @Inject constructor(
                 ),
             )
         }
-    }
-
-    private fun updateContactWithPairingMatchData(
-        contact: ContactDataModel,
-        dataModel: PairingMatchDataModel,
-    ): ContactDataModel {
-        return contact.copy(
-            contactEndpointId = dataModel.contactEndpointId,
-            status = PairingStatus.Match,
-        )
     }
 
     private fun contactExistsInCurrentAccount(
