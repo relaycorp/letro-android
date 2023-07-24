@@ -103,10 +103,16 @@ class ContactRepository @Inject constructor(
                 veraId = contactVeraId,
                 alias = contactAlias,
             )
-            val newContactInDatabaseId = contactDao.insert(contact)
-            if (newContactInDatabaseId == -1L) {
-                // TODO Show error
-                return@launch
+            val contactExistsInCurrentAccount =  contactDao.getContactByVeraId(
+                veraId = contactVeraId,
+                accountId = accountId,
+            )
+            if (contactExistsInCurrentAccount == null) {
+                val newContactInDatabaseId = contactDao.insert(contact)
+                if (newContactInDatabaseId == -1L) {
+                    // TODO Show error that the contact could not be added
+                    return@launch
+                }
             }
 
             gatewayRepository.startPairingWithContact(

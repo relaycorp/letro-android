@@ -183,7 +183,7 @@ class GatewayRepository @Inject constructor(
             GatewayClient.receiveMessages().collect { message ->
                 // TODO Remove first message.ack() before publishing the app.
                 // It's here to avoid the server getting stuck with messages that can't be processed.
-                message.ack()
+//                message.ack()
                 when (message.type) {
                     ContentType.AccountCreationCompleted.value -> {
                         val veraIds =
