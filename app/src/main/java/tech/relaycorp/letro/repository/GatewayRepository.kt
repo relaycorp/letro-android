@@ -78,6 +78,18 @@ class GatewayRepository @Inject constructor(
                     importServerThirdPartyEndpointIfNeeded()
                     collectToUpdateIsGatewayAuthorizedReceivingMessagesFromServer()
                     updateIsGatewayFullySetup()
+                }
+            }
+        }
+
+        gatewayScope.launch {
+            combine(
+                _isGatewayAvailable,
+                serverFirstPartyEndpointNodeId,
+            ) { isAvailable, firstPartyEndpointNodeId ->
+                isAvailable == true && firstPartyEndpointNodeId != null
+            }.collect { isAvailableAndFirstPartyEndpointNodeIdIsNotNull ->
+                if (isAvailableAndFirstPartyEndpointNodeIdIsNotNull) {
                     startReceivingMessages()
                 }
             }
