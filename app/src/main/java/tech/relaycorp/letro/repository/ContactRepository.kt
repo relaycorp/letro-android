@@ -37,6 +37,10 @@ class ContactRepository @Inject constructor(
                     contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
 
+                if (contactToUpdate.status == PairingStatus.Complete) {
+                    return@collect
+                }
+
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.RequestSent))
             }
         }
@@ -47,6 +51,10 @@ class ContactRepository @Inject constructor(
                     requesterVeraId = dataModel.requesterVeraId,
                     contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
+
+                if (contactToUpdate.status == PairingStatus.Complete) {
+                    return@collect
+                }
 
                 contactDao.update(
                     contactToUpdate.copy(
@@ -65,6 +73,10 @@ class ContactRepository @Inject constructor(
                     requesterVeraId = dataModel.requesterVeraId,
                     contactVeraId = dataModel.contactVeraId,
                 ) ?: return@collect
+
+                if (contactToUpdate.status == PairingStatus.Complete) {
+                    return@collect
+                }
 
                 contactDao.update(contactToUpdate.copy(status = PairingStatus.AuthorizationSent))
             }
@@ -103,7 +115,7 @@ class ContactRepository @Inject constructor(
                 veraId = contactVeraId,
                 alias = contactAlias,
             )
-            val contactExistsInCurrentAccount =  contactDao.getContactByVeraId(
+            val contactExistsInCurrentAccount = contactDao.getContactByVeraId(
                 veraId = contactVeraId,
                 accountId = accountId,
             )
