@@ -23,13 +23,13 @@ sealed class ActionTakingScreenUIStateModel(
         buttonOutlinedStringRes = R.string.onboarding_account_confirmation_share_your_id,
         onButtonFilledClicked = onPairWithPeople,
         onButtonOutlinedClicked = onShareId,
-        imageRes = R.drawable.image_all_setup,
+        imageRes = R.drawable.image_account_created,
     )
 
     object Loading : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_waiting_title,
         messageStringRes = R.string.onboarding_waiting_message,
-        imageRes = R.drawable.image_hold_tight,
+        imageRes = R.drawable.image_waiting_for_account_creation,
     )
 
     class PairingRequestSent(
