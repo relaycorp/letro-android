@@ -67,7 +67,7 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     // Accompanist
-    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.31.5-beta'
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.31.6-rc'
 
     // Awala
     implementation 'com.github.relaycorp:awala-endpoint-android:1.13.15'
