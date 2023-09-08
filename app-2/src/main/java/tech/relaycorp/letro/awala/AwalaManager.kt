@@ -21,6 +21,7 @@ import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.message.Message
+import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.awala.loadNonNullFirstPartyEndpoint
@@ -29,7 +30,10 @@ import javax.inject.Inject
 
 interface AwalaManager {
     val messages: Flow<Message>
-    suspend fun sendMessage(message: Message)
+    suspend fun sendMessage(
+        message: Message,
+        recipient: MessageRecipient,
+    )
     suspend fun isAwalaInstalled(currentScreen: Route): Boolean
 }
 
@@ -58,28 +62,33 @@ class AwalaManagerImpl @Inject constructor(
         awalaSetupJob = awalaScope.launch {
             Awala.setUp(context)
             checkIfAwalaAppInstalled()
-            if (isAwalaInstalledOnDevice == true) {
-                configureAwala()
-            }
             isAwalaSetUp = true
             awalaSetupJob = null
         }
     }
 
-    override suspend fun sendMessage(message: Message) {
-        awalaSetupJob?.join()
+    override suspend fun sendMessage(
+        message: Message,
+        recipient: MessageRecipient,
+    ) {
         val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
             ?: registerFirstPartyEndpointIfNeeded()?.nodeId
             ?: ""
 
-        val thirdPartyEndpointNodeId = awalaRepository.getServerThirdPartyEndpointNodeId()
-            ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
-            ?: ""
+        val thirdPartyEndpointNodeId = when (recipient) {
+            is MessageRecipient.Server -> {
+                recipient.nodeId
+                    ?: awalaRepository.getServerThirdPartyEndpointNodeId()
+                    ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
+                    ?: ""
+            }
+            else -> {
+                throw IllegalStateException("User messages are not supported yet!")
+            }
+        }
 
         if (firstPartyEndpointNodeId.isEmpty() || thirdPartyEndpointNodeId.isEmpty()) {
-            // TODO: log error
-            Log.i(TAG, "sendMessage(). some of ids is empty: $firstPartyEndpointNodeId ; $thirdPartyEndpointNodeId")
-            return
+            throw IllegalStateException("some of ids is empty: $firstPartyEndpointNodeId ; $thirdPartyEndpointNodeId")
         }
 
         Log.d(TAG, "sendMessage() from $firstPartyEndpointNodeId to $thirdPartyEndpointNodeId: ${message})")
@@ -135,7 +144,6 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun configureAwala() {
         registerFirstPartyEndpointIfNeeded()
         importServerThirdPartyEndpointIfNeeded()
-        authoriseReceivingMessagesFromThirdPartyEndpointIfNeeded()
         startReceivingMessages()
     }
 
@@ -160,51 +168,35 @@ class AwalaManagerImpl @Inject constructor(
         return firstPartyEndpoint
     }
 
-    private suspend fun authoriseReceivingMessagesFromThirdPartyEndpointIfNeeded() {
-        if (awalaRepository.isAuthorizedReceiveMessagesFromServer()) {
-            return
-        }
-        val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
-            ?: registerFirstPartyEndpointIfNeeded()?.nodeId
-            ?: ""
-
-        val thirdPartyEndpointNodeId = awalaRepository.getServerThirdPartyEndpointNodeId()
-            ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
-            ?: ""
-
-        if (firstPartyEndpointNodeId.isEmpty() || thirdPartyEndpointNodeId.isEmpty()) {
-            // TODO: log error
-            Log.i(TAG, "authoriseReceivingMessagesFromThirdPartyEndpoint(). Some of ids is empty: $firstPartyEndpointNodeId ; $thirdPartyEndpointNodeId")
-            return
-        }
-
-        val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
-        val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(thirdPartyEndpointNodeId)
-
-        // Create the Parcel Delivery Authorisation (PDA)
-        val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
-
-        Log.d(TAG, "authoriseReceivingMessagesFromThirdPartyEndpointIfNeeded() ${firstPartyEndpoint.nodeId}:${thirdPartyEndpoint.nodeId}")
-
-        // Send it to the server
-        val authMessage = OutgoingMessage.build(
-            MessageType.AuthorizeReceivingFromServer.value,
-            auth,
-            firstPartyEndpoint,
-            thirdPartyEndpoint,
-        )
-
-        GatewayClient.sendMessage(authMessage)
-
-        awalaRepository.setAuthorizedReceiveMessagesFromServer(true)
-    }
-
     private suspend fun importServerThirdPartyEndpointIfNeeded(): ThirdPartyEndpoint? {
         if (awalaRepository.getServerThirdPartyEndpointNodeId() != null) {
             return null
         }
+
+        val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
+            ?: registerFirstPartyEndpointIfNeeded()?.nodeId
+            ?: ""
+
+        if (firstPartyEndpointNodeId.isEmpty()) {
+            throw IllegalStateException("You should register first party endpoint first!")
+        }
+
         val thirdPartyEndpoint = importServerThirdPartyEndpoint(
             connectionParams = R.raw.server_connection_params
+        )
+
+        val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
+
+        // Create the Parcel Delivery Authorisation (PDA)
+        val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
+        sendMessage(
+            message = Message(
+                type = MessageType.AuthorizeReceivingFromServer,
+                content = auth,
+            ),
+            recipient = MessageRecipient.Server(
+                nodeId = thirdPartyEndpoint.nodeId
+            ),
         )
         awalaRepository.saveServerThirdPartyEndpointNodeId(thirdPartyEndpoint.nodeId)
         return thirdPartyEndpoint
@@ -228,6 +220,7 @@ class AwalaManagerImpl @Inject constructor(
 
     private companion object {
         private const val TAG = "AwalaManager"
+        private const val SERVER = "ServerUniqueRecipientId1241242"
     }
 
 }

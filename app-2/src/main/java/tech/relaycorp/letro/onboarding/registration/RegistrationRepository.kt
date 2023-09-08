@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.Message
+import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.onboarding.registration.parser.RegistrationMessageParser
 import javax.inject.Inject
@@ -39,10 +40,11 @@ class RegistrationRepositoryImpl @Inject constructor(
         accountRepository.createAccount(id)
         awalaManager
             .sendMessage(
-                Message(
+                message = Message(
                     type = MessageType.AccountCreationRequest,
                     content = id.toByteArray(),
-                )
+                ),
+                recipient = MessageRecipient.Server(),
             )
     }
 
