@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
+import tech.relaycorp.letro.ui.theme.LetroColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +33,9 @@ fun LetroTopBar(
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         TopAppBar(
             modifier = modifier,
             title = {
@@ -89,7 +91,7 @@ fun LetroTopBar(
 //                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = LetroColor.SurfaceContainerHigh
                 ),
             )
 //            if (currentRoute.showTabs) {

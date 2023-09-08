@@ -1,9 +1,11 @@
 package tech.relaycorp.letro.awala
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -37,36 +39,52 @@ fun AwalaNotInstalledScreen(
             mainViewModel.onScreenResumed(Route.AwalaNotInstalled)
         }
     }
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(
                 horizontal = HorizontalScreenPadding,
                 vertical = HorizontalScreenPadding,
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = stringResource(id = R.string.onboarding_install_awala_title),
-            style = MaterialTheme.typography.headlineSmall,
+            text = stringResource(id = R.string.app_name),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.onbaording_install_awala_message),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-        LetroButtonMaxWidthFilled(
-            text = stringResource(id = R.string.onboarding_install_awala_button),
-            onClick = onInstallAwalaClick,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = HorizontalScreenPadding,
+                    vertical = HorizontalScreenPadding,
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = stringResource(id = R.string.onboarding_install_awala_title),
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+            Text(
+                text = stringResource(id = R.string.onbaording_install_awala_message),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+            LetroButtonMaxWidthFilled(
+                text = stringResource(id = R.string.onboarding_install_awala_button),
+                onClick = onInstallAwalaClick,
+            )
+        }
     }
 }
 

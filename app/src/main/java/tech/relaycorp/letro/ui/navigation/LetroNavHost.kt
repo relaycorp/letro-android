@@ -24,6 +24,7 @@ import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateMod
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.ui.common.SplashScreen
+import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
@@ -68,7 +69,7 @@ fun LetroNavHost(
     } else {
         systemUiController.isStatusBarVisible = true
         systemUiController.setStatusBarColor(
-            if (currentRoute.isStatusBarPrimaryColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+            if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface
         )
         val currentAccount = uiState.currentAccount
         Column {
