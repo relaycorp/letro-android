@@ -13,34 +13,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.migulyaev.myapplication.ui.theme.Error1
-import com.migulyaev.myapplication.ui.theme.Error2
-import com.migulyaev.myapplication.ui.theme.Neutral2
-import com.migulyaev.myapplication.ui.theme.Neutral3
-import com.migulyaev.myapplication.ui.theme.Neutral4
-import com.migulyaev.myapplication.ui.theme.Neutral5
-import com.migulyaev.myapplication.ui.theme.Neutral6
-import com.migulyaev.myapplication.ui.theme.Neutral7
-import com.migulyaev.myapplication.ui.theme.Neutral8
-import com.migulyaev.myapplication.ui.theme.Neutral9
-import com.migulyaev.myapplication.ui.theme.NeutralVariant1
-import com.migulyaev.myapplication.ui.theme.NeutralVariant2
-import com.migulyaev.myapplication.ui.theme.NeutralVariant4
-import com.migulyaev.myapplication.ui.theme.NeutralVariant5
-import com.migulyaev.myapplication.ui.theme.NeutralVariant6
-import com.migulyaev.myapplication.ui.theme.NeutralVariant7
-import com.migulyaev.myapplication.ui.theme.NeutralVariant8
-import com.migulyaev.myapplication.ui.theme.Primary2
-import com.migulyaev.myapplication.ui.theme.Primary3
-import com.migulyaev.myapplication.ui.theme.Secondary1
-import com.migulyaev.myapplication.ui.theme.Secondary2
-import com.migulyaev.myapplication.ui.theme.Secondary5
 import com.migulyaev.myapplication.ui.theme.Typography
 
 private val DarkColorScheme = lightColorScheme(
     primary = Primary3,
-    onPrimary = Neutral9,
+    onPrimary = Primary1,
     secondary = Secondary5,
     onSecondary = Secondary1,
     error = Error2,
@@ -52,7 +29,7 @@ private val DarkColorScheme = lightColorScheme(
     onPrimaryContainer = NeutralVariant5,
     secondaryContainer = NeutralVariant2,
     outline = NeutralVariant5,
-    outlineVariant = NeutralVariant7,
+    outlineVariant = NeutralVariant4,
     background = NeutralVariant1,
     onBackground = NeutralVariant8,
     onError = Neutral8,
@@ -81,7 +58,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun LetroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

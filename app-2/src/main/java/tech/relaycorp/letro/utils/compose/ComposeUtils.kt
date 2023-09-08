@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utility
+package tech.relaycorp.letro.utils.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 
 @Composable
 fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current): Lifecycle.Event {
-    var state by remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
+    var state by remember { mutableStateOf(Lifecycle.Event.ON_RESUME) }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             state = event
