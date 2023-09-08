@@ -58,6 +58,9 @@ class AwalaManagerImpl @Inject constructor(
     @Volatile
     private var isReceivingMessages = false
 
+    private var firstPartyEndpoint: FirstPartyEndpoint? = null
+    private var thirdPartyServerEndpoint: ThirdPartyEndpoint? = null
+
     init {
         awalaSetupJob = awalaScope.launch {
             Awala.setUp(context)
@@ -71,31 +74,9 @@ class AwalaManagerImpl @Inject constructor(
         message: Message,
         recipient: MessageRecipient,
     ) {
-        val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
-            ?: registerFirstPartyEndpointIfNeeded()?.nodeId
-            ?: ""
-
-        val thirdPartyEndpointNodeId = when (recipient) {
-            is MessageRecipient.Server -> {
-                recipient.nodeId
-                    ?: awalaRepository.getServerThirdPartyEndpointNodeId()
-                    ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
-                    ?: ""
-            }
-            else -> {
-                throw IllegalStateException("User messages are not supported yet!")
-            }
-        }
-
-        if (firstPartyEndpointNodeId.isEmpty() || thirdPartyEndpointNodeId.isEmpty()) {
-            throw IllegalStateException("some of ids is empty: $firstPartyEndpointNodeId ; $thirdPartyEndpointNodeId")
-        }
-
-        Log.d(TAG, "sendMessage() from $firstPartyEndpointNodeId to $thirdPartyEndpointNodeId: ${message})")
-
-        val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
-        val thirdPartyEndpoint = loadNonNullThirdPartyEndpoint(thirdPartyEndpointNodeId)
-
+        val firstPartyEndpoint = loadFirstPartyEndpoint()
+        val thirdPartyEndpoint = loadThirdPartyEndpoint(recipient)
+        Log.d(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: ${message})")
         GatewayClient.sendMessage(
             OutgoingMessage.build(
                 type = message.type.value,
@@ -117,6 +98,33 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
+    private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
+        val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
+            ?: registerFirstPartyEndpointIfNeeded()?.nodeId
+            ?: throw IllegalStateException("You should register first party endpoint first!")
+        return firstPartyEndpoint ?: loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
+    }
+
+    private suspend fun loadThirdPartyEndpoint(recipient: MessageRecipient): ThirdPartyEndpoint {
+        if (recipient is MessageRecipient.Server) {
+            thirdPartyServerEndpoint?.let {
+                return it
+            }
+        }
+        val thirdPartyEndpointNodeId = when (recipient) {
+            is MessageRecipient.Server -> {
+                recipient.nodeId
+                    ?: awalaRepository.getServerThirdPartyEndpointNodeId()
+                    ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
+                    ?: throw IllegalStateException("You should register third party endpoint first!")
+            }
+            else -> {
+                throw IllegalStateException("User messages are not supported yet!")
+            }
+        }
+        return loadNonNullThirdPartyEndpoint(thirdPartyEndpointNodeId)
+    }
+
     private suspend fun startReceivingMessages() {
         if (isReceivingMessages) {
             return
@@ -125,9 +133,6 @@ class AwalaManagerImpl @Inject constructor(
         awalaScope.launch {
             Log.d(TAG, "start receiving messages...")
             GatewayClient.receiveMessages().collect { message ->
-                // TODO Remove first message.ack() before publishing the app.
-                // It's here to avoid the server getting stuck with messages that can't be processed.
-                message.ack()
                 _messages.emit(
                     Message(
                         type = MessageType.from(message.type),
@@ -175,11 +180,7 @@ class AwalaManagerImpl @Inject constructor(
 
         val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
             ?: registerFirstPartyEndpointIfNeeded()?.nodeId
-            ?: ""
-
-        if (firstPartyEndpointNodeId.isEmpty()) {
-            throw IllegalStateException("You should register first party endpoint first!")
-        }
+            ?: throw IllegalStateException("You should register first party endpoint first!")
 
         val thirdPartyEndpoint = importServerThirdPartyEndpoint(
             connectionParams = R.raw.server_connection_params
@@ -220,7 +221,6 @@ class AwalaManagerImpl @Inject constructor(
 
     private companion object {
         private const val TAG = "AwalaManager"
-        private const val SERVER = "ServerUniqueRecipientId1241242"
     }
 
 }
