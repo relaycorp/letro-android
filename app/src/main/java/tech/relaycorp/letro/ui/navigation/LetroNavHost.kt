@@ -99,7 +99,7 @@ fun LetroNavHost(
                             title = R.string.onboarding_account_confirmation,
                             image = R.drawable.account_created,
                             onPairWithPeople = { /* TODO */ },
-                            onShareId = { /* TODO */ }
+                            onShareId = { mainViewModel.onShareIdClick() }
                         )
                     )
                 }
@@ -110,7 +110,7 @@ fun LetroNavHost(
                             message = R.string.no_contacts_text,
                             image = R.drawable.no_contacts_image,
                             onPairWithPeople = { /* TODO */ },
-                            onShareId = { /* TODO */ }
+                            onShareId = { mainViewModel.onShareIdClick() }
                         )
                     )
                 }

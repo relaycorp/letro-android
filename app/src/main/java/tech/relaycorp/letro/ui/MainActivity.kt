@@ -65,5 +65,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.joinMeOnLetroSignal.collect { id ->
+                try {
+                    val text = getString(R.string.join_me_on_letro, id)
+                    startActivity(
+                        Intent(
+                            Intent.ACTION_SEND
+                        ).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, text)
+                        }
+                    )
+                } catch (a: ActivityNotFoundException) {
+                    Toast
+                        .makeText(this@MainActivity, R.string.no_app_to_share, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
     }
 }

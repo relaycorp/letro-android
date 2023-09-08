@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
@@ -40,10 +40,15 @@ class MainViewModel @Inject constructor(
     val openLinkSignal: SharedFlow<String>
         get() = _openLinkSignal
 
+    private val _joinMeOnLetroSignal = MutableSharedFlow<String>()
+    val joinMeOnLetroSignal: SharedFlow<String>
+        get() = _joinMeOnLetroSignal
+
     private val _rootNavigationScreen: MutableStateFlow<RootNavigationScreen> =
         MutableStateFlow(RootNavigationScreen.Splash)
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
+    private var currentAccount: Account? = null
     private var isRegistration = false
 
     init {
@@ -59,6 +64,7 @@ class MainViewModel @Inject constructor(
                         it
                     }
                 }
+                currentAccount = account
             }
         }
 
@@ -101,6 +107,14 @@ class MainViewModel @Inject constructor(
     fun onInstallAwalaClick() {
         viewModelScope.launch {
             _openLinkSignal.emit(AWALA_GOOGLE_PLAY_LINK)
+        }
+    }
+
+    fun onShareIdClick() {
+        currentAccount?.veraId?.let { accountId ->
+            viewModelScope.launch {
+                _joinMeOnLetroSignal.emit(accountId)
+            }
         }
     }
 

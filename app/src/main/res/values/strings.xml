@@ -58,6 +58,9 @@
     <string name="top_bar_tab_notifications">Notifications</string>
 
     <string name="no_browser">There is no app to install Awala</string>
+    <string name="no_app_to_share">There is no app to share your id</string>
+
+    <string name="join_me_on_letro">Join me on Letro: https://letro.app/connect/#u=%1$s</string>
 
     <string name="url_awala_gateway_app" translatable="false">https://play.google.com/store/apps/details?id=tech.relaycorp.gateway</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
