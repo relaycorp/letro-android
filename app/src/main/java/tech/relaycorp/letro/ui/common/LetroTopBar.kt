@@ -47,59 +47,39 @@ fun LetroTopBar(
                     Text(
                         text = accountVeraId,
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.surface,
+                        color = LetroColor.OnSurfaceContainerHigh,
                     )
                     if (!isAccountCreated) {
                         Spacer(modifier = Modifier.width(6.dp))
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .size(20.dp, 20.dp),
-                            color = MaterialTheme.colorScheme.surface,
+                            color = LetroColor.OnSurfaceContainerHigh,
                             strokeWidth = 2.dp,
                         )
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(
+                        modifier = Modifier.width(6.dp)
+                    )
                     Icon(
                         painter = painterResource(id = R.drawable.arrow_down),
                         contentDescription = stringResource(id = R.string.top_bar_change_account),
-                        tint = MaterialTheme.colorScheme.surface
+                        tint = LetroColor.OnSurfaceContainerHigh
                     )
                 }
-//                    } else {
-//                        Text(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            text = stringResource(id = R.string.app_name),
-//                            style = MaterialTheme.typography.titleMedium,
-//                            textAlign = TextAlign.Center,
-//                            color = if (currentRoute.isTopBarContainerColorPrimary) {
-//                                MaterialTheme.colorScheme.onPrimary
-//                            } else {
-//                                MaterialTheme.colorScheme.onSurface
-//                            },
-//                        )
-//                    }
-                },
-                actions = {
-//                    if (currentRoute.showAccountNameAndActions) {
-                        IconButton(onClick = onSettingsClicked) {
-                            Icon(
-                                painterResource(id = R.drawable.settings),
-                                contentDescription = stringResource(id = R.string.top_bar_settings),
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-//                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LetroColor.SurfaceContainerHigh
-                ),
-            )
-//            if (currentRoute.showTabs) {
-//                LetroTabs(
-//                    tabIndex = tabIndex,
-//                    updateTabIndex = updateTabIndex,
-//                    navigateToHomeScreen = navigateToHomeScreen,
-//                )
-//            }
-        }
+            },
+            actions = {
+                IconButton(onClick = onSettingsClicked) {
+                    Icon(
+                        painterResource(id = R.drawable.settings),
+                        contentDescription = stringResource(id = R.string.top_bar_settings),
+                        tint = LetroColor.OnSurfaceContainerHigh,
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = LetroColor.SurfaceContainerHigh
+            ),
+        )
+    }
 }
