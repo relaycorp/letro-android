@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,6 +14,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.awala.AwalaNotInstalledScreen
@@ -29,6 +32,7 @@ fun LetroNavHost(
     navController: NavHostController,
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
+    val systemUiController: SystemUiController = rememberSystemUiController()
     var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
 
     val uiState by mainViewModel.uiState.collectAsState()
@@ -54,6 +58,7 @@ fun LetroNavHost(
     }
 
     if (showAwalaNotInstalledScreen) {
+        systemUiController.isStatusBarVisible = false
         AwalaNotInstalledScreen(
             mainViewModel = mainViewModel,
             onInstallAwalaClick = {
@@ -61,6 +66,10 @@ fun LetroNavHost(
             }
         )
     } else {
+        systemUiController.isStatusBarVisible = true
+        systemUiController.setStatusBarColor(
+            if (currentRoute.isStatusBarPrimaryColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+        )
         val currentAccount = uiState.currentAccount
         Column {
             if (currentRoute.showTopBar && currentAccount != null) {

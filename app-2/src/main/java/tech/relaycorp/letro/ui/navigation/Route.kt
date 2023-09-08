@@ -3,6 +3,7 @@ package tech.relaycorp.letro.ui.navigation
 sealed class Route(
     val name: String,
     val showTopBar: Boolean = true,
+    val isStatusBarPrimaryColor: Boolean = false,
 ) {
 
     object Splash : Route(
@@ -23,21 +24,25 @@ sealed class Route(
     object RegistrationProcessWaiting : Route(
         name = "registration_waiting",
         showTopBar = true,
+        isStatusBarPrimaryColor = true,
     )
 
     object NoContacts : Route(
         name = "no_contacts",
         showTopBar = true,
+        isStatusBarPrimaryColor = true,
     )
 
     object WelcomeToLetro : Route(
         name = "welcome_to_letro",
-        showTopBar = true
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
     )
 
     object PairingRequestSent : Route(
         name = "pairing_request_sent",
-        showTopBar = true
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
     )
 
 }

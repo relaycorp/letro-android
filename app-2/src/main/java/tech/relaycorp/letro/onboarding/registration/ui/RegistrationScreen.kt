@@ -134,9 +134,9 @@ fun RegistrationScreen(
                 Divider(modifier = Modifier.fillMaxWidth())
                 Text(
                     text = stringResource(id = R.string.onboarding_create_account_or),
-                    modifier = androidx.compose.ui.Modifier
-                        .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.surface),
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(8.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )

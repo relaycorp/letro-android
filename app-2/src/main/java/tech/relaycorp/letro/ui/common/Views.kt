@@ -51,18 +51,18 @@ fun LetroButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = when (buttonType) {
                 ButtonType.Filled -> MaterialTheme.colorScheme.primary
-                ButtonType.Outlined -> MaterialTheme.colorScheme.outline
+                ButtonType.Outlined -> MaterialTheme.colorScheme.surface
             },
             contentColor = when (buttonType) {
                 ButtonType.Filled -> MaterialTheme.colorScheme.onPrimary
-                ButtonType.Outlined -> MaterialTheme.colorScheme.onPrimary
+                ButtonType.Outlined -> MaterialTheme.colorScheme.primary
             },
             disabledContainerColor = LetroColor.disabledButtonBackgroundColor(),
             disabledContentColor = LetroColor.disabledButtonTextColor(),
         ),
         border = if (buttonType == ButtonType.Outlined) {
             BorderStroke(
-                color = MaterialTheme.colorScheme.outlineVariant,
+                color = MaterialTheme.colorScheme.primary,
                 width = 1.dp,
             )
         } else {
