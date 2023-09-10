@@ -4,9 +4,9 @@ import tech.relaycorp.letro.awala.message.AwalaIncomingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import javax.inject.Inject
 
-interface UnknownMessageParser: AwalaMessageParser
+interface UnknownMessageParser : AwalaMessageParser
 
-class UnknownMessageParserImpl @Inject constructor(): UnknownMessageParser {
+class UnknownMessageParserImpl @Inject constructor() : UnknownMessageParser {
 
     override fun parse(type: MessageType, content: ByteArray): AwalaIncomingMessage<*> {
         return UnknownIncomingMessage(
@@ -17,6 +17,6 @@ class UnknownMessageParserImpl @Inject constructor(): UnknownMessageParser {
 
 data class UnknownIncomingMessage(
     override val content: String,
-): AwalaIncomingMessage<String> {
+) : AwalaIncomingMessage<String> {
     override val type: MessageType = MessageType.Unknown
 }

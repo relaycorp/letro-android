@@ -41,7 +41,7 @@ fun ActionTakingScreen(
         )
         if (actionTakingScreenUIStateModel.titleStringRes != null) {
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             Text(
                 text = stringResource(id = actionTakingScreenUIStateModel.titleStringRes),
@@ -50,7 +50,7 @@ fun ActionTakingScreen(
         }
         if (actionTakingScreenUIStateModel.messageStringRes != null) {
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             Text(
                 text = stringResource(id = actionTakingScreenUIStateModel.messageStringRes),
@@ -59,7 +59,7 @@ fun ActionTakingScreen(
         }
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = actionTakingScreenUIStateModel.buttonFilledStringRes),
@@ -68,7 +68,7 @@ fun ActionTakingScreen(
         }
         if (actionTakingScreenUIStateModel.buttonOutlinedStringRes != null) {
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             LetroButtonMaxWidthFilled(
                 buttonType = ButtonType.Outlined,

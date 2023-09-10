@@ -17,12 +17,12 @@ import androidx.navigation.compose.composable
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.awala.AwalaNotInstalledScreen
+import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
-import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
@@ -64,12 +64,12 @@ fun LetroNavHost(
             mainViewModel = mainViewModel,
             onInstallAwalaClick = {
                 mainViewModel.onInstallAwalaClick()
-            }
+            },
         )
     } else {
         systemUiController.isStatusBarVisible = true
         systemUiController.setStatusBarColor(
-            if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface
+            if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface,
         )
         val currentAccount = uiState.currentAccount
         Column {
@@ -78,7 +78,7 @@ fun LetroNavHost(
                     accountVeraId = currentAccount,
                     isAccountCreated = uiState.isCurrentAccountCreated,
                     onChangeAccountClicked = { /*TODO*/ },
-                    onSettingsClicked = { }
+                    onSettingsClicked = { },
                 )
             }
             NavHost(
@@ -90,7 +90,7 @@ fun LetroNavHost(
                 }
                 composable(Route.Registration.name) {
                     RegistrationScreen(
-                        onUseExistingAccountClick = {}
+                        onUseExistingAccountClick = {},
                     )
                 }
                 composable(Route.WelcomeToLetro.name) {
@@ -99,8 +99,8 @@ fun LetroNavHost(
                             title = R.string.onboarding_account_confirmation,
                             image = R.drawable.account_created,
                             onPairWithPeople = { /* TODO */ },
-                            onShareId = { mainViewModel.onShareIdClick() }
-                        )
+                            onShareId = { mainViewModel.onShareIdClick() },
+                        ),
                     )
                 }
                 composable(Route.NoContacts.name) {
@@ -110,26 +110,25 @@ fun LetroNavHost(
                             message = R.string.no_contacts_text,
                             image = R.drawable.no_contacts_image,
                             onPairWithPeople = { /* TODO */ },
-                            onShareId = { mainViewModel.onShareIdClick() }
-                        )
+                            onShareId = { mainViewModel.onShareIdClick() },
+                        ),
                     )
                 }
                 composable(Route.RegistrationProcessWaiting.name) {
                     ActionTakingScreen(
-                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting
+                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
                     )
                 }
                 composable(Route.PairingRequestSent.name) {
                     ActionTakingScreen(
                         actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
-                            onGotItClicked = { /* TODO */ }
-                        )
+                            onGotItClicked = { /* TODO */ },
+                        ),
                     )
                 }
             }
         }
     }
-
 }
 
 private fun handleFirstNavigation(

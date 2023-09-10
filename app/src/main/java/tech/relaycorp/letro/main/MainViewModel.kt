@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     private val awalaManager: AwalaManager,
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState>
@@ -74,26 +74,26 @@ class MainViewModel @Inject constructor(
                 contactsRepository.isPairedContactsExist,
             ) { currentAccount, isPairedContactExist ->
                 Log.d(TAG, "$currentAccount; $isPairedContactExist")
-                    if (currentAccount != null) {
-                        when {
-                            !currentAccount.isCreated -> {
-                                isRegistration = true
-                                _rootNavigationScreen.emit(RootNavigationScreen.RegistrationWaiting)
-                            }
-                            !isPairedContactExist -> {
-                                if (isRegistration) {
-                                    _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
-                                } else {
-                                    _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
-                                }
-                                isRegistration = false
-                            }
-                            isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Conversations)
+                if (currentAccount != null) {
+                    when {
+                        !currentAccount.isCreated -> {
+                            isRegistration = true
+                            _rootNavigationScreen.emit(RootNavigationScreen.RegistrationWaiting)
                         }
-                    } else {
-                        _rootNavigationScreen.emit(RootNavigationScreen.Registration)
+                        !isPairedContactExist -> {
+                            if (isRegistration) {
+                                _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
+                            } else {
+                                _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
+                            }
+                            isRegistration = false
+                        }
+                        isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Conversations)
                     }
-                }.collect()
+                } else {
+                    _rootNavigationScreen.emit(RootNavigationScreen.Registration)
+                }
+            }.collect()
         }
     }
 
@@ -122,7 +122,6 @@ class MainViewModel @Inject constructor(
         private const val TAG = "MainViewModel"
         private const val AWALA_GOOGLE_PLAY_LINK = "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway"
     }
-
 }
 
 data class MainUiState(

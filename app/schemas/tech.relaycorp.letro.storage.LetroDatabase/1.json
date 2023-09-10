@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8552037258d4ec9407de86bfa4649bfd",
+    "identityHash": "f727ada9d0ee39552687eb25fef6f248",
     "entities": [
       {
         "tableName": "account",
@@ -83,7 +83,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_contacts_ownerVeraId",
+            "unique": false,
+            "columnNames": [
+              "ownerVeraId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_contacts_ownerVeraId` ON `${TABLE_NAME}` (`ownerVeraId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "account",
@@ -102,7 +112,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8552037258d4ec9407de86bfa4649bfd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f727ada9d0ee39552687eb25fef6f248')"
     ]
   }
 }

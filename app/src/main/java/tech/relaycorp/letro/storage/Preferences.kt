@@ -13,7 +13,7 @@ interface Preferences {
 
 class PreferencesImpl @Inject constructor(
     @ApplicationContext context: Context,
-): Preferences {
+) : Preferences {
 
     private val preferences by lazy {
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)

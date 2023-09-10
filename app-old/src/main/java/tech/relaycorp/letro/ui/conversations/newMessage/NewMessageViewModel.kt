@@ -1,6 +1,5 @@
 package tech.relaycorp.letro.ui.conversations.newMessage
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,19 +28,19 @@ class NewMessageViewModel @Inject constructor(
         MutableStateFlow(NewMessageUIStateModel())
     val newMessageUIStateModelFlow: MutableStateFlow<NewMessageUIStateModel> get() = _newMessageUIStateModelFlow
 
-    fun onRecipientInput(recipient: String) {
-        // TODO
-        Log.d("NewMessageViewModel", "onRecipientInput: $recipient")
+//    fun onRecipientInput(recipient: String) {
+//        recipient
+//        Log.d("NewMessageViewModel", "onRecipientInput: $recipient")
 //        viewModelScope.launch {
 //            _currentConversationDataFlow.update {
 //                it.copy(contactVeraId = recipient)
 //            }
 //        }
-    }
+//    }
 
-    fun onContentInput(content: String) {
-        // TODO
-        Log.d("NewMessageViewModel", "onContentInput: $content")
+//    fun onContentInput(content: String) {
+//        content
+//        Log.d("NewMessageViewModel", "onContentInput: $content")
 //        viewModelScope.launch {
 //            _currentConversationDataFlow.update {dataModel: ConversationDataModel ->
 //                val newMessage = dataModel.messages.last().copy(body = content)
@@ -49,7 +48,7 @@ class NewMessageViewModel @Inject constructor(
 //                dataModel.copy(messages = newMessages)
 //            }
 //        }
-    }
+//    }
 
     fun onSubjectInput(subject: String) {
         // TODO Update

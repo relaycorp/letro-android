@@ -61,14 +61,14 @@ fun RegistrationScreen(
                 contentDescription = null,
             )
             Spacer(
-                modifier = Modifier.height(32.dp)
+                modifier = Modifier.height(32.dp),
             )
             Text(
                 text = stringResource(id = R.string.general_id),
                 style = MaterialTheme.typography.labelLarge,
             )
             Spacer(
-                modifier = Modifier.height(6.dp)
+                modifier = Modifier.height(6.dp),
             )
             LetroOutlinedTextField(
                 value = uiState.username,
@@ -78,7 +78,7 @@ fun RegistrationScreen(
                 isError = uiState.isError,
             )
             Spacer(
-                modifier = Modifier.height(6.dp)
+                modifier = Modifier.height(6.dp),
             )
             Text(
                 text = stringResource(id = uiState.inputSuggestionText),
@@ -86,7 +86,7 @@ fun RegistrationScreen(
                 color = if (uiState.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             )
             Spacer(
-                modifier = Modifier.height(16.dp)
+                modifier = Modifier.height(16.dp),
             )
             Row(
                 modifier = Modifier
@@ -104,18 +104,18 @@ fun RegistrationScreen(
                     contentDescription = null,
                 )
                 Spacer(
-                    modifier = Modifier.width(8.dp)
+                    modifier = Modifier.width(8.dp),
                 )
                 HyperlinkText(
                     fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                     hyperLinks = mapOf(
                         stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                                to stringResource(id = R.string.url_letro_terms_and_conditions),
+                            to stringResource(id = R.string.url_letro_terms_and_conditions),
                     ),
                 )
             }
             Spacer(
-                modifier = Modifier.height(32.dp)
+                modifier = Modifier.height(32.dp),
             )
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.onboarding_create_account_button),
@@ -125,7 +125,7 @@ fun RegistrationScreen(
                 isEnabled = uiState.isCreateAccountButtonEnabled,
             )
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -142,7 +142,7 @@ fun RegistrationScreen(
                 )
             }
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.general_use_existing_account),

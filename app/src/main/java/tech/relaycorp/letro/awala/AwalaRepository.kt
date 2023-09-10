@@ -12,7 +12,7 @@ interface AwalaRepository {
 
 class AwalaRepositoryImpl @Inject constructor(
     private val preferences: Preferences,
-): AwalaRepository {
+) : AwalaRepository {
 
     override fun saveServerFirstPartyEndpointNodeId(nodeId: String) {
         preferences.putString(KEY_FIRST_PARTY_ENDPOINT_NODE_ID, nodeId)

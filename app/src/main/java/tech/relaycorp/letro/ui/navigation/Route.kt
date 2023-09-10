@@ -44,7 +44,6 @@ sealed class Route(
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     )
-
 }
 
 fun String?.toRoute(): Route {

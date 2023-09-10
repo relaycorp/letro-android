@@ -21,7 +21,7 @@ interface RegistrationModule {
     @Binds
     @ViewModelScoped
     fun bindDomainProvider(
-        impl: RegistrationDomainProviderImpl
+        impl: RegistrationDomainProviderImpl,
     ): RegistrationDomainProvider
 }
 
@@ -32,11 +32,11 @@ interface RegistrationModuleSingleton {
     @Binds
     @Singleton
     fun bindRegistrationRepository(
-        impl: RegistrationRepositoryImpl
+        impl: RegistrationRepositoryImpl,
     ): RegistrationRepository
 
     @Binds
     fun bindRegistrationMessageParser(
-        impl: RegistrationMessageParserImpl
+        impl: RegistrationMessageParserImpl,
     ): RegistrationMessageParser
 }

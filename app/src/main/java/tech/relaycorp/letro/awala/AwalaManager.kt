@@ -43,7 +43,7 @@ class AwalaManagerImpl @Inject constructor(
     private val awalaRepository: AwalaRepository,
     @ApplicationContext private val context: Context,
     private val parser: AwalaMessageParser,
-): AwalaManager {
+) : AwalaManager {
 
     private val awalaScope = CoroutineScope(Dispatchers.IO)
 
@@ -79,14 +79,14 @@ class AwalaManagerImpl @Inject constructor(
     ) {
         val firstPartyEndpoint = loadFirstPartyEndpoint()
         val thirdPartyEndpoint = loadThirdPartyEndpoint(recipient)
-        Log.d(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: ${outgoingMessage})")
+        Log.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
         GatewayClient.sendMessage(
             OutgoingMessage.build(
                 type = outgoingMessage.type.value,
                 content = outgoingMessage.content,
                 senderEndpoint = firstPartyEndpoint,
                 recipientEndpoint = thirdPartyEndpoint,
-            )
+            ),
         )
     }
 
@@ -135,10 +135,10 @@ class AwalaManagerImpl @Inject constructor(
         }
 
         awalaScope.launch {
-            Log.d(TAG, "start receiving messages...")
+            Log.i(TAG, "start receiving messages...")
             GatewayClient.receiveMessages().collect { message ->
                 val type = MessageType.from(message.type)
-                val parsedMessage = parser.parse(type, message.content).also { Log.d(TAG, "Receive message: ($it)") }
+                val parsedMessage = parser.parse(type, message.content).also { Log.i(TAG, "Receive message: ($it)") }
                 _incomingMessages.send(parsedMessage)
                 message.ack()
             }
@@ -185,7 +185,7 @@ class AwalaManagerImpl @Inject constructor(
             ?: throw IllegalStateException("You should register first party endpoint first!")
 
         val thirdPartyEndpoint = importServerThirdPartyEndpoint(
-            connectionParams = R.raw.server_connection_params
+            connectionParams = R.raw.server_connection_params,
         )
 
         val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
@@ -198,7 +198,7 @@ class AwalaManagerImpl @Inject constructor(
                 content = auth,
             ),
             recipient = MessageRecipient.Server(
-                nodeId = thirdPartyEndpoint.nodeId
+                nodeId = thirdPartyEndpoint.nodeId,
             ),
         )
         awalaRepository.saveServerThirdPartyEndpointNodeId(thirdPartyEndpoint.nodeId)
@@ -213,7 +213,7 @@ class AwalaManagerImpl @Inject constructor(
             PublicThirdPartyEndpoint.import(
                 context.resources.openRawResource(connectionParams).use {
                     it.readBytes()
-                }
+                },
             )
         } catch (e: InvalidThirdPartyEndpoint) {
             throw InvalidConnectionParams(e)
@@ -224,7 +224,6 @@ class AwalaManagerImpl @Inject constructor(
     private companion object {
         private const val TAG = "AwalaManager"
     }
-
 }
 
 internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)

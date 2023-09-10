@@ -11,7 +11,6 @@ import tech.relaycorp.letro.contacts.storage.ContactsRepositoryImpl
 import tech.relaycorp.letro.storage.LetroDatabase
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object ContactsModule {
@@ -20,7 +19,6 @@ object ContactsModule {
     fun provideContactsDao(appDatabase: LetroDatabase): ContactsDao =
         appDatabase.contactsDao()
 
-
     @Module
     @InstallIn(SingletonComponent::class)
     interface Declarations {
@@ -28,7 +26,7 @@ object ContactsModule {
         @Singleton
         @Binds
         fun bindContactsRepository(
-            impl: ContactsRepositoryImpl
+            impl: ContactsRepositoryImpl,
         ): ContactsRepository
     }
 }

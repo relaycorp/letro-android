@@ -21,7 +21,7 @@ interface ContactsRepository {
 class ContactsRepositoryImpl @Inject constructor(
     private val contactsDao: ContactsDao,
     private val accountRepository: AccountRepository,
-): ContactsRepository {
+) : ContactsRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private val contacts = MutableStateFlow<List<Contact>>(emptyList())
@@ -61,9 +61,9 @@ class ContactsRepositoryImpl @Inject constructor(
             contacts
                 .value
                 .any {
-                    it.ownerVeraId == account.veraId
-                        && it.status == ContactPairingStatus.Complete
-                }
+                    it.ownerVeraId == account.veraId &&
+                        it.status == ContactPairingStatus.Complete
+                },
         )
     }
 

@@ -31,8 +31,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.LetroTheme
 
 @Composable
@@ -69,7 +69,7 @@ fun LetroButton(
             null
         },
         contentPadding = PaddingValues(
-            vertical = 14.dp
+            vertical = 14.dp,
         ),
         onClick = onClick,
     ) {
@@ -281,7 +281,7 @@ fun CustomViewsPreview() {
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                 hyperLinks = mapOf(
                     stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                            to "https://letro.app/en/terms",
+                        to "https://letro.app/en/terms",
                 ),
             )
             Spacer(modifier = Modifier.height(ItemPadding))

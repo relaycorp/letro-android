@@ -15,7 +15,6 @@ interface PreferencesModule {
     @Singleton
     @Binds
     fun bindPreferences(
-        impl: PreferencesImpl
+        impl: PreferencesImpl,
     ): Preferences
-
 }

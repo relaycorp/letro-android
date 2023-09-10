@@ -29,7 +29,7 @@ val NeutralVariant7 = Color(0xFFE6E8EE)
 val NeutralVariant8 = Color(0xFFEFF0F3)
 
 object LetroColor {
-    
+
     val SurfaceContainerHigh: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant2 else Primary2
@@ -47,5 +47,4 @@ object LetroColor {
     fun disabledButtonTextColor(): Color {
         return if (isSystemInDarkTheme()) Color(0x1AEFF0F3) else Color(0x5C0C1B44)
     }
-
 }

@@ -7,7 +7,7 @@ sealed class MessageType(val value: String) {
     object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.pairing-request-tmp")
     object ContactPairingMatch : MessageType("application/vnd.relaycorp.letro.pairing-match-tmp")
     object ContactPairingAuthorization : MessageType("application/vnd.relaycorp.letro.pairing-auth")
-    object Unknown: MessageType("unknown")
+    object Unknown : MessageType("unknown")
 
     companion object {
         fun from(type: String): MessageType {

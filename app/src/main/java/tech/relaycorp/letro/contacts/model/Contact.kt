@@ -18,6 +18,7 @@ const val TABLE_NAME_CONTACTS = "contacts"
             onDelete = ForeignKey.CASCADE,
         ),
     ],
+    indices = [Index("ownerVeraId")],
 )
 data class Contact(
     @PrimaryKey(autoGenerate = true)

@@ -7,7 +7,7 @@ interface RegistrationDomainProvider {
     fun getDomain(): String
 }
 
-class RegistrationDomainProviderImpl @Inject constructor(): RegistrationDomainProvider {
+class RegistrationDomainProviderImpl @Inject constructor() : RegistrationDomainProvider {
 
     private val lazyDomain: String by lazy {
         val locale = Locale.getDefault()
@@ -21,5 +21,4 @@ class RegistrationDomainProviderImpl @Inject constructor(): RegistrationDomainPr
     override fun getDomain(): String {
         return lazyDomain
     }
-
 }

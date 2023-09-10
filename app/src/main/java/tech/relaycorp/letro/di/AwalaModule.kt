@@ -39,19 +39,18 @@ object AwalaModule {
         @Singleton
         @Binds
         fun bindAwalaManager(
-            impl: AwalaManagerImpl
+            impl: AwalaManagerImpl,
         ): AwalaManager
 
         @Singleton
         @Binds
         fun bindAwalaRepository(
-            impl: AwalaRepositoryImpl
+            impl: AwalaRepositoryImpl,
         ): AwalaRepository
 
         @Binds
         fun bindUnknownMessageParser(
-            impl: UnknownMessageParserImpl
+            impl: UnknownMessageParserImpl,
         ): UnknownMessageParser
     }
-
 }

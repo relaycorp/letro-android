@@ -2,7 +2,6 @@ package tech.relaycorp.letro.onboarding.registration
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.storage.AccountRepository
@@ -20,7 +19,7 @@ interface RegistrationRepository {
 class RegistrationRepositoryImpl @Inject constructor(
     private val awalaManager: AwalaManager,
     private val accountRepository: AccountRepository,
-): RegistrationRepository {
+) : RegistrationRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -45,5 +44,4 @@ class RegistrationRepositoryImpl @Inject constructor(
                 recipient = MessageRecipient.Server(),
             )
     }
-
 }

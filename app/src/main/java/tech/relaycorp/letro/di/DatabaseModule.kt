@@ -8,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.account.storage.AccountDao
-import tech.relaycorp.letro.contacts.storage.converter.ContactPairingStatusConverter
 import tech.relaycorp.letro.storage.LetroDatabase
 import javax.inject.Singleton
 
@@ -23,7 +22,7 @@ object DatabaseModule {
     @Provides
     @Synchronized
     fun provideLetroDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): LetroDatabase {
         synchronized(this) {
             val database = database
@@ -42,9 +41,8 @@ object DatabaseModule {
 
     @Provides
     fun provideAccountDao(
-        letroDatabase: LetroDatabase
+        letroDatabase: LetroDatabase,
     ): AccountDao {
         return letroDatabase.accountDao()
     }
-
 }

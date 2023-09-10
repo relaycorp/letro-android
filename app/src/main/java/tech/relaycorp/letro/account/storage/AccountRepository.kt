@@ -17,7 +17,7 @@ interface AccountRepository {
 
 class AccountRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
-): AccountRepository {
+) : AccountRepository {
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private val _allAccounts = MutableSharedFlow<List<Account>>()
@@ -34,7 +34,7 @@ class AccountRepositoryImpl @Inject constructor(
         databaseScope.launch {
             _allAccounts.collect { list ->
                 _currentAccount.emit(
-                    list.firstOrNull { it.isCurrent }
+                    list.firstOrNull { it.isCurrent },
                 )
             }
         }
@@ -45,7 +45,7 @@ class AccountRepositoryImpl @Inject constructor(
             Account(
                 veraId = id,
                 isCurrent = true,
-            )
+            ),
         )
     }
 
@@ -55,9 +55,8 @@ class AccountRepositoryImpl @Inject constructor(
                 it.copy(
                     veraId = newId,
                     isCreated = true,
-                )
+                ),
             )
         }
     }
-
 }

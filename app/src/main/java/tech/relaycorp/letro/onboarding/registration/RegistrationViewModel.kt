@@ -16,12 +16,12 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
     domainProvider: RegistrationDomainProvider,
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         RegistrationScreenUiState(
-            domain = domainProvider.getDomain()
-        )
+            domain = domainProvider.getDomain(),
+        ),
     )
     val uiState: StateFlow<RegistrationScreenUiState>
         get() = _uiState
@@ -33,7 +33,7 @@ class RegistrationViewModel @Inject constructor(
                 username = username,
                 isError = !isValidText,
                 isCreateAccountButtonEnabled = isValidText && username.isNotEmpty(),
-                inputSuggestionText = if (isValidText) R.string.onboarding_create_account_username_unavailable_hint else R.string.onboarding_create_account_wrong_username_hint
+                inputSuggestionText = if (isValidText) R.string.onboarding_create_account_username_unavailable_hint else R.string.onboarding_create_account_wrong_username_hint,
             )
         }
     }
@@ -41,7 +41,7 @@ class RegistrationViewModel @Inject constructor(
     fun onCreateAccountClick() {
         viewModelScope.launch(Dispatchers.IO) {
             registrationRepository.createNewAccount(
-                id = uiState.value.username + uiState.value.domain
+                id = uiState.value.username + uiState.value.domain,
             )
         }
     }
@@ -49,7 +49,6 @@ class RegistrationViewModel @Inject constructor(
     private companion object {
         private const val USER_NAME_MAX_LENGTH = 16
     }
-
 }
 
 data class RegistrationScreenUiState(

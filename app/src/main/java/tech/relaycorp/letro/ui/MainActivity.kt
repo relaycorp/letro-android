@@ -14,13 +14,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import tech.relaycorp.letro.ui.theme.LetroTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
+import tech.relaycorp.letro.ui.theme.LetroTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             LetroTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     LetroNavHost(
                         navController = navController,
@@ -71,11 +71,11 @@ class MainActivity : ComponentActivity() {
                     val text = getString(R.string.join_me_on_letro, id)
                     startActivity(
                         Intent(
-                            Intent.ACTION_SEND
+                            Intent.ACTION_SEND,
                         ).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, text)
-                        }
+                        },
                     )
                 } catch (a: ActivityNotFoundException) {
                     Toast

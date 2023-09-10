@@ -70,7 +70,7 @@ fun AwalaNotInstalledScreen(
                 textAlign = TextAlign.Center,
             )
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             Text(
                 text = stringResource(id = R.string.onbaording_install_awala_message),
@@ -78,7 +78,7 @@ fun AwalaNotInstalledScreen(
                 textAlign = TextAlign.Center,
             )
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp),
             )
             LetroButtonMaxWidthFilled(
                 text = stringResource(id = R.string.onboarding_install_awala_button),

@@ -34,7 +34,7 @@ fun LetroTopBar(
     onSettingsClicked: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         TopAppBar(
             modifier = modifier,
@@ -59,12 +59,12 @@ fun LetroTopBar(
                         )
                     }
                     Spacer(
-                        modifier = Modifier.width(6.dp)
+                        modifier = Modifier.width(6.dp),
                     )
                     Icon(
                         painter = painterResource(id = R.drawable.arrow_down),
                         contentDescription = stringResource(id = R.string.top_bar_change_account),
-                        tint = LetroColor.OnSurfaceContainerHigh
+                        tint = LetroColor.OnSurfaceContainerHigh,
                     )
                 }
             },
@@ -78,7 +78,7 @@ fun LetroTopBar(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = LetroColor.SurfaceContainerHigh
+                containerColor = LetroColor.SurfaceContainerHigh,
             ),
         )
     }

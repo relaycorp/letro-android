@@ -15,7 +15,6 @@ interface AccountModule {
     @Binds
     @Singleton
     fun bindAccountRepository(
-        impl: AccountRepositoryImpl
+        impl: AccountRepositoryImpl,
     ): AccountRepository
-
 }
