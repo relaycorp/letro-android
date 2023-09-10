@@ -3,7 +3,7 @@ package tech.relaycorp.letro.awala.message
 sealed interface MessageRecipient {
 
     data class User(
-        val veraId: String
+        val nodeId: String
     ): MessageRecipient
 
     data class Server(
