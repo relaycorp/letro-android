@@ -13,7 +13,7 @@ import tech.relaycorp.letro.onboarding.registration.dto.RegistrationResponseInco
 import javax.inject.Inject
 
 interface RegistrationRepository {
-    suspend fun createNewAccount(id: String)
+    fun createNewAccount(id: String)
 }
 
 class RegistrationRepositoryImpl @Inject constructor(
@@ -33,15 +33,17 @@ class RegistrationRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createNewAccount(id: String) {
-        accountRepository.createAccount(id)
-        awalaManager
-            .sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.AccountCreationRequest,
-                    content = id.toByteArray(),
-                ),
-                recipient = MessageRecipient.Server(),
-            )
+    override fun createNewAccount(id: String) {
+        scope.launch {
+            accountRepository.createAccount(id)
+            awalaManager
+                .sendMessage(
+                    outgoingMessage = AwalaOutgoingMessage(
+                        type = MessageType.AccountCreationRequest,
+                        content = id.toByteArray(),
+                    ),
+                    recipient = MessageRecipient.Server(),
+                )
+        }
     }
 }

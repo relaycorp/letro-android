@@ -2,13 +2,10 @@ package tech.relaycorp.letro.onboarding.registration
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import javax.inject.Inject
 
@@ -39,11 +36,9 @@ class RegistrationViewModel @Inject constructor(
     }
 
     fun onCreateAccountClick() {
-        viewModelScope.launch(Dispatchers.IO) {
-            registrationRepository.createNewAccount(
-                id = uiState.value.username + uiState.value.domain,
-            )
-        }
+        registrationRepository.createNewAccount(
+            id = uiState.value.username + uiState.value.domain,
+        )
     }
 
     private companion object {
