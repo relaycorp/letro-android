@@ -8,7 +8,7 @@ interface UnknownMessageParser : AwalaMessageParser
 
 class UnknownMessageParserImpl @Inject constructor() : UnknownMessageParser {
 
-    override fun parse(type: MessageType, content: ByteArray): AwalaIncomingMessage<*> {
+    override fun parse(content: ByteArray): AwalaIncomingMessage<*> {
         return UnknownIncomingMessage(
             content = content.decodeToString(),
         )

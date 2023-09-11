@@ -9,9 +9,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
@@ -24,11 +21,10 @@ import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.awala.message.AwalaIncomingMessage
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
-import tech.relaycorp.letro.awala.parser.AwalaMessageParser
+import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.awala.loadNonNullFirstPartyEndpoint
 import tech.relaycorp.letro.utils.awala.loadNonNullThirdPartyEndpoint
@@ -36,7 +32,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 interface AwalaManager {
-    val incomingMessages: Flow<AwalaIncomingMessage<*>>
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
         recipient: MessageRecipient,
@@ -48,7 +43,7 @@ interface AwalaManager {
 class AwalaManagerImpl @Inject constructor(
     private val awalaRepository: AwalaRepository,
     @ApplicationContext private val context: Context,
-    private val parser: AwalaMessageParser,
+    private val processor: AwalaMessageProcessor,
 ) : AwalaManager {
 
     private val awalaScope = CoroutineScope(Dispatchers.IO)
@@ -58,10 +53,6 @@ class AwalaManagerImpl @Inject constructor(
 
     @OptIn(DelicateCoroutinesApi::class)
     private val messageReceivingThreadContext = newSingleThreadContext("AwalaManagerMessageReceiverThread")
-
-    private val _incomingMessages = Channel<AwalaIncomingMessage<*>>()
-    override val incomingMessages: Flow<AwalaIncomingMessage<*>>
-        get() = _incomingMessages.receiveAsFlow()
 
     private var isAwalaSetUp = AtomicBoolean(false)
     private var awalaSetupJob: Job? = null
@@ -167,10 +158,9 @@ class AwalaManagerImpl @Inject constructor(
 
             Log.i(TAG, "start receiving messages...")
             GatewayClient.receiveMessages().collect { message ->
-                val type = MessageType.from(message.type)
-                val parsedMessage = parser.parse(type, message.content)
-                    .also { Log.i(TAG, "Receive message: ($it)") }
-                _incomingMessages.send(parsedMessage)
+                Log.i(TAG, "Receive message: ${message.type}: ($message)")
+                processor.process(message)
+                Log.i(TAG, "Message processed")
                 message.ack()
             }
         }
@@ -262,8 +252,8 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
-    private companion object {
-        private const val TAG = "AwalaManager"
+    companion object {
+        const val TAG = "AwalaManager"
     }
 }
 

@@ -1,7 +1,5 @@
 package tech.relaycorp.letro.onboarding.registration.parser
 
-import tech.relaycorp.letro.awala.message.AwalaIncomingMessage
-import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.parser.AwalaMessageParser
 import tech.relaycorp.letro.onboarding.registration.dto.RegistrationResponse
 import tech.relaycorp.letro.onboarding.registration.dto.RegistrationResponseIncomingMessage
@@ -12,7 +10,7 @@ interface RegistrationMessageParser : AwalaMessageParser
 
 class RegistrationMessageParserImpl @Inject constructor() : RegistrationMessageParser {
 
-    override fun parse(type: MessageType, content: ByteArray): AwalaIncomingMessage<*> {
+    override fun parse(content: ByteArray): RegistrationResponseIncomingMessage {
         val veraIds = content.toString(Charset.defaultCharset()).split(",")
         val response = RegistrationResponse(
             requestedVeraId = veraIds[0],
