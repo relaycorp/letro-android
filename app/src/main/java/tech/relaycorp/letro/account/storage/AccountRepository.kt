@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import javax.inject.Inject
@@ -21,7 +22,7 @@ class AccountRepositoryImpl @Inject constructor(
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private val _allAccounts = MutableSharedFlow<List<Account>>()
-    private val _currentAccount = MutableSharedFlow<Account?>()
+    private val _currentAccount = MutableStateFlow<Account?>(null)
     override val currentAccount: Flow<Account?>
         get() = _currentAccount
 
