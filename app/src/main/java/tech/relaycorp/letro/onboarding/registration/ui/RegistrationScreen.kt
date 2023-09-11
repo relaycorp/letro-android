@@ -73,7 +73,7 @@ fun RegistrationScreen(
             LetroOutlinedTextField(
                 value = uiState.username,
                 onValueChange = { viewModel.onUsernameInput(it) },
-                placeHolderText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
+                hintText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
                 suffixText = uiState.domain,
                 isError = uiState.isError,
             )

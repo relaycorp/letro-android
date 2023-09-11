@@ -15,6 +15,7 @@ import tech.relaycorp.letro.awala.parser.AwalaMessageParserImpl
 import tech.relaycorp.letro.awala.parser.UnknownMessageParser
 import tech.relaycorp.letro.awala.parser.UnknownMessageParserImpl
 import tech.relaycorp.letro.onboarding.registration.parser.RegistrationMessageParser
+import tech.relaycorp.letro.pairing.parser.ContactPairingMatchParser
 import javax.inject.Singleton
 
 @Module
@@ -24,10 +25,12 @@ object AwalaModule {
     @Provides
     fun provideMessageParser(
         registrationParser: RegistrationMessageParser,
+        contactPairingMatchParser: ContactPairingMatchParser,
         unknownMessageParser: UnknownMessageParser,
     ): AwalaMessageParser {
         val parsers = mapOf(
             MessageType.AccountCreationCompleted to registrationParser,
+            MessageType.ContactPairingMatch to contactPairingMatchParser,
             MessageType.Unknown to unknownMessageParser,
         )
         return AwalaMessageParserImpl(parsers)

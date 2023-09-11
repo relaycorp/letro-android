@@ -22,7 +22,7 @@ const val TABLE_NAME_CONTACTS = "contacts"
 )
 data class Contact(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0L,
     val ownerVeraId: String,
     val contactVeraId: String,
     val alias: String? = null,

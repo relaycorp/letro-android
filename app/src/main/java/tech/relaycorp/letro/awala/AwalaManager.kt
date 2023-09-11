@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.awala
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,7 +37,12 @@ interface AwalaManager {
         outgoingMessage: AwalaOutgoingMessage,
         recipient: MessageRecipient,
     )
+    suspend fun authorizeUsers(
+        // TODO: after MVP handle several first party endpoints
+        thirdPartyPublicKey: ByteArray,
+    )
     suspend fun isAwalaInstalled(currentScreen: Route): Boolean
+    suspend fun getFirstPartyPublicKey(): String
 }
 
 class AwalaManagerImpl @Inject constructor(
@@ -99,6 +105,23 @@ class AwalaManagerImpl @Inject constructor(
         } else {
             isAwalaInstalledOnDevice ?: checkIfAwalaAppInstalled()
         }
+    }
+
+    override suspend fun authorizeUsers(thirdPartyPublicKey: ByteArray) {
+        val firstPartyEndpoint = loadFirstPartyEndpoint()
+        val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyPublicKey)
+        sendMessage(
+            outgoingMessage = AwalaOutgoingMessage(
+                type = MessageType.ContactPairingAuthorization,
+                content = auth,
+            ),
+            recipient = MessageRecipient.Server(),
+        )
+    }
+
+    override suspend fun getFirstPartyPublicKey(): String {
+        val firstPartyEndpoint = loadFirstPartyEndpoint()
+        return Base64.encodeToString(firstPartyEndpoint.publicKey.encoded, Base64.NO_WRAP)
     }
 
     private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
@@ -171,6 +194,7 @@ class AwalaManagerImpl @Inject constructor(
         }
         val firstPartyEndpoint = FirstPartyEndpoint.register()
         awalaRepository.saveServerFirstPartyEndpointNodeId(firstPartyEndpoint.nodeId)
+        Log.i(TAG, "First party endpoint was registred: ${firstPartyEndpoint.nodeId}")
         startReceivingMessages()
         return firstPartyEndpoint
     }
@@ -221,8 +245,8 @@ class AwalaManagerImpl @Inject constructor(
         return endpoint
     }
 
-    private companion object {
-        private const val TAG = "AwalaManager"
+    companion object {
+        const val TAG = "AwalaManager"
     }
 }
 

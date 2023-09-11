@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.ui.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,8 +13,10 @@ import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
@@ -22,6 +25,8 @@ import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.pairing.PairWithOthersViewModel
+import tech.relaycorp.letro.pairing.ui.PairWithOthersScreen
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
@@ -42,6 +47,7 @@ fun LetroNavHost(
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             currentRoute = backStackEntry.destination.route.toRoute()
+            Log.d("LetroNavHost", "New route: $currentRoute")
         }
     }
 
@@ -98,8 +104,12 @@ fun LetroNavHost(
                         actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
                             title = R.string.onboarding_account_confirmation,
                             image = R.drawable.account_created,
-                            onPairWithPeople = { /* TODO */ },
-                            onShareId = { mainViewModel.onShareIdClick() },
+                            onPairWithOthersClick = {
+                                navController.navigate("${Route.PairWithOthers.name}/${uiState.currentAccount}")
+                            },
+                            onShareId = {
+                                mainViewModel.onShareIdClick()
+                            },
                         ),
                     )
                 }
@@ -109,8 +119,12 @@ fun LetroNavHost(
                             title = null,
                             message = R.string.no_contacts_text,
                             image = R.drawable.no_contacts_image,
-                            onPairWithPeople = { /* TODO */ },
-                            onShareId = { mainViewModel.onShareIdClick() },
+                            onPairWithOthersClick = {
+                                navController.navigate("${Route.PairWithOthers.name}/${uiState.currentAccount}")
+                            },
+                            onShareId = {
+                                mainViewModel.onShareIdClick()
+                            },
                         ),
                     )
                 }
@@ -124,6 +138,21 @@ fun LetroNavHost(
                         actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
                             onGotItClicked = { /* TODO */ },
                         ),
+                    )
+                }
+                composable(
+                    route = "${Route.PairWithOthers.name}/{${PairWithOthersViewModel.KEY_CURRENT_ACCOUNT_ID}}",
+                    arguments = listOf(
+                        navArgument(PairWithOthersViewModel.KEY_CURRENT_ACCOUNT_ID) {
+                            type = NavType.StringType
+                            nullable = true
+                        },
+                    ),
+                ) {
+                    PairWithOthersScreen(
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.ui.common
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -152,39 +153,54 @@ fun LetroOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeHolderText: String = "",
+    @StringRes label: Int? = null,
+    hintText: String = "",
     suffixText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     isError: Boolean = false,
     maxLines: Int = 1,
     singleLine: Boolean = true,
 ) {
-    OutlinedTextField(
-        modifier = modifier.fillMaxWidth(),
-        value = value,
-        onValueChange = onValueChange,
-        shape = RoundedCornerShape(4.dp),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        placeholder = {
-            Text(
-                text = placeHolderText,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-        },
-        suffix = {
-            if (suffixText != null) {
+    Column {
+        if (label != null) {
+            Column {
                 Text(
-                    suffixText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    text = stringResource(id = label),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(
+                    modifier = Modifier.height(8.dp),
                 )
             }
-        },
-        keyboardOptions = keyboardOptions,
-        maxLines = maxLines,
-        singleLine = singleLine,
-        isError = isError,
-    )
+        }
+        OutlinedTextField(
+            modifier = modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = onValueChange,
+            shape = RoundedCornerShape(4.dp),
+            textStyle = MaterialTheme.typography.bodyLarge,
+            placeholder = {
+                Text(
+                    text = hintText,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            },
+            suffix = {
+                if (suffixText != null) {
+                    Text(
+                        suffixText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            maxLines = maxLines,
+            singleLine = singleLine,
+            isError = isError,
+        )
+    }
 }
 
 @Composable
