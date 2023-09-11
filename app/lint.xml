@@ -3,6 +3,9 @@
     <!-- We're using dependabot to keep dependencies up-to-date -->
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="GradleDependency" severity="ignore" />
+    <issue id="LogConditional">
+        <ignore path="**"/>
+    </issue>
 
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />
