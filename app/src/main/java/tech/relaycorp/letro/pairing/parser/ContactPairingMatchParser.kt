@@ -1,8 +1,6 @@
 package tech.relaycorp.letro.pairing.parser
 
 import android.util.Base64
-import tech.relaycorp.letro.awala.message.AwalaIncomingMessage
-import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.parser.AwalaMessageParser
 import tech.relaycorp.letro.pairing.dto.ContactPairingMatchIncomingMessage
 import tech.relaycorp.letro.pairing.dto.ContactPairingMatchResponse
@@ -13,7 +11,7 @@ interface ContactPairingMatchParser : AwalaMessageParser
 
 class ContactPairingMatchParserImpl @Inject constructor() : ContactPairingMatchParser {
 
-    override fun parse(type: MessageType, content: ByteArray): AwalaIncomingMessage<*> {
+    override fun parse(content: ByteArray): ContactPairingMatchIncomingMessage {
         val contentString = content.toString(Charset.defaultCharset())
         val parts = contentString.split(",")
         return ContactPairingMatchIncomingMessage(

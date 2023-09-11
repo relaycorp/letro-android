@@ -25,4 +25,7 @@ interface ContactsDao {
 
     @Query("SELECT * FROM $TABLE_NAME_CONTACTS")
     fun getAll(): Flow<List<Contact>>
+
+    @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE ownerVeraId = :accountVeraId")
+    fun getContactsForAccount(accountVeraId: String): Flow<List<Contact>>
 }

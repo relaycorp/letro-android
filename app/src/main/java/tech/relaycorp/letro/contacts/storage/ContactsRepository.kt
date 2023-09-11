@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -16,8 +15,6 @@ import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.pairing.dto.ContactPairingMatchIncomingMessage
-import tech.relaycorp.letro.pairing.dto.ContactPairingMatchResponse
 import javax.inject.Inject
 
 interface ContactsRepository {
@@ -49,13 +46,6 @@ class ContactsRepositoryImpl @Inject constructor(
                 updatePairedContactExist(currentAccount)
             }
         }
-        scope.launch {
-            awalaManager.incomingMessages
-                .filterIsInstance(ContactPairingMatchIncomingMessage::class)
-                .collect {
-                    handleContactMatch(it.content)
-                }
-        }
     }
 
     override fun getContacts(ownerVeraId: String): Flow<List<Contact>> {
@@ -78,23 +68,6 @@ class ContactsRepositoryImpl @Inject constructor(
                 ),
                 recipient = MessageRecipient.Server(),
             )
-        }
-    }
-
-    private fun handleContactMatch(response: ContactPairingMatchResponse) {
-        scope.launch {
-            contactsDao.getContact(
-                ownerVeraId = response.ownerVeraId,
-                contactVeraId = response.contactVeraId,
-            )?.let { contactToUpdate ->
-                contactsDao.update(
-                    contactToUpdate.copy(
-                        contactEndpointId = response.contactEndpointId,
-                        status = ContactPairingStatus.Match,
-                    ),
-                )
-            }
-            awalaManager.authorizeUsers(response.contactEndpointPublicKey)
         }
     }
 
