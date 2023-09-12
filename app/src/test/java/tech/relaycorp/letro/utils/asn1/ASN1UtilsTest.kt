@@ -65,7 +65,7 @@ internal class ASN1UtilsTest {
             val item2 = sequence.readObject()
             item2 should beInstanceOf<DEROctetStringParser>()
             octetString.octets shouldBe
-                    ((item2 as DEROctetStringParser).loadedObject as DEROctetString).octets
+                ((item2 as DEROctetStringParser).loadedObject as DEROctetString).octets
         }
 
         @Test
@@ -138,8 +138,8 @@ internal class ASN1UtilsTest {
             }
 
             exception.message shouldBe
-                    "Sequence contains an item of an unexpected type " +
-                    "(${octetString::class.java.simpleName})"
+                "Sequence contains an item of an unexpected type " +
+                "(${octetString::class.java.simpleName})"
         }
 
         @Test
@@ -151,7 +151,7 @@ internal class ASN1UtilsTest {
 
             2 shouldBe sequence.size
             visibleString.octets shouldBe
-                    ASN1Utils.getVisibleString(sequence.first()).octets
+                ASN1Utils.getVisibleString(sequence.first()).octets
             octetString.octets shouldBe ASN1Utils.getOctetString(sequence[1]).octets
         }
     }
