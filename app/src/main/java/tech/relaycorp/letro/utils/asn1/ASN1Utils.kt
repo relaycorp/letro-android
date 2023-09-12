@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.utils.asn1
 
+import java.io.IOException
 import org.bouncycastle.asn1.ASN1Encodable
 import org.bouncycastle.asn1.ASN1EncodableVector
 import org.bouncycastle.asn1.ASN1InputStream
@@ -10,14 +11,11 @@ import org.bouncycastle.asn1.ASN1VisibleString
 import org.bouncycastle.asn1.DEROctetString
 import org.bouncycastle.asn1.DERSequence
 import org.bouncycastle.asn1.DERTaggedObject
-import java.io.IOException
 
 internal object ASN1Utils {
     fun makeSequence(items: List<ASN1Encodable>, explicitTagging: Boolean = true): DERSequence {
         val messagesVector = ASN1EncodableVector(items.size)
-        val finalItems = if (explicitTagging) {
-            items
-        } else items.mapIndexed { index, item ->
+        val finalItems = if (explicitTagging) items else items.mapIndexed { index, item ->
             DERTaggedObject(false, index, item)
         }
         finalItems.forEach { messagesVector.add(it) }
@@ -48,14 +46,14 @@ internal object ASN1Utils {
 
     @Throws(ASN1Exception::class)
     inline fun <reified T : ASN1Encodable> deserializeHomogeneousSequence(
-        serialization: ByteArray,
+        serialization: ByteArray
     ): Array<T> {
         val sequence = deserializeSequence(serialization)
         return sequence.map {
             if (it !is T) {
                 throw ASN1Exception(
                     "Sequence contains an item of an unexpected type " +
-                        "(${it::class.java.simpleName})",
+                        "(${it::class.java.simpleName})"
                 )
             }
             @Suppress("USELESS_CAST")
