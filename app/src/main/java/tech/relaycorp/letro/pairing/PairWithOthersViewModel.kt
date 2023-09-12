@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.pairing
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
@@ -32,11 +34,27 @@ class PairWithOthersViewModel @Inject constructor(
     val backSignal: SharedFlow<Unit>
         get() = _backSignal
 
+    private val contacts: HashSet<Contact> = hashSetOf()
+
+    init {
+        viewModelScope.launch {
+            currentAccountId?.let { currentAccountId ->
+                contactsRepository.getContacts(currentAccountId).collect {
+                    contacts.clear()
+                    contacts.addAll(it)
+                }
+            }
+        }
+    }
+
     fun onIdChanged(id: String) {
         viewModelScope.launch {
+            val trimmedId = id.trim()
             _uiState.update {
                 it.copy(
-                    id = id,
+                    id = trimmedId,
+                    isSentRequestAgainHintVisible = contacts.any { it.contactVeraId == trimmedId && it.status == ContactPairingStatus.REQUEST_SENT },
+                    pairingErrorCaption = getPairingErrorMessage(trimmedId),
                 )
             }
         }
@@ -53,18 +71,28 @@ class PairWithOthersViewModel @Inject constructor(
     }
 
     fun onPairRequestClick() {
+        currentAccountId?.let { currentAccountId ->
+            contactsRepository.addNewContact(
+                contact = Contact(
+                    ownerVeraId = currentAccountId,
+                    contactVeraId = uiState.value.id,
+                    alias = uiState.value.alias,
+                    status = ContactPairingStatus.REQUEST_SENT,
+                ),
+            )
+        }
         viewModelScope.launch(Dispatchers.IO) {
-            currentAccountId?.let { currentAccountId ->
-                contactsRepository.addNewContact(
-                    contact = Contact(
-                        ownerVeraId = currentAccountId,
-                        contactVeraId = uiState.value.id,
-                        alias = uiState.value.alias,
-                        status = ContactPairingStatus.RequestSent,
-                    ),
-                )
-            }
             _backSignal.emit(Unit)
+        }
+    }
+
+    private fun getPairingErrorMessage(contactId: String): PairingErrorCaption? {
+        val contact = contacts.find { it.contactVeraId == contactId }
+        return when {
+            contact == null -> null
+            contact.status == ContactPairingStatus.COMPLETED -> PairingErrorCaption(R.string.pair_request_already_paired)
+            contact.status >= ContactPairingStatus.MATCH -> PairingErrorCaption(R.string.pair_request_already_in_progress)
+            else -> null
         }
     }
 
@@ -76,4 +104,10 @@ class PairWithOthersViewModel @Inject constructor(
 data class PairWithOthersUiState(
     val id: String = "",
     val alias: String = "",
+    val isSentRequestAgainHintVisible: Boolean = false,
+    val pairingErrorCaption: PairingErrorCaption? = null,
+)
+
+data class PairingErrorCaption(
+    @StringRes val message: Int,
 )

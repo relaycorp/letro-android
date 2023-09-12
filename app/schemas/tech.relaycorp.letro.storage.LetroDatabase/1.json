@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f727ada9d0ee39552687eb25fef6f248",
+    "identityHash": "d5edc6419007841d2365ac43dd8af292",
     "entities": [
       {
         "tableName": "account",
@@ -38,7 +38,7 @@
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` TEXT NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`veraId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`veraId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -73,7 +73,7 @@
           {
             "fieldPath": "status",
             "columnName": "status",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -112,7 +112,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f727ada9d0ee39552687eb25fef6f248')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd5edc6419007841d2365ac43dd8af292')"
     ]
   }
 }

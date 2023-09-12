@@ -4,16 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +27,7 @@ import tech.relaycorp.letro.onboarding.registration.RegistrationViewModel
 import tech.relaycorp.letro.ui.common.ButtonType
 import tech.relaycorp.letro.ui.common.HyperlinkText
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
+import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
@@ -88,24 +85,7 @@ fun RegistrationScreen(
             Spacer(
                 modifier = Modifier.height(16.dp),
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.info),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    contentDescription = null,
-                )
-                Spacer(
-                    modifier = Modifier.width(8.dp),
-                )
+            LetroInfoView {
                 HyperlinkText(
                     fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                     hyperLinks = mapOf(

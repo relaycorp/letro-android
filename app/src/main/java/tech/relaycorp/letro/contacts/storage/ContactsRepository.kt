@@ -21,7 +21,7 @@ interface ContactsRepository {
     val isPairedContactsExist: Flow<Boolean>
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
 
-    suspend fun addNewContact(contact: Contact)
+    fun addNewContact(contact: Contact)
 }
 
 class ContactsRepositoryImpl @Inject constructor(
@@ -53,21 +53,27 @@ class ContactsRepositoryImpl @Inject constructor(
             .map { it.filter { it.ownerVeraId == ownerVeraId } }
     }
 
-    override suspend fun addNewContact(contact: Contact) {
-        val existingContact = contactsDao.getContact(
-            ownerVeraId = contact.ownerVeraId,
-            contactVeraId = contact.contactVeraId,
-        )
-
-        if (existingContact == null) {
-            contactsDao.insert(contact)
-            awalaManager.sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.ContactPairingRequest,
-                    content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
-                ),
-                recipient = MessageRecipient.Server(),
+    override fun addNewContact(contact: Contact) {
+        scope.launch {
+            val existingContact = contactsDao.getContact(
+                ownerVeraId = contact.ownerVeraId,
+                contactVeraId = contact.contactVeraId,
             )
+
+            if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
+                contactsDao.insert(
+                    contact.copy(
+                        status = ContactPairingStatus.REQUEST_SENT,
+                    ),
+                )
+                awalaManager.sendMessage(
+                    outgoingMessage = AwalaOutgoingMessage(
+                        type = MessageType.ContactPairingRequest,
+                        content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
+                    ),
+                    recipient = MessageRecipient.Server(),
+                )
+            }
         }
     }
 
@@ -89,8 +95,7 @@ class ContactsRepositoryImpl @Inject constructor(
             contacts
                 .value
                 .any {
-                    it.ownerVeraId == account.veraId &&
-                        it.status == ContactPairingStatus.Complete
+                    it.ownerVeraId == account.veraId && it.status == ContactPairingStatus.COMPLETED
                 },
         )
     }

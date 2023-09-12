@@ -25,7 +25,7 @@ class ContactPairingMatchProcessorImpl @Inject constructor(
             contactsDao.update(
                 contactToUpdate.copy(
                     contactEndpointId = response.contactEndpointId,
-                    status = ContactPairingStatus.Match,
+                    status = ContactPairingStatus.MATCH,
                 ),
             )
         }
