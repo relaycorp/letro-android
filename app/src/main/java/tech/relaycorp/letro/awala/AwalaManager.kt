@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.awala
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,6 +38,11 @@ interface AwalaManager {
         recipient: MessageRecipient,
     )
     suspend fun isAwalaInstalled(currentScreen: Route): Boolean
+    suspend fun authorizeUsers(
+        // TODO: after MVP handle several first party endpoints
+        thirdPartyPublicKey: ByteArray,
+    )
+    suspend fun getFirstPartyPublicKey(): String
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -63,7 +69,6 @@ class AwalaManagerImpl @Inject constructor(
     private var isReceivingMessages = false
 
     private var firstPartyEndpoint: FirstPartyEndpoint? = null
-
     private var thirdPartyServerEndpoint: ThirdPartyEndpoint? = null
 
     init {
@@ -116,6 +121,27 @@ class AwalaManagerImpl @Inject constructor(
         return isInstalled
     }
 
+    override suspend fun authorizeUsers(thirdPartyPublicKey: ByteArray) {
+        withContext(awalaThreadContext) {
+            val firstPartyEndpoint = loadFirstPartyEndpoint()
+            val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyPublicKey)
+            sendMessage(
+                outgoingMessage = AwalaOutgoingMessage(
+                    type = MessageType.ContactPairingAuthorization,
+                    content = auth,
+                ),
+                recipient = MessageRecipient.Server(),
+            )
+        }
+    }
+
+    override suspend fun getFirstPartyPublicKey(): String {
+        return withContext(awalaThreadContext) {
+            val firstPartyEndpoint = loadFirstPartyEndpoint()
+            Base64.encodeToString(firstPartyEndpoint.publicKey.encoded, Base64.NO_WRAP)
+        }
+    }
+
     private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
         return withContext(awalaThreadContext) {
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
@@ -159,7 +185,7 @@ class AwalaManagerImpl @Inject constructor(
             Log.i(TAG, "start receiving messages...")
             GatewayClient.receiveMessages().collect { message ->
                 Log.i(TAG, "Receive message: ${message.type}: ($message)")
-                processor.process(message)
+                processor.process(message, this@AwalaManagerImpl)
                 Log.i(TAG, "Message processed")
                 message.ack()
             }

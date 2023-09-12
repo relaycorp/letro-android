@@ -16,7 +16,7 @@ sealed class ActionTakingScreenUIStateModel(
 
     class NoContacts(
         @DrawableRes image: Int,
-        onPairWithPeople: () -> Unit,
+        onPairWithOthersClick: () -> Unit,
         onShareId: () -> Unit,
         @StringRes title: Int? = null,
         @StringRes message: Int? = null,
@@ -26,7 +26,7 @@ sealed class ActionTakingScreenUIStateModel(
         messageStringRes = message,
         buttonFilledStringRes = R.string.general_pair_with_others,
         buttonOutlinedStringRes = R.string.onboarding_account_confirmation_share_your_id,
-        onButtonFilledClicked = onPairWithPeople,
+        onButtonFilledClicked = onPairWithOthersClick,
         onButtonOutlinedClicked = onShareId,
     )
 

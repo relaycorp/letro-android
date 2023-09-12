@@ -14,6 +14,12 @@ interface ContactsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(contact: Contact): Long
 
+    @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE ownerVeraId = :ownerVeraId AND contactVeraId = :contactVeraId")
+    suspend fun getContact(
+        ownerVeraId: String,
+        contactVeraId: String,
+    ): Contact?
+
     @Update
     suspend fun update(contact: Contact)
 

@@ -1,10 +1,16 @@
 package tech.relaycorp.letro.contacts.model
 
+import androidx.annotation.IntDef
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus.Companion.AUTHORIZATION_SENT
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus.Companion.COMPLETED
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus.Companion.MATCH
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus.Companion.REQUEST_SENT
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus.Companion.UNPAIRED
 
 const val TABLE_NAME_CONTACTS = "contacts"
 
@@ -22,18 +28,21 @@ const val TABLE_NAME_CONTACTS = "contacts"
 )
 data class Contact(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0L,
     val ownerVeraId: String,
     val contactVeraId: String,
     val alias: String? = null,
     val contactEndpointId: String? = null,
-    val status: ContactPairingStatus = ContactPairingStatus.Unpaired,
+    @ContactPairingStatus val status: Int = UNPAIRED,
 )
 
-sealed interface ContactPairingStatus {
-    object Unpaired : ContactPairingStatus
-    object RequestSent : ContactPairingStatus
-    object Match : ContactPairingStatus
-    object AuthorizationSent : ContactPairingStatus
-    object Complete : ContactPairingStatus
+@IntDef(UNPAIRED, REQUEST_SENT, MATCH, AUTHORIZATION_SENT, COMPLETED)
+annotation class ContactPairingStatus {
+    companion object {
+        const val UNPAIRED = 0
+        const val REQUEST_SENT = 1
+        const val MATCH = 2
+        const val AUTHORIZATION_SENT = 3
+        const val COMPLETED = 4
+    }
 }

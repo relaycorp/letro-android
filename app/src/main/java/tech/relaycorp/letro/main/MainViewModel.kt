@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -73,27 +74,33 @@ class MainViewModel @Inject constructor(
                 accountRepository.currentAccount,
                 contactsRepository.isPairedContactsExist,
             ) { currentAccount, isPairedContactExist ->
-                Log.d(TAG, "$currentAccount; $isPairedContactExist")
-                if (currentAccount != null) {
-                    when {
-                        !currentAccount.isCreated -> {
-                            isRegistration = true
-                            _rootNavigationScreen.emit(RootNavigationScreen.RegistrationWaiting)
-                        }
-                        !isPairedContactExist -> {
-                            if (isRegistration) {
-                                _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
-                            } else {
-                                _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
+                Pair(currentAccount, isPairedContactExist)
+            }
+                .distinctUntilChanged()
+                .collect {
+                    val currentAccount = it.first
+                    val isPairedContactExist = it.second
+                    Log.d(TAG, "$currentAccount; $isPairedContactExist")
+                    if (currentAccount != null) {
+                        when {
+                            !currentAccount.isCreated -> {
+                                isRegistration = true
+                                _rootNavigationScreen.emit(RootNavigationScreen.RegistrationWaiting)
                             }
-                            isRegistration = false
+                            !isPairedContactExist -> {
+                                if (isRegistration) {
+                                    _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
+                                } else {
+                                    _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
+                                }
+                                isRegistration = false
+                            }
+                            isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Conversations)
                         }
-                        isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Conversations)
+                    } else {
+                        _rootNavigationScreen.emit(RootNavigationScreen.Registration)
                     }
-                } else {
-                    _rootNavigationScreen.emit(RootNavigationScreen.Registration)
                 }
-            }.collect()
         }
     }
 

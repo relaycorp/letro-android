@@ -26,6 +26,9 @@
     <string name="onboarding_pairing_request_sent_message">You’ll receive a notification once you and %s are connected.</string>
     <string name="onboarding_pairing_request_sent_button">Got it</string>
 
+    <string name="onboarding_pair_with_people_alias">Name (optional)</string>
+    <string name="onboarding_pair_with_people_button">Request pairing</string>
+
     <string name="onboarding_waiting_title">Hold tight!</string>
     <string name="onboarding_waiting_message">We are creating your account…</string>
 
@@ -35,8 +38,16 @@
     <string name="no_browser">There is no app to install Awala</string>
     <string name="no_app_to_share">There is no app to share your id</string>
 
+    <string name="pair_request_was_already_sent_hint">You already tried to connect with them, but we can send another request if you want.</string>
+    <string name="pair_request_already_paired">You two are already connected.</string>
+    <string name="pair_request_already_in_progress">Your pairing with this user is already under way.</string>
+
     <string name="join_me_on_letro">Join me on Letro: https://letro.app/connect/#u=%1$s</string>
 
+    <string name="general_navigate_back">Go back</string>
+
+    <string name="new_contact_id_hint" translatable="false">james.bond@cuppa.uk</string>
+    <string name="new_contact_alias_hint" translatable="false">James Bond</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
 
 </resources>

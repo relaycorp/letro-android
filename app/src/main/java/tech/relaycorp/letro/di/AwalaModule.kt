@@ -10,12 +10,11 @@ import tech.relaycorp.letro.awala.AwalaManagerImpl
 import tech.relaycorp.letro.awala.AwalaRepository
 import tech.relaycorp.letro.awala.AwalaRepositoryImpl
 import tech.relaycorp.letro.awala.message.MessageType
-import tech.relaycorp.letro.awala.parser.UnknownMessageParser
-import tech.relaycorp.letro.awala.parser.UnknownMessageParserImpl
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessorImpl
 import tech.relaycorp.letro.awala.processor.UnknownMessageProcessor
 import tech.relaycorp.letro.onboarding.registration.processor.RegistrationMessageProcessor
+import tech.relaycorp.letro.pairing.processor.ContactPairingMatchProcessor
 import javax.inject.Singleton
 
 @Module
@@ -25,10 +24,12 @@ object AwalaModule {
     @Provides
     fun provideMessageProcessor(
         registrationMessageProcessor: RegistrationMessageProcessor,
+        contactPairingMatchProcessor: ContactPairingMatchProcessor,
         unknownMessageProcessor: UnknownMessageProcessor,
     ): AwalaMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreationCompleted to registrationMessageProcessor,
+            MessageType.ContactPairingMatch to contactPairingMatchProcessor,
             MessageType.Unknown to unknownMessageProcessor,
         )
         return AwalaMessageProcessorImpl(processors)
@@ -48,10 +49,5 @@ object AwalaModule {
         fun bindAwalaRepository(
             impl: AwalaRepositoryImpl,
         ): AwalaRepository
-
-        @Binds
-        fun bindUnknownMessageParser(
-            impl: UnknownMessageParserImpl,
-        ): UnknownMessageParser
     }
 }

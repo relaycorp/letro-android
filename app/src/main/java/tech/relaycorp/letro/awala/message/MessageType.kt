@@ -1,5 +1,8 @@
 package tech.relaycorp.letro.awala.message
 
+import android.util.Log
+import tech.relaycorp.letro.awala.AwalaManagerImpl
+
 sealed class MessageType(val value: String) {
     object AccountCreationRequest : MessageType("application/vnd.relaycorp.letro.account-creation-request")
     object AccountCreationCompleted : MessageType("application/vnd.relaycorp.letro.account-creation-completed-tmp")
@@ -18,7 +21,10 @@ sealed class MessageType(val value: String) {
                 ContactPairingRequest.value -> ContactPairingRequest
                 ContactPairingMatch.value -> ContactPairingMatch
                 ContactPairingAuthorization.value -> ContactPairingAuthorization
-                else -> Unknown
+                else -> {
+                    Log.e(AwalaManagerImpl.TAG, "Unknown message type $type")
+                    Unknown
+                }
             }
         }
     }
