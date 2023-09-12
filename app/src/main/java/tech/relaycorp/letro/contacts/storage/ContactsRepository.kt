@@ -61,11 +61,19 @@ class ContactsRepositoryImpl @Inject constructor(
             )
 
             if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
-                contactsDao.insert(
-                    contact.copy(
-                        status = ContactPairingStatus.REQUEST_SENT,
-                    ),
-                )
+                if (existingContact == null) {
+                    contactsDao.insert(
+                        contact.copy(
+                            status = ContactPairingStatus.REQUEST_SENT,
+                        ),
+                    )
+                } else {
+                    contactsDao.update(
+                        contact.copy(
+                            status = ContactPairingStatus.REQUEST_SENT,
+                        ),
+                    )
+                }
                 awalaManager.sendMessage(
                     outgoingMessage = AwalaOutgoingMessage(
                         type = MessageType.ContactPairingRequest,
