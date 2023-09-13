@@ -30,6 +30,8 @@ val NeutralVariant8 = Color(0xFFEFF0F3)
 
 object LetroColor {
 
+    val FoggingBackgroundColor = Color(0x52000000)
+
     val SurfaceContainerHigh: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant2 else Primary2
@@ -37,6 +39,15 @@ object LetroColor {
     val OnSurfaceContainerHigh: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant8 else Neutral8
+
+    val OnSurfaceContainer: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant5 else Neutral4
+
+    @Composable
+    fun statusBarUnderDialogOverlay(): Color {
+        return if (isSystemInDarkTheme()) Color(0xFF1C1B1F) else Color(0xFF4A3C99)
+    }
 
     @Composable
     fun disabledButtonBackgroundColor(): Color {

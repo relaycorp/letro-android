@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.ui.common
+package tech.relaycorp.letro.ui.common.text
 
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme

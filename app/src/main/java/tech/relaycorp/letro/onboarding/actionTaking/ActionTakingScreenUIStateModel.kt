@@ -8,6 +8,7 @@ sealed class ActionTakingScreenUIStateModel(
     @StringRes val titleStringRes: Int?,
     @DrawableRes val image: Int,
     @StringRes val messageStringRes: Int? = null,
+    val boldPartOfMessage: String? = null,
     @StringRes val buttonFilledStringRes: Int? = null,
     @StringRes val buttonOutlinedStringRes: Int? = null,
     val onButtonFilledClicked: () -> Unit = {},
@@ -17,7 +18,7 @@ sealed class ActionTakingScreenUIStateModel(
     class NoContacts(
         @DrawableRes image: Int,
         onPairWithOthersClick: () -> Unit,
-        onShareId: () -> Unit,
+        onShareIdClick: () -> Unit,
         @StringRes title: Int? = null,
         @StringRes message: Int? = null,
     ) : ActionTakingScreenUIStateModel(
@@ -27,7 +28,7 @@ sealed class ActionTakingScreenUIStateModel(
         buttonFilledStringRes = R.string.general_pair_with_others,
         buttonOutlinedStringRes = R.string.onboarding_account_confirmation_share_your_id,
         onButtonFilledClicked = onPairWithOthersClick,
-        onButtonOutlinedClicked = onShareId,
+        onButtonOutlinedClicked = onShareIdClick,
     )
 
     object RegistrationWaiting : ActionTakingScreenUIStateModel(
@@ -37,11 +38,13 @@ sealed class ActionTakingScreenUIStateModel(
     )
 
     class PairingRequestSent(
+        boldPartOfMessage: String? = null,
         onGotItClicked: () -> Unit,
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_pairing_request_sent_title,
         image = R.drawable.pairing_request_sent,
         messageStringRes = R.string.onboarding_pairing_request_sent_message,
+        boldPartOfMessage = boldPartOfMessage,
         buttonFilledStringRes = R.string.onboarding_pairing_request_sent_button,
         onButtonFilledClicked = onGotItClicked,
     )

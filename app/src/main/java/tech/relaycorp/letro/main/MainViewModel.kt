@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -77,6 +77,7 @@ class MainViewModel @Inject constructor(
                 Pair(currentAccount, isPairedContactExist)
             }
                 .distinctUntilChanged()
+                .onStart { Log.d(TAG, "Start collecting the combined Flow") }
                 .collect {
                     val currentAccount = it.first
                     val isPairedContactExist = it.second
@@ -95,7 +96,7 @@ class MainViewModel @Inject constructor(
                                 }
                                 isRegistration = false
                             }
-                            isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Conversations)
+                            isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Home)
                         }
                     } else {
                         _rootNavigationScreen.emit(RootNavigationScreen.Registration)
@@ -125,8 +126,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private companion object {
-        private const val TAG = "MainViewModel"
+    companion object {
+        const val TAG = "MainViewModel"
         private const val AWALA_GOOGLE_PLAY_LINK = "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway"
     }
 }

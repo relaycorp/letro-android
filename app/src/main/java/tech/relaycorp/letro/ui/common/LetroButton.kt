@@ -2,7 +2,9 @@ package tech.relaycorp.letro.ui.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,6 +24,9 @@ fun LetroButton(
     buttonType: ButtonType = ButtonType.Filled,
     enabled: Boolean = true,
     leadingIconResId: Int? = null,
+    contentPadding: PaddingValues = PaddingValues(
+        vertical = 14.dp,
+    ),
     onClick: () -> Unit,
 ) {
     Button(
@@ -48,15 +53,17 @@ fun LetroButton(
         } else {
             null
         },
-        contentPadding = PaddingValues(
-            vertical = 14.dp,
-        ),
+        contentPadding = contentPadding,
         onClick = onClick,
     ) {
         if (leadingIconResId != null) {
             Icon(
                 painter = painterResource(id = leadingIconResId),
+                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = null,
+            )
+            Spacer(
+                modifier = Modifier.width(8.dp),
             )
         }
         Text(

@@ -1,0 +1,51 @@
+package tech.relaycorp.letro.home
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import tech.relaycorp.letro.contacts.ContactsViewModel
+import tech.relaycorp.letro.contacts.model.Contact
+import tech.relaycorp.letro.contacts.ui.ContactsScreen
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+
+@Composable
+fun HomeScreen(
+    homeViewModel: HomeViewModel,
+    snackbarStringsProvider: SnackbarStringsProvider,
+    onEditContactClick: (Contact) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    contactsViewModel: ContactsViewModel = hiltViewModel(),
+) {
+    val uiState by homeViewModel.uiState.collectAsState()
+
+    Box {
+        Column {
+            LetroTabs(
+                viewModel = homeViewModel,
+            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when (uiState.currentTab) {
+                    TAB_CHATS -> Column {
+                    }
+                    TAB_CONTACTS -> ContactsScreen(
+                        viewModel = contactsViewModel,
+                        snackbarHostState = snackbarHostState,
+                        snackbarStringsProvider = snackbarStringsProvider,
+                        onEditContactClick = { onEditContactClick(it) },
+                    )
+                    TAB_NOTIFICATIONS -> Column {
+                    }
+                    else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
+                }
+            }
+        }
+    }
+}
