@@ -25,10 +25,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.onboarding.registration.RegistrationViewModel
 import tech.relaycorp.letro.ui.common.ButtonType
-import tech.relaycorp.letro.ui.common.HyperlinkText
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
+import tech.relaycorp.letro.ui.common.text.HyperlinkText
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 

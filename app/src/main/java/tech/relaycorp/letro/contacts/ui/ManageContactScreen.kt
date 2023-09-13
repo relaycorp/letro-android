@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.pairing.ui
+package tech.relaycorp.letro.contacts.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.pairing.PairWithOthersViewModel
+import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
@@ -30,14 +30,16 @@ import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 
 @Composable
-fun PairWithOthersScreen(
+fun ManageContactScreen(
     onBackClick: () -> Unit,
-    viewModel: PairWithOthersViewModel = hiltViewModel(),
+    onActionCompleted: (String) -> Unit,
+    viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
     LaunchedEffect(Unit) {
-        viewModel.backSignal.collect {
-            onBackClick()
+        viewModel.onActionCompleted.collect {
+            onActionCompleted(it)
         }
     }
 
@@ -66,7 +68,7 @@ fun PairWithOthersScreen(
                 modifier = Modifier.width(16.dp),
             )
             Text(
-                text = stringResource(id = R.string.general_pair_with_others),
+                text = stringResource(id = uiState.manageContactTexts.title),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -75,11 +77,12 @@ fun PairWithOthersScreen(
             modifier = Modifier.height(8.dp),
         )
         LetroOutlinedTextField(
-            value = uiState.id,
+            value = uiState.veraId,
             onValueChange = viewModel::onIdChanged,
             label = R.string.general_id,
             hintText = stringResource(id = R.string.new_contact_id_hint),
             isError = errorCaption != null,
+            isEnabled = uiState.isVeraIdInputEnabled,
         ) {
             if (errorCaption != null) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -106,7 +109,7 @@ fun PairWithOthersScreen(
             modifier = Modifier.height(24.dp),
         )
         LetroOutlinedTextField(
-            value = uiState.alias,
+            value = uiState.alias ?: "",
             onValueChange = viewModel::onAliasChanged,
             label = R.string.onboarding_pair_with_people_alias,
             hintText = stringResource(id = R.string.new_contact_alias_hint),
@@ -115,8 +118,8 @@ fun PairWithOthersScreen(
             modifier = Modifier.height(32.dp),
         )
         LetroButtonMaxWidthFilled(
-            text = stringResource(id = R.string.onboarding_pair_with_people_button),
-            onClick = { viewModel.onPairRequestClick() },
+            text = stringResource(id = uiState.manageContactTexts.button),
+            onClick = { viewModel.onActionButtonClick() },
             isEnabled = errorCaption == null,
         )
     }
@@ -126,8 +129,9 @@ fun PairWithOthersScreen(
 @Composable
 private fun UseExistingAccountPreview() {
     LetroTheme {
-        PairWithOthersScreen(
+        ManageContactScreen(
             onBackClick = {},
+            onActionCompleted = {},
             viewModel = hiltViewModel(),
         )
     }

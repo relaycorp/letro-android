@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.ui.common.ButtonType
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
+import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.theme.LetroTheme
 
@@ -46,16 +48,30 @@ fun ActionTakingScreen(
             Text(
                 text = stringResource(id = actionTakingScreenUIStateModel.titleStringRes),
                 style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
         if (actionTakingScreenUIStateModel.messageStringRes != null) {
             Spacer(
                 modifier = Modifier.height(24.dp),
             )
-            Text(
-                text = stringResource(id = actionTakingScreenUIStateModel.messageStringRes),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            val boldPartOfMessage = actionTakingScreenUIStateModel.boldPartOfMessage
+            if (boldPartOfMessage == null) {
+                Text(
+                    text = stringResource(id = actionTakingScreenUIStateModel.messageStringRes),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            } else {
+                BoldText(
+                    fullText = stringResource(
+                        id = actionTakingScreenUIStateModel.messageStringRes,
+                        boldPartOfMessage,
+                    ),
+                    boldParts = listOf(boldPartOfMessage),
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
             Spacer(

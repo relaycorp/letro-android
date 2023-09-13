@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.account.storage
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.main.MainViewModel
 import javax.inject.Inject
 
 interface AccountRepository {
@@ -34,6 +36,7 @@ class AccountRepositoryImpl @Inject constructor(
         }
         databaseScope.launch {
             _allAccounts.collect { list ->
+                Log.d(MainViewModel.TAG, "AccountRepository.emit(currentAccount)")
                 _currentAccount.emit(
                     list.firstOrNull { it.isCurrent },
                 )

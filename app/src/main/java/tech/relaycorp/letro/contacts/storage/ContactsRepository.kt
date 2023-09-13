@@ -1,10 +1,11 @@
 package tech.relaycorp.letro.contacts.storage
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -15,13 +16,17 @@ import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
+import tech.relaycorp.letro.main.MainViewModel
 import javax.inject.Inject
 
 interface ContactsRepository {
     val isPairedContactsExist: Flow<Boolean>
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
+    fun getContactById(id: Long): Contact?
 
     fun addNewContact(contact: Contact)
+    fun deleteContact(contact: Contact)
+    fun updateContact(contact: Contact)
 }
 
 class ContactsRepositoryImpl @Inject constructor(
@@ -35,7 +40,7 @@ class ContactsRepositoryImpl @Inject constructor(
 
     private var currentAccount: Account? = null
     private val _isPairedContactsExist: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    override val isPairedContactsExist: StateFlow<Boolean>
+    override val isPairedContactsExist: SharedFlow<Boolean>
         get() = _isPairedContactsExist
 
     init {
@@ -43,7 +48,9 @@ class ContactsRepositoryImpl @Inject constructor(
             contactsDao.getAll().collect {
                 contacts.emit(it)
                 startCollectAccountFlow()
-                updatePairedContactExist(currentAccount)
+                if (currentAccount != null) {
+                    updatePairedContactExist(currentAccount)
+                }
             }
         }
     }
@@ -51,6 +58,10 @@ class ContactsRepositoryImpl @Inject constructor(
     override fun getContacts(ownerVeraId: String): Flow<List<Contact>> {
         return contacts
             .map { it.filter { it.ownerVeraId == ownerVeraId } }
+    }
+
+    override fun getContactById(id: Long): Contact? {
+        return contacts.value.find { it.id == id }
     }
 
     override fun addNewContact(contact: Contact) {
@@ -85,6 +96,18 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun deleteContact(contact: Contact) {
+        scope.launch {
+            contactsDao.deleteContact(contact)
+        }
+    }
+
+    override fun updateContact(contact: Contact) {
+        scope.launch {
+            contactsDao.update(contact)
+        }
+    }
+
     private fun startCollectAccountFlow() {
         scope.launch {
             accountRepository.currentAccount.collect {
@@ -95,6 +118,7 @@ class ContactsRepositoryImpl @Inject constructor(
     }
 
     private suspend fun updatePairedContactExist(account: Account?) {
+        Log.d(MainViewModel.TAG, "ContactsRepository.emit(pairedContactExist)")
         account ?: run {
             _isPairedContactsExist.emit(false)
             return

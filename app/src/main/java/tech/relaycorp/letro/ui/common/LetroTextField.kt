@@ -66,6 +66,7 @@ fun LetroOutlinedTextField(
     isError: Boolean = false,
     maxLines: Int = 1,
     singleLine: Boolean = true,
+    isEnabled: Boolean = true,
     content: (@Composable () -> Unit)? = null,
 ) {
     Column {
@@ -106,6 +107,7 @@ fun LetroOutlinedTextField(
             maxLines = maxLines,
             singleLine = singleLine,
             isError = isError,
+            enabled = isEnabled,
         )
         if (content != null) {
             content()
