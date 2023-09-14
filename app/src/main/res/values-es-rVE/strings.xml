@@ -13,7 +13,7 @@
     <string name="onboarding_create_account_terms_and_services">Al solicitar una cuenta, estás aceptando nuestros Términos y Condiciones.</string>
     <string name="onboarding_create_account_terms_and_services_link_text">Términos y Condiciones</string>
     <string name="onboarding_create_account_button">Crear cuenta</string>
-    <string name="onboarding_create_account_or">O</string>
+    <string name="onboarding_create_account_or">Alternativamente</string>
     <string name="onboarding_install_awala_title">Awala parece no estar instalada.</string>
     <string name="onbaording_install_awala_message">Instala Awala para que puedas usar esta app</string>
     <string name="onboarding_install_awala_button">Instalar Awala</string>
