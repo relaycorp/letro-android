@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Letro</string>
-    <string name="general_pair_with_others">Connecta con otros</string>
+    <string name="general_pair_with_others">Conecta con otros</string>
     <string name="general_id">Identificador</string>
     <string name="general_use_existing_account">Usa una cuenta existente</string>
     <string name="onboarding_account_confirmation">¡Bienvenido a Letro!</string>
