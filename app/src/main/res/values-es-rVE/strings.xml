@@ -6,7 +6,7 @@
     <string name="general_use_existing_account">Usa una cuenta existente</string>
     <string name="onboarding_account_confirmation">¡Bienvenido a Letro!</string>
     <string name="onboarding_account_confirmation_share_your_id">Comparte tu identificador</string>
-    <string name="no_contacts_text">Aún no tienes a nadie a quien escribirle.</string>
+    <string name="no_contacts_text">Aún no tienes nadie a quien escribirle.</string>
     <string name="onboarding_create_account_id_placeholder">Nombre de usuario</string>
     <string name="onboarding_create_account_username_unavailable_hint">Si tu nombre de usuario preferido está tomado, escogeremos uno parecido.</string>
     <string name="onboarding_create_account_wrong_username_hint">El nombre de usuario no puede contener espacio o arrobas (@), ni tener más de 16 caracteres.</string>
