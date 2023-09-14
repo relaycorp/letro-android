@@ -20,6 +20,7 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
+import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
@@ -31,7 +32,7 @@ class ManageContactViewModel @Inject constructor(
 
     @Type
     private val screenType: Int = savedStateHandle[Route.ManageContact.KEY_SCREEN_TYPE]!!
-    private val currentAccountId: String? = savedStateHandle[Route.ManageContact.KEY_CURRENT_ACCOUNT_ID]
+    private val currentAccountId: String? = (savedStateHandle.get(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) as? String)?.decodeFromUTF() // by default Android decode strings inside navigation library, but just in case we decode it here
     private val contactIdToEdit: Long? = savedStateHandle[Route.ManageContact.KEY_CONTACT_ID_TO_EDIT]
 
     private val _uiState = MutableStateFlow(

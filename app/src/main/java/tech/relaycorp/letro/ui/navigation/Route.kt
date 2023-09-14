@@ -64,16 +64,16 @@ sealed class Route(
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     ) {
-        const val KEY_CURRENT_ACCOUNT_ID = "current_account_id"
+        const val KEY_CURRENT_ACCOUNT_ID_ENCODED = "current_account_id_encoded"
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONTACT_ID_TO_EDIT = "contact_id"
         const val NO_ID = -1L
 
         fun getRouteName(
             @ManageContactViewModel.Type screenType: Int,
-            currentAccountId: String?,
+            currentAccountIdEncoded: String?,
             contactIdToEdit: Long = NO_ID,
-        ) = "${ManageContact.name}/$currentAccountId&$screenType&$contactIdToEdit"
+        ) = "${ManageContact.name}/$currentAccountIdEncoded&$screenType&$contactIdToEdit"
     }
 
     object Home : Route(
