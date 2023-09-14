@@ -59,7 +59,7 @@ fun LetroTabs(
     )
     ScrollableTabRow(
         selectedTabIndex = uiState.currentTab,
-        containerColor = MaterialTheme.colorScheme.primary,
+        containerColor = LetroColor.SurfaceContainerHigh,
         contentColor = LetroColor.OnSurfaceContainerHigh,
         edgePadding = 9.dp,
         indicator = {

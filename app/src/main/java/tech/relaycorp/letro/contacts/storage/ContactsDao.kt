@@ -32,4 +32,7 @@ interface ContactsDao {
 
     @Delete
     suspend fun deleteContact(contact: Contact)
+
+    @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE contactEndpointId = :contactEndpointId")
+    suspend fun getContactsByContactEndpointId(contactEndpointId: String): List<Contact>
 }

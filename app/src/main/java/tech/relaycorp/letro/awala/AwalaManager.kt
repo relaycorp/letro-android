@@ -18,6 +18,7 @@ import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
+import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
@@ -43,6 +44,7 @@ interface AwalaManager {
         thirdPartyPublicKey: ByteArray,
     )
     suspend fun getFirstPartyPublicKey(): String
+    suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -72,9 +74,9 @@ class AwalaManagerImpl @Inject constructor(
     private var thirdPartyServerEndpoint: ThirdPartyEndpoint? = null
 
     init {
-        Log.i(TAG, "initializing")
         awalaSetupJob = awalaScope.launch {
             withContext(awalaThreadContext) {
+                Log.i(TAG, "Setting up Awala")
                 Awala.setUp(context)
                 checkIfAwalaAppInstalled()
                 isAwalaSetUp.compareAndSet(false, true)
@@ -142,6 +144,10 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
+    override suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String {
+        return PrivateThirdPartyEndpoint.import(auth).nodeId
+    }
+
     private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
         return withContext(awalaThreadContext) {
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
@@ -203,6 +209,7 @@ class AwalaManagerImpl @Inject constructor(
         return withContext(awalaThreadContext) {
             try {
                 GatewayClient.bind()
+                Log.i(TAG, "GatewayClient binded")
                 configureAwala()
             } catch (exp: GatewayBindingException) {
                 this@AwalaManagerImpl.isAwalaInstalledOnDevice = false
@@ -216,6 +223,7 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun registerFirstPartyEndpointIfNeeded(): FirstPartyEndpoint? {
         return withContext(awalaThreadContext) {
             if (awalaRepository.getServerFirstPartyEndpointNodeId() != null) {
+                Log.i(TAG, "First party endpoint is already registred ${awalaRepository.getServerFirstPartyEndpointNodeId()}")
                 startReceivingMessages()
                 return@withContext null
             }

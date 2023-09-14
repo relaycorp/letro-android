@@ -8,8 +8,12 @@ import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.contacts.storage.ContactsDao
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.ContactsRepositoryImpl
+import tech.relaycorp.letro.pairing.parser.ContactPairingAuthorizationParser
+import tech.relaycorp.letro.pairing.parser.ContactPairingAuthorizationParserImpl
 import tech.relaycorp.letro.pairing.parser.ContactPairingMatchParser
 import tech.relaycorp.letro.pairing.parser.ContactPairingMatchParserImpl
+import tech.relaycorp.letro.pairing.processor.ContactPairingAuthorizationProcessor
+import tech.relaycorp.letro.pairing.processor.ContactPairingAuthorizationProcessorImpl
 import tech.relaycorp.letro.pairing.processor.ContactPairingMatchProcessor
 import tech.relaycorp.letro.pairing.processor.ContactPairingMatchProcessorImpl
 import tech.relaycorp.letro.storage.LetroDatabase
@@ -43,5 +47,16 @@ object ContactsModule {
         fun bindContactPairingMatchProcessor(
             impl: ContactPairingMatchProcessorImpl,
         ): ContactPairingMatchProcessor
+
+        @Binds
+        fun bindContactPairingAuthParser(
+            impl: ContactPairingAuthorizationParserImpl,
+        ): ContactPairingAuthorizationParser
+
+        @Binds
+        @Singleton
+        fun bindContactPairingAuthProcessor(
+            impl: ContactPairingAuthorizationProcessorImpl,
+        ): ContactPairingAuthorizationProcessor
     }
 }
