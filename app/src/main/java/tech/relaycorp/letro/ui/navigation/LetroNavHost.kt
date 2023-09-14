@@ -49,6 +49,7 @@ import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import tech.relaycorp.letro.utils.ext.encodeToUTF
 import tech.relaycorp.letro.utils.navigation.navigateWithDropCurrentScreen
 import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
@@ -139,7 +140,7 @@ fun LetroNavHost(
                                             navController.navigate(
                                                 Route.ManageContact.getRouteName(
                                                     screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                    currentAccountId = uiState.currentAccount,
+                                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                                 ),
                                             )
                                         },
@@ -159,7 +160,7 @@ fun LetroNavHost(
                                             navController.navigate(
                                                 Route.ManageContact.getRouteName(
                                                     screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                    currentAccountId = uiState.currentAccount,
+                                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                                 ),
                                             )
                                         },
@@ -193,9 +194,9 @@ fun LetroNavHost(
                                 )
                             }
                             composable(
-                                route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
+                                route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
                                 arguments = listOf(
-                                    navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID) {
+                                    navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
                                         type = NavType.StringType
                                         nullable = true
                                     },
@@ -245,7 +246,7 @@ fun LetroNavHost(
                                         navController.navigate(
                                             Route.ManageContact.getRouteName(
                                                 screenType = ManageContactViewModel.Type.EDIT_CONTACT,
-                                                currentAccountId = uiState.currentAccount,
+                                                currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                                 contactIdToEdit = contact.id,
                                             ),
                                         )
@@ -266,7 +267,7 @@ fun LetroNavHost(
                                 navController.navigate(
                                     Route.ManageContact.getRouteName(
                                         screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                        currentAccountId = uiState.currentAccount,
+                                        currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                     ),
                                 )
                                 homeViewModel.onOptionFromContactsFloatingMenuClicked()
