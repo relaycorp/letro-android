@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Letro</string>
     <string name="general_pair_with_others">Conecta con otros</string>
     <string name="general_id">Identificador</string>
@@ -49,6 +49,6 @@
     <string name="delete_contact_dialog_message">¿Estás seguro de que quieres borrar a %s de tus contactos?</string>
     <string name="join_me_on_letro">Conecta conmigo en Letro: https://letro.app/connect/#u=%1$s</string>
     <string name="general_navigate_back">Regresar</string>
-    <string name="new_contact_id_hint" tools:ignore="Typos">maria@guarapo.cafe</string>
-    <string name="new_contact_alias_hint">María García</string>
+    <string name="new_contact_id_hint">teresa.carreño@pianistas.org.ve</string>
+    <string name="new_contact_alias_hint">Teresa Carreño</string>
 </resources>
