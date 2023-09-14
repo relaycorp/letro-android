@@ -68,8 +68,8 @@
 
     <string name="general_navigate_back">Go back</string>
 
-    <string name="new_contact_id_hint" translatable="false">james.bond@cuppa.uk</string>
-    <string name="new_contact_alias_hint" translatable="false">James Bond</string>
+    <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
+    <string name="new_contact_alias_hint">James Bond</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
 
 </resources>

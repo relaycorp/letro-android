@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Letro</string>
+    <string name="general_pair_with_others">Conecta con otros</string>
+    <string name="general_id">Identificador</string>
+    <string name="general_use_existing_account">Usa una cuenta existente</string>
+    <string name="onboarding_account_confirmation">¡Bienvenido a Letro!</string>
+    <string name="onboarding_account_confirmation_share_your_id">Comparte tu identificador</string>
+    <string name="no_contacts_text">Aún no tienes nadie a quien escribirle.</string>
+    <string name="onboarding_create_account_id_placeholder">Nombre de usuario</string>
+    <string name="onboarding_create_account_username_unavailable_hint">Si tu nombre de usuario preferido está tomado, escogeremos uno parecido.</string>
+    <string name="onboarding_create_account_wrong_username_hint">El nombre de usuario no puede contener espacio o arrobas (@), ni tener más de 16 caracteres.</string>
+    <string name="onboarding_create_account_terms_and_services">Al solicitar una cuenta, estás aceptando nuestros Términos y Condiciones.</string>
+    <string name="onboarding_create_account_terms_and_services_link_text">Términos y Condiciones</string>
+    <string name="onboarding_create_account_button">Crear cuenta</string>
+    <string name="onboarding_create_account_or">Alternativamente</string>
+    <string name="onboarding_install_awala_title">Awala parece no estar instalada.</string>
+    <string name="onbaording_install_awala_message">Instala Awala para que puedas usar esta app</string>
+    <string name="onboarding_install_awala_button">Instalar Awala</string>
+    <string name="onboarding_pairing_request_sent_title">¡Solicitud de contacto enviada!</string>
+    <string name="onboarding_pairing_request_sent_message">Recibirás una notificación cuando %s y tú estén conectados</string>
+    <string name="onboarding_pairing_request_sent_button">De acuerdo</string>
+    <string name="onboarding_pair_with_people_alias">Nombre (opcional)</string>
+    <string name="onboarding_pair_with_people_button">Solicita conexión</string>
+    <string name="onboarding_waiting_title">¡Espera un momento!</string>
+    <string name="onboarding_waiting_message">Estamos creando tu cuenta…</string>
+    <string name="top_bar_change_account">Cambia de cuenta</string>
+    <string name="top_bar_settings">Ajustes</string>
+    <string name="no_browser">No hay ninguna app para instalar Awala</string>
+    <string name="no_app_to_share">No hay ninguna app para compartir tu identificador</string>
+    <string name="pair_request_was_already_sent_hint">Ya intentaste conectar con este usuario, pero podemos intentarlo nuevamente si quieres.</string>
+    <string name="pair_request_already_paired">Ustedes dos ya están conectados.</string>
+    <string name="pair_request_already_in_progress">La conexión con este usuario ya está en progreso.</string>
+    <string name="top_bar_tab_conversations">Conversaciones</string>
+    <string name="top_bar_tab_contacts">Contactos</string>
+    <string name="top_bar_tab_notifications">Notificaciones</string>
+    <string name="floating_action_button_write_new_message_content_description">Escribe un mensaje nuevo</string>
+    <string name="floating_action_button_add_contact_content_description">Añadir contacto</string>
+    <string name="floating_action_button_close_content_description">Cerrar</string>
+    <string name="icon_more_content_description">Más</string>
+    <string name="edit_name">Editar nombre</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="edit">Editar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+    <string name="snackbar_contact_deleted">Contacto eliminado.</string>
+    <string name="snackbar_contact_edited">¡Cambios guardados!</string>
+    <string name="delete_contact_dialog_title">Eliminiar contacto</string>
+    <string name="delete_contact_dialog_message">¿Estás seguro de que quieres borrar a %s de tus contactos?</string>
+    <string name="join_me_on_letro">Conecta conmigo en Letro: https://letro.app/connect/#u=%1$s</string>
+    <string name="general_navigate_back">Regresar</string>
+    <string name="new_contact_id_hint">teresa.carreño@pianistas.org.ve</string>
+    <string name="new_contact_alias_hint">Teresa Carreño</string>
+</resources>

@@ -13,7 +13,7 @@ class RegistrationDomainProviderImpl @Inject constructor() : RegistrationDomainP
         val locale = Locale.getDefault()
         when (locale.toString()) {
             "en_US" -> "@applepie.fans"
-            "es_ve" -> "@guarapo.cafe"
+            "es_VE" -> "@guarapo.cafe"
             else -> "@nautilus.ink"
         }
     }
