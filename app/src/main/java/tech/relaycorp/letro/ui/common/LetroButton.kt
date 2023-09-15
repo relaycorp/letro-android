@@ -59,7 +59,7 @@ fun LetroButton(
         if (leadingIconResId != null) {
             Icon(
                 painter = painterResource(id = leadingIconResId),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = if (enabled) MaterialTheme.colorScheme.onPrimary else LetroColor.disabledButtonTextColor(),
                 contentDescription = null,
             )
             Spacer(

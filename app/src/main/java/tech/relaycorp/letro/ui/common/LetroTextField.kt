@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,20 +28,60 @@ fun LetroTextField(
     placeHolderText: String = "",
     enabled: Boolean = true,
     singleLine: Boolean = true,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    placeholderColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
 ) {
     TextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
-        textStyle = MaterialTheme.typography.bodyLarge,
+        textStyle = textStyle,
         enabled = enabled,
         singleLine = singleLine,
         placeholder = {
             Text(
                 text = placeHolderText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = placeholderColor,
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+        ),
+        keyboardOptions = keyboardOptions,
+    )
+}
+
+@Composable
+fun LetroTextField(
+    modifier: Modifier = Modifier,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    placeHolderText: String = "",
+    enabled: Boolean = true,
+    singleLine: Boolean = true,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    placeholderColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+) {
+    TextField(
+        modifier = modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = textStyle,
+        enabled = enabled,
+        singleLine = singleLine,
+        placeholder = {
+            Text(
+                text = placeHolderText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = placeholderColor,
             )
         },
         colors = TextFieldDefaults.colors(

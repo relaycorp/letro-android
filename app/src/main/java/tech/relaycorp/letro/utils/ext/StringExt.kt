@@ -5,6 +5,10 @@ import java.net.URLEncoder
 
 fun String?.nullIfBlankOrEmpty() = if (this.isNullOrBlank() || this.isEmpty()) null else this
 
+fun String.isEmptyOrBlank() = isEmpty() || isBlank()
+
+fun String.isNotEmptyOrBlank() = !isEmptyOrBlank()
+
 fun String?.encodeToUTF(): String? {
     if (this == null) {
         return null

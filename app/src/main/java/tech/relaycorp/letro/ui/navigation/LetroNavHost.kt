@@ -41,6 +41,7 @@ import tech.relaycorp.letro.contacts.ui.ManageContactScreen
 import tech.relaycorp.letro.home.HomeScreen
 import tech.relaycorp.letro.home.HomeViewModel
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.messages.compose.CreateNewMessageScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
@@ -89,6 +90,12 @@ fun LetroNavHost(
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
             handleFirstNavigation(navController, firstNavigation)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        homeViewModel.createNewMessageSignal.collect {
+            navController.navigate(Route.CreateNewMessage.name)
         }
     }
 
@@ -251,6 +258,11 @@ fun LetroNavHost(
                                             ),
                                         )
                                     },
+                                )
+                            }
+                            composable(Route.CreateNewMessage.name) {
+                                CreateNewMessageScreen(
+                                    onBackClicked = { navController.popBackStack() },
                                 )
                             }
                         }
