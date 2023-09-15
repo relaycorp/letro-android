@@ -3,7 +3,6 @@ package tech.relaycorp.letro.contacts.ui
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -138,46 +137,6 @@ fun ContactsScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ContactView(
-    contact: Contact,
-    onActionsButtonClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .padding(
-                vertical = if (contact.alias == null) 16.dp else 10.dp,
-                horizontal = 16.dp,
-            )
-            .fillMaxWidth(),
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-        ) {
-            if (contact.alias != null) {
-                Text(
-                    text = contact.alias,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            Text(
-                text = contact.contactVeraId,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = if (contact.alias == null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
-            )
-        }
-        Icon(
-            painter = painterResource(id = R.drawable.ic_more),
-            contentDescription = stringResource(id = R.string.icon_more_content_description),
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .clickable { onActionsButtonClick() },
-        )
     }
 }
 

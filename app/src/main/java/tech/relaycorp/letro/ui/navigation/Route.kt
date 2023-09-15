@@ -81,6 +81,12 @@ sealed class Route(
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     )
+
+    object CreateNewMessage : Route(
+        name = "create_new_message",
+        showTopBar = false,
+        isStatusBarPrimaryColor = false,
+    )
 }
 
 fun String?.toRoute(): Route {
@@ -95,6 +101,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact
             it.startsWith(Route.PairingRequestSent.name) -> Route.PairingRequestSent
             it.startsWith(Route.Home.name) -> Route.Home
+            it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }

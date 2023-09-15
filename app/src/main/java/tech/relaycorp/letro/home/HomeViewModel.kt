@@ -3,7 +3,9 @@ package tech.relaycorp.letro.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -15,6 +17,10 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState>
         get() = _uiState
+
+    private val _createNewMessageSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val createNewMessageSignal: SharedFlow<Unit>
+        get() = _createNewMessageSignal
 
     fun onTabClick(index: Int) {
         viewModelScope.launch {
@@ -41,7 +47,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             when (uiState.value.currentTab) {
                 TAB_CHATS -> {
-                    // TODO: compose a new message
+                    _createNewMessageSignal.emit(Unit)
                 }
                 TAB_CONTACTS -> {
                     _uiState.update {
