@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Letro"
 include ':app'
-include ':app-old'
