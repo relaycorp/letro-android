@@ -6,6 +6,12 @@
     <issue id="LogConditional">
         <ignore path="**"/>
     </issue>
+    <issue id="VectorPath">
+        <ignore path="**" />
+    </issue>
+    <issue id="MissingTranslation">
+        <ignore path="**" />
+    </issue>
 
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />

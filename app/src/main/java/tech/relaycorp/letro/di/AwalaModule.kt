@@ -14,6 +14,7 @@ import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessorImpl
 import tech.relaycorp.letro.awala.processor.UnknownMessageProcessor
 import tech.relaycorp.letro.onboarding.registration.processor.RegistrationMessageProcessor
+import tech.relaycorp.letro.pairing.processor.ContactPairingAuthorizationProcessor
 import tech.relaycorp.letro.pairing.processor.ContactPairingMatchProcessor
 import javax.inject.Singleton
 
@@ -25,11 +26,13 @@ object AwalaModule {
     fun provideMessageProcessor(
         registrationMessageProcessor: RegistrationMessageProcessor,
         contactPairingMatchProcessor: ContactPairingMatchProcessor,
+        contactPairingAuthorizationProcessor: ContactPairingAuthorizationProcessor,
         unknownMessageProcessor: UnknownMessageProcessor,
     ): AwalaMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreationCompleted to registrationMessageProcessor,
             MessageType.ContactPairingMatch to contactPairingMatchProcessor,
+            MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
             MessageType.Unknown to unknownMessageProcessor,
         )
         return AwalaMessageProcessorImpl(processors)

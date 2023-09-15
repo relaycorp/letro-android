@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.contacts.storage
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -28,4 +29,10 @@ interface ContactsDao {
 
     @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE ownerVeraId = :accountVeraId")
     fun getContactsForAccount(accountVeraId: String): Flow<List<Contact>>
+
+    @Delete
+    suspend fun deleteContact(contact: Contact)
+
+    @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE contactEndpointId = :contactEndpointId")
+    suspend fun getContactsByContactEndpointId(contactEndpointId: String): List<Contact>
 }

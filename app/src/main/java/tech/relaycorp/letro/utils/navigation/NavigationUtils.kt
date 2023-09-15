@@ -10,3 +10,9 @@ fun NavController.navigateWithPoppingAllBackStack(route: Route) {
         }
     }
 }
+
+fun NavController.navigateWithDropCurrentScreen(route: String) {
+    navigate(route) {
+        popBackStack()
+    }
+}

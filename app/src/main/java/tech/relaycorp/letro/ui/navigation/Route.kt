@@ -1,5 +1,7 @@
 package tech.relaycorp.letro.ui.navigation
 
+import tech.relaycorp.letro.contacts.ManageContactViewModel
+
 /**
  * Class which contains all possible routes
  *
@@ -48,12 +50,42 @@ sealed class Route(
         name = "pairing_request_sent_route",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
-    )
+    ) {
 
-    object PairWithOthers : Route(
-        name = "pair_with_others_route",
+        const val RECEIVER_ARGUMENT_VERA_ID = "receiver_vera_id"
+
+        fun getRouteName(receiverVeraId: String): String {
+            return "$name/$receiverVeraId"
+        }
+    }
+
+    object ManageContact : Route(
+        name = "manage_contact_route",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
+    ) {
+        const val KEY_CURRENT_ACCOUNT_ID_ENCODED = "current_account_id_encoded"
+        const val KEY_SCREEN_TYPE = "screen_type"
+        const val KEY_CONTACT_ID_TO_EDIT = "contact_id"
+        const val NO_ID = -1L
+
+        fun getRouteName(
+            @ManageContactViewModel.Type screenType: Int,
+            currentAccountIdEncoded: String?,
+            contactIdToEdit: Long = NO_ID,
+        ) = "${ManageContact.name}/$currentAccountIdEncoded&$screenType&$contactIdToEdit"
+    }
+
+    object Home : Route(
+        name = "home_route",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
+    object CreateNewMessage : Route(
+        name = "create_new_message",
+        showTopBar = false,
+        isStatusBarPrimaryColor = false,
     )
 }
 
@@ -66,8 +98,10 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
             it.startsWith(Route.NoContacts.name) -> Route.NoContacts
-            it.startsWith(Route.PairWithOthers.name) -> Route.PairWithOthers
+            it.startsWith(Route.ManageContact.name) -> Route.ManageContact
             it.startsWith(Route.PairingRequestSent.name) -> Route.PairingRequestSent
+            it.startsWith(Route.Home.name) -> Route.Home
+            it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }
