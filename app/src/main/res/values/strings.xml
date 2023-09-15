@@ -75,6 +75,7 @@
     <string name="new_message_subject_hint">Subject</string>
     <string name="new_message_body_hint">Type your message…</string>
     <string name="you_not_connected_to_this_contact_error">You’re not connected to this contact.</string>
+    <string name="content_description_recipient_clear">Clear recipient</string>
 
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>

@@ -64,7 +64,22 @@ class CreateNewMessageViewModel @Inject constructor(
                     recipient = contact.contactVeraId,
                     suggestedContacts = null,
                     showRecipientIsNotYourContactError = false,
+                    showRecipientAsChip = true,
                     isSendButtonEnabled = isSendButtonEnabled(contact.contactVeraId, it.messageText),
+                )
+            }
+        }
+    }
+
+    fun onRecipientRemoveClick() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    recipient = "",
+                    suggestedContacts = null,
+                    showRecipientIsNotYourContactError = false,
+                    showRecipientAsChip = false,
+                    isSendButtonEnabled = false,
                 )
             }
         }
@@ -72,10 +87,11 @@ class CreateNewMessageViewModel @Inject constructor(
 
     fun onSubjectTextChanged(text: String) {
         viewModelScope.launch {
+            val isFromContacts = contacts.any { it.contactVeraId == uiState.value.recipient }
             _uiState.update {
                 it.copy(
                     subject = text,
-                    showRecipientIsNotYourContactError = !contacts.any { it.contactVeraId == uiState.value.recipient },
+                    showRecipientAsChip = isFromContacts,
                 )
             }
         }
@@ -87,7 +103,6 @@ class CreateNewMessageViewModel @Inject constructor(
                 it.copy(
                     messageText = text,
                     suggestedContacts = null,
-                    showRecipientIsNotYourContactError = !contacts.any { it.contactVeraId == uiState.value.recipient },
                     isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipient, text),
                 )
             }
@@ -140,5 +155,6 @@ data class NewMessageUiState(
     val messageText: String = "",
     val showRecipientIsNotYourContactError: Boolean = false,
     val isSendButtonEnabled: Boolean = false,
+    val showRecipientAsChip: Boolean = false,
     val suggestedContacts: List<Contact>? = null,
 )
