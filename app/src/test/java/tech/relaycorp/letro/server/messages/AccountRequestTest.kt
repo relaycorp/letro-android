@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.testing.crypto.generateRSAKeyPair
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
 import tech.relaycorp.letro.utils.crypto.RSASigning
+import tech.relaycorp.letro.utils.crypto.spkiEncode
 import java.util.Locale
 
 const val USER_NAME = "alice"
@@ -163,7 +164,7 @@ class AccountRequestTest {
                     requestSequence.getObjectAt(2) as ASN1TaggedObject,
                     false,
                 )
-                publicKeyEncoded.encoded shouldBe keyPair.public.encoded
+                publicKeyEncoded shouldBe keyPair.public.spkiEncode()
             }
 
             private fun parseRequestSequence(serialisation: ByteArray): ASN1Sequence {
