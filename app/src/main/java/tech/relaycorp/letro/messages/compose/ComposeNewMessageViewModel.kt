@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -135,7 +136,10 @@ class CreateNewMessageViewModel @Inject constructor(
         viewModelScope.launch {
             contactsRepository.getContacts(ownerVeraId).collect {
                 contacts.clear()
-                contacts.addAll(it.sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() })
+                contacts.addAll(
+                    it.filter { it.status == ContactPairingStatus.COMPLETED }
+                        .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
+                )
             }
         }
     }

@@ -12,7 +12,8 @@ class RegistrationDomainProviderImpl @Inject constructor() : RegistrationDomainP
     private val lazyDomain: String by lazy {
         val locale = Locale.getDefault()
         when (locale.toString()) {
-            "en_US" -> "@applepie.fans"
+            "en_GB" -> "@cuppa.fans"
+            "en_US" -> "@applepie.rocks"
             "es_VE" -> "@guarapo.cafe"
             else -> "@nautilus.ink"
         }
