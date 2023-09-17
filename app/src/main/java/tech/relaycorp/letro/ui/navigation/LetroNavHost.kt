@@ -263,6 +263,12 @@ fun LetroNavHost(
                             composable(Route.CreateNewMessage.name) {
                                 CreateNewMessageScreen(
                                     onBackClicked = { navController.popBackStack() },
+                                    onMessageSent = {
+                                        navController.popBackStack()
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(snackbarStringsProvider.messageSent)
+                                        }
+                                    },
                                 )
                             }
                         }

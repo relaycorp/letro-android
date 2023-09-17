@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 @Composable
 fun CreateNewMessageScreen(
     onBackClicked: () -> Unit,
+    onMessageSent: () -> Unit,
     viewModel: CreateNewMessageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -69,6 +71,12 @@ fun CreateNewMessageScreen(
         mutableStateOf(
             TextFieldValue(),
         )
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.messageSentSignal.collect {
+            onMessageSent()
+        }
     }
 
     Column(
@@ -109,7 +117,7 @@ fun CreateNewMessageScreen(
             }
             LetroButton(
                 text = stringResource(id = R.string.new_message_send),
-                onClick = { },
+                onClick = { viewModel.onSendMessageClick() },
                 leadingIconResId = R.drawable.ic_send,
                 contentPadding = PaddingValues(
                     top = 8.dp,
@@ -172,9 +180,7 @@ fun CreateNewMessageScreen(
                     textStyle = MaterialTheme.typography.bodyLarge,
                     onValueChange = {
                         recipientTextFieldValueState = it
-                        if (it.composition != null) {
-                            viewModel.onRecipientTextChanged(it.text)
-                        }
+                        viewModel.onRecipientTextChanged(it.text)
                     },
                 )
             }

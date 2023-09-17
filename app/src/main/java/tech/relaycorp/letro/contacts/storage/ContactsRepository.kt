@@ -5,7 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -20,7 +20,7 @@ import tech.relaycorp.letro.main.MainViewModel
 import javax.inject.Inject
 
 interface ContactsRepository {
-    val isPairedContactsExist: Flow<Boolean>
+    val isPairedContactsExist: StateFlow<Boolean>
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
     fun getContactById(id: Long): Contact?
 
@@ -40,7 +40,7 @@ class ContactsRepositoryImpl @Inject constructor(
 
     private var currentAccount: Account? = null
     private val _isPairedContactsExist: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    override val isPairedContactsExist: SharedFlow<Boolean>
+    override val isPairedContactsExist: StateFlow<Boolean>
         get() = _isPairedContactsExist
 
     init {

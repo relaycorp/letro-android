@@ -107,20 +107,28 @@ val Typography = Typography(
     ),
 )
 
-val Typography.SmallProminent: TextStyle
-    get() = TextStyle(
-        fontFamily = Inter,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = (-0.1).sp,
-    )
-
 val Typography.LargeProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = (-0.15).sp,
+    )
+
+val Typography.MediumProminent: TextStyle
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = (-0.1).sp,
+        letterSpacing = (-0.15).sp,
+    )
+
+val Typography.SmallProminent: TextStyle
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
     )

@@ -3,7 +3,9 @@ package tech.relaycorp.letro.messages.compose
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -11,6 +13,8 @@ import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.messages.repository.ConversationsRepository
+import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
@@ -19,6 +23,7 @@ import javax.inject.Inject
 class CreateNewMessageViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
+    private val conversationsRepository: ConversationsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewMessageUiState())
@@ -26,6 +31,10 @@ class CreateNewMessageViewModel @Inject constructor(
         get() = _uiState
 
     private val contacts = arrayListOf<Contact>()
+
+    private val _messageSentSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val messageSentSignal: SharedFlow<Unit>
+        get() = _messageSentSignal
 
     init {
         viewModelScope.launch {
@@ -122,6 +131,16 @@ class CreateNewMessageViewModel @Inject constructor(
         }
     }
 
+    fun onSendMessageClick() {
+        conversationsRepository.createNewConversation(
+            ownerVeraId = uiState.value.sender,
+            recipientVeraId = uiState.value.recipient,
+            messageText = uiState.value.messageText,
+            subject = uiState.value.subject,
+        )
+        _messageSentSignal.emitOn(Unit, viewModelScope)
+    }
+
     private fun updateRecipientIsNotYourContactError() {
         viewModelScope.launch {
             _uiState.update {
@@ -138,6 +157,7 @@ class CreateNewMessageViewModel @Inject constructor(
                 contacts.clear()
                 contacts.addAll(
                     it.filter { it.status == ContactPairingStatus.COMPLETED }
+                        .filter { it.status == ContactPairingStatus.COMPLETED }
                         .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
                 )
             }
