@@ -60,6 +60,7 @@
 
     <string name="snackbar_contact_deleted">Contact deleted.</string>
     <string name="snackbar_contact_edited">Changes saved!</string>
+    <string name="snackbar_message_sent">Message sent!</string>
 
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
@@ -76,6 +77,8 @@
     <string name="new_message_body_hint">Type your message…</string>
     <string name="you_not_connected_to_this_contact_error">You’re not connected to this contact.</string>
     <string name="content_description_recipient_clear">Clear recipient</string>
+
+    <string name="conversations_empty_stub">Nothing new for you.</string>
 
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
