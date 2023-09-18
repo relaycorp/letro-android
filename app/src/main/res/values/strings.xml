@@ -41,7 +41,7 @@
     <string name="pair_request_was_already_sent_hint">You already tried to connect with them, but we can send another request if you want.</string>
     <string name="pair_request_already_paired">You two are already connected.</string>
     <string name="pair_request_already_in_progress">Your pairing with this user is already under way.</string>
-    <string name="pair_request_invalid_id">Enter an id like "alice@example.com" or "example.com".</string>
+    <string name="pair_request_invalid_id">Enter an id like “alice@example.com“ or “example.com“.</string>
 
     <string name="top_bar_tab_conversations">Conversations</string>
     <string name="top_bar_tab_contacts">Contacts</string>
@@ -66,7 +66,7 @@
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
 
-    <string name="join_me_on_letro">Join me on Letro: https://letro.app/connect/#u=%1$s</string>
+    <string name="join_me_on_letro">Join me on Letro: %s</string>
 
     <string name="general_navigate_back">Go back</string>
 

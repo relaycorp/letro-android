@@ -47,7 +47,7 @@
     <string name="snackbar_contact_edited">¡Cambios guardados!</string>
     <string name="delete_contact_dialog_title">Eliminiar contacto</string>
     <string name="delete_contact_dialog_message">¿Estás seguro de que quieres borrar a %s de tus contactos?</string>
-    <string name="join_me_on_letro">Conecta conmigo en Letro: https://letro.app/connect/#u=%1$s</string>
+    <string name="join_me_on_letro">Conecta conmigo en Letro: %s</string>
     <string name="general_navigate_back">Regresar</string>
     <string name="new_contact_id_hint">teresa.carreño@pianistas.org.ve</string>
     <string name="new_contact_alias_hint">Teresa Carreño</string>

@@ -117,13 +117,16 @@ class MainViewModel @Inject constructor(
     fun onShareIdClick() {
         currentAccount?.veraId?.let { accountId ->
             viewModelScope.launch {
-                _joinMeOnLetroSignal.emit(accountId)
+                _joinMeOnLetroSignal.emit(getJoinMeLink(accountId))
             }
         }
     }
 
+    private fun getJoinMeLink(accountId: String) = "$JOIN_ME_ON_LETRO_COMMON_PART_OF_LINK$accountId"
+
     companion object {
         const val TAG = "MainViewModel"
+        private const val JOIN_ME_ON_LETRO_COMMON_PART_OF_LINK = "https://letro.app/connect/#u="
         private const val AWALA_GOOGLE_PLAY_LINK = "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway"
     }
 }

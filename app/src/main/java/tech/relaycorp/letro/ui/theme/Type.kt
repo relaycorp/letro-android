@@ -128,6 +128,6 @@ val Typography.SmallProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 11.sp,
+        fontSize = 14.sp,
         lineHeight = 16.sp,
     )
