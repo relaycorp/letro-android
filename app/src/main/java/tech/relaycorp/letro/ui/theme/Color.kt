@@ -42,7 +42,11 @@ object LetroColor {
 
     val OnSurfaceContainer: Color
         @Composable
-        get() = if (isSystemInDarkTheme()) NeutralVariant5 else Neutral4
+        get() = if (isSystemInDarkTheme()) NeutralVariant6 else Neutral4
+
+    val OnSurfaceVariant: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant5 else Neutral3
 
     @Composable
     fun statusBarUnderDialogOverlay(): Color {
@@ -56,6 +60,6 @@ object LetroColor {
 
     @Composable
     fun disabledButtonTextColor(): Color {
-        return if (isSystemInDarkTheme()) Color(0x1AEFF0F3) else Color(0x5C0C1B44)
+        return if (isSystemInDarkTheme()) Color(0xFF706F73) else Color(0x5C0C1B44)
     }
 }

@@ -50,7 +50,6 @@ class MainViewModel @Inject constructor(
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
     private var currentAccount: Account? = null
-    private var isRegistration = false
 
     init {
         viewModelScope.launch {
@@ -72,31 +71,28 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 accountRepository.currentAccount,
-                contactsRepository.isPairedContactsExist,
-            ) { currentAccount, isPairedContactExist ->
-                Pair(currentAccount, isPairedContactExist)
+                contactsRepository.contactsState,
+            ) { currentAccount, contactsState ->
+                Pair(currentAccount, contactsState)
             }
                 .distinctUntilChanged()
                 .onStart { Log.d(TAG, "Start collecting the combined Flow") }
                 .collect {
                     val currentAccount = it.first
-                    val isPairedContactExist = it.second
-                    Log.d(TAG, "$currentAccount; $isPairedContactExist")
+                    val contactsState = it.second
+                    Log.d(TAG, "$currentAccount; $contactsState")
                     if (currentAccount != null) {
                         when {
                             !currentAccount.isCreated -> {
-                                isRegistration = true
                                 _rootNavigationScreen.emit(RootNavigationScreen.RegistrationWaiting)
                             }
-                            !isPairedContactExist -> {
-                                if (isRegistration) {
-                                    _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
-                                } else {
-                                    _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
-                                }
-                                isRegistration = false
+                            !contactsState.isPairRequestWasEverSent -> {
+                                _rootNavigationScreen.emit(RootNavigationScreen.WelcomeToLetro)
                             }
-                            isPairedContactExist -> _rootNavigationScreen.emit(RootNavigationScreen.Home)
+                            !contactsState.isPairedContactExist -> {
+                                _rootNavigationScreen.emit(RootNavigationScreen.NoContactsScreen)
+                            }
+                            else -> _rootNavigationScreen.emit(RootNavigationScreen.Home)
                         }
                     } else {
                         _rootNavigationScreen.emit(RootNavigationScreen.Registration)
@@ -121,13 +117,16 @@ class MainViewModel @Inject constructor(
     fun onShareIdClick() {
         currentAccount?.veraId?.let { accountId ->
             viewModelScope.launch {
-                _joinMeOnLetroSignal.emit(accountId)
+                _joinMeOnLetroSignal.emit(getJoinMeLink(accountId))
             }
         }
     }
 
+    private fun getJoinMeLink(accountId: String) = "$JOIN_ME_ON_LETRO_COMMON_PART_OF_LINK$accountId"
+
     companion object {
         const val TAG = "MainViewModel"
+        private const val JOIN_ME_ON_LETRO_COMMON_PART_OF_LINK = "https://letro.app/connect/#u="
         private const val AWALA_GOOGLE_PLAY_LINK = "https://play.google.com/store/apps/details?id=tech.relaycorp.gateway"
     }
 }

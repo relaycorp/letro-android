@@ -46,19 +46,6 @@ sealed class Route(
         isStatusBarPrimaryColor = true,
     )
 
-    object PairingRequestSent : Route(
-        name = "pairing_request_sent_route",
-        showTopBar = true,
-        isStatusBarPrimaryColor = true,
-    ) {
-
-        const val RECEIVER_ARGUMENT_VERA_ID = "receiver_vera_id"
-
-        fun getRouteName(receiverVeraId: String): String {
-            return "$name/$receiverVeraId"
-        }
-    }
-
     object ManageContact : Route(
         name = "manage_contact_route",
         showTopBar = true,
@@ -99,7 +86,6 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
             it.startsWith(Route.NoContacts.name) -> Route.NoContacts
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact
-            it.startsWith(Route.PairingRequestSent.name) -> Route.PairingRequestSent
             it.startsWith(Route.Home.name) -> Route.Home
             it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")

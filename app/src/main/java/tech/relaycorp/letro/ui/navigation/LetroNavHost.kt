@@ -51,7 +51,6 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 import tech.relaycorp.letro.utils.ext.encodeToUTF
-import tech.relaycorp.letro.utils.navigation.navigateWithDropCurrentScreen
 import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
 @Composable
@@ -183,24 +182,6 @@ fun LetroNavHost(
                                 )
                             }
                             composable(
-                                route = "${Route.PairingRequestSent.name}/{${Route.PairingRequestSent.RECEIVER_ARGUMENT_VERA_ID}}",
-                                arguments = listOf(
-                                    navArgument(Route.PairingRequestSent.RECEIVER_ARGUMENT_VERA_ID) {
-                                        type = NavType.StringType
-                                        nullable = false
-                                    },
-                                ),
-                            ) {
-                                ActionTakingScreen(
-                                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
-                                        boldPartOfMessage = it.arguments?.getString(Route.PairingRequestSent.RECEIVER_ARGUMENT_VERA_ID)!!,
-                                        onGotItClicked = {
-                                            navController.popBackStack()
-                                        },
-                                    ),
-                                )
-                            }
-                            composable(
                                 route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
                                 arguments = listOf(
                                     navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
@@ -222,15 +203,8 @@ fun LetroNavHost(
                                     onBackClick = {
                                         navController.popBackStack()
                                     },
-                                    onActionCompleted = {
+                                    onEditContactCompleted = {
                                         when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
-                                            ManageContactViewModel.Type.NEW_CONTACT -> {
-                                                navController.navigateWithDropCurrentScreen(
-                                                    Route.PairingRequestSent.getRouteName(
-                                                        receiverVeraId = it,
-                                                    ),
-                                                )
-                                            }
                                             ManageContactViewModel.Type.EDIT_CONTACT -> {
                                                 navController.popBackStack()
                                                 scope.launch {
