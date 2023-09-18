@@ -45,6 +45,7 @@ class ManageContactViewModel @Inject constructor(
                 EDIT_CONTACT -> ManageContactTexts.EditContact()
                 else -> throw IllegalStateException("Unknown screen type: $screenType")
             },
+            isActionButtonEnabled = screenType == EDIT_CONTACT,
         ),
     )
     val uiState: StateFlow<PairWithOthersUiState>
@@ -52,9 +53,13 @@ class ManageContactViewModel @Inject constructor(
 
     private val checkActionButtonAvailabilityFlow = MutableSharedFlow<String>()
 
-    private val _onActionCompleted = MutableSharedFlow<String>()
-    val onActionCompleted: SharedFlow<String>
-        get() = _onActionCompleted
+    private val _onEditContactCompleted = MutableSharedFlow<String>()
+    val onEditContactCompleted: SharedFlow<String>
+        get() = _onEditContactCompleted
+
+    private val _goBackSignal = MutableSharedFlow<Unit>()
+    val goBackSignal: SharedFlow<Unit>
+        get() = _goBackSignal
 
     private val contacts: HashSet<Contact> = hashSetOf()
 
@@ -115,14 +120,32 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
-    fun onActionButtonClick() {
+    fun onUpdateContactButtonClick() {
         when (screenType) {
-            NEW_CONTACT -> sendNewContactRequest()
-            EDIT_CONTACT -> updateContact()
+            NEW_CONTACT -> {
+                sendNewContactRequest()
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
+                            showRequestSentScreen = true,
+                        )
+                    }
+                }
+            }
+            EDIT_CONTACT -> {
+                updateContact()
+                viewModelScope.launch {
+                    _onEditContactCompleted.emit(uiState.value.veraId)
+                }
+            }
             else -> throw IllegalStateException("Unknown screen type: $screenType")
         }
+    }
+
+    fun onGotItClick() {
+        contactsRepository.saveRequestWasOnceSent()
         viewModelScope.launch {
-            _onActionCompleted.emit(uiState.value.veraId)
+            _goBackSignal.emit(Unit)
         }
     }
 
@@ -195,6 +218,7 @@ data class PairWithOthersUiState(
     val isSentRequestAgainHintVisible: Boolean = false,
     val isVeraIdInputEnabled: Boolean = true,
     val pairingErrorCaption: PairingErrorCaption? = null,
+    val showRequestSentScreen: Boolean = false,
 )
 
 @Immutable

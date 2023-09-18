@@ -72,8 +72,8 @@ class MainViewModel @Inject constructor(
             combine(
                 accountRepository.currentAccount,
                 contactsRepository.contactsState,
-            ) { currentAccount, isPairedContactExist ->
-                Pair(currentAccount, isPairedContactExist)
+            ) { currentAccount, contactsState ->
+                Pair(currentAccount, contactsState)
             }
                 .distinctUntilChanged()
                 .onStart { Log.d(TAG, "Start collecting the combined Flow") }

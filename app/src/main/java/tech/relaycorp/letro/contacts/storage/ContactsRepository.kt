@@ -28,6 +28,7 @@ interface ContactsRepository {
     fun addNewContact(contact: Contact)
     fun deleteContact(contact: Contact)
     fun updateContact(contact: Contact)
+    fun saveRequestWasOnceSent()
 }
 
 class ContactsRepositoryImpl @Inject constructor(
@@ -74,7 +75,6 @@ class ContactsRepositoryImpl @Inject constructor(
             )
 
             if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
-                preferences.putBoolean(getContactRequestHasEverBeenSentKey(contact.ownerVeraId), true)
                 if (existingContact == null) {
                     contactsDao.insert(
                         contact.copy(
@@ -111,6 +111,14 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun saveRequestWasOnceSent() {
+        val currentAccount = currentAccount ?: return
+        scope.launch {
+            preferences.putBoolean(getContactRequestHasEverBeenSentKey(currentAccount.veraId), true)
+            updateContactsState(currentAccount)
+        }
+    }
+
     private fun startCollectAccountFlow() {
         scope.launch {
             accountRepository.currentAccount.collect {
@@ -136,14 +144,13 @@ class ContactsRepositoryImpl @Inject constructor(
             ContactsState(
                 isPairedContactExist = isPairedContactExist,
                 isPairRequestWasEverSent = isPairRequestWasEverSent,
-            )
-
+            ),
         )
     }
 
     private fun getContactRequestHasEverBeenSentKey(
-        veraId: String
-    ) = "${KEY_CONTACT_REQUEST_HAS_EVER_BEEN_SENT_PREFIX}${veraId}"
+        veraId: String,
+    ) = "${KEY_CONTACT_REQUEST_HAS_EVER_BEEN_SENT_PREFIX}$veraId"
 
     private companion object {
         private const val TAG = "ContactsRepository"
