@@ -208,8 +208,9 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun checkIfAwalaAppInstalled(): Boolean {
         return withContext(awalaThreadContext) {
             try {
+                Log.i(TAG, "GatewayClient binding...")
                 GatewayClient.bind()
-                Log.i(TAG, "GatewayClient binded")
+                Log.i(TAG, "GatewayClient bound")
                 configureAwala()
             } catch (exp: GatewayBindingException) {
                 this@AwalaManagerImpl.isAwalaInstalledOnDevice = false
