@@ -10,6 +10,11 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.util.Locale
 
+/**
+ * This message signifies a Letro user's intention to create a VeraId identifier.
+ *
+ * See https://docs.relaycorp.tech/letro-server/account-creation#account-creation-request
+ */
 class AccountRequest(
     val userName: String,
     val locale: Locale,

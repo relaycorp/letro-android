@@ -1,14 +1,10 @@
 package tech.relaycorp.letro.server.messages
 
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.beUpperCase
-import io.kotest.matchers.string.match
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.ASN1TaggedObject
 import org.bouncycastle.asn1.ASN1UTF8String
-import org.bouncycastle.asn1.ASN1VisibleString
 import org.bouncycastle.asn1.DERSequence
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.junit.jupiter.api.Nested
@@ -17,14 +13,15 @@ import tech.relaycorp.letro.testing.crypto.generateRSAKeyPair
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
 import tech.relaycorp.letro.utils.crypto.RSASigning
 import tech.relaycorp.letro.utils.crypto.spkiEncode
+import tech.relaycorp.letro.utils.i18n.normaliseString
 import java.util.Locale
 
-const val USER_NAME = "alice"
-val LOCALE = Locale("EN", "GB")
-
-val keyPair = generateRSAKeyPair()
-
 class AccountRequestTest {
+    val userName = "alice"
+    val locale = Locale("EN", "GB")
+
+    val keyPair = generateRSAKeyPair()
+
     @Nested
     inner class Serialize {
         @Nested
@@ -34,8 +31,8 @@ class AccountRequestTest {
                 @Test
                 fun `Should serialise the user name as UTF8String`() {
                     val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = LOCALE,
+                        userName = userName,
+                        locale = locale,
                         veraidMemberPublicKey = keyPair.public,
                     )
 
@@ -46,7 +43,7 @@ class AccountRequestTest {
                         requestSequence.getObjectAt(0) as ASN1TaggedObject,
                         false,
                     )
-                    userNameEncoded.string shouldBe USER_NAME
+                    userNameEncoded.string shouldBe userName
                 }
 
                 @Test
@@ -54,7 +51,7 @@ class AccountRequestTest {
                     val userName = "👩‍💻"
                     val request = AccountRequest(
                         userName = userName,
-                        locale = LOCALE,
+                        locale = locale,
                         veraidMemberPublicKey = keyPair.public,
                     )
 
@@ -69,91 +66,26 @@ class AccountRequestTest {
                 }
             }
 
-            @Nested
-            inner class LocaleSerialisation {
-                @Test
-                fun `Should serialise the language as a string`() {
-                    val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = LOCALE,
-                        veraidMemberPublicKey = keyPair.public,
-                    )
+            @Test
+            fun `Should serialise the locale as a VisibleString`() {
+                val request = AccountRequest(
+                    userName = userName,
+                    locale = locale,
+                    veraidMemberPublicKey = keyPair.public,
+                )
 
-                    val serialisation = request.serialise(keyPair.private)
+                val serialisation = request.serialise(keyPair.private)
 
-                    val locale = parseLocaleSequence(serialisation)
-                    locale.string.split("-")[0] shouldBe LOCALE.language.lowercase()
-                }
-
-                @Test
-                fun `Should serialise the country as a lowercase string`() {
-                    val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = LOCALE,
-                        veraidMemberPublicKey = keyPair.public,
-                    )
-                    request.locale.country should beUpperCase()
-
-                    val serialisation = request.serialise(keyPair.private)
-
-                    val locale = parseLocaleSequence(serialisation)
-                    val countryCode = locale.string.split("-")[1]
-                    countryCode shouldBe LOCALE.country.lowercase()
-                }
-
-                @Test
-                fun `Should result in empty string if language is missing`() {
-                    val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = Locale("", LOCALE.country),
-                        veraidMemberPublicKey = keyPair.public,
-                    )
-
-                    val serialisation = request.serialise(keyPair.private)
-
-                    val locale = parseLocaleSequence(serialisation)
-                    locale.string shouldBe ""
-                }
-
-                @Test
-                fun `Should only serialise the language if country is missing`() {
-                    val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = Locale(LOCALE.language, ""),
-                        veraidMemberPublicKey = keyPair.public,
-                    )
-
-                    val serialisation = request.serialise(keyPair.private)
-
-                    val locale = parseLocaleSequence(serialisation)
-                    locale.string shouldBe LOCALE.language
-                }
-
-                @Test
-                fun `Should not serialise the variant`() {
-                    val request = AccountRequest(
-                        userName = USER_NAME,
-                        locale = Locale(LOCALE.language, LOCALE.country, "Oxford"),
-                        veraidMemberPublicKey = keyPair.public,
-                    )
-
-                    val serialisation = request.serialise(keyPair.private)
-
-                    val locale = parseLocaleSequence(serialisation)
-                    locale.string should match(Regex("[a-z]{2}-[a-z]{2}"))
-                }
-
-                private fun parseLocaleSequence(serialisation: ByteArray): ASN1VisibleString {
-                    val requestSequence = parseRequestSequence(serialisation)
-                    return ASN1Utils.getVisibleString(requestSequence.getObjectAt(1) as ASN1TaggedObject)
-                }
+                val requestSequence = parseRequestSequence(serialisation)
+                val localeEncoded = ASN1Utils.getVisibleString(requestSequence.getObjectAt(1) as ASN1TaggedObject)
+                localeEncoded.string shouldBe locale.normaliseString()
             }
 
             @Test
             fun `Should serialize the public key`() {
                 val request = AccountRequest(
-                    userName = USER_NAME,
-                    locale = LOCALE,
+                    userName = userName,
+                    locale = locale,
                     veraidMemberPublicKey = keyPair.public,
                 )
 
@@ -178,8 +110,8 @@ class AccountRequestTest {
             @Test
             fun `Signature should be serialised as a BIT STRING`() {
                 val request = AccountRequest(
-                    userName = USER_NAME,
-                    locale = LOCALE,
+                    userName = userName,
+                    locale = locale,
                     veraidMemberPublicKey = keyPair.public,
                 )
 
@@ -192,8 +124,8 @@ class AccountRequestTest {
             @Test
             fun `Signature should be computed over the request`() {
                 val request = AccountRequest(
-                    userName = USER_NAME,
-                    locale = LOCALE,
+                    userName = userName,
+                    locale = locale,
                     veraidMemberPublicKey = keyPair.public,
                 )
 
