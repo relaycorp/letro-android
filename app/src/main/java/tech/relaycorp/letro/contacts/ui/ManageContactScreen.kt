@@ -120,7 +120,7 @@ fun ManageContactScreen(
         LetroButtonMaxWidthFilled(
             text = stringResource(id = uiState.manageContactTexts.button),
             onClick = { viewModel.onActionButtonClick() },
-            isEnabled = errorCaption == null,
+            isEnabled = uiState.isActionButtonEnabled,
         )
     }
 }

@@ -7,10 +7,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
@@ -24,6 +26,7 @@ import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class ManageContactViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
@@ -46,6 +49,8 @@ class ManageContactViewModel @Inject constructor(
     )
     val uiState: StateFlow<PairWithOthersUiState>
         get() = _uiState
+
+    private val checkActionButtonAvailabilityFlow = MutableSharedFlow<String>()
 
     private val _onActionCompleted = MutableSharedFlow<String>()
     val onActionCompleted: SharedFlow<String>
@@ -78,6 +83,13 @@ class ManageContactViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            checkActionButtonAvailabilityFlow
+                .debounce(CHECK_ID_DEBOUNCE_DELAY_MS)
+                .collect {
+                    checkIfIdIsCorrect(it)
+                }
+        }
     }
 
     fun onIdChanged(id: String) {
@@ -87,9 +99,9 @@ class ManageContactViewModel @Inject constructor(
                 it.copy(
                     veraId = trimmedId,
                     isSentRequestAgainHintVisible = contacts.any { it.contactVeraId == trimmedId && it.status == ContactPairingStatus.REQUEST_SENT },
-                    pairingErrorCaption = getPairingErrorMessage(trimmedId),
                 )
             }
+            checkActionButtonAvailabilityFlow.emit(trimmedId)
         }
     }
 
@@ -111,6 +123,19 @@ class ManageContactViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _onActionCompleted.emit(uiState.value.veraId)
+        }
+    }
+
+    private fun checkIfIdIsCorrect(id: String) {
+        viewModelScope.launch {
+            val isValidId = id.matches(CORRECT_ID_REGEX)
+            val errorMessage = getPairingErrorMessage(id, isValidId)
+            _uiState.update {
+                it.copy(
+                    isActionButtonEnabled = isValidId && errorMessage == null,
+                    pairingErrorCaption = errorMessage,
+                )
+            }
         }
     }
 
@@ -137,14 +162,20 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
-    private fun getPairingErrorMessage(contactId: String): PairingErrorCaption? {
+    private fun getPairingErrorMessage(contactId: String, isValidId: Boolean): PairingErrorCaption? {
         val contact = contacts.find { it.contactVeraId == contactId }
         return when {
+            !isValidId -> PairingErrorCaption(R.string.pair_request_invalid_id)
             contact == null -> null
             contact.status == ContactPairingStatus.COMPLETED -> PairingErrorCaption(R.string.pair_request_already_paired)
             contact.status >= ContactPairingStatus.MATCH -> PairingErrorCaption(R.string.pair_request_already_in_progress)
             else -> null
         }
+    }
+
+    private companion object {
+        private const val CHECK_ID_DEBOUNCE_DELAY_MS = 1_000L
+        private val CORRECT_ID_REGEX = """^([^@]+@)?\p{L}{1,63}(\.\p{L}{1,63})+$""".toRegex()
     }
 
     @IntDef(NEW_CONTACT, EDIT_CONTACT)
@@ -160,6 +191,7 @@ data class PairWithOthersUiState(
     val manageContactTexts: ManageContactTexts,
     val veraId: String = "",
     val alias: String? = null,
+    val isActionButtonEnabled: Boolean = false,
     val isSentRequestAgainHintVisible: Boolean = false,
     val isVeraIdInputEnabled: Boolean = true,
     val pairingErrorCaption: PairingErrorCaption? = null,
