@@ -227,9 +227,10 @@ class AwalaManagerImpl @Inject constructor(
                 startReceivingMessages()
                 return@withContext null
             }
+            Log.i(TAG, "Will register first-party endpoint...")
             val firstPartyEndpoint = FirstPartyEndpoint.register()
+            Log.i(TAG, "First-party endpoint registered (${firstPartyEndpoint.nodeId})")
             awalaRepository.saveServerFirstPartyEndpointNodeId(firstPartyEndpoint.nodeId)
-            Log.i(TAG, "First party endpoint was registred ${firstPartyEndpoint.nodeId}")
             startReceivingMessages()
             firstPartyEndpoint
         }
