@@ -5,6 +5,8 @@ import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
+import java.sql.Timestamp
+import java.time.ZoneOffset
 import java.util.UUID
 import javax.inject.Inject
 
@@ -40,13 +42,15 @@ class ExtendedConversationConverterImpl @Inject constructor(
                 if (messagesToConversation[conversation.conversationId].isNullOrEmpty()) {
                     return@mapNotNull null
                 }
+                val lastMessage = messagesToConversation[conversation.conversationId]!!.first()
                 ExtendedConversation(
                     conversationId = conversation.conversationId,
                     ownerVeraId = conversation.ownerVeraId,
                     recipientVeraId = conversation.contactVeraId,
                     recipientAlias = contacts.find { it.contactVeraId == conversation.contactVeraId }?.alias,
                     subject = conversation.subject,
-                    lastMessageFormattedTimestamp = messageTimestampConverter.convert(messagesToConversation[conversation.conversationId]!!.first().sentAt),
+                    lastMessageTimestamp = Timestamp.from(lastMessage.sentAt.toInstant(ZoneOffset.UTC)).time,
+                    lastMessageFormattedTimestamp = messageTimestampConverter.convert(lastMessage.sentAt),
                     messages = sortedMessages
                         .filter { it.conversationId == conversation.conversationId }
                         .map {
@@ -61,6 +65,6 @@ class ExtendedConversationConverterImpl @Inject constructor(
             }
             .forEach { extendedConversations.add(it) }
         return extendedConversations
-            .sortedByDescending { it.lastMessageFormattedTimestamp }
+            .sortedByDescending { it.lastMessageTimestamp }
     }
 }

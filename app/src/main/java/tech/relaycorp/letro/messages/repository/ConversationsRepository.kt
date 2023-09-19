@@ -10,10 +10,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.AccountRepository
+import tech.relaycorp.letro.awala.AwalaManager
+import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
+import tech.relaycorp.letro.awala.message.MessageRecipient
+import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.model.ExtendedConversation
+import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoder
 import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
@@ -25,7 +30,7 @@ interface ConversationsRepository {
     val conversations: Flow<List<ExtendedConversation>>
     fun createNewConversation(
         ownerVeraId: String,
-        recipientVeraId: String,
+        recipient: Contact,
         messageText: String,
         subject: String? = null,
     )
@@ -37,6 +42,8 @@ class ConversationsRepositoryImpl @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
     private val conversationsConverter: ExtendedConversationConverter,
+    private val awalaManager: AwalaManager,
+    private val outgoingConversationMessageEncoder: OutgoingConversationMessageEncoder,
 ) : ConversationsRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -70,14 +77,15 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     override fun createNewConversation(
         ownerVeraId: String,
-        recipientVeraId: String,
+        recipient: Contact,
         messageText: String,
         subject: String?,
     ) {
+        val recipientNodeId = recipient.contactEndpointId ?: return
         scope.launch {
             val conversation = Conversation(
                 ownerVeraId = ownerVeraId,
-                contactVeraId = recipientVeraId,
+                contactVeraId = recipient.contactVeraId,
                 subject = if (subject.isNullOrEmpty()) null else subject,
             )
             val message = Message(
@@ -85,11 +93,21 @@ class ConversationsRepositoryImpl @Inject constructor(
                 conversationId = conversation.conversationId,
                 ownerVeraId = ownerVeraId,
                 senderVeraId = ownerVeraId,
-                recipientVeraId = recipientVeraId,
+                recipientVeraId = recipient.contactVeraId,
                 sentAt = LocalDateTime.now(),
             )
             messagesDao.insert(message)
             conversationsDao.createNewConversation(conversation)
+
+            awalaManager.sendMessage(
+                outgoingMessage = AwalaOutgoingMessage(
+                    type = MessageType.NewConversation,
+                    content = outgoingConversationMessageEncoder.encode(conversation),
+                ),
+                recipient = MessageRecipient.User(
+                    nodeId = recipientNodeId,
+                )
+            )
         }
     }
 
