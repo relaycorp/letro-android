@@ -8,6 +8,7 @@ data class ExtendedConversation(
     val recipientVeraId: String,
     val recipientAlias: String?,
     val subject: String?,
+    val lastMessageTimestamp: Long,
     val lastMessageFormattedTimestamp: String,
     val messages: List<ExtendedMessage>,
 )

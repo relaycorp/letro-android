@@ -9,6 +9,8 @@ import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverter
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverterImpl
+import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoder
+import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoderImpl
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
 import tech.relaycorp.letro.messages.repository.ConversationsRepositoryImpl
 import tech.relaycorp.letro.messages.storage.ConversationsDao
@@ -49,5 +51,10 @@ object ConversationsModule {
         fun bindMessageTimestampConverter(
             impl: MessageTimestampConverterImpl,
         ): MessageTimestampConverter
+
+        @Binds
+        fun bindOutgoingConversationMessageEncoder(
+            impl: OutgoingConversationMessageEncoderImpl,
+        ): OutgoingConversationMessageEncoder
     }
 }

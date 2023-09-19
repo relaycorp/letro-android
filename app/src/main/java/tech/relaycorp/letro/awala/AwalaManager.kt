@@ -28,8 +28,9 @@ import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.ui.navigation.Route
-import tech.relaycorp.letro.utils.awala.loadNonNullFirstPartyEndpoint
-import tech.relaycorp.letro.utils.awala.loadNonNullThirdPartyEndpoint
+import tech.relaycorp.letro.utils.awala.loadNonNullPrivateThirdPartyEndpoint
+import tech.relaycorp.letro.utils.awala.loadNonNullPublicFirstPartyEndpoint
+import tech.relaycorp.letro.utils.awala.loadNonNullPublicThirdPartyEndpoint
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -96,7 +97,10 @@ class AwalaManagerImpl @Inject constructor(
                 Log.i(TAG, "Awala was initialized, proceed futher...")
             }
             val firstPartyEndpoint = loadFirstPartyEndpoint()
-            val thirdPartyEndpoint = loadThirdPartyEndpoint(recipient)
+            val thirdPartyEndpoint = loadThirdPartyEndpoint(
+                sender = firstPartyEndpoint,
+                recipient = recipient,
+            )
             Log.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
             GatewayClient.sendMessage(
                 OutgoingMessage.build(
@@ -153,31 +157,38 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
                 ?: registerFirstPartyEndpointIfNeeded()?.nodeId
                 ?: throw IllegalStateException("You should register first party endpoint first!")
-            firstPartyEndpoint ?: loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
+            firstPartyEndpoint ?: loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
         }
     }
 
-    private suspend fun loadThirdPartyEndpoint(recipient: MessageRecipient): ThirdPartyEndpoint {
+    private suspend fun loadThirdPartyEndpoint(
+        sender: FirstPartyEndpoint,
+        recipient: MessageRecipient,
+    ): ThirdPartyEndpoint {
         return withContext(awalaThreadContext) {
             if (recipient is MessageRecipient.Server) {
                 thirdPartyServerEndpoint?.let {
                     return@withContext it
                 }
             }
-            val thirdPartyEndpointNodeId = when (recipient) {
+            when (recipient) {
                 is MessageRecipient.Server -> {
-                    recipient.nodeId
+                    val nodeId = recipient.nodeId
                         ?: awalaRepository.getServerThirdPartyEndpointNodeId()
                         ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
                         ?: throw IllegalStateException("You should register third party endpoint first!")
+                    loadNonNullPublicThirdPartyEndpoint(nodeId)
                 }
 
                 is MessageRecipient.User -> {
-                    Log.e(TAG, "Cannot find third-party endpoint ${recipient.nodeId}")
-                    throw IllegalStateException("Cannot find third-party endpoint ${recipient.nodeId}")
+                    val senderNodeId = sender.nodeId
+                    val recipientNodeId = recipient.nodeId
+                    loadNonNullPrivateThirdPartyEndpoint(
+                        senderNodeId = senderNodeId,
+                        recipientNodeId = recipientNodeId,
+                    )
                 }
             }
-            loadNonNullThirdPartyEndpoint(thirdPartyEndpointNodeId)
         }
     }
 
@@ -252,7 +263,7 @@ class AwalaManagerImpl @Inject constructor(
             )
             Log.i(TAG, "Server third party endpoint was imported ${thirdPartyEndpoint.nodeId}")
 
-            val firstPartyEndpoint = loadNonNullFirstPartyEndpoint(firstPartyEndpointNodeId)
+            val firstPartyEndpoint = loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
 
             // Create the Parcel Delivery Authorisation (PDA)
             val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)

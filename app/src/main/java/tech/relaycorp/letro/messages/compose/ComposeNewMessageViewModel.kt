@@ -132,9 +132,10 @@ class CreateNewMessageViewModel @Inject constructor(
     }
 
     fun onSendMessageClick() {
+        val contact = contacts.find { it.contactVeraId == uiState.value.recipient } ?: return
         conversationsRepository.createNewConversation(
             ownerVeraId = uiState.value.sender,
-            recipientVeraId = uiState.value.recipient,
+            recipient = contact,
             messageText = uiState.value.messageText,
             subject = uiState.value.subject,
         )
