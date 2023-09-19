@@ -208,8 +208,9 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun checkIfAwalaAppInstalled(): Boolean {
         return withContext(awalaThreadContext) {
             try {
+                Log.i(TAG, "GatewayClient binding...")
                 GatewayClient.bind()
-                Log.i(TAG, "GatewayClient binded")
+                Log.i(TAG, "GatewayClient bound")
                 configureAwala()
             } catch (exp: GatewayBindingException) {
                 this@AwalaManagerImpl.isAwalaInstalledOnDevice = false
@@ -227,9 +228,10 @@ class AwalaManagerImpl @Inject constructor(
                 startReceivingMessages()
                 return@withContext null
             }
+            Log.i(TAG, "Will register first-party endpoint...")
             val firstPartyEndpoint = FirstPartyEndpoint.register()
+            Log.i(TAG, "First-party endpoint registered (${firstPartyEndpoint.nodeId})")
             awalaRepository.saveServerFirstPartyEndpointNodeId(firstPartyEndpoint.nodeId)
-            Log.i(TAG, "First party endpoint was registred ${firstPartyEndpoint.nodeId}")
             startReceivingMessages()
             firstPartyEndpoint
         }

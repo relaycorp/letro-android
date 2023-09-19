@@ -10,6 +10,8 @@ sealed class MessageType(val value: String) {
     object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.pairing-request-tmp")
     object ContactPairingMatch : MessageType("application/vnd.relaycorp.letro.pairing-match-tmp")
     object ContactPairingAuthorization : MessageType("application/vnd.relaycorp.letro.pairing-auth")
+    object NewConversation : MessageType("application/vnd.letro.conversation")
+    object NewMessage : MessageType("application/vnd.letro.message")
     object Unknown : MessageType("unknown")
 
     companion object {
@@ -21,6 +23,8 @@ sealed class MessageType(val value: String) {
                 ContactPairingRequest.value -> ContactPairingRequest
                 ContactPairingMatch.value -> ContactPairingMatch
                 ContactPairingAuthorization.value -> ContactPairingAuthorization
+                NewMessage.value -> NewMessage
+                NewConversation.value -> NewConversation
                 else -> {
                     Log.e(AwalaManagerImpl.TAG, "Unknown message type $type")
                     Unknown

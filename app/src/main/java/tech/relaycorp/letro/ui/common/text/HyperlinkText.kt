@@ -6,11 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun HyperlinkText(
@@ -24,34 +28,42 @@ fun HyperlinkText(
     fontSize: TextUnit = TextUnit.Unspecified,
 ) {
     val annotatedString = buildAnnotatedString {
-        append(fullText)
-        addStyle(
-            style = SpanStyle(
-                fontSize = fontSize,
-                color = textColor,
+        withStyle(
+            style = ParagraphStyle(
+                lineHeight = 18.sp,
             ),
-            start = 0,
-            end = fullText.length,
-        )
-        for ((key, value) in hyperLinks) {
-            val startIndex = fullText.indexOf(key)
-            val endIndex = startIndex + key.length
+        ) {
+            append(fullText)
             addStyle(
                 style = SpanStyle(
-                    color = linkTextColor,
                     fontSize = fontSize,
-                    fontWeight = linkTextFontWeight,
-                    textDecoration = linkTextDecoration,
+                    color = textColor,
+                    letterSpacing = TextUnit(0.2f, TextUnitType.Sp),
                 ),
-                start = startIndex,
-                end = endIndex,
+                start = 0,
+                end = fullText.length,
             )
-            addStringAnnotation(
-                tag = "URL",
-                annotation = value,
-                start = startIndex,
-                end = endIndex,
-            )
+            for ((key, value) in hyperLinks) {
+                val startIndex = fullText.indexOf(key)
+                val endIndex = startIndex + key.length
+                addStyle(
+                    style = SpanStyle(
+                        color = linkTextColor,
+                        fontSize = fontSize,
+                        fontWeight = linkTextFontWeight,
+                        textDecoration = linkTextDecoration,
+                        letterSpacing = TextUnit(0.2f, TextUnitType.Sp),
+                    ),
+                    start = startIndex,
+                    end = endIndex,
+                )
+                addStringAnnotation(
+                    tag = "URL",
+                    annotation = value,
+                    start = startIndex,
+                    end = endIndex,
+                )
+            }
         }
     }
 

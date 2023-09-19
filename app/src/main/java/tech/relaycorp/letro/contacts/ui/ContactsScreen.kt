@@ -65,6 +65,7 @@ fun ContactsScreen(
     Box {
         if (editBottomSheet.isShown && editBottomSheet.contact != null) {
             ModalBottomSheet(
+                containerColor = MaterialTheme.colorScheme.surface,
                 onDismissRequest = { viewModel.onEditBottomSheetDismissed() },
             ) {
                 EditContactBottomSheet(
@@ -147,11 +148,12 @@ private fun EditContactBottomSheet(
     onDeleteClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.padding(
-            PaddingValues(
-                bottom = 44.dp,
+        modifier = Modifier
+            .padding(
+                PaddingValues(
+                    bottom = 44.dp,
+                ),
             ),
-        ),
     ) {
         Text(
             text = title,

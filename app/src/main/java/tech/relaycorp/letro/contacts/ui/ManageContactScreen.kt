@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.ManageContactViewModel
+import tech.relaycorp.letro.contacts.PairWithOthersUiState
+import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
+import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
@@ -32,17 +35,47 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 @Composable
 fun ManageContactScreen(
     onBackClick: () -> Unit,
-    onActionCompleted: (String) -> Unit,
+    onEditContactCompleted: (String) -> Unit,
     viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.onActionCompleted.collect {
-            onActionCompleted(it)
+        viewModel.onEditContactCompleted.collect {
+            onEditContactCompleted(it)
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.goBackSignal.collect {
+            onBackClick()
+        }
+    }
+
+    if (!uiState.showRequestSentScreen) {
+        ManageContactView(
+            onBackClick,
+            uiState,
+            viewModel,
+        )
+    } else {
+        ActionTakingScreen(
+            actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
+                boldPartOfMessage = uiState.veraId,
+                onGotItClicked = {
+                    viewModel.onGotItClick()
+                },
+            ),
+        )
+    }
+}
+
+@Composable
+private fun ManageContactView(
+    onBackClick: () -> Unit,
+    uiState: PairWithOthersUiState,
+    viewModel: ManageContactViewModel,
+) {
     val errorCaption = uiState.pairingErrorCaption
 
     Column(
@@ -119,8 +152,8 @@ fun ManageContactScreen(
         )
         LetroButtonMaxWidthFilled(
             text = stringResource(id = uiState.manageContactTexts.button),
-            onClick = { viewModel.onActionButtonClick() },
-            isEnabled = errorCaption == null,
+            onClick = { viewModel.onUpdateContactButtonClick() },
+            isEnabled = uiState.isActionButtonEnabled,
         )
     }
 }
@@ -131,7 +164,7 @@ private fun UseExistingAccountPreview() {
     LetroTheme {
         ManageContactScreen(
             onBackClick = {},
-            onActionCompleted = {},
+            onEditContactCompleted = {},
             viewModel = hiltViewModel(),
         )
     }

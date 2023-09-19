@@ -12,6 +12,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactsScreen
+import tech.relaycorp.letro.messages.list.ConversationsListScreen
+import tech.relaycorp.letro.messages.list.ConversationsViewModel
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 
 @Composable
@@ -20,6 +22,7 @@ fun HomeScreen(
     snackbarStringsProvider: SnackbarStringsProvider,
     onEditContactClick: (Contact) -> Unit,
     snackbarHostState: SnackbarHostState,
+    conversationsViewModel: ConversationsViewModel = hiltViewModel(),
     contactsViewModel: ContactsViewModel = hiltViewModel(),
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
@@ -34,6 +37,9 @@ fun HomeScreen(
             ) {
                 when (uiState.currentTab) {
                     TAB_CHATS -> Column {
+                        ConversationsListScreen(
+                            viewModel = conversationsViewModel,
+                        )
                     }
                     TAB_CONTACTS -> ContactsScreen(
                         viewModel = contactsViewModel,

@@ -72,9 +72,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.joinMeOnLetroSignal.collect { id ->
+            viewModel.joinMeOnLetroSignal.collect { link ->
                 try {
-                    val text = getString(R.string.join_me_on_letro, id)
+                    val text = getString(R.string.join_me_on_letro, link)
                     startActivity(
                         Intent(
                             Intent.ACTION_SEND,

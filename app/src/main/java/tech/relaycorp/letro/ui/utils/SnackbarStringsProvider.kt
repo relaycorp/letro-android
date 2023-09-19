@@ -8,6 +8,7 @@ import javax.inject.Inject
 interface SnackbarStringsProvider {
     val contactDeleted: String
     val contactEdited: String
+    val messageSent: String
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -18,4 +19,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val contactDeleted: String
         get() = activity.getString(R.string.snackbar_contact_deleted)
+
+    override val messageSent: String
+        get() = activity.getString(R.string.snackbar_message_sent)
 }
