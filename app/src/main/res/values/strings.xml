@@ -78,6 +78,8 @@
     <string name="new_message_body_hint">Type your message…</string>
     <string name="you_not_connected_to_this_contact_error">You’re not connected to this contact.</string>
     <string name="content_description_recipient_clear">Clear recipient</string>
+    <string name="reply">Reply</string>
+    <string name="content_description_delete_conversation">Delete conversation</string>
 
     <string name="conversations_empty_stub">Nothing new for you.</string>
 

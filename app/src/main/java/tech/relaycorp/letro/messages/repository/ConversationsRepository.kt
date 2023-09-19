@@ -24,6 +24,7 @@ import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 interface ConversationsRepository {
@@ -34,6 +35,7 @@ interface ConversationsRepository {
         messageText: String,
         subject: String? = null,
     )
+    fun getConversation(id: String): ExtendedConversation?
 }
 
 class ConversationsRepositoryImpl @Inject constructor(
@@ -73,6 +75,11 @@ class ConversationsRepositoryImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun getConversation(id: String): ExtendedConversation? {
+        val uuid = UUID.fromString(id)
+        return _conversations.value.find { it.conversationId == uuid }
     }
 
     override fun createNewConversation(
@@ -133,6 +140,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                         conversations = conversations.filter { it.ownerVeraId == account.veraId },
                         messages = messages.filter { it.ownerVeraId == account.veraId },
                         contacts = contacts.filter { it.ownerVeraId == account.veraId },
+                        ownerVeraId = account.veraId,
                     ),
                 )
             }.collect()

@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.messages.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import tech.relaycorp.letro.ui.theme.SmallProminent
 
 @Composable
 fun ConversationsListScreen(
+    onConversationClick: (ExtendedConversation) -> Unit,
     viewModel: ConversationsViewModel,
 ) {
     val conversations by viewModel.conversations.collectAsState(emptyList())
@@ -41,8 +43,13 @@ fun ConversationsListScreen(
             }
         } else {
             LazyColumn {
-                items(conversations) {
-                    Conversation(conversation = it)
+                items(conversations) { conversation ->
+                    Conversation(
+                        conversation = conversation,
+                        onConversationClick = {
+                            onConversationClick(conversation)
+                        },
+                    )
                 }
             }
         }
@@ -52,10 +59,12 @@ fun ConversationsListScreen(
 @Composable
 private fun Conversation(
     conversation: ExtendedConversation,
+    onConversationClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onConversationClick() }
             .padding(
                 horizontal = 16.dp,
                 vertical = 10.dp,
@@ -66,15 +75,17 @@ private fun Conversation(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = conversation.recipientAlias ?: conversation.recipientVeraId,
+                    text = conversation.contactDisplayName,
                     style = MaterialTheme.typography.LargeProminent,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
                     style = MaterialTheme.typography.SmallProminent,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                 )
             }
             Row {
@@ -83,6 +94,7 @@ private fun Conversation(
                         text = conversation.subject,
                         style = MaterialTheme.typography.MediumProminent,
                         color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
                     )
                     Text(
                         text = " - ",
@@ -94,6 +106,7 @@ private fun Conversation(
                     text = conversation.messages.last().text,
                     style = MaterialTheme.typography.MediumProminent,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }

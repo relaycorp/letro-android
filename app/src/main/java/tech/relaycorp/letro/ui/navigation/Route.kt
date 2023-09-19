@@ -70,10 +70,22 @@ sealed class Route(
     )
 
     object CreateNewMessage : Route(
-        name = "create_new_message",
+        name = "create_new_message_route",
         showTopBar = false,
         isStatusBarPrimaryColor = false,
     )
+
+    object Conversation : Route(
+        name = "conversation_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = false,
+    ) {
+
+        const val KEY_CONVERSATION_ID = "conversation_id"
+
+        fun getRouteName(conversationId: String) =
+            "${Conversation.name}/$conversationId"
+    }
 }
 
 fun String?.toRoute(): Route {
@@ -88,6 +100,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact
             it.startsWith(Route.Home.name) -> Route.Home
             it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
+            it.startsWith(Route.Conversation.name) -> Route.Conversation
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }

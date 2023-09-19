@@ -42,6 +42,7 @@ import tech.relaycorp.letro.home.HomeScreen
 import tech.relaycorp.letro.home.HomeViewModel
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.messages.compose.CreateNewMessageScreen
+import tech.relaycorp.letro.messages.viewing.ConversationScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
@@ -223,6 +224,13 @@ fun LetroNavHost(
                                     homeViewModel = homeViewModel,
                                     snackbarHostState = snackbarHostState,
                                     snackbarStringsProvider = snackbarStringsProvider,
+                                    onConversationClick = {
+                                        navController.navigate(
+                                            Route.Conversation.getRouteName(
+                                                conversationId = it.conversationId.toString(),
+                                            ),
+                                        )
+                                    },
                                     onEditContactClick = { contact ->
                                         navController.navigate(
                                             Route.ManageContact.getRouteName(
@@ -242,6 +250,21 @@ fun LetroNavHost(
                                         scope.launch {
                                             snackbarHostState.showSnackbar(snackbarStringsProvider.messageSent)
                                         }
+                                    },
+                                )
+                            }
+                            composable(
+                                route = "${Route.Conversation.name}/{${Route.Conversation.KEY_CONVERSATION_ID}}",
+                                arguments = listOf(
+                                    navArgument(Route.Conversation.KEY_CONVERSATION_ID) {
+                                        type = NavType.StringType
+                                        nullable = false
+                                    },
+                                ),
+                            ) {
+                                ConversationScreen(
+                                    onBackClicked = {
+                                        navController.popBackStack()
                                     },
                                 )
                             }
