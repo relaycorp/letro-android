@@ -9,8 +9,16 @@ import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverter
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverterImpl
+import tech.relaycorp.letro.messages.parser.NewConversationMessageParser
+import tech.relaycorp.letro.messages.parser.NewConversationMessageParserImpl
+import tech.relaycorp.letro.messages.parser.NewMessageMessageParser
+import tech.relaycorp.letro.messages.parser.NewMessageMessageParserImpl
 import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoder
 import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoderImpl
+import tech.relaycorp.letro.messages.processor.NewConversationProcessor
+import tech.relaycorp.letro.messages.processor.NewConversationProcessorImpl
+import tech.relaycorp.letro.messages.processor.NewMessageProcessor
+import tech.relaycorp.letro.messages.processor.NewMessageProcessorImpl
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
 import tech.relaycorp.letro.messages.repository.ConversationsRepositoryImpl
 import tech.relaycorp.letro.messages.storage.ConversationsDao
@@ -56,5 +64,25 @@ object ConversationsModule {
         fun bindOutgoingConversationMessageEncoder(
             impl: OutgoingConversationMessageEncoderImpl,
         ): OutgoingConversationMessageEncoder
+
+        @Binds
+        fun bindNewConversationProcessor(
+            impl: NewConversationProcessorImpl,
+        ): NewConversationProcessor
+
+        @Binds
+        fun bindNewConversationParser(
+            imp: NewConversationMessageParserImpl,
+        ): NewConversationMessageParser
+
+        @Binds
+        fun bindNewMessageProcessor(
+            impl: NewMessageProcessorImpl,
+        ): NewMessageProcessor
+
+        @Binds
+        fun bindNewMessageParser(
+            impl: NewMessageMessageParserImpl,
+        ): NewMessageMessageParser
     }
 }
