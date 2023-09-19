@@ -9,7 +9,8 @@ import org.bouncycastle.asn1.DERSequence
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import tech.relaycorp.letro.testing.crypto.generateRSAKeyPair
+import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_KEY_PAIR
+import tech.relaycorp.letro.testing.veraid.VERAID_USER_NAME
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
 import tech.relaycorp.letro.utils.crypto.RSASigning
 import tech.relaycorp.letro.utils.crypto.spkiEncode
@@ -17,10 +18,10 @@ import tech.relaycorp.letro.utils.i18n.normaliseString
 import java.util.Locale
 
 class AccountRequestTest {
-    val userName = "alice"
+    val userName = VERAID_USER_NAME
     val locale = Locale("EN", "GB")
 
-    val keyPair = generateRSAKeyPair()
+    val keyPair = VERAID_MEMBER_KEY_PAIR
 
     @Nested
     inner class Serialize {
@@ -77,7 +78,8 @@ class AccountRequestTest {
                 val serialisation = request.serialise(keyPair.private)
 
                 val requestSequence = parseRequestSequence(serialisation)
-                val localeEncoded = ASN1Utils.getVisibleString(requestSequence.getObjectAt(1) as ASN1TaggedObject)
+                val localeEncoded =
+                    ASN1Utils.getVisibleString(requestSequence.getObjectAt(1) as ASN1TaggedObject)
                 localeEncoded.string shouldBe locale.normaliseString()
             }
 

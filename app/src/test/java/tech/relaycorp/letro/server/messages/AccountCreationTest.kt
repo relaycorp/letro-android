@@ -4,33 +4,190 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import kotlinx.coroutines.test.runTest
 import org.bouncycastle.asn1.DERNull
 import org.bouncycastle.asn1.DEROctetString
 import org.bouncycastle.asn1.DERSequence
 import org.bouncycastle.asn1.DERTaggedObject
 import org.bouncycastle.asn1.DERUTF8String
 import org.bouncycastle.asn1.DERVisibleString
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import tech.relaycorp.letro.testing.crypto.generateRSAKeyPair
+import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_ID
+import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_KEY_PAIR
+import tech.relaycorp.letro.testing.veraid.VERAID_ORG_NAME
+import tech.relaycorp.letro.testing.veraid.VERAID_USER_NAME
+import tech.relaycorp.letro.utils.LetroOids
 import tech.relaycorp.letro.utils.asn1.ASN1Exception
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
 import tech.relaycorp.letro.utils.i18n.normaliseString
+import tech.relaycorp.veraid.Member
+import tech.relaycorp.veraid.pki.MemberIdBundle
+import tech.relaycorp.veraid.pki.PkiException
+import java.security.PublicKey
+import java.time.ZonedDateTime
 import java.util.Locale
 
+@MockKExtension.ConfirmVerification
+@MockKExtension.CheckUnnecessaryStub
 class AccountCreationTest {
-    val requestedUserName = "alice"
+    val requestedUserName = VERAID_USER_NAME
     val locale = Locale("EN", "GB")
-    val assignedUserId = "alice@example.com"
-    val veraidBundle = byteArrayOf(0x00)
+    val assignedUserId = VERAID_MEMBER_ID
+    val veraidBundle = "the bundle".toByteArray()
 
-    val nonAsciiUsername = "久美子"
-    val nonAsciiDomainName = "はじめよう.みんな"
+    @Nested
+    inner class Validate {
+        private val accountCreation = AccountCreation(
+            requestedUserName,
+            locale,
+            assignedUserId,
+            veraidBundle,
+        )
+        private val veraidMember = Member(VERAID_ORG_NAME, VERAID_USER_NAME)
+        private val memberPublicKey = VERAID_MEMBER_KEY_PAIR.public
+
+        @AfterEach
+        fun clearMocks() {
+            unmockkObject(MemberIdBundle)
+        }
+
+        @Test
+        fun `Malformed bundles should be refused`() = runTest {
+            mockkObject(MemberIdBundle)
+            val pkiException = PkiException("Whoops")
+            every { MemberIdBundle.deserialise(any()) } throws pkiException
+
+            val exception = shouldThrow<InvalidAccountCreationException> {
+                accountCreation.validate(memberPublicKey)
+            }
+
+            exception.message shouldBe "Member id bundle is malformed"
+            exception.cause shouldBe pkiException
+        }
+
+        @Test
+        fun `Should verify bundle against Letro service OID`() = runTest {
+            val mockBundle = mockMemberIdBundle(veraidMember, memberPublicKey)
+
+            accountCreation.validate(memberPublicKey)
+
+            coVerify { mockBundle.verify(LetroOids.LETRO_VERAID_OID, any()) }
+        }
+
+        @Test
+        fun `Should be valid at the current time`() = runTest {
+            val mockBundle = mockMemberIdBundle(veraidMember, memberPublicKey)
+            val timeBefore = ZonedDateTime.now()
+
+            accountCreation.validate(memberPublicKey)
+
+            val timeAfterwards = ZonedDateTime.now()
+            coVerify {
+                mockBundle.verify(
+                    any(),
+                    match {
+                        timeBefore <= it.start &&
+                            it.endInclusive <= timeAfterwards &&
+                            it.start == it.endInclusive
+                    },
+                )
+            }
+        }
+
+        @Test
+        fun `Member public key should match expected one`() = runTest {
+            val differentKeyPair = generateRSAKeyPair()
+            mockMemberIdBundle(veraidMember, differentKeyPair.public)
+
+            val exception = shouldThrow<InvalidAccountCreationException> {
+                accountCreation.validate(memberPublicKey)
+            }
+
+            exception.message shouldBe "Member id bundle does not have expected member key"
+        }
+
+        @Test
+        fun `Bundle member user name should match that of assigned id`() = runTest {
+            val differentMember = veraidMember.copy(userName = "not-${veraidMember.userName}")
+            mockMemberIdBundle(differentMember, memberPublicKey)
+
+            val exception = shouldThrow<InvalidAccountCreationException> {
+                accountCreation.validate(memberPublicKey)
+            }
+
+            exception.message shouldBe "Member id bundle does not have expected user name"
+        }
+
+        @Test
+        fun `Bundle member user name should be absent if assigned id is for bot`() = runTest {
+            val differentMember = veraidMember.copy(userName = null)
+            mockMemberIdBundle(differentMember, memberPublicKey)
+            val botAccountCreation = AccountCreation(
+                requestedUserName,
+                locale,
+                VERAID_ORG_NAME, // Just the domain name
+                veraidBundle,
+            )
+
+            botAccountCreation.validate(memberPublicKey)
+        }
+
+        @Test
+        fun `Bundle member org should match that of assigned id`() = runTest {
+            val differentMember = veraidMember.copy(orgName = "not-${veraidMember.orgName}")
+            mockMemberIdBundle(differentMember, memberPublicKey)
+
+            val exception = shouldThrow<InvalidAccountCreationException> {
+                accountCreation.validate(memberPublicKey)
+            }
+
+            exception.message shouldBe "Member id bundle does not have expected org name"
+        }
+
+        @Test
+        fun `Validation error should be wrapped`() = runTest {
+            val mockBundle = mockMemberIdBundle(veraidMember, memberPublicKey)
+            val exception = PkiException("Something went wrong")
+            coEvery { mockBundle.verify(any(), any()) } throws exception
+
+            val wrappedException = shouldThrow<InvalidAccountCreationException> {
+                accountCreation.validate(memberPublicKey)
+            }
+
+            wrappedException.message shouldBe "Member id bundle is invalid"
+            wrappedException.cause shouldBe exception
+        }
+
+        private fun mockMemberIdBundle(member: Member, publicKey: PublicKey): MemberIdBundle {
+            val mockBundle = mockk<MemberIdBundle>()
+            coEvery { mockBundle.verify(any(), any()) } returns member
+            every { mockBundle.memberPublicKey } returns publicKey
+
+            mockkObject(MemberIdBundle)
+            every { MemberIdBundle.deserialise(any()) } returns mockBundle
+
+            return mockBundle
+        }
+    }
 
     @Nested
     inner class Deserialise {
+        val nonAsciiUsername = "久美子"
+        val nonAsciiDomainName = "はじめよう.みんな"
+
         @Test
         fun `Serialisation should be a DER-encoded sequence`() {
-            val exception = shouldThrow<MalformedAccountCreationException> {
+            val exception = shouldThrow<InvalidAccountCreationException> {
                 AccountCreation.deserialise(byteArrayOf(0x00))
             }
 
@@ -45,7 +202,7 @@ class AccountCreationTest {
                 false,
             )
 
-            val exception = shouldThrow<MalformedAccountCreationException> {
+            val exception = shouldThrow<InvalidAccountCreationException> {
                 AccountCreation.deserialise(malformedSerialisation)
             }
 
@@ -65,7 +222,7 @@ class AccountCreationTest {
                     ),
                 ).encoded
 
-                val exception = shouldThrow<MalformedAccountCreationException> {
+                val exception = shouldThrow<InvalidAccountCreationException> {
                     AccountCreation.deserialise(malformedSerialisation)
                 }
 
@@ -101,7 +258,7 @@ class AccountCreationTest {
                     ),
                 ).encoded
 
-                val exception = shouldThrow<MalformedAccountCreationException> {
+                val exception = shouldThrow<InvalidAccountCreationException> {
                     AccountCreation.deserialise(malformedSerialisation)
                 }
 
@@ -137,7 +294,7 @@ class AccountCreationTest {
                     ),
                 ).encoded
 
-                val exception = shouldThrow<MalformedAccountCreationException> {
+                val exception = shouldThrow<InvalidAccountCreationException> {
                     AccountCreation.deserialise(malformedSerialisation)
                 }
 
@@ -174,7 +331,7 @@ class AccountCreationTest {
                     ),
                 ).encoded
 
-                val exception = shouldThrow<MalformedAccountCreationException> {
+                val exception = shouldThrow<InvalidAccountCreationException> {
                     AccountCreation.deserialise(malformedSerialisation)
                 }
 
