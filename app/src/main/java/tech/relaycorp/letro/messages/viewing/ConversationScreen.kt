@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,10 +43,15 @@ fun ConversationScreen(
     onBackClicked: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
 ) {
+    val scrollState = rememberLazyListState()
+
     val conversationState by viewModel.conversation.collectAsState()
     val conversation = conversationState
 
     if (conversation != null) {
+        LaunchedEffect(Unit) { // Scroll to the top of a conversation on screen opening
+            scrollState.scrollToItem(conversation.messages.size - 1)
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -104,7 +112,9 @@ fun ConversationScreen(
                         ),
                 )
             }
-            LazyColumn {
+            LazyColumn(
+                state = scrollState,
+            ) {
                 items(conversation.messages.size) { position ->
                     val message = conversation.messages[position]
                     val isLastMessage = position == conversation.messages.size - 1
