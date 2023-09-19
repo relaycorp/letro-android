@@ -13,6 +13,8 @@ import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessorImpl
 import tech.relaycorp.letro.awala.processor.UnknownMessageProcessor
+import tech.relaycorp.letro.messages.processor.NewConversationProcessor
+import tech.relaycorp.letro.messages.processor.NewMessageProcessor
 import tech.relaycorp.letro.onboarding.registration.processor.RegistrationMessageProcessor
 import tech.relaycorp.letro.pairing.processor.ContactPairingAuthorizationProcessor
 import tech.relaycorp.letro.pairing.processor.ContactPairingMatchProcessor
@@ -27,12 +29,16 @@ object AwalaModule {
         registrationMessageProcessor: RegistrationMessageProcessor,
         contactPairingMatchProcessor: ContactPairingMatchProcessor,
         contactPairingAuthorizationProcessor: ContactPairingAuthorizationProcessor,
+        newConversationProcessor: NewConversationProcessor,
+        newMessageProcessor: NewMessageProcessor,
         unknownMessageProcessor: UnknownMessageProcessor,
     ): AwalaMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreationCompleted to registrationMessageProcessor,
             MessageType.ContactPairingMatch to contactPairingMatchProcessor,
             MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
+            MessageType.NewConversation to newConversationProcessor,
+            MessageType.NewMessage to newMessageProcessor,
             MessageType.Unknown to unknownMessageProcessor,
         )
         return AwalaMessageProcessorImpl(processors)
