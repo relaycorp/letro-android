@@ -11,5 +11,6 @@ data class ExtendedConversation(
     val lastMessageTimestamp: Long,
     val lastMessageFormattedTimestamp: String,
     val lastMessage: ExtendedMessage,
+    val isRead: Boolean,
     val messages: List<ExtendedMessage>,
 )

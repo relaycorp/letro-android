@@ -20,4 +20,8 @@ class ConversationViewModel @Inject constructor(
     private val _conversation = MutableStateFlow(conversationsRepository.getConversation(conversationId))
     val conversation: StateFlow<ExtendedConversation?>
         get() = _conversation
+
+    init {
+        conversationsRepository.markConversationAsRead(conversationId)
+    }
 }

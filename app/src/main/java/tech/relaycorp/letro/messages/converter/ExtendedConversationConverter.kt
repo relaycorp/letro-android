@@ -74,6 +74,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     lastMessageFormattedTimestamp = messageTimestampConverter.convert(lastMessage.sentAt),
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
+                    isRead = conversation.isRead,
                 )
             }
             .forEach { extendedConversations.add(it) }

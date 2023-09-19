@@ -14,7 +14,9 @@ const val TABLE_NAME_CONVERSATIONS = "conversations"
  * @param conversationId - Unique ID of a conversation
  * @param ownerVeraId - ID of the account, which this conversation belongs (for display this conversation only for a particular account)
  * @param contactVeraId - ID of the contact
+ * @param isRead - whether this conversation was read or not
  * @param subject - the subject of the conversation
+ * @param isArchived - whether this conversation was archived or not
  */
 data class Conversation(
     @PrimaryKey(autoGenerate = true)
@@ -22,5 +24,7 @@ data class Conversation(
     val conversationId: UUID = UUID.randomUUID(),
     val ownerVeraId: String,
     val contactVeraId: String,
+    val isRead: Boolean,
     val subject: String? = null,
+    val isArchived: Boolean = false,
 )

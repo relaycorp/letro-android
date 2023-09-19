@@ -76,14 +76,14 @@ private fun Conversation(
             ) {
                 Text(
                     text = conversation.contactDisplayName,
-                    style = MaterialTheme.typography.LargeProminent,
+                    style = if (!conversation.isRead) MaterialTheme.typography.LargeProminent else MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
-                    style = MaterialTheme.typography.SmallProminent,
+                    style = if (!conversation.isRead) MaterialTheme.typography.SmallProminent else MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
@@ -92,20 +92,20 @@ private fun Conversation(
                 if (conversation.subject != null) {
                     Text(
                         text = conversation.subject,
-                        style = MaterialTheme.typography.MediumProminent,
+                        style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                     )
                     Text(
                         text = " - ",
-                        style = MaterialTheme.typography.MediumProminent,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                        color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Text(
                     text = conversation.messages.last().text,
-                    style = MaterialTheme.typography.MediumProminent,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                 )
             }

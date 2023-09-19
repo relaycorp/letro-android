@@ -27,6 +27,7 @@ class NewConversationMessageParserImpl @Inject constructor() : NewConversationMe
         contactVeraId = "ff@applepie.rocks",
         subject = "Test subject",
         conversationId = MOCK_CONVERSATION_ID,
+        isRead = false,
     )
 }
 

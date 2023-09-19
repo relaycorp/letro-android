@@ -36,6 +36,7 @@ interface ConversationsRepository {
         subject: String? = null,
     )
     fun getConversation(id: String): ExtendedConversation?
+    fun markConversationAsRead(conversationId: String)
 }
 
 class ConversationsRepositoryImpl @Inject constructor(
@@ -50,9 +51,10 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private val _conversations = MutableStateFlow<List<ExtendedConversation>>(emptyList())
+    private val _conversations = MutableStateFlow<List<Conversation>>(emptyList())
+    private val _extendedConversations = MutableStateFlow<List<ExtendedConversation>>(emptyList())
     override val conversations: Flow<List<ExtendedConversation>>
-        get() = _conversations
+        get() = _extendedConversations
 
     private val contacts: MutableStateFlow<List<Contact>> = MutableStateFlow(emptyList())
 
@@ -70,7 +72,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     conversationsCollectionJob = null
                     contactsCollectionJob?.cancel()
                     contactsCollectionJob = null
-                    _conversations.emit(emptyList())
+                    _extendedConversations.emit(emptyList())
                     contacts.emit(emptyList())
                 }
             }
@@ -79,7 +81,7 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     override fun getConversation(id: String): ExtendedConversation? {
         val uuid = UUID.fromString(id)
-        return _conversations.value.find { it.conversationId == uuid }
+        return _extendedConversations.value.find { it.conversationId == uuid }
     }
 
     override fun createNewConversation(
@@ -94,6 +96,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                 ownerVeraId = ownerVeraId,
                 contactVeraId = recipient.contactVeraId,
                 subject = if (subject.isNullOrEmpty()) null else subject,
+                isRead = true,
             )
             val message = Message(
                 text = messageText,
@@ -118,6 +121,19 @@ class ConversationsRepositoryImpl @Inject constructor(
         }
     }
 
+    @Suppress("NAME_SHADOWING")
+    override fun markConversationAsRead(conversationId: String) {
+        scope.launch {
+            val conversationId = UUID.fromString(conversationId)
+            val conversation = _conversations.value.find { it.conversationId == conversationId } ?: return@launch
+            conversationsDao.update(
+                conversation.copy(
+                    isRead = true,
+                ),
+            )
+        }
+    }
+
     private fun startCollectContacts(account: Account) {
         contactsCollectionJob = scope.launch {
             contactsRepository.getContacts(account.veraId).collect {
@@ -135,7 +151,8 @@ class ConversationsRepositoryImpl @Inject constructor(
                 messagesDao.getAll(),
                 contacts,
             ) { conversations, messages, contacts ->
-                _conversations.emit(
+                _conversations.emit(conversations)
+                _extendedConversations.emit(
                     conversationsConverter.convert(
                         conversations = conversations.filter { it.ownerVeraId == account.veraId },
                         messages = messages.filter { it.ownerVeraId == account.veraId },
