@@ -7,12 +7,9 @@ interface OutgoingConversationMessageEncoder {
     fun encode(conversation: Conversation): ByteArray
 }
 
-class OutgoingConversationMessageEncoderImpl @Inject constructor(
-
-): OutgoingConversationMessageEncoder {
+class OutgoingConversationMessageEncoderImpl @Inject constructor() : OutgoingConversationMessageEncoder {
 
     override fun encode(conversation: Conversation): ByteArray {
         return ByteArray(0) // TODO: encode conversation to ByteArray
     }
-
 }

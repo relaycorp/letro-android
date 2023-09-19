@@ -197,7 +197,7 @@ class ManageContactViewModel @Inject constructor(
     }
 
     private companion object {
-        private const val CHECK_ID_DEBOUNCE_DELAY_MS = 1_000L
+        private const val CHECK_ID_DEBOUNCE_DELAY_MS = 1_500L
         private val CORRECT_ID_REGEX = """^([^@]+@)?\p{L}{1,63}(\.\p{L}{1,63})+$""".toRegex()
     }
 

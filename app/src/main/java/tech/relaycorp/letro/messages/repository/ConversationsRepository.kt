@@ -106,7 +106,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                 ),
                 recipient = MessageRecipient.User(
                     nodeId = recipientNodeId,
-                )
+                ),
             )
         }
     }

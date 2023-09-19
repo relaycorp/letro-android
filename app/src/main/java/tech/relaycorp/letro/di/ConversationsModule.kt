@@ -54,7 +54,7 @@ object ConversationsModule {
 
         @Binds
         fun bindOutgoingConversationMessageEncoder(
-            impl: OutgoingConversationMessageEncoderImpl
+            impl: OutgoingConversationMessageEncoderImpl,
         ): OutgoingConversationMessageEncoder
     }
 }

@@ -99,7 +99,7 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpoint = loadFirstPartyEndpoint()
             val thirdPartyEndpoint = loadThirdPartyEndpoint(
                 sender = firstPartyEndpoint,
-                recipient = recipient
+                recipient = recipient,
             )
             Log.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
             GatewayClient.sendMessage(
