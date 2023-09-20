@@ -74,10 +74,10 @@ class HomeViewModel @Inject constructor(
 
     private fun updateTabBadges(conversations: List<ExtendedConversation>) {
         val unreadConversationsCount = conversations.count { !it.isRead }
-        val badge = if (unreadConversationsCount > 0) {
-            unreadConversationsCount.toString()
-        } else {
-            null
+        val badge = when {
+            unreadConversationsCount > 9 -> "9+"
+            unreadConversationsCount > 0 -> unreadConversationsCount.toString()
+            else -> null
         }
         _uiState.update {
             it.copy(
