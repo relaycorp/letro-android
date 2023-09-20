@@ -13,8 +13,8 @@ import tech.relaycorp.letro.messages.parser.NewConversationMessageParser
 import tech.relaycorp.letro.messages.parser.NewConversationMessageParserImpl
 import tech.relaycorp.letro.messages.parser.NewMessageMessageParser
 import tech.relaycorp.letro.messages.parser.NewMessageMessageParserImpl
-import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoder
-import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoderImpl
+import tech.relaycorp.letro.messages.parser.OutgoingMessageMessageEncoder
+import tech.relaycorp.letro.messages.parser.OutgoingMessageMessageEncoderImpl
 import tech.relaycorp.letro.messages.processor.NewConversationProcessor
 import tech.relaycorp.letro.messages.processor.NewConversationProcessorImpl
 import tech.relaycorp.letro.messages.processor.NewMessageProcessor
@@ -62,8 +62,8 @@ object ConversationsModule {
 
         @Binds
         fun bindOutgoingConversationMessageEncoder(
-            impl: OutgoingConversationMessageEncoderImpl,
-        ): OutgoingConversationMessageEncoder
+            impl: OutgoingMessageMessageEncoderImpl,
+        ): OutgoingMessageMessageEncoder
 
         @Binds
         fun bindNewConversationProcessor(

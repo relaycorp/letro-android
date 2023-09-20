@@ -44,6 +44,7 @@ import tech.relaycorp.letro.utils.ext.applyIf
 @Composable
 fun ConversationScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
+    onReplyClick: () -> Unit,
     onConversationDeleted: () -> Unit,
     onBackClicked: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
@@ -74,6 +75,7 @@ fun ConversationScreen(
             }
             Column {
                 ConversationToolbar(
+                    onReplyClick = onReplyClick,
                     onBackClicked = onBackClicked,
                     onDeleteClick = { viewModel.onDeleteConversationClick() },
                 )
@@ -173,6 +175,7 @@ private fun Message(
 
 @Composable
 private fun ConversationToolbar(
+    onReplyClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
@@ -207,7 +210,7 @@ private fun ConversationToolbar(
         }
         LetroButton(
             text = stringResource(id = R.string.reply),
-            onClick = { /* TODO */ },
+            onClick = onReplyClick,
             leadingIconResId = R.drawable.ic_reply,
             contentPadding = PaddingValues(
                 top = 8.dp,

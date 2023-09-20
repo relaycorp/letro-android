@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import tech.relaycorp.letro.contacts.ManageContactViewModel
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
 
 /**
  * Class which contains all possible routes
@@ -73,7 +74,18 @@ sealed class Route(
         name = "create_new_message_route",
         showTopBar = false,
         isStatusBarPrimaryColor = false,
-    )
+    ) {
+        const val KEY_SCREEN_TYPE = "screen_type"
+        const val KEY_CONVERSATION_ID = "conversation_id"
+
+        fun getRouteName(
+            @CreateNewMessageViewModel.ScreenType screenType: Int,
+            conversationId: String? = null,
+        ) =
+            "${CreateNewMessage.name}?" +
+                "$KEY_SCREEN_TYPE=$screenType" +
+                if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
+    }
 
     object Conversation : Route(
         name = "conversation_route",

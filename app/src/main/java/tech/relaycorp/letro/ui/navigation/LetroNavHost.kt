@@ -41,6 +41,7 @@ import tech.relaycorp.letro.home.HomeScreen
 import tech.relaycorp.letro.home.HomeViewModel
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.messages.compose.CreateNewMessageScreen
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
 import tech.relaycorp.letro.messages.viewing.ConversationScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
@@ -94,8 +95,8 @@ fun LetroNavHost(
     }
 
     LaunchedEffect(Unit) {
-        homeViewModel.createNewMessageSignal.collect {
-            navController.navigate(Route.CreateNewMessage.name)
+        homeViewModel.createNewConversationSignal.collect {
+            navController.navigate(Route.CreateNewMessage.getRouteName(CreateNewMessageViewModel.ScreenType.NEW_CONVERSATION))
         }
     }
 
@@ -238,11 +239,38 @@ fun LetroNavHost(
                                     },
                                 )
                             }
-                            composable(Route.CreateNewMessage.name) {
+                            composable(
+                                route = "${Route.CreateNewMessage.name}" +
+                                    "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
+                                    "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
+                                arguments = listOf(
+                                    navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {
+                                        type = NavType.IntType
+                                        nullable = false
+                                    },
+                                    navArgument(Route.CreateNewMessage.KEY_CONVERSATION_ID) {
+                                        type = NavType.StringType
+                                        nullable = true
+                                        defaultValue = null
+                                    },
+                                ),
+                            ) {
+                                val screenType = it.arguments?.getInt(Route.CreateNewMessage.KEY_SCREEN_TYPE)
                                 CreateNewMessageScreen(
+                                    conversationsStringsProvider = stringsProvider.conversations,
                                     onBackClicked = { navController.popBackStack() },
                                     onMessageSent = {
-                                        navController.popBackStack()
+                                        when (screenType) {
+                                            CreateNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION -> {
+                                                navController.popBackStack(
+                                                    route = Route.Home.name,
+                                                    inclusive = false,
+                                                )
+                                            }
+                                            CreateNewMessageViewModel.ScreenType.NEW_CONVERSATION -> {
+                                                navController.popBackStack()
+                                            }
+                                        }
                                         snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
                                     },
                                 )
@@ -256,11 +284,20 @@ fun LetroNavHost(
                                     },
                                 ),
                             ) {
+                                val conversationId = it.arguments?.getString(Route.Conversation.KEY_CONVERSATION_ID)
                                 ConversationScreen(
                                     conversationsStringsProvider = stringsProvider.conversations,
                                     onConversationDeleted = {
                                         navController.popBackStack()
                                         snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.conversationDeleted)
+                                    },
+                                    onReplyClick = {
+                                        navController.navigate(
+                                            route = Route.CreateNewMessage.getRouteName(
+                                                screenType = CreateNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION,
+                                                conversationId = conversationId,
+                                            ),
+                                        )
                                     },
                                     onBackClicked = {
                                         navController.popBackStack()

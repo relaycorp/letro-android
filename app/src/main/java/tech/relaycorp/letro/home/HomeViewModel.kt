@@ -22,9 +22,9 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState>
         get() = _uiState
 
-    private val _createNewMessageSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val createNewMessageSignal: SharedFlow<Unit>
-        get() = _createNewMessageSignal
+    private val _createNewConversationSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val createNewConversationSignal: SharedFlow<Unit>
+        get() = _createNewConversationSignal
 
     init {
         viewModelScope.launch {
@@ -59,7 +59,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             when (uiState.value.currentTab) {
                 TAB_CHATS -> {
-                    _createNewMessageSignal.emit(Unit)
+                    _createNewConversationSignal.emit(Unit)
                 }
                 TAB_CONTACTS -> {
                     _uiState.update {

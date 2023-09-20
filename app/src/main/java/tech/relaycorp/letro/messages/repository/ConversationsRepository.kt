@@ -18,7 +18,7 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.model.ExtendedConversation
-import tech.relaycorp.letro.messages.parser.OutgoingConversationMessageEncoder
+import tech.relaycorp.letro.messages.parser.OutgoingMessageMessageEncoder
 import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
@@ -35,6 +35,10 @@ interface ConversationsRepository {
         messageText: String,
         subject: String? = null,
     )
+    fun reply(
+        conversationId: UUID,
+        messageText: String,
+    )
     fun getConversation(id: String): ExtendedConversation?
     fun markConversationAsRead(conversationId: String)
     fun deleteConversation(conversationId: String)
@@ -47,7 +51,7 @@ class ConversationsRepositoryImpl @Inject constructor(
     private val accountRepository: AccountRepository,
     private val conversationsConverter: ExtendedConversationConverter,
     private val awalaManager: AwalaManager,
-    private val outgoingConversationMessageEncoder: OutgoingConversationMessageEncoder,
+    private val outgoingMessageMessageEncoder: OutgoingMessageMessageEncoder,
 ) : ConversationsRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -113,7 +117,35 @@ class ConversationsRepositoryImpl @Inject constructor(
             awalaManager.sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.NewConversation,
-                    content = outgoingConversationMessageEncoder.encode(conversation),
+                    content = outgoingMessageMessageEncoder.encodeNewConversationContent(conversation),
+                ),
+                recipient = MessageRecipient.User(
+                    nodeId = recipientNodeId,
+                ),
+            )
+        }
+    }
+
+    override fun reply(conversationId: UUID, messageText: String) {
+        scope.launch {
+            val conversation = _conversations.value
+                .find { it.conversationId == conversationId } ?: return@launch
+            val recipientNodeId = contacts.value
+                .find { it.contactVeraId == conversation.contactVeraId && it.ownerVeraId == conversation.ownerVeraId }
+                ?.contactEndpointId ?: return@launch
+            val message = Message(
+                conversationId = conversationId,
+                text = messageText,
+                ownerVeraId = conversation.ownerVeraId,
+                senderVeraId = conversation.ownerVeraId,
+                recipientVeraId = conversation.contactVeraId,
+                sentAt = LocalDateTime.now(),
+            )
+            messagesDao.insert(message)
+            awalaManager.sendMessage(
+                outgoingMessage = AwalaOutgoingMessage(
+                    type = MessageType.NewMessage,
+                    content = outgoingMessageMessageEncoder.encodeNewMessageContent(message),
                 ),
                 recipient = MessageRecipient.User(
                     nodeId = recipientNodeId,
