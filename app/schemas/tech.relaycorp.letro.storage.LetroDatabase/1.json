@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "94e396e1f0c1805cb42e862839856f3f",
+    "identityHash": "995ffbad136ec40b0cd0e789b1f925c3",
     "entities": [
       {
         "tableName": "account",
@@ -161,12 +161,22 @@
             "keyId"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_conversations_conversationId",
+            "unique": true,
+            "columnNames": [
+              "conversationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_conversations_conversationId` ON `${TABLE_NAME}` (`conversationId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
         "tableName": "messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAt` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAt` TEXT NOT NULL, FOREIGN KEY(`conversationId`) REFERENCES `conversations`(`conversationId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -218,13 +228,25 @@
           ]
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "conversations",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "conversationId"
+            ],
+            "referencedColumns": [
+              "conversationId"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94e396e1f0c1805cb42e862839856f3f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '995ffbad136ec40b0cd0e789b1f925c3')"
     ]
   }
 }
