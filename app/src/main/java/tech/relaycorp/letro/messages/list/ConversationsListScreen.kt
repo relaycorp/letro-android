@@ -27,9 +27,11 @@ import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.ui.theme.LargeProminent
 import tech.relaycorp.letro.ui.theme.MediumProminent
 import tech.relaycorp.letro.ui.theme.SmallProminent
+import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 
 @Composable
 fun ConversationsListScreen(
+    conversationsStringsProvider: ConversationsStringsProvider,
     onConversationClick: (ExtendedConversation) -> Unit,
     viewModel: ConversationsViewModel,
 ) {
@@ -46,6 +48,7 @@ fun ConversationsListScreen(
                 items(conversations) { conversation ->
                     Conversation(
                         conversation = conversation,
+                        noSubjectText = conversationsStringsProvider.noSubject,
                         onConversationClick = {
                             onConversationClick(conversation)
                         },
@@ -59,6 +62,7 @@ fun ConversationsListScreen(
 @Composable
 private fun Conversation(
     conversation: ExtendedConversation,
+    noSubjectText: String,
     onConversationClick: () -> Unit,
 ) {
     Box(
@@ -89,19 +93,17 @@ private fun Conversation(
                 )
             }
             Row {
-                if (conversation.subject != null) {
-                    Text(
-                        text = conversation.subject,
-                        style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = " - ",
-                        style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
-                        color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    text = conversation.subject ?: noSubjectText,
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Text(
+                    text = " - ",
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Text(
                     text = conversation.messages.last().text,
                     style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,

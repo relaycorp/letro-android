@@ -48,7 +48,7 @@ import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
-import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 import tech.relaycorp.letro.utils.ext.encodeToUTF
 import tech.relaycorp.letro.utils.ext.showSnackbar
@@ -57,7 +57,7 @@ import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 @Composable
 fun LetroNavHost(
     navController: NavHostController,
-    snackbarStringsProvider: SnackbarStringsProvider,
+    stringsProvider: StringsProvider,
     mainViewModel: MainViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -208,7 +208,7 @@ fun LetroNavHost(
                                         when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
                                             ManageContactViewModel.Type.EDIT_CONTACT -> {
                                                 navController.popBackStack()
-                                                snackbarHostState.showSnackbar(scope, snackbarStringsProvider.contactEdited)
+                                                snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.contactEdited)
                                             }
                                             else -> throw IllegalStateException("Unknown screen type: $type")
                                         }
@@ -219,7 +219,7 @@ fun LetroNavHost(
                                 HomeScreen(
                                     homeViewModel = homeViewModel,
                                     snackbarHostState = snackbarHostState,
-                                    snackbarStringsProvider = snackbarStringsProvider,
+                                    stringsProvider = stringsProvider,
                                     onConversationClick = {
                                         navController.navigate(
                                             Route.Conversation.getRouteName(
@@ -243,7 +243,7 @@ fun LetroNavHost(
                                     onBackClicked = { navController.popBackStack() },
                                     onMessageSent = {
                                         navController.popBackStack()
-                                        snackbarHostState.showSnackbar(scope, snackbarStringsProvider.messageSent)
+                                        snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
                                     },
                                 )
                             }
@@ -257,9 +257,10 @@ fun LetroNavHost(
                                 ),
                             ) {
                                 ConversationScreen(
+                                    conversationsStringsProvider = stringsProvider.conversations,
                                     onConversationDeleted = {
                                         navController.popBackStack()
-                                        snackbarHostState.showSnackbar(scope, snackbarStringsProvider.conversationDeleted)
+                                        snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.conversationDeleted)
                                     },
                                     onBackClicked = {
                                         navController.popBackStack()

@@ -38,10 +38,12 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.LargeProminent
+import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
 fun ConversationScreen(
+    conversationsStringsProvider: ConversationsStringsProvider,
     onConversationDeleted: () -> Unit,
     onBackClicked: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
@@ -75,18 +77,16 @@ fun ConversationScreen(
                     onBackClicked = onBackClicked,
                     onDeleteClick = { viewModel.onDeleteConversationClick() },
                 )
-                if (conversation.subject != null) {
-                    Text(
-                        text = conversation.subject,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 10.dp,
-                            ),
-                    )
-                }
+                Text(
+                    text = conversation.subject ?: conversationsStringsProvider.noSubject,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 10.dp,
+                        ),
+                )
                 LazyColumn(
                     state = scrollState,
                 ) {

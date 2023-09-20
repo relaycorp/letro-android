@@ -15,12 +15,12 @@ import tech.relaycorp.letro.contacts.ui.ContactsScreen
 import tech.relaycorp.letro.messages.list.ConversationsListScreen
 import tech.relaycorp.letro.messages.list.ConversationsViewModel
 import tech.relaycorp.letro.messages.model.ExtendedConversation
-import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.ui.utils.StringsProvider
 
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    snackbarStringsProvider: SnackbarStringsProvider,
+    stringsProvider: StringsProvider,
     onConversationClick: (ExtendedConversation) -> Unit,
     onEditContactClick: (Contact) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -40,6 +40,7 @@ fun HomeScreen(
                 when (uiState.currentTab) {
                     TAB_CHATS -> Column {
                         ConversationsListScreen(
+                            conversationsStringsProvider = stringsProvider.conversations,
                             onConversationClick = onConversationClick,
                             viewModel = conversationsViewModel,
                         )
@@ -47,7 +48,7 @@ fun HomeScreen(
                     TAB_CONTACTS -> ContactsScreen(
                         viewModel = contactsViewModel,
                         snackbarHostState = snackbarHostState,
-                        snackbarStringsProvider = snackbarStringsProvider,
+                        snackbarStringsProvider = stringsProvider.snackbar,
                         onEditContactClick = { onEditContactClick(it) },
                     )
                     TAB_NOTIFICATIONS -> Column {
