@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedConversation
+import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.theme.LargeProminent
 import tech.relaycorp.letro.ui.theme.MediumProminent
 import tech.relaycorp.letro.ui.theme.SmallProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
+import java.util.UUID
 
 @Composable
 fun ConversationsListScreen(
@@ -84,6 +89,19 @@ private fun Conversation(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
+                if (conversation.totalMessagesFormattedText != null) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = conversation.totalMessagesFormattedText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(
+                                top = if (conversation.isRead) 3.dp else 1.dp,
+                            ),
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
@@ -129,5 +147,63 @@ private fun EmptyConversationsView() {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Conversation_Preview() {
+    val conversationId = UUID.randomUUID()
+    val message = ExtendedMessage(
+        conversationId = conversationId,
+        senderVeraId = "ft@applepie.rocks",
+        recipientVeraId = "contact@vera.id",
+        isOutgoing = true,
+        contactDisplayName = "Alias",
+        text = "Hello man!",
+        sentAtFormatted = "01:03 PM",
+    )
+    Column {
+        Conversation(
+            conversation = ExtendedConversation(
+                conversationId = conversationId,
+                ownerVeraId = "ft@applepie.rocks",
+                contactVeraId = "contact@vera.id",
+                contactDisplayName = "Alias",
+                subject = "Subject Preview",
+                lastMessageTimestamp = System.currentTimeMillis(),
+                isRead = false,
+                lastMessageFormattedTimestamp = "01:03 PM",
+                lastMessage = message,
+                totalMessagesFormattedText = "(2)",
+                messages = listOf(
+                    message,
+                ),
+            ),
+            noSubjectText = "(No subject)",
+        ) {
+        }
+        Divider(
+            modifier = Modifier.height(1.dp),
+        )
+        Conversation(
+            conversation = ExtendedConversation(
+                conversationId = conversationId,
+                ownerVeraId = "ft@applepie.rocks",
+                contactVeraId = "contact@vera.id",
+                contactDisplayName = "Alias",
+                subject = "Subject Preview",
+                lastMessageTimestamp = System.currentTimeMillis(),
+                isRead = true,
+                lastMessageFormattedTimestamp = "01:03 PM",
+                lastMessage = message,
+                totalMessagesFormattedText = "(2)",
+                messages = listOf(
+                    message,
+                ),
+            ),
+            noSubjectText = "(No subject)",
+        ) {
+        }
     }
 }
