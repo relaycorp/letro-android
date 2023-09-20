@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactsScreen
+import tech.relaycorp.letro.home.tabs.LetroTabs
 import tech.relaycorp.letro.messages.list.ConversationsListScreen
 import tech.relaycorp.letro.messages.list.ConversationsViewModel
 import tech.relaycorp.letro.messages.model.ExtendedConversation
