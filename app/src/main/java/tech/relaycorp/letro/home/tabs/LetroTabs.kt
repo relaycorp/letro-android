@@ -1,7 +1,14 @@
 package tech.relaycorp.letro.home.tabs
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -11,9 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.home.HomeViewModel
@@ -32,6 +41,8 @@ fun LetroTabs(
         stringResource(id = R.string.top_bar_tab_contacts),
         stringResource(id = R.string.top_bar_tab_notifications),
     )
+    val tabCounters = uiState.tabCounters
+
     ScrollableTabRow(
         selectedTabIndex = uiState.currentTab,
         containerColor = LetroColor.SurfaceContainerHigh,
@@ -46,24 +57,78 @@ fun LetroTabs(
         modifier = modifier,
     ) {
         tabTitles.forEachIndexed { index, title ->
-            Tab(
+            BadgedTab(
                 selected = uiState.currentTab == index,
                 onClick = {
                     viewModel.onTabClick(index)
                 },
-                text = {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = LetroColor.OnSurfaceContainerHigh,
-                        maxLines = 1,
-                    )
-                },
-                selectedContentColor = LetroColor.OnSurfaceContainerHigh,
-                unselectedContentColor = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 0.dp)
-                    .alpha(if (uiState.currentTab == index) 1f else 0.6f)
+                text = title,
+                badge = tabCounters[index],
+                modifier = Modifier
+                    .padding(horizontal = 0.dp)
+                    .alpha(if (uiState.currentTab == index) 1f else 0.6f),
             )
         }
     }
+}
+
+@Composable
+private fun BadgedTab(
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: String,
+    badge: String? = null,
+) {
+    Tab(
+        selected = selected,
+        onClick = { onClick() },
+        text = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = LetroColor.OnSurfaceContainerHigh,
+                    maxLines = 1,
+                )
+                if (badge != null) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    TabBadge(text = badge)
+                }
+            }
+        },
+        selectedContentColor = LetroColor.OnSurfaceContainerHigh,
+        unselectedContentColor = MaterialTheme.colorScheme.error,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun TabBadge(
+    text: String,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .background(
+                color = LetroColor.OnSurfaceContainerHigh,
+                shape = CircleShape,
+            )
+            .size(16.dp),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = LetroColor.SurfaceContainerHigh,
+            maxLines = 1,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTabBadge() {
+    TabBadge(text = "1")
 }
