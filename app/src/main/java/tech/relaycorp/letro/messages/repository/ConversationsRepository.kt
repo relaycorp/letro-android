@@ -3,8 +3,8 @@ package tech.relaycorp.letro.messages.repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -28,7 +28,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 interface ConversationsRepository {
-    val conversations: Flow<List<ExtendedConversation>>
+    val conversations: StateFlow<List<ExtendedConversation>>
     fun createNewConversation(
         ownerVeraId: String,
         recipient: Contact,
@@ -54,7 +54,7 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     private val _conversations = MutableStateFlow<List<Conversation>>(emptyList())
     private val _extendedConversations = MutableStateFlow<List<ExtendedConversation>>(emptyList())
-    override val conversations: Flow<List<ExtendedConversation>>
+    override val conversations: StateFlow<List<ExtendedConversation>>
         get() = _extendedConversations
 
     private val contacts: MutableStateFlow<List<Contact>> = MutableStateFlow(emptyList())

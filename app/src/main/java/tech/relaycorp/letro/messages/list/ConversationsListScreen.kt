@@ -35,7 +35,7 @@ fun ConversationsListScreen(
     onConversationClick: (ExtendedConversation) -> Unit,
     viewModel: ConversationsViewModel,
 ) {
-    val conversations by viewModel.conversations.collectAsState(emptyList())
+    val conversations by viewModel.conversations.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (conversations.isEmpty()) {
