@@ -13,7 +13,7 @@ class NewConversationMessageParserImpl @Inject constructor() : NewConversationMe
 
     override fun parse(content: ByteArray): NewConversationIncomingMessage {
         val conversation = mockConversation() // TODO: parse conversation
-        val message = mockMessage(conversation.conversationId)
+        val message = mockMessage(conversation.conversationId) // TODO: create message object
         return NewConversationIncomingMessage(
             content = NewConversationIncomingMessageContent(
                 conversation = conversation,

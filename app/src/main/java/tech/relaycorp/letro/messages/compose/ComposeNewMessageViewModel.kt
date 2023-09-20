@@ -1,5 +1,7 @@
 package tech.relaycorp.letro.messages.compose
 
+import androidx.annotation.IntDef
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +15,11 @@ import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel.ScreenType.Companion.REPLY_TO_EXISTING_CONVERSATION
+import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
+import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -24,9 +30,25 @@ class CreateNewMessageViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
     private val conversationsRepository: ConversationsRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(NewMessageUiState())
+    @ScreenType
+    private val screenType: Int = savedStateHandle[Route.CreateNewMessage.KEY_SCREEN_TYPE]!!
+    private val conversation: ExtendedConversation? =
+        (savedStateHandle.get(Route.CreateNewMessage.KEY_CONVERSATION_ID) as? String)
+            ?.let { conversationsRepository.getConversation(it) }
+
+    private val _uiState = MutableStateFlow(
+        NewMessageUiState(
+            sender = conversation?.ownerVeraId ?: "",
+            recipient = conversation?.contactDisplayName ?: "",
+            subject = conversation?.subject ?: "",
+            showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
+            showRecipientAsChip = conversation != null,
+            isOnlyTextEditale = conversation != null,
+        ),
+    )
     val uiState: StateFlow<NewMessageUiState>
         get() = _uiState
 
@@ -133,12 +155,26 @@ class CreateNewMessageViewModel @Inject constructor(
 
     fun onSendMessageClick() {
         val contact = contacts.find { it.contactVeraId == uiState.value.recipient } ?: return
-        conversationsRepository.createNewConversation(
-            ownerVeraId = uiState.value.sender,
-            recipient = contact,
-            messageText = uiState.value.messageText,
-            subject = uiState.value.subject,
-        )
+        when (screenType) {
+            NEW_CONVERSATION -> {
+                conversationsRepository.createNewConversation(
+                    ownerVeraId = uiState.value.sender,
+                    recipient = contact,
+                    messageText = uiState.value.messageText,
+                    subject = uiState.value.subject,
+                )
+            }
+            REPLY_TO_EXISTING_CONVERSATION -> {
+                val conversation = conversation ?: return
+                conversationsRepository.reply(
+                    conversationId = conversation.conversationId,
+                    messageText = uiState.value.messageText,
+                )
+            }
+            else -> {
+                throw IllegalStateException("Unknown screen type $screenType!")
+            }
+        }
         _messageSentSignal.emitOn(Unit, viewModelScope)
     }
 
@@ -171,6 +207,14 @@ class CreateNewMessageViewModel @Inject constructor(
     ): Boolean {
         return contacts.any { recipient == it.contactVeraId } && messageText.isNotEmptyOrBlank()
     }
+
+    @IntDef(NEW_CONVERSATION, REPLY_TO_EXISTING_CONVERSATION)
+    annotation class ScreenType {
+        companion object {
+            const val NEW_CONVERSATION = 0
+            const val REPLY_TO_EXISTING_CONVERSATION = 1
+        }
+    }
 }
 
 data class NewMessageUiState(
@@ -181,5 +225,7 @@ data class NewMessageUiState(
     val showRecipientIsNotYourContactError: Boolean = false,
     val isSendButtonEnabled: Boolean = false,
     val showRecipientAsChip: Boolean = false,
+    val isOnlyTextEditale: Boolean = false,
+    val showNoSubjectText: Boolean = false,
     val suggestedContacts: List<Contact>? = null,
 )
