@@ -75,6 +75,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
                     isRead = conversation.isRead,
+                    totalMessagesFormattedText = if (extendedMessagesList.count() <= 1) null else "(${extendedMessagesList.count()})",
                 )
             }
             .forEach { extendedConversations.add(it) }
