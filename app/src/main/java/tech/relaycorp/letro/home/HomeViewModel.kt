@@ -9,10 +9,14 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.messages.model.ExtendedConversation
+import tech.relaycorp.letro.messages.repository.ConversationsRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val conversationsRepository: ConversationsRepository,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState>
@@ -21,6 +25,14 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private val _createNewMessageSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val createNewMessageSignal: SharedFlow<Unit>
         get() = _createNewMessageSignal
+
+    init {
+        viewModelScope.launch {
+            conversationsRepository.conversations.collect {
+                updateTabBadges(it)
+            }
+        }
+    }
 
     fun onTabClick(index: Int) {
         viewModelScope.launch {
@@ -60,6 +72,22 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private fun updateTabBadges(conversations: List<ExtendedConversation>) {
+        val unreadConversationsCount = conversations.count { !it.isRead }
+        val badge = when {
+            unreadConversationsCount > 9 -> "9+"
+            unreadConversationsCount > 0 -> unreadConversationsCount.toString()
+            else -> null
+        }
+        _uiState.update {
+            it.copy(
+                tabCounters = mapOf(
+                    TAB_CHATS to badge,
+                ),
+            )
+        }
+    }
+
     private fun getFloatingActionButtonConfig(tabIndex: Int) = when (tabIndex) {
         TAB_CHATS -> HomeFloatingActionButtonConfig.ChatListFloatingActionButtonConfig
         TAB_CONTACTS -> HomeFloatingActionButtonConfig.ContactsFloatingActionButtonConfig
@@ -70,6 +98,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
 data class HomeUiState(
     val currentTab: Int = TAB_CHATS,
+    val tabCounters: Map<Int, String?> = emptyMap(),
     val floatingActionButtonConfig: HomeFloatingActionButtonConfig? = HomeFloatingActionButtonConfig.ChatListFloatingActionButtonConfig,
     val isAddContactFloatingMenuVisible: Boolean = false,
 )

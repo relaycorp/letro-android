@@ -21,7 +21,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
-import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.ui.utils.StringsProvider
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
 
     @Inject
-    lateinit var snackbarStringsProvider: SnackbarStringsProvider
+    lateinit var stringsProvider: StringsProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Letro)
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     LetroNavHost(
                         navController = navController,
-                        snackbarStringsProvider = snackbarStringsProvider,
+                        stringsProvider = stringsProvider,
                     )
                 }
             }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "12466b7fa30a962804c156ee00283227",
+    "identityHash": "94e396e1f0c1805cb42e862839856f3f",
     "entities": [
       {
         "tableName": "account",
@@ -110,7 +110,7 @@
       },
       {
         "tableName": "conversations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `subject` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `subject` TEXT, `isArchived` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "keyId",
@@ -137,10 +137,22 @@
             "notNull": true
           },
           {
+            "fieldPath": "isRead",
+            "columnName": "isRead",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "subject",
             "columnName": "subject",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "isArchived",
+            "columnName": "isArchived",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -212,7 +224,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12466b7fa30a962804c156ee00283227')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94e396e1f0c1805cb42e862839856f3f')"
     ]
   }
 }

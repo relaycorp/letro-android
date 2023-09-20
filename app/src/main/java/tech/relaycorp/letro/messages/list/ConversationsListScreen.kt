@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.messages.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +27,15 @@ import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.ui.theme.LargeProminent
 import tech.relaycorp.letro.ui.theme.MediumProminent
 import tech.relaycorp.letro.ui.theme.SmallProminent
+import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 
 @Composable
 fun ConversationsListScreen(
+    conversationsStringsProvider: ConversationsStringsProvider,
+    onConversationClick: (ExtendedConversation) -> Unit,
     viewModel: ConversationsViewModel,
 ) {
-    val conversations by viewModel.conversations.collectAsState(emptyList())
+    val conversations by viewModel.conversations.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (conversations.isEmpty()) {
@@ -41,8 +45,14 @@ fun ConversationsListScreen(
             }
         } else {
             LazyColumn {
-                items(conversations) {
-                    Conversation(conversation = it)
+                items(conversations) { conversation ->
+                    Conversation(
+                        conversation = conversation,
+                        noSubjectText = conversationsStringsProvider.noSubject,
+                        onConversationClick = {
+                            onConversationClick(conversation)
+                        },
+                    )
                 }
             }
         }
@@ -52,10 +62,13 @@ fun ConversationsListScreen(
 @Composable
 private fun Conversation(
     conversation: ExtendedConversation,
+    noSubjectText: String,
+    onConversationClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onConversationClick() }
             .padding(
                 horizontal = 16.dp,
                 vertical = 10.dp,
@@ -66,34 +79,36 @@ private fun Conversation(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = conversation.recipientAlias ?: conversation.recipientVeraId,
-                    style = MaterialTheme.typography.LargeProminent,
+                    text = conversation.contactDisplayName,
+                    style = if (!conversation.isRead) MaterialTheme.typography.LargeProminent else MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
-                    style = MaterialTheme.typography.SmallProminent,
+                    style = if (!conversation.isRead) MaterialTheme.typography.SmallProminent else MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                 )
             }
             Row {
-                if (conversation.subject != null) {
-                    Text(
-                        text = conversation.subject,
-                        style = MaterialTheme.typography.MediumProminent,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = " - ",
-                        style = MaterialTheme.typography.MediumProminent,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
+                Text(
+                    text = conversation.subject ?: noSubjectText,
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Text(
+                    text = " - ",
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Text(
                     text = conversation.messages.last().text,
-                    style = MaterialTheme.typography.MediumProminent,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }

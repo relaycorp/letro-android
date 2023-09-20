@@ -11,7 +11,12 @@ import java.util.UUID
 import javax.inject.Inject
 
 interface ExtendedConversationConverter {
-    fun convert(conversations: List<Conversation>, messages: List<Message>, contacts: List<Contact>): List<ExtendedConversation>
+    fun convert(
+        conversations: List<Conversation>,
+        messages: List<Message>,
+        contacts: List<Contact>,
+        ownerVeraId: String,
+    ): List<ExtendedConversation>
 }
 
 class ExtendedConversationConverterImpl @Inject constructor(
@@ -22,11 +27,12 @@ class ExtendedConversationConverterImpl @Inject constructor(
         conversations: List<Conversation>,
         messages: List<Message>,
         contacts: List<Contact>,
+        ownerVeraId: String,
     ): List<ExtendedConversation> {
         val conversationsMap = hashMapOf<UUID, Conversation>()
         conversations.forEach { conversationsMap[it.conversationId] = it }
 
-        val sortedMessages = messages.sortedByDescending { it.sentAt }
+        val sortedMessages = messages.sortedBy { it.sentAt }
 
         val messagesToConversation = hashMapOf<UUID, ArrayList<Message>>()
         sortedMessages.forEach { message ->
@@ -42,25 +48,33 @@ class ExtendedConversationConverterImpl @Inject constructor(
                 if (messagesToConversation[conversation.conversationId].isNullOrEmpty()) {
                     return@mapNotNull null
                 }
-                val lastMessage = messagesToConversation[conversation.conversationId]!!.first()
+                val contactDisplayName = contacts.find { it.contactVeraId == conversation.contactVeraId }?.alias ?: conversation.contactVeraId
+                val lastMessage = messagesToConversation[conversation.conversationId]!!.last()
+                val extendedMessagesList = sortedMessages
+                    .filter { it.conversationId == conversation.conversationId }
+                    .map {
+                        val isOutgoing = ownerVeraId == it.senderVeraId
+                        ExtendedMessage(
+                            conversationId = conversation.conversationId,
+                            senderVeraId = it.senderVeraId,
+                            recipientVeraId = it.recipientVeraId,
+                            isOutgoing = isOutgoing,
+                            contactDisplayName = contactDisplayName,
+                            text = it.text,
+                            sentAtFormatted = messageTimestampConverter.convert(it.sentAt),
+                        )
+                    }
                 ExtendedConversation(
                     conversationId = conversation.conversationId,
                     ownerVeraId = conversation.ownerVeraId,
-                    recipientVeraId = conversation.contactVeraId,
-                    recipientAlias = contacts.find { it.contactVeraId == conversation.contactVeraId }?.alias,
+                    contactVeraId = conversation.contactVeraId,
+                    contactDisplayName = contactDisplayName,
                     subject = conversation.subject,
                     lastMessageTimestamp = Timestamp.from(lastMessage.sentAt.toInstant(ZoneOffset.UTC)).time,
                     lastMessageFormattedTimestamp = messageTimestampConverter.convert(lastMessage.sentAt),
-                    messages = sortedMessages
-                        .filter { it.conversationId == conversation.conversationId }
-                        .map {
-                            ExtendedMessage(
-                                conversationId = conversation.conversationId,
-                                senderVeraId = it.senderVeraId,
-                                recipientVeraId = it.recipientVeraId,
-                                text = it.text,
-                            )
-                        },
+                    messages = extendedMessagesList,
+                    lastMessage = extendedMessagesList.last(),
+                    isRead = conversation.isRead,
                 )
             }
             .forEach { extendedConversations.add(it) }

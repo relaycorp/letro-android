@@ -179,6 +179,9 @@ fun CreateNewMessageScreen(
                     value = recipientTextFieldValueState,
                     textStyle = MaterialTheme.typography.bodyLarge,
                     onValueChange = {
+                        if (uiState.showRecipientAsChip) {
+                            return@LetroTextField
+                        }
                         recipientTextFieldValueState = it
                         viewModel.onRecipientTextChanged(it.text)
                     },

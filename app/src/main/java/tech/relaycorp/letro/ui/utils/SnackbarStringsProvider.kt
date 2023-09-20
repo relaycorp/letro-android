@@ -9,6 +9,7 @@ interface SnackbarStringsProvider {
     val contactDeleted: String
     val contactEdited: String
     val messageSent: String
+    val conversationDeleted: String
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -22,4 +23,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val messageSent: String
         get() = activity.getString(R.string.snackbar_message_sent)
+
+    override val conversationDeleted: String
+        get() = activity.getString(R.string.snackbar_conversation_deleted)
 }
