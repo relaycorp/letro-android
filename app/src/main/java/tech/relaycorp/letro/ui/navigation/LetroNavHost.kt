@@ -32,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
@@ -52,6 +51,7 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 import tech.relaycorp.letro.utils.ext.encodeToUTF
+import tech.relaycorp.letro.utils.ext.showSnackbar
 import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
 @Composable
@@ -208,11 +208,7 @@ fun LetroNavHost(
                                         when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
                                             ManageContactViewModel.Type.EDIT_CONTACT -> {
                                                 navController.popBackStack()
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        message = snackbarStringsProvider.contactEdited,
-                                                    )
-                                                }
+                                                snackbarHostState.showSnackbar(scope, snackbarStringsProvider.contactEdited)
                                             }
                                             else -> throw IllegalStateException("Unknown screen type: $type")
                                         }
@@ -247,9 +243,7 @@ fun LetroNavHost(
                                     onBackClicked = { navController.popBackStack() },
                                     onMessageSent = {
                                         navController.popBackStack()
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(snackbarStringsProvider.messageSent)
-                                        }
+                                        snackbarHostState.showSnackbar(scope, snackbarStringsProvider.messageSent)
                                     },
                                 )
                             }
@@ -263,6 +257,10 @@ fun LetroNavHost(
                                 ),
                             ) {
                                 ConversationScreen(
+                                    onConversationDeleted = {
+                                        navController.popBackStack()
+                                        snackbarHostState.showSnackbar(scope, snackbarStringsProvider.conversationDeleted)
+                                    },
                                     onBackClicked = {
                                         navController.popBackStack()
                                     },

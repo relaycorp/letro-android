@@ -39,6 +39,7 @@ import tech.relaycorp.letro.ui.theme.LargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.SmallProminent
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.ext.showSnackbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,9 +55,7 @@ fun ContactsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.showContactDeletedSnackbarSignal.collect {
-            snackbarHostState.showSnackbar(
-                message = snackbarStringsProvider.contactDeleted,
-            )
+            snackbarHostState.showSnackbar(this, snackbarStringsProvider.contactDeleted)
         }
     }
 

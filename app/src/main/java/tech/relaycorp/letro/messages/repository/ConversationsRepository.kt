@@ -37,6 +37,7 @@ interface ConversationsRepository {
     )
     fun getConversation(id: String): ExtendedConversation?
     fun markConversationAsRead(conversationId: String)
+    fun deleteConversation(conversationId: String)
 }
 
 class ConversationsRepositoryImpl @Inject constructor(
@@ -131,6 +132,15 @@ class ConversationsRepositoryImpl @Inject constructor(
                     isRead = true,
                 ),
             )
+        }
+    }
+
+    @Suppress("NAME_SHADOWING")
+    override fun deleteConversation(conversationId: String) {
+        scope.launch {
+            val conversationId = UUID.fromString(conversationId)
+            val conversation = _conversations.value.find { it.conversationId == conversationId } ?: return@launch
+            conversationsDao.delete(conversation)
         }
     }
 

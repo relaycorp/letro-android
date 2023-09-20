@@ -2,6 +2,7 @@ package tech.relaycorp.letro.messages.viewing
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,14 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,10 +37,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.LetroButton
+import tech.relaycorp.letro.ui.theme.LargeProminent
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
 fun ConversationScreen(
+    onConversationDeleted: () -> Unit,
     onBackClicked: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
 ) {
@@ -48,88 +51,61 @@ fun ConversationScreen(
     val conversationState by viewModel.conversation.collectAsState()
     val conversation = conversationState
 
+    val deleteConversationDialogState by viewModel.deleteConversationDialogState.collectAsState()
+
     if (conversation != null) {
         LaunchedEffect(Unit) { // Scroll to the top of a conversation on screen opening
             scrollState.scrollToItem(conversation.messages.size - 1)
         }
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = 14.dp,
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(
-                    onClick = onBackClicked,
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = stringResource(id = R.string.general_navigate_back),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                Spacer(
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(
-                    onClick = { },
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_trash),
-                        contentDescription = stringResource(id = R.string.content_description_delete_conversation),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                LetroButton(
-                    text = stringResource(id = R.string.reply),
-                    onClick = { /* TODO */ },
-                    leadingIconResId = R.drawable.ic_reply,
-                    contentPadding = PaddingValues(
-                        top = 8.dp,
-                        bottom = 8.dp,
-                        start = 16.dp,
-                        end = 24.dp,
-                    ),
-                )
-                Spacer(
-                    modifier = Modifier.width(16.dp),
+            if (deleteConversationDialogState.isShown) {
+                DeleteConversationDialog(
+                    onDismissRequest = { viewModel.onDeleteConversationBottomSheetDismissed() },
+                    onConfirmClick = {
+                        viewModel.onConfirmConversationDeletionClick()
+                        onConversationDeleted()
+                    },
                 )
             }
-            if (conversation.subject != null) {
-                Text(
-                    text = conversation.subject,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 10.dp,
-                        ),
+            Column {
+                ConversationToolbar(
+                    onBackClicked = onBackClicked,
+                    onDeleteClick = { viewModel.onDeleteConversationClick() },
                 )
-            }
-            LazyColumn(
-                state = scrollState,
-            ) {
-                items(conversation.messages.size) { position ->
-                    val message = conversation.messages[position]
-                    val isLastMessage = position == conversation.messages.size - 1
-                    Message(
-                        message = message,
-                        isCollapsable = conversation.messages.size > 1,
-                        isLastMessage = isLastMessage,
+                if (conversation.subject != null) {
+                    Text(
+                        text = conversation.subject,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 10.dp,
+                            ),
                     )
-                    if (!isLastMessage) {
-                        Divider(
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.outlineVariant)
-                                .fillMaxWidth()
-                                .height(1.dp),
+                }
+                LazyColumn(
+                    state = scrollState,
+                ) {
+                    items(conversation.messages.size) { position ->
+                        val message = conversation.messages[position]
+                        val isLastMessage = position == conversation.messages.size - 1
+                        Message(
+                            message = message,
+                            isCollapsable = conversation.messages.size > 1,
+                            isLastMessage = isLastMessage,
                         )
+                        if (!isLastMessage) {
+                            Divider(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.outlineVariant)
+                                    .fillMaxWidth()
+                                    .height(1.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -193,4 +169,107 @@ private fun Message(
                 ),
         )
     }
+}
+
+@Composable
+private fun ConversationToolbar(
+    onDeleteClick: () -> Unit,
+    onBackClicked: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                vertical = 14.dp,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(
+            onClick = onBackClicked,
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_back),
+                contentDescription = stringResource(id = R.string.general_navigate_back),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Spacer(
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(
+            onClick = { onDeleteClick() },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_trash),
+                contentDescription = stringResource(id = R.string.delete_conversation),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        LetroButton(
+            text = stringResource(id = R.string.reply),
+            onClick = { /* TODO */ },
+            leadingIconResId = R.drawable.ic_reply,
+            contentPadding = PaddingValues(
+                top = 8.dp,
+                bottom = 8.dp,
+                start = 16.dp,
+                end = 24.dp,
+            ),
+        )
+        Spacer(
+            modifier = Modifier.width(16.dp),
+        )
+    }
+}
+
+@Composable
+private fun DeleteConversationDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmClick: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        title = {
+            Text(
+                text = stringResource(id = R.string.delete_conversation),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.delete_conversation_dialog_message),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmClick()
+                },
+            ) {
+                Text(
+                    text = stringResource(id = R.string.delete),
+                    style = MaterialTheme.typography.LargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                },
+            ) {
+                Text(
+                    text = stringResource(id = R.string.cancel),
+                    style = MaterialTheme.typography.LargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+    )
 }
