@@ -8,6 +8,9 @@ data class ExtendedMessage(
     val recipientVeraId: String,
     val isOutgoing: Boolean,
     val contactDisplayName: String,
+    val senderDisplayName: String,
+    val recipientDisplayName: String,
     val text: String,
-    val sentAtFormatted: String,
+    val sentAtBriefFormatted: String,
+    val sentAtDetailedFormatted: String,
 )

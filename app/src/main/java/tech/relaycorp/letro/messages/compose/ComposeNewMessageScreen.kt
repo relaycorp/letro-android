@@ -139,7 +139,7 @@ fun CreateNewMessageScreen(
         ) {
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = stringResource(id = R.string.new_message_from),
+                text = stringResource(id = R.string.from),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
                     .applyIf(uiState.isOnlyTextEditale) {
@@ -163,7 +163,7 @@ fun CreateNewMessageScreen(
         ) {
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = stringResource(id = R.string.new_message_to),
+                text = stringResource(id = R.string.to),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
                     .applyIf(uiState.isOnlyTextEditale) {
