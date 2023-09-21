@@ -2,12 +2,18 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "995ffbad136ec40b0cd0e789b1f925c3",
+    "identityHash": "d80c574c6882c1c80c0f103b6a6ec580",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`veraId` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL, PRIMARY KEY(`veraId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraId` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "veraId",
             "columnName": "veraId",
@@ -28,12 +34,22 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
-            "veraId"
+            "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_account_veraId",
+            "unique": true,
+            "columnNames": [
+              "veraId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_account_veraId` ON `${TABLE_NAME}` (`veraId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -246,7 +262,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '995ffbad136ec40b0cd0e789b1f925c3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd80c574c6882c1c80c0f103b6a6ec580')"
     ]
   }
 }
