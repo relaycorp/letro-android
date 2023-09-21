@@ -37,7 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.LetroButton
-import tech.relaycorp.letro.ui.theme.LargeProminent
+import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
 
@@ -256,7 +256,7 @@ private fun DeleteConversationDialog(
             ) {
                 Text(
                     text = stringResource(id = R.string.delete),
-                    style = MaterialTheme.typography.LargeProminent,
+                    style = MaterialTheme.typography.LabelLargeProminent,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -269,7 +269,7 @@ private fun DeleteConversationDialog(
             ) {
                 Text(
                     text = stringResource(id = R.string.cancel),
-                    style = MaterialTheme.typography.LargeProminent,
+                    style = MaterialTheme.typography.LabelLargeProminent,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }

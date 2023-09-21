@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.model.ExtendedMessage
-import tech.relaycorp.letro.ui.theme.LargeProminent
-import tech.relaycorp.letro.ui.theme.MediumProminent
-import tech.relaycorp.letro.ui.theme.SmallProminent
+import tech.relaycorp.letro.ui.theme.BodyLargeProminent
+import tech.relaycorp.letro.ui.theme.BodyMediumProminent
+import tech.relaycorp.letro.ui.theme.LabelSmallProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import java.util.UUID
 
@@ -85,7 +85,7 @@ private fun Conversation(
             ) {
                 Text(
                     text = conversation.contactDisplayName,
-                    style = if (!conversation.isRead) MaterialTheme.typography.LargeProminent else MaterialTheme.typography.bodyLarge,
+                    style = if (!conversation.isRead) MaterialTheme.typography.BodyLargeProminent else MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
@@ -105,7 +105,7 @@ private fun Conversation(
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
-                    style = if (!conversation.isRead) MaterialTheme.typography.SmallProminent else MaterialTheme.typography.labelSmall,
+                    style = if (!conversation.isRead) MaterialTheme.typography.LabelSmallProminent else MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
@@ -113,18 +113,18 @@ private fun Conversation(
             Row {
                 Text(
                     text = conversation.subject ?: noSubjectText,
-                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
                 Text(
                     text = " - ",
-                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = conversation.messages.last().text,
-                    style = if (!conversation.isRead) MaterialTheme.typography.MediumProminent else MaterialTheme.typography.bodyMedium,
+                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                 )

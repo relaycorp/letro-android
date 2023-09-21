@@ -35,9 +35,9 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.ui.common.text.BoldText
-import tech.relaycorp.letro.ui.theme.LargeProminent
+import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
-import tech.relaycorp.letro.ui.theme.SmallProminent
+import tech.relaycorp.letro.ui.theme.TitleSmallProminent
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.ext.showSnackbar
 
@@ -105,7 +105,7 @@ fun ContactsScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.delete),
-                            style = MaterialTheme.typography.LargeProminent,
+                            style = MaterialTheme.typography.LabelLargeProminent,
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
@@ -118,7 +118,7 @@ fun ContactsScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.cancel),
-                            style = MaterialTheme.typography.LargeProminent,
+                            style = MaterialTheme.typography.LabelLargeProminent,
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
@@ -156,7 +156,7 @@ private fun EditContactBottomSheet(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.SmallProminent,
+            style = MaterialTheme.typography.TitleSmallProminent,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .fillMaxWidth()
