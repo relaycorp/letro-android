@@ -58,10 +58,13 @@ class ExtendedConversationConverterImpl @Inject constructor(
                             conversationId = conversation.conversationId,
                             senderVeraId = it.senderVeraId,
                             recipientVeraId = it.recipientVeraId,
+                            senderDisplayName = if (isOutgoing) it.ownerVeraId else contactDisplayName,
+                            recipientDisplayName = if (isOutgoing) contactDisplayName else it.ownerVeraId,
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = it.text,
-                            sentAtFormatted = messageTimestampConverter.convert(it.sentAt),
+                            sentAtBriefFormatted = messageTimestampConverter.convertBrief(it.sentAt),
+                            sentAtDetailedFormatted = messageTimestampConverter.convertDetailed(it.sentAt),
                         )
                     }
                 ExtendedConversation(
@@ -71,7 +74,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     contactDisplayName = contactDisplayName,
                     subject = conversation.subject,
                     lastMessageTimestamp = Timestamp.from(lastMessage.sentAt.toInstant(ZoneOffset.UTC)).time,
-                    lastMessageFormattedTimestamp = messageTimestampConverter.convert(lastMessage.sentAt),
+                    lastMessageFormattedTimestamp = messageTimestampConverter.convertBrief(lastMessage.sentAt),
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
                     isRead = conversation.isRead,

@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.messages.viewing
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -32,14 +34,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
+import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
+import java.util.UUID
 
 @Composable
 fun ConversationScreen(
@@ -122,6 +127,7 @@ private fun Message(
     isLastMessage: Boolean,
 ) {
     var isCollapsed: Boolean by remember { mutableStateOf(!isLastMessage) }
+    var isDetailsCollapsed: Boolean by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -151,12 +157,34 @@ private fun Message(
             )
             Spacer(modifier = Modifier.weight(1F))
             Text(
-                text = message.sentAtFormatted,
+                text = message.sentAtBriefFormatted,
                 style = if (isCollapsed) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
         if (!isCollapsed) {
+            Text(
+                text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 2.dp,
+                    )
+                    .clickable { isDetailsCollapsed = !isDetailsCollapsed },
+            )
+            if (!isDetailsCollapsed) {
+                Spacer(modifier = Modifier.height(12.dp))
+                MessageInfoView(
+                    message = message,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                        )
+                        .fillMaxWidth(),
+                )
+            }
             Spacer(modifier = Modifier.height(26.dp))
         }
         Text(
@@ -170,6 +198,66 @@ private fun Message(
                     horizontal = 16.dp,
                 ),
         )
+    }
+}
+
+@Composable
+private fun MessageInfoView(
+    modifier: Modifier = Modifier,
+    message: ExtendedMessage,
+) {
+    Box(
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, LetroColor.SurfaceContainer, RoundedCornerShape(6.dp))
+                .padding(8.dp),
+        ) {
+            Column {
+                Text(
+                    text = stringResource(id = R.string.from),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(id = R.string.to),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(id = R.string.date),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Column {
+                Text(
+                    text = message.senderDisplayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = message.recipientDisplayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = message.sentAtDetailedFormatted,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }
 
@@ -275,4 +363,40 @@ private fun DeleteConversationDialog(
             }
         },
     )
+}
+
+@Preview
+@Composable
+private fun MessageInfo_Preview() {
+    Column {
+        MessageInfoView(
+            message = ExtendedMessage(
+                conversationId = UUID.randomUUID(),
+                senderVeraId = "sender@vera.id",
+                recipientVeraId = "recipient@vera.id",
+                senderDisplayName = "Sender",
+                recipientDisplayName = "Recipient",
+                isOutgoing = true,
+                contactDisplayName = "Alias of contact",
+                text = "Hi!",
+                sentAtBriefFormatted = "15 Aug",
+                sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
+            ),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        MessageInfoView(
+            message = ExtendedMessage(
+                conversationId = UUID.randomUUID(),
+                senderVeraId = "sender@vera.id",
+                recipientVeraId = "recipient@vera.id",
+                senderDisplayName = "Sender",
+                recipientDisplayName = "Recipient",
+                isOutgoing = false,
+                contactDisplayName = "sender@vera.id",
+                text = "Hi!",
+                sentAtBriefFormatted = "15 Aug",
+                sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
+            ),
+        )
+    }
 }

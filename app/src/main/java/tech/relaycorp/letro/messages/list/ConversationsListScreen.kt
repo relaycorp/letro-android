@@ -158,10 +158,13 @@ fun Conversation_Preview() {
         conversationId = conversationId,
         senderVeraId = "ft@applepie.rocks",
         recipientVeraId = "contact@vera.id",
+        senderDisplayName = "Sender",
+        recipientDisplayName = "Recipient",
         isOutgoing = true,
         contactDisplayName = "Alias",
         text = "Hello man!",
-        sentAtFormatted = "01:03 PM",
+        sentAtBriefFormatted = "15 Aug",
+        sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
     )
     Column {
         Conversation(
