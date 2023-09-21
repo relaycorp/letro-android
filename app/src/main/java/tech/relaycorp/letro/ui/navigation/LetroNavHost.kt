@@ -33,7 +33,7 @@ import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.awala.AwalaNotInstalledScreen
+import tech.relaycorp.letro.awala.ui.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
@@ -102,10 +102,19 @@ fun LetroNavHost(
 
     if (showAwalaNotInstalledScreen) {
         systemUiController.isStatusBarVisible = false
+        val initializationStatusBarColor = LetroColor.SurfaceContainerHigh
         AwalaNotInstalledScreen(
             mainViewModel = mainViewModel,
+            amusingTextsForInitializationWaiting = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
             onInstallAwalaClick = {
                 mainViewModel.onInstallAwalaClick()
+            },
+            onAwalaStartedInitialization = {
+                systemUiController.setStatusBarColor(initializationStatusBarColor)
+                systemUiController.isStatusBarVisible = true
+            },
+            onAwalaStillNotInstalled = {
+                systemUiController.isStatusBarVisible = false
             },
         )
     } else {

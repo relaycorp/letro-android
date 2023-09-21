@@ -40,6 +40,10 @@ object LetroColor {
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant8 else Neutral8
 
+    val SurfaceContainer: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant4 else Neutral6
+
     val OnSurfaceContainer: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant6 else Neutral4

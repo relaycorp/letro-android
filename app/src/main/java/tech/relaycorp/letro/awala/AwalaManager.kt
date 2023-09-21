@@ -3,6 +3,7 @@ package tech.relaycorp.letro.awala
 import android.content.Context
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.IntDef
 import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +11,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
@@ -23,6 +26,12 @@ import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_SET_UP
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.FIRST_PARTY_ENDPOINT_REGISTRED
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.GATEWAY_BINDING
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.GATEWAY_CLIENT_BINDED
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
@@ -31,10 +40,10 @@ import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.awala.loadNonNullPrivateThirdPartyEndpoint
 import tech.relaycorp.letro.utils.awala.loadNonNullPublicFirstPartyEndpoint
 import tech.relaycorp.letro.utils.awala.loadNonNullPublicThirdPartyEndpoint
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 interface AwalaManager {
+    val awalaInitializationState: StateFlow<Int>
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
         recipient: MessageRecipient,
@@ -63,7 +72,9 @@ class AwalaManagerImpl @Inject constructor(
     @OptIn(DelicateCoroutinesApi::class)
     private val messageReceivingThreadContext = newSingleThreadContext("AwalaManagerMessageReceiverThread")
 
-    private var isAwalaSetUp = AtomicBoolean(false)
+    private val _awalaInitializationState = MutableStateFlow<Int>(AwalaInitializationState.NOT_INITIALIZED)
+    override val awalaInitializationState: StateFlow<Int>
+        get() = _awalaInitializationState
     private var awalaSetupJob: Job? = null
 
     @Volatile
@@ -79,8 +90,8 @@ class AwalaManagerImpl @Inject constructor(
             withContext(awalaThreadContext) {
                 Log.i(TAG, "Setting up Awala")
                 Awala.setUp(context)
+                _awalaInitializationState.emit(AWALA_SET_UP)
                 checkIfAwalaAppInstalled()
-                isAwalaSetUp.compareAndSet(false, true)
                 awalaSetupJob = null
             }
         }
@@ -115,7 +126,7 @@ class AwalaManagerImpl @Inject constructor(
 
     override suspend fun isAwalaInstalled(currentScreen: Route): Boolean {
         val isInstalled = withContext(awalaThreadContext) {
-            if (!isAwalaSetUp.get()) {
+            if (_awalaInitializationState.value == NOT_INITIALIZED) {
                 awalaSetupJob?.join()
             }
             if (currentScreen == Route.AwalaNotInstalled) {
@@ -212,7 +223,9 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun configureAwala() {
         withContext(awalaThreadContext) {
             registerFirstPartyEndpointIfNeeded()
+            _awalaInitializationState.emit(FIRST_PARTY_ENDPOINT_REGISTRED)
             importServerThirdPartyEndpointIfNeeded()
+            _awalaInitializationState.emit(INITIALIZED)
         }
     }
 
@@ -220,10 +233,13 @@ class AwalaManagerImpl @Inject constructor(
         return withContext(awalaThreadContext) {
             try {
                 Log.i(TAG, "GatewayClient binding...")
+                _awalaInitializationState.emit(GATEWAY_BINDING)
                 GatewayClient.bind()
+                _awalaInitializationState.emit(GATEWAY_CLIENT_BINDED)
                 Log.i(TAG, "GatewayClient bound")
                 configureAwala()
             } catch (exp: GatewayBindingException) {
+                _awalaInitializationState.emit(AWALA_SET_UP)
                 this@AwalaManagerImpl.isAwalaInstalledOnDevice = false
                 return@withContext false
             }
@@ -305,3 +321,24 @@ class AwalaManagerImpl @Inject constructor(
 }
 
 internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)
+
+@IntDef(
+    NOT_INITIALIZED,
+    AWALA_SET_UP,
+    GATEWAY_BINDING,
+    GATEWAY_CLIENT_BINDED,
+    FIRST_PARTY_ENDPOINT_REGISTRED,
+    INITIALIZED,
+)
+annotation class AwalaInitializationState {
+    companion object {
+        const val STEPS_COUNT = 5
+
+        const val NOT_INITIALIZED = 0
+        const val AWALA_SET_UP = 1
+        const val GATEWAY_BINDING = 2
+        const val GATEWAY_CLIENT_BINDED = 3
+        const val FIRST_PARTY_ENDPOINT_REGISTRED = 4
+        const val INITIALIZED = 5
+    }
+}

@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import tech.relaycorp.letro.ui.utils.AwalaInitializationStringsProvider
+import tech.relaycorp.letro.ui.utils.AwalaInitializationStringsProviderImpl
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProviderImpl
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
@@ -29,4 +31,9 @@ interface MainModule {
     fun bindConversationsStringsProvider(
         impl: ConversationsStringsProviderImpl,
     ): ConversationsStringsProvider
+
+    @Binds
+    fun bindAwalaInitializationStringsProvider(
+        impl: AwalaInitializationStringsProviderImpl,
+    ): AwalaInitializationStringsProvider
 }
