@@ -110,9 +110,8 @@ val Typography.LabelLargeProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 15.sp,
+        lineHeight = 21.sp,
     )
 
 val Typography.LabelMediumProminent: TextStyle
