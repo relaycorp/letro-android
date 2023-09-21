@@ -111,8 +111,8 @@ class ConversationsRepositoryImpl @Inject constructor(
                 recipientVeraId = recipient.contactVeraId,
                 sentAt = LocalDateTime.now(),
             )
-            messagesDao.insert(message)
             conversationsDao.createNewConversation(conversation)
+            messagesDao.insert(message)
 
             awalaManager.sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
