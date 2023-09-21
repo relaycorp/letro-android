@@ -60,19 +60,13 @@ fun RegistrationScreen(
             Spacer(
                 modifier = Modifier.height(32.dp),
             )
-            Text(
-                text = stringResource(id = R.string.general_id),
-                style = MaterialTheme.typography.labelLarge,
-            )
-            Spacer(
-                modifier = Modifier.height(6.dp),
-            )
             LetroOutlinedTextField(
                 value = uiState.username,
                 onValueChange = { viewModel.onUsernameInput(it) },
                 hintText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
                 suffixText = uiState.domain,
                 isError = uiState.isError,
+                label = R.string.general_id,
             )
             Spacer(
                 modifier = Modifier.height(6.dp),
