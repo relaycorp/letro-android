@@ -7,4 +7,6 @@ sealed interface RootNavigationScreen {
     object WelcomeToLetro : RootNavigationScreen
     object NoContactsScreen : RootNavigationScreen
     object Home : RootNavigationScreen
+    object AwalaNotInstalled : RootNavigationScreen
+    object AwalaInitializing : RootNavigationScreen
 }

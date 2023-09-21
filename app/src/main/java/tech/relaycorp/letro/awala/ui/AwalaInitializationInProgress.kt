@@ -13,19 +13,25 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @Composable
 fun AwalaInitializationInProgress(
-    text: String,
+    texts: Array<String>,
+    viewModel: AwalaInitializationInProgressViewModel = hiltViewModel(),
 ) {
+    val currentTextIndex by viewModel.stringsIndexPointer.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             contentAlignment = Alignment.Center,
@@ -58,7 +64,7 @@ fun AwalaInitializationInProgress(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = text,
+                text = texts[currentTextIndex % texts.size],
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -76,6 +82,7 @@ fun AwalaInitializationInProgress(
 @Composable
 private fun AwalaInstallationProgressView_Preview() {
     AwalaInitializationInProgress(
-        text = "Removing the tea bag...",
+        arrayOf("Hello"),
+        hiltViewModel(),
     )
 }

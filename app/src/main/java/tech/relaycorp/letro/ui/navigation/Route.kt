@@ -11,6 +11,7 @@ import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
 sealed class Route(
     val name: String,
     val showTopBar: Boolean = true,
+    val isStatusBarVisible: Boolean = true,
     val isStatusBarPrimaryColor: Boolean = false,
 ) {
 
@@ -27,6 +28,13 @@ sealed class Route(
     object AwalaNotInstalled : Route(
         name = "awala_not_installed_route",
         showTopBar = false,
+        isStatusBarVisible = false,
+    )
+
+    object AwalaInitializing : Route(
+        name = "awala_initializing_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = true,
     )
 
     object RegistrationProcessWaiting : Route(
@@ -105,6 +113,7 @@ fun String?.toRoute(): Route {
         return when {
             it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
+            it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro

@@ -14,9 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,56 +22,33 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
-import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 
 @Composable
 fun AwalaNotInstalledScreen(
-    mainViewModel: MainViewModel,
-    amusingTextsForInitializationWaiting: Array<String>,
+    awalaInitializationTexts: Array<String>,
     onInstallAwalaClick: () -> Unit,
-    onAwalaStartedInitialization: () -> Unit,
-    onAwalaStillNotInstalled: () -> Unit,
     awalaNotInstalledViewModel: AwalaNotInstalledViewModel = hiltViewModel(),
 ) {
     val lifecycleEvent = rememberLifecycleEvent()
 
-    var currentTextIndex by remember { mutableStateOf(0) }
-    val awalaInstallationState by awalaNotInstalledViewModel.awalaInstallationProgressUiState.collectAsState()
-
     LaunchedEffect(lifecycleEvent) {
         if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-            mainViewModel.onScreenResumed(Route.AwalaNotInstalled)
+            awalaNotInstalledViewModel.onScreenResumed()
         }
     }
 
-    LaunchedEffect(Unit) {
-        awalaNotInstalledViewModel.awalaInstallationProgressUiState.collect {
-            if (it != null) {
-                onAwalaStartedInitialization()
-            } else {
-                onAwalaStillNotInstalled()
-            }
-        }
-    }
+    val showAwalaInitialization by awalaNotInstalledViewModel.isAwalaInitializingShown.collectAsState()
 
-    LaunchedEffect(Unit) {
-        awalaNotInstalledViewModel.changeTextSignal.collect {
-            currentTextIndex++
-        }
-    }
-
-    val awalaInstallationStep = awalaInstallationState
-    if (awalaInstallationStep == null) {
-        InstallAwalaScreen(
-            onInstallAwalaClick = onInstallAwalaClick,
+    if (showAwalaInitialization) {
+        AwalaInitializationInProgress(
+            texts = awalaInitializationTexts,
         )
     } else {
-        AwalaInitializationInProgress(
-            text = amusingTextsForInitializationWaiting[currentTextIndex % amusingTextsForInitializationWaiting.size],
+        InstallAwalaScreen(
+            onInstallAwalaClick = onInstallAwalaClick,
         )
     }
 }

@@ -5,14 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.awala.AwalaInitializationState
 import tech.relaycorp.letro.awala.AwalaManager
 import javax.inject.Inject
 
@@ -22,47 +18,33 @@ class AwalaNotInstalledViewModel @Inject constructor(
     private val awalaManager: AwalaManager,
 ) : ViewModel() {
 
-    private val _changeTextSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val changeTextSignal: SharedFlow<Unit> = _changeTextSignal
-    private var changeTextJob: Job? = null
-
-    private val _awalaInstallationProgressUiState: MutableStateFlow<Float?> = MutableStateFlow(null)
-    val awalaInstallationProgressUiState: StateFlow<Float?>
-        get() = _awalaInstallationProgressUiState
+    private val _isAwalaInitializingShown: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isAwalaInitializingShown: StateFlow<Boolean>
+        get() = _isAwalaInitializingShown
 
     init {
         viewModelScope.launch {
-            awalaManager.awalaInitializationState.collect {
-                if (it >= AwalaInitializationState.GATEWAY_BINDING) {
-                    _awalaInstallationProgressUiState.emit(it / AwalaInitializationState.STEPS_COUNT.toFloat())
-                    startChangingTexts()
-                    if (it == AwalaInitializationState.INITIALIZED) {
-                        stopUpdateProgress()
-                    }
-                } else {
-                    stopUpdateProgress()
-                }
+            awalaManager.awalaUnsuccessfulBindings.collect {
+                _isAwalaInitializingShown.emit(false)
             }
         }
     }
 
-    private fun stopUpdateProgress() {
-        viewModelScope.launch {
-            _awalaInstallationProgressUiState.emit(null)
+    /**
+     * The current logic works like this:
+     * 1. We check whether Awala is installed or not on screen resuming.
+     * 2. During this time we show the animation to show the user that something is going on.
+     * 3. If binding is UNSUCCESSFUL (= Awala is not installed) : usually this checking is almost instant, so this animation will be interupted by @_isAwalaInitializingShown flow from AwalaManager, which is subscribed in constructor of AwalaNotInstalledViewModel
+     * 4. If binding is SUCCESSFUL (= Awala is installed), then this screen will be automatically closed and futher navigation logic is performed by navigation controller (by now it's MainViewModel, which shows AwalaInitializationInProgress)
+     *
+     * NOTE: to display the same string while screens changing (step 4), the common strings flow is being used (see AwalaInitializationInProgressViewModel)
+     */
+    fun onScreenResumed() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isAwalaInitializingShown.emit(true)
+            delay(3_000L)
+            _isAwalaInitializingShown.emit(false)
         }
-        changeTextJob?.cancel()
-        changeTextJob = null
-    }
-
-    private fun startChangingTexts() {
-        if (changeTextJob != null) {
-            return
-        }
-        changeTextJob = viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                delay(1_000L)
-                _changeTextSignal.emit(Unit)
-            }
-        }
+        awalaManager.initializeGatewayAsync()
     }
 }
