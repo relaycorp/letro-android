@@ -4,7 +4,7 @@ import android.util.Log
 import tech.relaycorp.letro.awala.AwalaManagerImpl
 
 sealed class MessageType(val value: String) {
-    object AccountCreationRequest : MessageType("application/vnd.relaycorp.letro.account-creation-request")
+    object AccountCreationRequest : MessageType("application/vnd.relaycorp.letro.account-request")
     object AccountCreationCompleted : MessageType("application/vnd.relaycorp.letro.account-creation-completed-tmp")
     object AuthorizeReceivingFromServer : MessageType("application/vnd+relaycorp.awala.pda-path")
     object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.pairing-request-tmp")

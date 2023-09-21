@@ -2,15 +2,27 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "12466b7fa30a962804c156ee00283227",
+    "identityHash": "9ba7446ded03c6afc5e5dd21b7bae758",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`veraId` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL, PRIMARY KEY(`veraId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`veraId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `locale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL, PRIMARY KEY(`veraId`))",
         "fields": [
           {
             "fieldPath": "veraId",
             "columnName": "veraId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestedUserName",
+            "columnName": "requestedUserName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -212,7 +224,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12466b7fa30a962804c156ee00283227')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9ba7446ded03c6afc5e5dd21b7bae758')"
     ]
   }
 }

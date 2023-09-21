@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.utils.i18n.normaliseString
+import java.util.Locale
 import javax.inject.Inject
 
 interface AccountRepository {
     val currentAccount: Flow<Account?>
-    suspend fun createAccount(id: String)
+    suspend fun createAccount(requestedUserName: String, domainName: String, locale: Locale)
 
     suspend fun updateAccountId(id: String, newId: String)
 }
@@ -44,10 +46,16 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createAccount(id: String) {
+    override suspend fun createAccount(
+        requestedUserName: String,
+        domainName: String,
+        locale: Locale,
+    ) {
         accountDao.insert(
             Account(
-                veraId = id,
+                veraId = "$requestedUserName@$domainName",
+                requestedUserName = requestedUserName,
+                locale = locale.normaliseString(),
                 isCurrent = true,
             ),
         )

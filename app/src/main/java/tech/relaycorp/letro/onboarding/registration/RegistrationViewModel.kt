@@ -12,12 +12,12 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
-    domainProvider: RegistrationDomainProvider,
+    private val domainProvider: RegistrationDomainProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         RegistrationScreenUiState(
-            domain = domainProvider.getDomain(),
+            domain = "@${domainProvider.getDomain()}",
         ),
     )
     val uiState: StateFlow<RegistrationScreenUiState>
@@ -37,7 +37,9 @@ class RegistrationViewModel @Inject constructor(
 
     fun onCreateAccountClick() {
         registrationRepository.createNewAccount(
-            id = uiState.value.username + uiState.value.domain,
+            requestedUserName = uiState.value.username,
+            domainName = uiState.value.domain,
+            locale = domainProvider.getDomainLocale(),
         )
     }
 

@@ -8,10 +8,14 @@ import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
+import tech.relaycorp.letro.server.messages.AccountRequest
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.util.Locale
 import javax.inject.Inject
 
 interface RegistrationRepository {
-    fun createNewAccount(id: String)
+    fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale)
 }
 
 class RegistrationRepositoryImpl @Inject constructor(
@@ -21,17 +25,33 @@ class RegistrationRepositoryImpl @Inject constructor(
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override fun createNewAccount(id: String) {
+    override fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale) {
         scope.launch {
-            accountRepository.createAccount(id)
+            accountRepository.createAccount(requestedUserName, domainName, locale)
+
+            val keyPair = generateRSAKeyPair()
+            val creationRequest = AccountRequest(
+                requestedUserName,
+                locale,
+                keyPair.public,
+            )
             awalaManager
                 .sendMessage(
                     outgoingMessage = AwalaOutgoingMessage(
                         type = MessageType.AccountCreationRequest,
-                        content = id.toByteArray(),
+                        content = creationRequest.serialise(keyPair.private),
                     ),
                     recipient = MessageRecipient.Server(),
                 )
         }
+    }
+
+    /**
+     * Generate an ephemeral key pair temporarily (we'll persist it once VeraId is integrated).
+     */
+    private fun generateRSAKeyPair(): KeyPair {
+        val keyGen = KeyPairGenerator.getInstance("RSA")
+        keyGen.initialize(2048)
+        return keyGen.generateKeyPair()
     }
 }

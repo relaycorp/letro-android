@@ -11,6 +11,8 @@ const val TABLE_NAME_ACCOUNT = "account"
 data class Account(
     @PrimaryKey
     val veraId: String,
+    val requestedUserName: String,
+    val locale: String,
     val isCurrent: Boolean,
     val isCreated: Boolean = false,
 )
