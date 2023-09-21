@@ -150,6 +150,9 @@ fun LetroOutlinedTextField(
             singleLine = singleLine,
             isError = isError,
             enabled = isEnabled,
+            colors = TextFieldDefaults.colors(
+                errorIndicatorColor = MaterialTheme.colorScheme.error,
+            ),
         )
         if (content != null) {
             content()
