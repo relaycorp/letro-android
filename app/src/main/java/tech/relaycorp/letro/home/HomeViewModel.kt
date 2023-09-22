@@ -9,13 +9,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.messages.model.ExtendedConversation
-import tech.relaycorp.letro.messages.repository.ConversationsRepository
+import tech.relaycorp.letro.home.badge.UnreadBadgesManager
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val conversationsRepository: ConversationsRepository,
+    private val unreadBadgesManager: UnreadBadgesManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -28,8 +27,10 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            conversationsRepository.conversations.collect {
-                updateTabBadges(it)
+            unreadBadgesManager.unreadConversations.collect {
+                updateTabBadges(
+                    unreadConversations = it,
+                )
             }
         }
     }
@@ -72,11 +73,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateTabBadges(conversations: List<ExtendedConversation>) {
-        val unreadConversationsCount = conversations.count { !it.isRead }
+    private fun updateTabBadges(
+        unreadConversations: Int,
+    ) {
         val badge = when {
-            unreadConversationsCount > 9 -> "9+"
-            unreadConversationsCount > 0 -> unreadConversationsCount.toString()
+            unreadConversations > 9 -> "9+"
+            unreadConversations > 0 -> unreadConversations.toString()
             else -> null
         }
         _uiState.update {

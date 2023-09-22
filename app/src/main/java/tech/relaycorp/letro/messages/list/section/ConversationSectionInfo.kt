@@ -9,7 +9,9 @@ sealed class ConversationSectionInfo(
     @DrawableRes val icon: Int,
 ) {
 
-    object Inbox : ConversationSectionInfo(
+    data class Inbox(
+        val unreadMessages: Int,
+    ) : ConversationSectionInfo(
         title = R.string.inbox,
         icon = R.drawable.inbox,
     )
@@ -20,8 +22,10 @@ sealed class ConversationSectionInfo(
     )
 
     companion object {
-        fun allSections() = listOf(
-            Inbox,
+        fun allSections(
+            unreadMessages: Int,
+        ) = listOf(
+            Inbox(unreadMessages),
             Sent,
         )
     }

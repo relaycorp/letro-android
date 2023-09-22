@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.AccountRepository
+import tech.relaycorp.letro.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.messages.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.messages.onboarding.ConversationsOnboardingManager
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
@@ -24,6 +25,7 @@ class ConversationsListViewModel @Inject constructor(
     private val conversationsRepository: ConversationsRepository,
     private val conversationsOnboardingManager: ConversationsOnboardingManager,
     private val accountRepository: AccountRepository,
+    private val unreadBadgesManager: UnreadBadgesManager,
 ) : ViewModel() {
 
     private val _conversationSectionInfoState = MutableStateFlow(ConversationsSectionState())
@@ -36,7 +38,7 @@ class ConversationsListViewModel @Inject constructor(
             conversationSectionState,
         ) { conversations, currentTab ->
             val conversations = when (currentTab.currentSection) {
-                ConversationSectionInfo.Inbox -> {
+                is ConversationSectionInfo.Inbox -> {
                     conversations.filter { it.messages.any { !it.isOutgoing } }
                 }
                 ConversationSectionInfo.Sent -> {
@@ -65,6 +67,19 @@ class ConversationsListViewModel @Inject constructor(
                     _isOnboardingMessageVisible.emit(!conversationsOnboardingManager.isOnboardingMessageWasShown(it.veraId))
                 } else {
                     _isOnboardingMessageVisible.emit(false)
+                }
+            }
+        }
+        viewModelScope.launch {
+            unreadBadgesManager.unreadConversations.collect { unreadMessages ->
+                val sections = ConversationSectionInfo.allSections(unreadMessages)
+                _conversationSectionInfoState.update {
+                    it.copy(
+                        currentSection = if (it.currentSection is ConversationSectionInfo.Inbox) sections.find { it is ConversationSectionInfo.Inbox }!! else it.currentSection,
+                        sectionSelector = it.sectionSelector.copy(
+                            sections = sections,
+                        ),
+                    )
                 }
             }
         }
@@ -112,22 +127,22 @@ class ConversationsListViewModel @Inject constructor(
 
     private fun getEmptyConversationsStubInfo() = ConversationsListContent.Empty(
         image = when (_conversationSectionInfoState.value.currentSection) {
-            ConversationSectionInfo.Inbox -> R.drawable.empty_inbox_image
+            is ConversationSectionInfo.Inbox -> R.drawable.empty_inbox_image
             ConversationSectionInfo.Sent -> R.drawable.empty_inbox_image
         },
         text = when (_conversationSectionInfoState.value.currentSection) {
-            ConversationSectionInfo.Inbox -> R.string.conversations_empty_inbox_stub
+            is ConversationSectionInfo.Inbox -> R.string.conversations_empty_inbox_stub
             ConversationSectionInfo.Sent -> R.string.conversations_empty_sent_stub
         },
     )
 }
 
 data class ConversationsSectionState(
-    val currentSection: ConversationSectionInfo = ConversationSectionInfo.Inbox,
+    val currentSection: ConversationSectionInfo = ConversationSectionInfo.Inbox(0),
     val sectionSelector: ConversationsSectionSelector = ConversationsSectionSelector(),
 )
 
 data class ConversationsSectionSelector(
     val isOpened: Boolean = false,
-    val sections: List<ConversationSectionInfo> = ConversationSectionInfo.allSections(),
+    val sections: List<ConversationSectionInfo> = ConversationSectionInfo.allSections(0),
 )

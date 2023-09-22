@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.messages.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.BottomSheetAction
@@ -65,6 +66,7 @@ fun ConversationsListScreen(
                             title = it.title,
                             action = { viewModel.onSectionChosen(it) },
                             isChosen = it == sectionSelectorState.currentSection,
+                            trailingText = if (it is ConversationSectionInfo.Inbox) it.unreadMessages.toString() else null,
                         )
                     },
                 onDismissRequest = { viewModel.onConversationSectionDialogDismissed() },

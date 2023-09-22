@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.TitleSmallProminent
 import tech.relaycorp.letro.utils.ext.applyIf
@@ -35,6 +37,7 @@ data class BottomSheetAction(
     @StringRes val title: Int,
     val action: () -> Unit,
     val isChosen: Boolean = false,
+    val trailingText: String? = null,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +93,13 @@ private fun BottomSheetContent(
         }
         LazyColumn {
             items(actions) {
-                BottomSheetActionView(it.icon, it.title, it.action, it.isChosen)
+                BottomSheetActionView(
+                    icon = it.icon,
+                    title = it.title,
+                    onClick = it.action,
+                    isChosen = it.isChosen,
+                    trailingText = it.trailingText,
+                )
             }
         }
     }
@@ -102,6 +111,7 @@ private fun BottomSheetActionView(
     @StringRes title: Int,
     onClick: () -> Unit,
     isChosen: Boolean,
+    trailingText: String? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -128,6 +138,34 @@ private fun BottomSheetActionView(
             text = stringResource(id = title),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
+        )
+        if (trailingText != null) {
+            Spacer(modifier = Modifier.weight(1F))
+            Text(
+                text = trailingText,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Actions_Preview() {
+    Column {
+        BottomSheetActionView(
+            icon = R.drawable.inbox,
+            title = R.string.inbox,
+            onClick = { /*TODO*/ },
+            isChosen = true,
+            trailingText = "4",
+        )
+        BottomSheetActionView(
+            icon = R.drawable.sent,
+            title = R.string.sent,
+            onClick = { /*TODO*/ },
+            isChosen = false,
         )
     }
 }
