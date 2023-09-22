@@ -29,6 +29,7 @@ class NewMessageProcessorImpl @Inject constructor(
             conversationsDao.update(
                 this.copy(
                     isRead = false,
+                    isArchived = false,
                 ),
             )
         } ?: let {

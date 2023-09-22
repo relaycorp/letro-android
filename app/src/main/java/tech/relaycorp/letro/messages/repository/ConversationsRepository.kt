@@ -42,6 +42,10 @@ interface ConversationsRepository {
     fun getConversation(id: String): ExtendedConversation?
     fun markConversationAsRead(conversationId: String)
     fun deleteConversation(conversationId: String)
+    fun archiveConversation(
+        conversationId: String,
+        isArchived: Boolean,
+    )
 }
 
 class ConversationsRepositoryImpl @Inject constructor(
@@ -176,6 +180,19 @@ class ConversationsRepositoryImpl @Inject constructor(
             val conversationId = UUID.fromString(conversationId)
             val conversation = _conversations.value.find { it.conversationId == conversationId } ?: return@launch
             conversationsDao.delete(conversation)
+        }
+    }
+
+    @Suppress("NAME_SHADOWING")
+    override fun archiveConversation(conversationId: String, isArchived: Boolean) {
+        scope.launch {
+            val conversationId = UUID.fromString(conversationId)
+            val conversation = _conversations.value.find { it.conversationId == conversationId } ?: return@launch
+            conversationsDao.update(
+                conversation.copy(
+                    isArchived = isArchived,
+                ),
+            )
         }
     }
 

@@ -78,6 +78,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
                     isRead = conversation.isRead,
+                    isArchived = conversation.isArchived,
                     totalMessagesFormattedText = if (extendedMessagesList.count() <= 1) null else "(${extendedMessagesList.count()})",
                 )
             }

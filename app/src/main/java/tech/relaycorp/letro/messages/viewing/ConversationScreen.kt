@@ -51,6 +51,7 @@ fun ConversationScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
     onReplyClick: () -> Unit,
     onConversationDeleted: () -> Unit,
+    onConversationArchived: (Boolean) -> Unit,
     onBackClicked: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
 ) {
@@ -83,6 +84,10 @@ fun ConversationScreen(
                 ConversationToolbar(
                     onReplyClick = onReplyClick,
                     onBackClicked = onBackClicked,
+                    onArchiveClick = {
+                        val isArchived = viewModel.onArchiveConversationClicked()
+                        onConversationArchived(isArchived)
+                    },
                     onDeleteClick = { viewModel.onDeleteConversationClick() },
                 )
                 Text(
@@ -266,6 +271,7 @@ private fun MessageInfoView(
 private fun ConversationToolbar(
     onReplyClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onArchiveClick: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
     Row(
@@ -288,6 +294,15 @@ private fun ConversationToolbar(
         Spacer(
             modifier = Modifier.weight(1f),
         )
+        IconButton(
+            onClick = { onArchiveClick() },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.archive),
+                contentDescription = stringResource(id = R.string.archive),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
         IconButton(
             onClick = { onDeleteClick() },
         ) {

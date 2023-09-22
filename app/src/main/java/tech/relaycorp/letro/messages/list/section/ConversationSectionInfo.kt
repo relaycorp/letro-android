@@ -21,12 +21,18 @@ sealed class ConversationSectionInfo(
         icon = R.drawable.sent,
     )
 
+    object Archived : ConversationSectionInfo(
+        title = R.string.archive,
+        icon = R.drawable.archive,
+    )
+
     companion object {
         fun allSections(
             unreadMessages: Int,
         ) = listOf(
             Inbox(unreadMessages),
             Sent,
+            Archived,
         )
     }
 }
