@@ -1,5 +1,9 @@
+@file:Suppress("NAME_SHADOWING")
+
 package tech.relaycorp.letro.messages.list
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,13 +29,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.messages.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.model.ExtendedMessage
+import tech.relaycorp.letro.ui.common.BottomSheetAction
+import tech.relaycorp.letro.ui.common.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.theme.BodyLargeProminent
 import tech.relaycorp.letro.ui.theme.BodyMediumProminent
 import tech.relaycorp.letro.ui.theme.LabelSmallProminent
@@ -46,31 +54,65 @@ fun ConversationsListScreen(
 ) {
     val conversations by viewModel.conversations.collectAsState()
     val isOnboardingVisible by viewModel.isOnboardingMessageVisible.collectAsState()
+    val sectionSelectorState by viewModel.conversationSectionState.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        if (isOnboardingVisible) {
-            ConversationsOnboardingView(
-                onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (sectionSelectorState.sectionSelector.isOpened) {
+            LetroActionsBottomSheet(
+                actions = sectionSelectorState.sectionSelector.sections
+                    .map {
+                        BottomSheetAction(
+                            icon = it.icon,
+                            title = it.title,
+                            action = { viewModel.onSectionChosen(it) },
+                            isChosen = it == sectionSelectorState.currentSection,
+                            trailingText = if (it is ConversationSectionInfo.Inbox) it.unreadMessages.toString() else null,
+                        )
+                    },
+                onDismissRequest = { viewModel.onConversationSectionDialogDismissed() },
             )
         }
-        Box {
-            if (conversations.isEmpty()) {
-                Column {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    EmptyConversationsView()
-                }
-            } else {
+        Column {
+            if (isOnboardingVisible) {
+                ConversationsOnboardingView(
+                    onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+                )
+            }
+            Box {
                 LazyColumn {
-                    items(conversations) { conversation ->
-                        Conversation(
-                            conversation = conversation,
-                            noSubjectText = conversationsStringsProvider.noSubject,
-                            onConversationClick = {
-                                onConversationClick(conversation)
+                    items(1) {
+                        ConversationsSectionSelector(
+                            text = stringResource(id = sectionSelectorState.currentSection.title),
+                            icon = painterResource(id = sectionSelectorState.currentSection.icon),
+                            onClick = {
+                                viewModel.onConversationSectionSelectorClick()
                             },
                         )
+                    }
+
+                    when (val conversations = conversations) {
+                        is ConversationsListContent.Conversations -> {
+                            items(conversations.conversations) { conversation ->
+                                Conversation(
+                                    conversation = conversation,
+                                    noSubjectText = conversationsStringsProvider.noSubject,
+                                    onConversationClick = {
+                                        onConversationClick(conversation)
+                                    },
+                                )
+                            }
+                        }
+                        is ConversationsListContent.Empty -> {
+                            items(1) {
+                                Column {
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    EmptyConversationsView(
+                                        image = conversations.image,
+                                        text = conversations.text,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -148,16 +190,59 @@ private fun Conversation(
 }
 
 @Composable
-private fun EmptyConversationsView() {
+private fun ConversationsSectionSelector(
+    text: String,
+    icon: Painter,
+    onClick: () -> Unit,
+) {
+    Box(
+        contentAlignment = Alignment.CenterStart,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 16.dp,
+                )
+                .clickable { onClick() },
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+            )
+            Spacer(modifier = Modifier.width(9.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.BodyLargeProminent,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.width(2.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_down),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyConversationsView(
+    @DrawableRes image: Int,
+    @StringRes text: Int,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(painter = painterResource(id = R.drawable.empty_inbox_image), contentDescription = null)
+        Image(painter = painterResource(id = image), contentDescription = null)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = stringResource(id = R.string.conversations_empty_stub),
+            text = stringResource(id = text),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -260,5 +345,12 @@ fun Conversation_Preview() {
 @Composable
 private fun Onboarding_Preview() {
     ConversationsOnboardingView {
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SectionSelector_Preview() {
+    ConversationsSectionSelector(text = "inbox", icon = painterResource(id = R.drawable.inbox)) {
     }
 }
