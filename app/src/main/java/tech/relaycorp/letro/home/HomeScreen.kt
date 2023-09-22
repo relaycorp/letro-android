@@ -14,7 +14,7 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactsScreen
 import tech.relaycorp.letro.home.tabs.LetroTabs
 import tech.relaycorp.letro.messages.list.ConversationsListScreen
-import tech.relaycorp.letro.messages.list.ConversationsViewModel
+import tech.relaycorp.letro.messages.list.ConversationsListViewModel
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.ui.utils.StringsProvider
 
@@ -25,7 +25,7 @@ fun HomeScreen(
     onConversationClick: (ExtendedConversation) -> Unit,
     onEditContactClick: (Contact) -> Unit,
     snackbarHostState: SnackbarHostState,
-    conversationsViewModel: ConversationsViewModel = hiltViewModel(),
+    conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
     contactsViewModel: ContactsViewModel = hiltViewModel(),
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
@@ -43,7 +43,7 @@ fun HomeScreen(
                         ConversationsListScreen(
                             conversationsStringsProvider = stringsProvider.conversations,
                             onConversationClick = onConversationClick,
-                            viewModel = conversationsViewModel,
+                            viewModel = conversationsListViewModel,
                         )
                     }
                     TAB_CONTACTS -> ContactsScreen(

@@ -101,6 +101,9 @@
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
 
+    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contact can read them.</string>
+    <string name="close_onboarding_content_description">Close onboarding</string>
+
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
