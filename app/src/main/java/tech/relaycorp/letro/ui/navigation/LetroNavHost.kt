@@ -283,6 +283,10 @@ fun LetroNavHost(
                                     navController.popBackStack()
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.conversationDeleted)
                                 },
+                                onConversationArchived = { isArchived ->
+                                    navController.popBackStack()
+                                    snackbarHostState.showSnackbar(scope, if (isArchived) stringsProvider.snackbar.conversationArchived else stringsProvider.snackbar.conversationUnarchived)
+                                },
                                 onReplyClick = {
                                     navController.navigate(
                                         route = Route.CreateNewMessage.getRouteName(

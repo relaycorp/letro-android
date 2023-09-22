@@ -39,10 +39,13 @@ class ConversationsListViewModel @Inject constructor(
         ) { conversations, currentTab ->
             val conversations = when (currentTab.currentSection) {
                 is ConversationSectionInfo.Inbox -> {
-                    conversations.filter { it.messages.any { !it.isOutgoing } }
+                    conversations.filter { it.messages.any { !it.isOutgoing } && !it.isArchived }
                 }
                 ConversationSectionInfo.Sent -> {
-                    conversations.filter { it.messages.any { it.isOutgoing } }
+                    conversations.filter { it.messages.any { it.isOutgoing } && !it.isArchived }
+                }
+                ConversationSectionInfo.Archived -> {
+                    conversations.filter { it.isArchived }
                 }
             }
             if (conversations.isNotEmpty()) {
@@ -129,10 +132,12 @@ class ConversationsListViewModel @Inject constructor(
         image = when (_conversationSectionInfoState.value.currentSection) {
             is ConversationSectionInfo.Inbox -> R.drawable.empty_inbox_image
             ConversationSectionInfo.Sent -> R.drawable.empty_inbox_image
+            ConversationSectionInfo.Archived -> R.drawable.archive_stub
         },
         text = when (_conversationSectionInfoState.value.currentSection) {
             is ConversationSectionInfo.Inbox -> R.string.conversations_empty_inbox_stub
             ConversationSectionInfo.Sent -> R.string.conversations_empty_sent_stub
+            ConversationSectionInfo.Archived -> R.string.conversations_empty_archive_stub
         },
     )
 }

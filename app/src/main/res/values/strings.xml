@@ -63,6 +63,8 @@
     <string name="snackbar_contact_edited">Changes saved!</string>
     <string name="snackbar_message_sent">Message sent!</string>
     <string name="snackbar_conversation_deleted">Conversation deleted.</string>
+    <string name="snackbar_conversation_archived">Conversation archived.</string>
+    <string name="snackbar_conversation_unarchived">Conversation unarchived.</string>
 
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
@@ -85,6 +87,7 @@
 
     <string name="conversations_empty_inbox_stub">Nothing new for you.</string>
     <string name="conversations_empty_sent_stub">Nothing sent yet.</string>
+    <string name="conversations_empty_archive_stub">Nothing new in archive.</string>
 
     <string name="delete_conversation_dialog_message">Are you sure you want to permanently delete this conversation?</string>
 
@@ -107,6 +110,7 @@
 
     <string name="inbox">Inbox</string>
     <string name="sent">Sent</string>
+    <string name="archive">Archive</string>
 
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>

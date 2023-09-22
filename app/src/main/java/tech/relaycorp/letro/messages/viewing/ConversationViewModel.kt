@@ -50,6 +50,14 @@ class ConversationViewModel @Inject constructor(
             )
         }
     }
+
+    fun onArchiveConversationClicked(): Boolean {
+        return conversation.value?.let { conversation ->
+            val isArchived = !conversation.isArchived
+            conversationsRepository.archiveConversation(conversationId, isArchived)
+            isArchived
+        } ?: false
+    }
 }
 
 data class DeleteConversationDialogState(

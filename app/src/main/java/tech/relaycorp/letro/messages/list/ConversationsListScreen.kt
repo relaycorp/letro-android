@@ -312,6 +312,7 @@ fun Conversation_Preview() {
                 messages = listOf(
                     message,
                 ),
+                isArchived = false,
             ),
             noSubjectText = "(No subject)",
         ) {
@@ -334,6 +335,7 @@ fun Conversation_Preview() {
                 messages = listOf(
                     message,
                 ),
+                isArchived = false,
             ),
             noSubjectText = "(No subject)",
         ) {
