@@ -2,6 +2,7 @@ package tech.relaycorp.letro.ui.common
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,20 +27,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.TitleSmallProminent
+import tech.relaycorp.letro.utils.ext.applyIf
 import androidx.compose.ui.res.painterResource as painterResource1
 
 data class BottomSheetAction(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val action: () -> Unit,
+    val isChosen: Boolean = false,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LetroActionsBottomSheet(
-    title: String,
     actions: List<BottomSheetAction>,
     onDismissRequest: () -> Unit,
+    title: String? = null,
 ) {
     ModalBottomSheet(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -87,7 +90,7 @@ private fun BottomSheetContent(
         }
         LazyColumn {
             items(actions) {
-                BottomSheetActionView(it.icon, it.title, it.action)
+                BottomSheetActionView(it.icon, it.title, it.action, it.isChosen)
             }
         }
     }
@@ -98,11 +101,15 @@ private fun BottomSheetActionView(
     @DrawableRes icon: Int,
     @StringRes title: Int,
     onClick: () -> Unit,
+    isChosen: Boolean,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .applyIf(isChosen) {
+                background(LetroColor.SurfaceContainer)
+            }
             .clickable { onClick() }
             .padding(
                 vertical = 14.dp,
