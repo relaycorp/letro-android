@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.messages.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,26 +42,36 @@ import java.util.UUID
 fun ConversationsListScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
     onConversationClick: (ExtendedConversation) -> Unit,
-    viewModel: ConversationsViewModel,
+    viewModel: ConversationsListViewModel,
 ) {
     val conversations by viewModel.conversations.collectAsState()
+    val isOnboardingVisible by viewModel.isOnboardingMessageVisible.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (conversations.isEmpty()) {
-            Column {
-                Spacer(modifier = Modifier.height(24.dp))
-                EmptyConversationsView()
-            }
-        } else {
-            LazyColumn {
-                items(conversations) { conversation ->
-                    Conversation(
-                        conversation = conversation,
-                        noSubjectText = conversationsStringsProvider.noSubject,
-                        onConversationClick = {
-                            onConversationClick(conversation)
-                        },
-                    )
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        if (isOnboardingVisible) {
+            ConversationsOnboardingView(
+                onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+            )
+        }
+        Box {
+            if (conversations.isEmpty()) {
+                Column {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    EmptyConversationsView()
+                }
+            } else {
+                LazyColumn {
+                    items(conversations) { conversation ->
+                        Conversation(
+                            conversation = conversation,
+                            noSubjectText = conversationsStringsProvider.noSubject,
+                            onConversationClick = {
+                                onConversationClick(conversation)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -150,6 +164,37 @@ private fun EmptyConversationsView() {
     }
 }
 
+@Composable
+private fun ConversationsOnboardingView(
+    onCloseClick: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp),
+    ) {
+        Text(
+            text = stringResource(id = R.string.conversations_onboarding_text),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(
+            onClick = onCloseClick,
+            modifier = Modifier
+                .size(24.dp),
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_close_14),
+                contentDescription = stringResource(id = R.string.close_onboarding_content_description),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun Conversation_Preview() {
@@ -208,5 +253,12 @@ fun Conversation_Preview() {
             noSubjectText = "(No subject)",
         ) {
         }
+    }
+}
+
+@Preview
+@Composable
+private fun Onboarding_Preview() {
+    ConversationsOnboardingView {
     }
 }

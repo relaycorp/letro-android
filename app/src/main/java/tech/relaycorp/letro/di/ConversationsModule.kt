@@ -9,6 +9,8 @@ import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverter
 import tech.relaycorp.letro.messages.converter.MessageTimestampConverterImpl
+import tech.relaycorp.letro.messages.onboarding.ConversationsOnboardingManager
+import tech.relaycorp.letro.messages.onboarding.ConversationsOnboardingManagerImpl
 import tech.relaycorp.letro.messages.parser.NewConversationMessageParser
 import tech.relaycorp.letro.messages.parser.NewConversationMessageParserImpl
 import tech.relaycorp.letro.messages.parser.NewMessageMessageParser
@@ -84,5 +86,10 @@ object ConversationsModule {
         fun bindNewMessageParser(
             impl: NewMessageMessageParserImpl,
         ): NewMessageMessageParser
+
+        @Binds
+        fun bindOnboardingMessageManager(
+            impl: ConversationsOnboardingManagerImpl,
+        ): ConversationsOnboardingManager
     }
 }
