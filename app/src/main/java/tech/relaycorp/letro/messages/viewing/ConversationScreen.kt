@@ -65,6 +65,7 @@ fun ConversationScreen(
         LaunchedEffect(Unit) { // Scroll to the top of a conversation on screen opening
             scrollState.scrollToItem(conversation.messages.size - 1)
         }
+
         Box(
             modifier = Modifier
                 .fillMaxSize(),

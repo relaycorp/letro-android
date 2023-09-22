@@ -7,6 +7,10 @@ import tech.relaycorp.letro.messages.dto.NewMessageIncomingMessage
 import tech.relaycorp.letro.messages.parser.NewMessageMessageParser
 import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
+import tech.relaycorp.letro.messages.storage.entity.Conversation
+import tech.relaycorp.letro.messages.storage.entity.Message
+import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 interface NewMessageProcessor : AwalaMessageProcessor
@@ -17,15 +21,34 @@ class NewMessageProcessorImpl @Inject constructor(
     private val messagesDao: MessagesDao,
 ) : NewMessageProcessor {
 
+    @Suppress("NAME_SHADOWING")
     override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
-        val parsedMessage = (parser.parse(message.content) as NewMessageIncomingMessage).content
-        conversationsDao.getConversationById(parsedMessage.conversationId)?.let { conversation ->
+        val messageWrapper = (parser.parse(message.content) as NewMessageIncomingMessage).content
+        val conversationId = UUID.fromString(messageWrapper.conversationId)
+        val conversation = conversationsDao.getConversationById(conversationId)?.apply {
             conversationsDao.update(
-                conversation.copy(
+                this.copy(
                     isRead = false,
                 ),
             )
+        } ?: let {
+            val conversation = Conversation(
+                conversationId = conversationId,
+                ownerVeraId = messageWrapper.recipientVeraId,
+                contactVeraId = messageWrapper.senderVeraId,
+                isRead = false,
+            )
+            conversationsDao.createNewConversation(conversation)
+            conversation
         }
-        messagesDao.insert(parsedMessage)
+        val message = Message(
+            conversationId = conversationId,
+            text = messageWrapper.messageText,
+            ownerVeraId = conversation.ownerVeraId,
+            recipientVeraId = messageWrapper.recipientVeraId,
+            senderVeraId = messageWrapper.senderVeraId,
+            sentAt = LocalDateTime.now(),
+        )
+        messagesDao.insert(message)
     }
 }

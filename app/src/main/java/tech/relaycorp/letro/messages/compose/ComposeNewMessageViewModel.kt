@@ -42,7 +42,7 @@ class CreateNewMessageViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         NewMessageUiState(
             sender = conversation?.ownerVeraId ?: "",
-            recipient = conversation?.contactDisplayName ?: "",
+            recipient = conversation?.contactVeraId ?: "",
             subject = conversation?.subject ?: "",
             showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
             showRecipientAsChip = conversation != null,

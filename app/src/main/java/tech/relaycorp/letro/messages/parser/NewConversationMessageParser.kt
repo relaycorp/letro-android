@@ -1,10 +1,10 @@
 package tech.relaycorp.letro.messages.parser
 
+import com.google.gson.Gson
 import tech.relaycorp.letro.awala.parser.AwalaMessageParser
 import tech.relaycorp.letro.messages.dto.NewConversationIncomingMessage
 import tech.relaycorp.letro.messages.dto.NewConversationIncomingMessageContent
-import tech.relaycorp.letro.messages.storage.entity.Conversation
-import java.util.UUID
+import tech.relaycorp.letro.messages.model.ConversationAwalaWrapper
 import javax.inject.Inject
 
 interface NewConversationMessageParser : AwalaMessageParser
@@ -12,23 +12,10 @@ interface NewConversationMessageParser : AwalaMessageParser
 class NewConversationMessageParserImpl @Inject constructor() : NewConversationMessageParser {
 
     override fun parse(content: ByteArray): NewConversationIncomingMessage {
-        val conversation = mockConversation() // TODO: parse conversation
-        val message = mockMessage(conversation.conversationId) // TODO: create message object
         return NewConversationIncomingMessage(
             content = NewConversationIncomingMessageContent(
-                conversation = conversation,
-                message = message,
+                conversation = Gson().fromJson(content.decodeToString(), ConversationAwalaWrapper::class.java),
             ),
         )
     }
-
-    private fun mockConversation() = Conversation(
-        ownerVeraId = "ff@cuppa.fans",
-        contactVeraId = "ff@applepie.rocks",
-        subject = "Test subject",
-        conversationId = MOCK_CONVERSATION_ID,
-        isRead = false,
-    )
 }
-
-private val MOCK_CONVERSATION_ID = UUID.randomUUID()
