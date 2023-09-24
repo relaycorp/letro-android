@@ -12,6 +12,8 @@ interface SnackbarStringsProvider {
     val conversationDeleted: String
     val conversationArchived: String
     val conversationUnarchived: String
+    val notificationPermissionDenied: String
+    val goToSettings: String
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -34,4 +36,10 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val conversationUnarchived: String
         get() = activity.getString(R.string.snackbar_conversation_unarchived)
+
+    override val notificationPermissionDenied: String
+        get() = activity.getString(R.string.we_need_your_permission)
+
+    override val goToSettings: String
+        get() = activity.getString(R.string.go_to_settings)
 }
