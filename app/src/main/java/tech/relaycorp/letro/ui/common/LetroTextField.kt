@@ -116,7 +116,7 @@ fun LetroOutlinedTextField(
             Column {
                 Text(
                     text = stringResource(id = label),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(
@@ -150,6 +150,9 @@ fun LetroOutlinedTextField(
             singleLine = singleLine,
             isError = isError,
             enabled = isEnabled,
+            colors = TextFieldDefaults.colors(
+                errorIndicatorColor = MaterialTheme.colorScheme.error,
+            ),
         )
         if (content != null) {
             content()

@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import tech.relaycorp.letro.contacts.ManageContactViewModel
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
 
 /**
  * Class which contains all possible routes
@@ -10,6 +11,7 @@ import tech.relaycorp.letro.contacts.ManageContactViewModel
 sealed class Route(
     val name: String,
     val showTopBar: Boolean = true,
+    val isStatusBarVisible: Boolean = true,
     val isStatusBarPrimaryColor: Boolean = false,
 ) {
 
@@ -26,6 +28,13 @@ sealed class Route(
     object AwalaNotInstalled : Route(
         name = "awala_not_installed_route",
         showTopBar = false,
+        isStatusBarVisible = false,
+    )
+
+    object AwalaInitializing : Route(
+        name = "awala_initializing_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = true,
     )
 
     object RegistrationProcessWaiting : Route(
@@ -70,10 +79,33 @@ sealed class Route(
     )
 
     object CreateNewMessage : Route(
-        name = "create_new_message",
+        name = "create_new_message_route",
         showTopBar = false,
         isStatusBarPrimaryColor = false,
-    )
+    ) {
+        const val KEY_SCREEN_TYPE = "screen_type"
+        const val KEY_CONVERSATION_ID = "conversation_id"
+
+        fun getRouteName(
+            @CreateNewMessageViewModel.ScreenType screenType: Int,
+            conversationId: String? = null,
+        ) =
+            "${CreateNewMessage.name}?" +
+                "$KEY_SCREEN_TYPE=$screenType" +
+                if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
+    }
+
+    object Conversation : Route(
+        name = "conversation_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = false,
+    ) {
+
+        const val KEY_CONVERSATION_ID = "conversation_id"
+
+        fun getRouteName(conversationId: String) =
+            "${Conversation.name}/$conversationId"
+    }
 }
 
 fun String?.toRoute(): Route {
@@ -81,6 +113,7 @@ fun String?.toRoute(): Route {
         return when {
             it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
+            it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
@@ -88,6 +121,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact
             it.startsWith(Route.Home.name) -> Route.Home
             it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
+            it.startsWith(Route.Conversation.name) -> Route.Conversation
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }

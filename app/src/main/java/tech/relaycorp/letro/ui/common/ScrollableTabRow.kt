@@ -1,6 +1,5 @@
-package tech.relaycorp.letro.home
+package tech.relaycorp.letro.ui.common
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -9,89 +8,31 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.R
-import tech.relaycorp.letro.ui.theme.LetroColor
-
-@SuppressLint
-@Composable
-fun LetroTabs(
-    viewModel: HomeViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    val tabTitles = listOf(
-        stringResource(id = R.string.top_bar_tab_conversations),
-        stringResource(id = R.string.top_bar_tab_contacts),
-        stringResource(id = R.string.top_bar_tab_notifications),
-    )
-    ScrollableTabRow(
-        selectedTabIndex = uiState.currentTab,
-        containerColor = LetroColor.SurfaceContainerHigh,
-        contentColor = LetroColor.OnSurfaceContainerHigh,
-        edgePadding = 9.dp,
-        indicator = {
-            TabRowDefaults.Indicator(
-                color = LetroColor.OnSurfaceContainerHigh,
-                modifier = Modifier.tabIndicatorOffset(it[uiState.currentTab]),
-            )
-        },
-        modifier = modifier,
-    ) {
-        tabTitles.forEachIndexed { index, title ->
-            Tab(
-                selected = uiState.currentTab == index,
-                onClick = {
-                    viewModel.onTabClick(index)
-                },
-                text = {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = LetroColor.OnSurfaceContainerHigh,
-                        maxLines = 1,
-                    )
-                },
-                selectedContentColor = LetroColor.OnSurfaceContainerHigh,
-                unselectedContentColor = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 0.dp)
-                    .alpha(if (uiState.currentTab == index) 1f else 0.6f),
-            )
-        }
-    }
-}
 
 // @Deprecated("Copy pasted from TabRow compose class, because they don't provide an option to add padding between items")
 @Composable

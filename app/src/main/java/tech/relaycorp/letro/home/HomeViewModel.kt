@@ -9,18 +9,31 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.home.badge.UnreadBadgesManager
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val unreadBadgesManager: UnreadBadgesManager,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState>
         get() = _uiState
 
-    private val _createNewMessageSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val createNewMessageSignal: SharedFlow<Unit>
-        get() = _createNewMessageSignal
+    private val _createNewConversationSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val createNewConversationSignal: SharedFlow<Unit>
+        get() = _createNewConversationSignal
+
+    init {
+        viewModelScope.launch {
+            unreadBadgesManager.unreadConversations.collect {
+                updateTabBadges(
+                    unreadConversations = it,
+                )
+            }
+        }
+    }
 
     fun onTabClick(index: Int) {
         viewModelScope.launch {
@@ -47,7 +60,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             when (uiState.value.currentTab) {
                 TAB_CHATS -> {
-                    _createNewMessageSignal.emit(Unit)
+                    _createNewConversationSignal.emit(Unit)
                 }
                 TAB_CONTACTS -> {
                     _uiState.update {
@@ -57,6 +70,23 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     }
                 }
             }
+        }
+    }
+
+    private fun updateTabBadges(
+        unreadConversations: Int,
+    ) {
+        val badge = when {
+            unreadConversations > 9 -> "9+"
+            unreadConversations > 0 -> unreadConversations.toString()
+            else -> null
+        }
+        _uiState.update {
+            it.copy(
+                tabCounters = mapOf(
+                    TAB_CHATS to badge,
+                ),
+            )
         }
     }
 
@@ -70,6 +100,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
 data class HomeUiState(
     val currentTab: Int = TAB_CHATS,
+    val tabCounters: Map<Int, String?> = emptyMap(),
     val floatingActionButtonConfig: HomeFloatingActionButtonConfig? = HomeFloatingActionButtonConfig.ChatListFloatingActionButtonConfig,
     val isAddContactFloatingMenuVisible: Boolean = false,
 )

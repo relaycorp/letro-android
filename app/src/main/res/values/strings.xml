@@ -62,6 +62,9 @@
     <string name="snackbar_contact_deleted">Contact deleted.</string>
     <string name="snackbar_contact_edited">Changes saved!</string>
     <string name="snackbar_message_sent">Message sent!</string>
+    <string name="snackbar_conversation_deleted">Conversation deleted.</string>
+    <string name="snackbar_conversation_archived">Conversation archived.</string>
+    <string name="snackbar_conversation_unarchived">Conversation unarchived.</string>
 
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
@@ -72,14 +75,42 @@
 
     <string name="new_message_attach">Attach</string>
     <string name="new_message_send">Send</string>
-    <string name="new_message_from">From</string>
-    <string name="new_message_to">To</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="date">Date</string>
     <string name="new_message_subject_hint">Subject</string>
     <string name="new_message_body_hint">Type your message…</string>
     <string name="you_not_connected_to_this_contact_error">You’re not connected to this contact.</string>
     <string name="content_description_recipient_clear">Clear recipient</string>
+    <string name="reply">Reply</string>
+    <string name="delete_conversation">Delete conversation</string>
 
-    <string name="conversations_empty_stub">Nothing new for you.</string>
+    <string name="conversations_empty_inbox_stub">Nothing new for you.</string>
+    <string name="conversations_empty_sent_stub">Nothing sent yet.</string>
+    <string name="conversations_empty_archive_stub">Nothing new in archive.</string>
+
+    <string name="delete_conversation_dialog_message">Are you sure you want to permanently delete this conversation?</string>
+
+    <string name="no_subject">(No subject)</string>
+
+    <string name="we_setting_things_up">We’re setting things up</string>
+    <string name="filling_the_kettle">Filling the kettle…</string>
+    <string name="starting_the_kettle">Starting the kettle…</string>
+    <string name="putting_the_tea_bag">Putting the tea bag in the mug…</string>
+    <string name="putting_the_hot_water">Pouring the hot water in the mug…</string>
+    <string name="letting_the_tea_brew">Letting the tea brew…</string>
+    <string name="removing_the_tea_bag">Removing the tea bag…</string>
+    <string name="drinking_the_tea">Drinking the tea…</string>
+
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+
+    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contact can read them.</string>
+    <string name="close_onboarding_content_description">Close onboarding</string>
+
+    <string name="inbox">Inbox</string>
+    <string name="sent">Sent</string>
+    <string name="archive">Archive</string>
 
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>

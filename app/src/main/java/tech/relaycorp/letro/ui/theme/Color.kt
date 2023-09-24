@@ -11,7 +11,7 @@ val Secondary1 = Color(0xFF00034F)
 val Secondary2 = Color(0xFF64B5FF)
 val Secondary5 = Color(0xFFD1E4FF)
 val Error1 = Color(0xFFBA1A1A)
-val Error2 = Color(0xFFFFC4C4)
+val Error2 = Color(0xFFFFB9B9)
 val Neutral2 = Color(0xFF0C1B44)
 val Neutral3 = Color(0xFF5A6688)
 val Neutral4 = Color(0xFF6D7B9E)
@@ -39,6 +39,10 @@ object LetroColor {
     val OnSurfaceContainerHigh: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant8 else Neutral8
+
+    val SurfaceContainer: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant4 else Neutral6
 
     val OnSurfaceContainer: Color
         @Composable

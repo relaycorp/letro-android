@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,9 +31,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.awala.AwalaNotInstalledScreen
+import tech.relaycorp.letro.awala.ui.AwalaInitializationInProgress
+import tech.relaycorp.letro.awala.ui.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
@@ -42,21 +41,23 @@ import tech.relaycorp.letro.home.HomeScreen
 import tech.relaycorp.letro.home.HomeViewModel
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.messages.compose.CreateNewMessageScreen
+import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
+import tech.relaycorp.letro.messages.viewing.ConversationScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
-import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
-import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.ext.encodeToUTF
+import tech.relaycorp.letro.utils.ext.showSnackbar
 import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
 @Composable
 fun LetroNavHost(
     navController: NavHostController,
-    snackbarStringsProvider: SnackbarStringsProvider,
+    stringsProvider: StringsProvider,
     mainViewModel: MainViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -65,7 +66,6 @@ fun LetroNavHost(
     var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
 
     val uiState by mainViewModel.uiState.collectAsState()
-    val showAwalaNotInstalledScreen by mainViewModel.showInstallAwalaScreen.collectAsState()
 
     val homeUiState by homeViewModel.uiState.collectAsState()
     val floatingActionButtonConfig = homeUiState.floatingActionButtonConfig
@@ -79,13 +79,6 @@ fun LetroNavHost(
         }
     }
 
-    val lifecycleEvent = rememberLifecycleEvent()
-    LaunchedEffect(lifecycleEvent) {
-        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-            mainViewModel.onScreenResumed(currentRoute)
-        }
-    }
-
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
             handleFirstNavigation(navController, firstNavigation)
@@ -93,211 +86,273 @@ fun LetroNavHost(
     }
 
     LaunchedEffect(Unit) {
-        homeViewModel.createNewMessageSignal.collect {
-            navController.navigate(Route.CreateNewMessage.name)
+        homeViewModel.createNewConversationSignal.collect {
+            navController.navigate(Route.CreateNewMessage.getRouteName(CreateNewMessageViewModel.ScreenType.NEW_CONVERSATION))
         }
     }
 
-    if (showAwalaNotInstalledScreen) {
-        systemUiController.isStatusBarVisible = false
-        AwalaNotInstalledScreen(
-            mainViewModel = mainViewModel,
-            onInstallAwalaClick = {
-                mainViewModel.onInstallAwalaClick()
-            },
-        )
-    } else {
-        systemUiController.isStatusBarVisible = true
-        val currentAccount = uiState.currentAccount
-        Scaffold(
-            content = { paddingValues ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                ) {
-                    Column {
-                        if (currentRoute.showTopBar && currentAccount != null) {
-                            LetroTopBar(
-                                accountVeraId = currentAccount,
-                                isAccountCreated = uiState.isCurrentAccountCreated,
-                                onChangeAccountClicked = { /*TODO*/ },
-                                onSettingsClicked = { },
+    val currentAccount = uiState.currentAccount
+    Scaffold(
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            ) {
+                Column {
+                    if (currentRoute.showTopBar && currentAccount != null) {
+                        LetroTopBar(
+                            accountVeraId = currentAccount,
+                            isAccountCreated = uiState.isCurrentAccountCreated,
+                            onChangeAccountClicked = { /*TODO*/ },
+                            onSettingsClicked = { },
+                        )
+                    }
+                    NavHost(
+                        navController = navController,
+                        startDestination = Route.Splash.name,
+                    ) {
+                        composable(Route.AwalaNotInstalled.name) {
+                            AwalaNotInstalledScreen(
+                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
+                                onInstallAwalaClick = {
+                                    mainViewModel.onInstallAwalaClick()
+                                },
                             )
                         }
-                        NavHost(
-                            navController = navController,
-                            startDestination = Route.Splash.name,
-                        ) {
-                            composable(Route.Splash.name) {
-                                SplashScreen()
-                            }
-                            composable(Route.Registration.name) {
-                                RegistrationScreen(
-                                    onUseExistingAccountClick = {},
-                                )
-                            }
-                            composable(Route.WelcomeToLetro.name) {
-                                ActionTakingScreen(
-                                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
-                                        title = R.string.onboarding_account_confirmation,
-                                        image = R.drawable.account_created,
-                                        onPairWithOthersClick = {
-                                            navController.navigate(
-                                                Route.ManageContact.getRouteName(
-                                                    screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
-                                                ),
-                                            )
-                                        },
-                                        onShareIdClick = {
-                                            mainViewModel.onShareIdClick()
-                                        },
-                                    ),
-                                )
-                            }
-                            composable(Route.NoContacts.name) {
-                                ActionTakingScreen(
-                                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
-                                        title = null,
-                                        message = R.string.no_contacts_text,
-                                        image = R.drawable.no_contacts_image,
-                                        onPairWithOthersClick = {
-                                            navController.navigate(
-                                                Route.ManageContact.getRouteName(
-                                                    screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
-                                                ),
-                                            )
-                                        },
-                                        onShareIdClick = {
-                                            mainViewModel.onShareIdClick()
-                                        },
-                                    ),
-                                )
-                            }
-                            composable(Route.RegistrationProcessWaiting.name) {
-                                ActionTakingScreen(
-                                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
-                                )
-                            }
-                            composable(
-                                route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
-                                arguments = listOf(
-                                    navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
-                                        type = NavType.StringType
-                                        nullable = true
-                                    },
-                                    navArgument(Route.ManageContact.KEY_SCREEN_TYPE) {
-                                        type = NavType.IntType
-                                        nullable = false
-                                    },
-                                    navArgument(Route.ManageContact.KEY_CONTACT_ID_TO_EDIT) {
-                                        type = NavType.LongType
-                                        nullable = false
-                                        defaultValue = Route.ManageContact.NO_ID
-                                    },
-                                ),
-                            ) { entry ->
-                                ManageContactScreen(
-                                    onBackClick = {
-                                        navController.popBackStack()
-                                    },
-                                    onEditContactCompleted = {
-                                        when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
-                                            ManageContactViewModel.Type.EDIT_CONTACT -> {
-                                                navController.popBackStack()
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        message = snackbarStringsProvider.contactEdited,
-                                                    )
-                                                }
-                                            }
-                                            else -> throw IllegalStateException("Unknown screen type: $type")
-                                        }
-                                    },
-                                )
-                            }
-                            composable(Route.Home.name) {
-                                HomeScreen(
-                                    homeViewModel = homeViewModel,
-                                    snackbarHostState = snackbarHostState,
-                                    snackbarStringsProvider = snackbarStringsProvider,
-                                    onEditContactClick = { contact ->
+                        composable(Route.AwalaInitializing.name) {
+                            AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
+                        }
+                        composable(Route.Splash.name) {
+                            SplashScreen()
+                        }
+                        composable(Route.Registration.name) {
+                            RegistrationScreen(
+                                onUseExistingAccountClick = {},
+                            )
+                        }
+                        composable(Route.WelcomeToLetro.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
+                                    title = R.string.onboarding_account_confirmation,
+                                    image = R.drawable.account_created,
+                                    onPairWithOthersClick = {
                                         navController.navigate(
                                             Route.ManageContact.getRouteName(
-                                                screenType = ManageContactViewModel.Type.EDIT_CONTACT,
+                                                screenType = ManageContactViewModel.Type.NEW_CONTACT,
                                                 currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
-                                                contactIdToEdit = contact.id,
                                             ),
                                         )
                                     },
-                                )
-                            }
-                            composable(Route.CreateNewMessage.name) {
-                                CreateNewMessageScreen(
-                                    onBackClicked = { navController.popBackStack() },
-                                    onMessageSent = {
-                                        navController.popBackStack()
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(snackbarStringsProvider.messageSent)
-                                        }
+                                    onShareIdClick = {
+                                        mainViewModel.onShareIdClick()
                                     },
-                                )
-                            }
+                                ),
+                            )
+                        }
+                        composable(Route.NoContacts.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
+                                    title = null,
+                                    message = R.string.no_contacts_text,
+                                    image = R.drawable.no_contacts_image,
+                                    onPairWithOthersClick = {
+                                        navController.navigate(
+                                            Route.ManageContact.getRouteName(
+                                                screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                                currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
+                                            ),
+                                        )
+                                    },
+                                    onShareIdClick = {
+                                        mainViewModel.onShareIdClick()
+                                    },
+                                ),
+                            )
+                        }
+                        composable(Route.RegistrationProcessWaiting.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
+                            )
+                        }
+                        composable(
+                            route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
+                            arguments = listOf(
+                                navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
+                                    type = NavType.StringType
+                                    nullable = true
+                                },
+                                navArgument(Route.ManageContact.KEY_SCREEN_TYPE) {
+                                    type = NavType.IntType
+                                    nullable = false
+                                },
+                                navArgument(Route.ManageContact.KEY_CONTACT_ID_TO_EDIT) {
+                                    type = NavType.LongType
+                                    nullable = false
+                                    defaultValue = Route.ManageContact.NO_ID
+                                },
+                            ),
+                        ) { entry ->
+                            ManageContactScreen(
+                                onBackClick = {
+                                    navController.popBackStack()
+                                },
+                                onEditContactCompleted = {
+                                    when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
+                                        ManageContactViewModel.Type.EDIT_CONTACT -> {
+                                            navController.popBackStack()
+                                            snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.contactEdited)
+                                        }
+                                        else -> throw IllegalStateException("Unknown screen type: $type")
+                                    }
+                                },
+                            )
+                        }
+                        composable(Route.Home.name) {
+                            HomeScreen(
+                                homeViewModel = homeViewModel,
+                                snackbarHostState = snackbarHostState,
+                                stringsProvider = stringsProvider,
+                                onConversationClick = {
+                                    navController.navigate(
+                                        Route.Conversation.getRouteName(
+                                            conversationId = it.conversationId.toString(),
+                                        ),
+                                    )
+                                },
+                                onEditContactClick = { contact ->
+                                    navController.navigate(
+                                        Route.ManageContact.getRouteName(
+                                            screenType = ManageContactViewModel.Type.EDIT_CONTACT,
+                                            currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
+                                            contactIdToEdit = contact.id,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+                        composable(
+                            route = "${Route.CreateNewMessage.name}" +
+                                "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
+                                "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
+                            arguments = listOf(
+                                navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {
+                                    type = NavType.IntType
+                                    nullable = false
+                                },
+                                navArgument(Route.CreateNewMessage.KEY_CONVERSATION_ID) {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                            ),
+                        ) {
+                            val screenType = it.arguments?.getInt(Route.CreateNewMessage.KEY_SCREEN_TYPE)
+                            CreateNewMessageScreen(
+                                conversationsStringsProvider = stringsProvider.conversations,
+                                onBackClicked = { navController.popBackStack() },
+                                onMessageSent = {
+                                    when (screenType) {
+                                        CreateNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION -> {
+                                            navController.popBackStack(
+                                                route = Route.Home.name,
+                                                inclusive = false,
+                                            )
+                                        }
+                                        CreateNewMessageViewModel.ScreenType.NEW_CONVERSATION -> {
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                    snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
+                                },
+                            )
+                        }
+                        composable(
+                            route = "${Route.Conversation.name}/{${Route.Conversation.KEY_CONVERSATION_ID}}",
+                            arguments = listOf(
+                                navArgument(Route.Conversation.KEY_CONVERSATION_ID) {
+                                    type = NavType.StringType
+                                    nullable = false
+                                },
+                            ),
+                        ) {
+                            val conversationId = it.arguments?.getString(Route.Conversation.KEY_CONVERSATION_ID)
+                            ConversationScreen(
+                                conversationsStringsProvider = stringsProvider.conversations,
+                                onConversationDeleted = {
+                                    navController.popBackStack()
+                                    snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.conversationDeleted)
+                                },
+                                onConversationArchived = { isArchived ->
+                                    navController.popBackStack()
+                                    snackbarHostState.showSnackbar(scope, if (isArchived) stringsProvider.snackbar.conversationArchived else stringsProvider.snackbar.conversationUnarchived)
+                                },
+                                onReplyClick = {
+                                    navController.navigate(
+                                        route = Route.CreateNewMessage.getRouteName(
+                                            screenType = CreateNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION,
+                                            conversationId = conversationId,
+                                        ),
+                                    )
+                                },
+                                onBackClicked = {
+                                    navController.popBackStack()
+                                },
+                            )
                         }
                     }
-                    if (homeUiState.isAddContactFloatingMenuVisible && currentRoute == Route.Home) {
-                        systemUiController.setStatusBarColor(LetroColor.statusBarUnderDialogOverlay())
-                        ContactsScreenOverlayFloatingMenu(
-                            homeViewModel = homeViewModel,
-                            onShareIdClick = {
-                                mainViewModel.onShareIdClick()
-                                homeViewModel.onOptionFromContactsFloatingMenuClicked()
-                            },
-                            onPairWithOthersClick = {
-                                navController.navigate(
-                                    Route.ManageContact.getRouteName(
-                                        screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                        currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
-                                    ),
-                                )
-                                homeViewModel.onOptionFromContactsFloatingMenuClicked()
-                            },
-                        )
-                    } else {
-                        systemUiController.setStatusBarColor(
-                            if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface,
-                        )
-                    }
                 }
-            },
-            floatingActionButton = {
-                if (
-                    floatingActionButtonConfig != null &&
-                    !homeUiState.isAddContactFloatingMenuVisible &&
-                    currentRoute == Route.Home
+                if (homeUiState.isAddContactFloatingMenuVisible && currentRoute == Route.Home) {
+                    systemUiController.setStatusBarColor(LetroColor.statusBarUnderDialogOverlay())
+                    ContactsScreenOverlayFloatingMenu(
+                        homeViewModel = homeViewModel,
+                        onShareIdClick = {
+                            mainViewModel.onShareIdClick()
+                            homeViewModel.onOptionFromContactsFloatingMenuClicked()
+                        },
+                        onPairWithOthersClick = {
+                            navController.navigate(
+                                Route.ManageContact.getRouteName(
+                                    screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
+                                ),
+                            )
+                            homeViewModel.onOptionFromContactsFloatingMenuClicked()
+                        },
+                    )
+                } else {
+                    systemUiController.isStatusBarVisible = currentRoute.isStatusBarVisible
+                    systemUiController.setStatusBarColor(
+                        if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface,
+                    )
+                }
+            }
+        },
+        floatingActionButton = {
+            if (
+                floatingActionButtonConfig != null &&
+                !homeUiState.isAddContactFloatingMenuVisible &&
+                currentRoute == Route.Home
+            ) {
+                FloatingActionButton(
+                    onClick = { homeViewModel.onFloatingActionButtonClick() },
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
                 ) {
-                    FloatingActionButton(
-                        onClick = { homeViewModel.onFloatingActionButtonClick() },
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.primary,
-                    ) {
-                        Icon(
-                            painter = painterResource(id = floatingActionButtonConfig.icon),
-                            contentDescription = stringResource(
-                                id = floatingActionButtonConfig.contentDescription,
-                            ),
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = floatingActionButtonConfig.icon),
+                        contentDescription = stringResource(
+                            id = floatingActionButtonConfig.contentDescription,
+                        ),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
                 }
-            },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            },
-        )
-    }
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
+    )
 }
 
 private fun handleFirstNavigation(
@@ -326,6 +381,14 @@ private fun handleFirstNavigation(
 
         RootNavigationScreen.RegistrationWaiting -> {
             navController.navigateWithPoppingAllBackStack(Route.RegistrationProcessWaiting)
+        }
+
+        RootNavigationScreen.AwalaNotInstalled -> {
+            navController.navigateWithPoppingAllBackStack(Route.AwalaNotInstalled)
+        }
+
+        RootNavigationScreen.AwalaInitializing -> {
+            navController.navigateWithPoppingAllBackStack(Route.AwalaInitializing)
         }
     }
 }

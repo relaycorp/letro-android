@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.pairing.processor
 
+import android.util.Log
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
@@ -20,6 +21,7 @@ class ContactPairingAuthorizationProcessorImpl @Inject constructor(
         val response = (parser.parse(message.content) as ContactPairingAuthorizationIncomingMessage).content
         val nodeId = awalaManager.importPrivateThirdPartyAuth(response.authData)
 
+        Log.d(TAG, "Contact auth received. Update status for nodeId=$nodeId")
         contactsDao.getContactsByContactEndpointId(
             contactEndpointId = nodeId,
         ).forEach { contactToUpdate ->
@@ -29,5 +31,9 @@ class ContactPairingAuthorizationProcessorImpl @Inject constructor(
                 ),
             )
         }
+    }
+
+    private companion object {
+        private const val TAG = "ContactPairingAuthorizationProcessorImpl"
     }
 }
