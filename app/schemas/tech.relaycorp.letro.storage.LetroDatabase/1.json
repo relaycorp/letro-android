@@ -2,12 +2,18 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9ba7446ded03c6afc5e5dd21b7bae758",
+    "identityHash": "400fe4e515d0db80e7b318d8ce2c5fb6",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`veraId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `locale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL, PRIMARY KEY(`veraId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `locale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "veraId",
             "columnName": "veraId",
@@ -40,12 +46,22 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
-            "veraId"
+            "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_account_veraId",
+            "unique": true,
+            "columnNames": [
+              "veraId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_account_veraId` ON `${TABLE_NAME}` (`veraId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -122,7 +138,7 @@
       },
       {
         "tableName": "conversations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `subject` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `subject` TEXT, `isArchived` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "keyId",
@@ -149,10 +165,22 @@
             "notNull": true
           },
           {
+            "fieldPath": "isRead",
+            "columnName": "isRead",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "subject",
             "columnName": "subject",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "isArchived",
+            "columnName": "isArchived",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -161,12 +189,22 @@
             "keyId"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_conversations_conversationId",
+            "unique": true,
+            "columnNames": [
+              "conversationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_conversations_conversationId` ON `${TABLE_NAME}` (`conversationId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
         "tableName": "messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAt` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAt` TEXT NOT NULL, FOREIGN KEY(`conversationId`) REFERENCES `conversations`(`conversationId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -218,13 +256,25 @@
           ]
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "conversations",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "conversationId"
+            ],
+            "referencedColumns": [
+              "conversationId"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9ba7446ded03c6afc5e5dd21b7bae758')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '400fe4e515d0db80e7b318d8ce2c5fb6')"
     ]
   }
 }
