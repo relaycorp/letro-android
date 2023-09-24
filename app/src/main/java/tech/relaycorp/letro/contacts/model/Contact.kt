@@ -19,7 +19,7 @@ const val TABLE_NAME_CONTACTS = "contacts"
     foreignKeys = [
         ForeignKey(
             entity = Account::class,
-            parentColumns = ["veraId"],
+            parentColumns = ["veraidId"],
             childColumns = ["ownerVeraId"],
             onDelete = ForeignKey.CASCADE,
         ),

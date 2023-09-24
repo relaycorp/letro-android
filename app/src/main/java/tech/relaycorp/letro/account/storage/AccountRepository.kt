@@ -10,14 +10,25 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.utils.i18n.normaliseString
+import java.security.PrivateKey
 import java.util.Locale
 import javax.inject.Inject
 
 interface AccountRepository {
     val currentAccount: Flow<Account?>
-    suspend fun createAccount(requestedUserName: String, domainName: String, locale: Locale)
+    suspend fun createAccount(
+        requestedUserName: String,
+        domainName: String,
+        locale: Locale,
+        veraidPrivateKey: PrivateKey,
+    )
 
-    suspend fun updateAccountId(id: String, newId: String)
+    suspend fun getByRequest(
+        requestedUserName: String,
+        locale: Locale,
+    ): Account?
+
+    suspend fun completeRegistration(id: Long, veraidId: String, veraidBundle: ByteArray)
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -50,22 +61,31 @@ class AccountRepositoryImpl @Inject constructor(
         requestedUserName: String,
         domainName: String,
         locale: Locale,
+        veraidPrivateKey: PrivateKey,
     ) {
         accountDao.insert(
             Account(
-                veraId = "$requestedUserName@$domainName",
+                veraidId = "$requestedUserName@$domainName",
                 requestedUserName = requestedUserName,
                 locale = locale.normaliseString(),
+                veraidPrivateKey = veraidPrivateKey.encoded,
                 isCurrent = true,
             ),
         )
     }
 
-    override suspend fun updateAccountId(id: String, newId: String) {
-        accountDao.getByVeraId(id)?.let {
+    override suspend fun getByRequest(requestedUserName: String, locale: Locale): Account? =
+        accountDao.getByRequestParams(
+            requestedUserName = requestedUserName,
+            locale = locale.normaliseString(),
+        )
+
+    override suspend fun completeRegistration(id: Long, veraidId: String, veraidBundle: ByteArray) {
+        accountDao.getById(id)?.let {
             accountDao.update(
                 it.copy(
-                    veraId = newId,
+                    veraidId = veraidId,
+                    veraidMemberBundle = veraidBundle,
                     isCreated = true,
                 ),
             )

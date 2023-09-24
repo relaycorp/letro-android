@@ -1,7 +1,9 @@
 package tech.relaycorp.letro.utils.crypto
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beInstanceOf
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.DERNull
 import org.bouncycastle.asn1.DERSequence
@@ -12,22 +14,20 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.testing.crypto.generateRSAKeyPair
+import java.security.KeyPair
 import java.security.KeyPairGenerator
-import java.security.PublicKey
+import java.security.spec.InvalidKeySpecException
 
 class KeyEncodingTest {
+    val rsaKeyPair = generateRSAKeyPair()
+    val dsaKeyPair = generateDsaKeyPair()
+
     @Nested
     inner class PublicKeySpkiEncoding {
-        val rsaPublicKey: PublicKey = generateRSAKeyPair().public
-
         @Test
         fun `Non-RSA keys should be refused`() {
-            val keyGen = KeyPairGenerator.getInstance("DSA", BC_PROVIDER)
-            keyGen.initialize(1024)
-            val keyPair = keyGen.generateKeyPair()
-
             val exception = shouldThrow<IllegalArgumentException> {
-                keyPair.public.spkiEncode()
+                dsaKeyPair.public.spkiEncode()
             }
 
             exception.message shouldBe "Only RSA keys are supported"
@@ -37,7 +37,7 @@ class KeyEncodingTest {
         inner class Algorithm {
             @Test
             fun `Algorithm should be RSA-PSS`() {
-                val encoding = rsaPublicKey.spkiEncode()
+                val encoding = rsaKeyPair.public.spkiEncode()
 
                 encoding.algorithm.algorithm shouldBe PKCSObjectIdentifiers.id_RSASSA_PSS
             }
@@ -46,7 +46,7 @@ class KeyEncodingTest {
             inner class Params {
                 @Test
                 fun `Hash should be SHA-256`() {
-                    val encoding = rsaPublicKey.spkiEncode()
+                    val encoding = rsaKeyPair.public.spkiEncode()
 
                     val parameters = encoding.algorithm.parameters as RSASSAPSSparams
                     parameters.hashAlgorithm.algorithm shouldBe NISTObjectIdentifiers.id_sha256
@@ -55,7 +55,7 @@ class KeyEncodingTest {
 
                 @Test
                 fun `MGF should be MGF1 with SHA-256`() {
-                    val encoding = rsaPublicKey.spkiEncode()
+                    val encoding = rsaKeyPair.public.spkiEncode()
 
                     val parameters = encoding.algorithm.parameters as RSASSAPSSparams
                     parameters.maskGenAlgorithm.algorithm shouldBe PKCSObjectIdentifiers.id_mgf1
@@ -65,7 +65,7 @@ class KeyEncodingTest {
 
                 @Test
                 fun `Salt length should be 32`() {
-                    val encoding = rsaPublicKey.spkiEncode()
+                    val encoding = rsaKeyPair.public.spkiEncode()
 
                     val parameters = encoding.algorithm.parameters as RSASSAPSSparams
                     parameters.saltLength.intValueExact() shouldBe 32
@@ -73,7 +73,7 @@ class KeyEncodingTest {
 
                 @Test
                 fun `Trailer field should be 1`() {
-                    val encoding = rsaPublicKey.spkiEncode()
+                    val encoding = rsaKeyPair.public.spkiEncode()
 
                     val parameters = encoding.algorithm.parameters as RSASSAPSSparams
                     parameters.trailerField.intValueExact() shouldBe 1
@@ -83,11 +83,44 @@ class KeyEncodingTest {
 
         @Test
         fun `Key should be just the key without the algorithm`() {
-            val encoding = rsaPublicKey.spkiEncode()
+            val encoding = rsaKeyPair.public.spkiEncode()
 
-            val keyWrapperEncoded = DERSequence.getInstance(rsaPublicKey.encoded)
+            val keyWrapperEncoded = DERSequence.getInstance(rsaKeyPair.public.encoded)
             val keyEncoded = ASN1BitString.getInstance(keyWrapperEncoded.getObjectAt(1))
             encoding.publicKeyData shouldBe keyEncoded
         }
+    }
+
+    @Nested
+    inner class ByteArrayDeserialiseKeyPair {
+        @Test
+        fun `Non-RSA keys should be refused`() {
+            val exception = shouldThrow<IllegalArgumentException> {
+                dsaKeyPair.private.encoded.deserialiseKeyPair()
+            }
+
+            exception.message shouldBe "Only RSA keys are supported"
+            exception.cause should beInstanceOf<InvalidKeySpecException>()
+        }
+
+        @Test
+        fun `Private key should be returned`() {
+            val keyPair = rsaKeyPair.private.encoded.deserialiseKeyPair()
+
+            keyPair.private shouldBe rsaKeyPair.private
+        }
+
+        @Test
+        fun `Public key should be returned`() {
+            val keyPair = rsaKeyPair.private.encoded.deserialiseKeyPair()
+
+            keyPair.public shouldBe rsaKeyPair.public
+        }
+    }
+
+    private fun generateDsaKeyPair(): KeyPair {
+        val keyGen = KeyPairGenerator.getInstance("DSA", BC_PROVIDER)
+        keyGen.initialize(1024)
+        return keyGen.generateKeyPair()
     }
 }

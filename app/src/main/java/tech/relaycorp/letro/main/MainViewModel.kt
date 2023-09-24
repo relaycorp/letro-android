@@ -51,7 +51,7 @@ class MainViewModel @Inject constructor(
                 _uiState.update {
                     if (account != null) {
                         it.copy(
-                            currentAccount = account.veraId,
+                            currentAccount = account.veraidId,
                             isCurrentAccountCreated = account.isCreated,
                         )
                     } else {
@@ -93,7 +93,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onShareIdClick() {
-        currentAccount?.veraId?.let { accountId ->
+        currentAccount?.veraidId?.let { accountId ->
             viewModelScope.launch {
                 _joinMeOnLetroSignal.emit(getJoinMeLink(accountId))
             }

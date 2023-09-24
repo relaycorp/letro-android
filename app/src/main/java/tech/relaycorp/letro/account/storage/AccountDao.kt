@@ -20,6 +20,9 @@ interface AccountDao {
     @Update
     suspend fun update(entity: Account): Int
 
-    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE veraId=:veraId")
-    suspend fun getByVeraId(veraId: String): Account?
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE id=:id")
+    suspend fun getById(id: Long): Account?
+
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE requestedUserName=:requestedUserName AND locale=:locale")
+    suspend fun getByRequestParams(requestedUserName: String, locale: String): Account?
 }

@@ -355,6 +355,27 @@ class AccountCreationTest {
         }
     }
 
+    @Nested
+    inner class ToString {
+        @Test
+        fun `Should include requested user name, locale and assigned user id`() {
+            val accountCreation = AccountCreation(
+                requestedUserName,
+                locale,
+                assignedUserId,
+                veraidBundle,
+            )
+
+            val localeNormalised = locale.normaliseString()
+            val params = listOf(
+                "requestedUserName=$requestedUserName",
+                "locale=$localeNormalised",
+                "assignedUserId=$assignedUserId",
+            ).joinToString(", ")
+            accountCreation.toString() shouldBe "AccountCreation($params)"
+        }
+    }
+
     private fun AccountCreation.serialise(): ByteArray {
         return ASN1Utils.serializeSequence(
             listOf(

@@ -27,9 +27,9 @@ class RegistrationRepositoryImpl @Inject constructor(
 
     override fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale) {
         scope.launch {
-            accountRepository.createAccount(requestedUserName, domainName, locale)
-
             val keyPair = generateRSAKeyPair()
+            accountRepository.createAccount(requestedUserName, domainName, locale, keyPair.private)
+
             val creationRequest = AccountRequest(
                 requestedUserName,
                 locale,

@@ -6,6 +6,7 @@ import org.bouncycastle.asn1.ASN1UTF8String
 import tech.relaycorp.letro.utils.LetroOids
 import tech.relaycorp.letro.utils.asn1.ASN1Exception
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
+import tech.relaycorp.letro.utils.i18n.normaliseString
 import tech.relaycorp.letro.utils.i18n.parseLocale
 import tech.relaycorp.veraid.Member
 import tech.relaycorp.veraid.pki.MemberIdBundle
@@ -75,7 +76,17 @@ class AccountCreation(
         return Pair(assignedUserName, assignedOrg)
     }
 
+    override fun toString(): String {
+        val params = listOf(
+            "requestedUserName=$requestedUserName",
+            "locale=${locale.normaliseString()}",
+            "assignedUserId=$assignedUserId",
+        ).joinToString(", ")
+        return "AccountCreation($params)"
+    }
+
     companion object {
+        @Throws(InvalidAccountCreationException::class)
         fun deserialise(serialised: ByteArray): AccountCreation {
             val accountCreationSequence = try {
                 ASN1Utils.deserializeSequence(serialised)

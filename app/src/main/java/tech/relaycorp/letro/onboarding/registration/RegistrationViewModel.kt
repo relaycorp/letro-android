@@ -17,7 +17,7 @@ class RegistrationViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(
         RegistrationScreenUiState(
-            domain = "@${domainProvider.getDomain()}",
+            domain = domainProvider.getDomain(),
         ),
     )
     val uiState: StateFlow<RegistrationScreenUiState>
