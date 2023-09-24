@@ -58,6 +58,7 @@ import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 fun LetroNavHost(
     navController: NavHostController,
     stringsProvider: StringsProvider,
+    onGoToSettingsClick: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -206,6 +207,9 @@ fun LetroNavHost(
                                         else -> throw IllegalStateException("Unknown screen type: $type")
                                     }
                                 },
+                                snackbarHostState = snackbarHostState,
+                                snackbarStringsProvider = stringsProvider.snackbar,
+                                onGoToSettingsClick = onGoToSettingsClick,
                             )
                         }
                         composable(Route.Home.name) {

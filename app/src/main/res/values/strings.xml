@@ -26,6 +26,11 @@
     <string name="onboarding_pairing_request_sent_message">You’ll receive a notification once you and %s are connected.</string>
     <string name="onboarding_pairing_request_sent_button">Got it</string>
 
+    <string name="we_need_your_permission">We need your permission to notify you about new messages and contacts.</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="skip">Skip</string>
+    <string name="go_to_settings">Go to settings</string>
+
     <string name="onboarding_pair_with_people_alias">Name (optional)</string>
     <string name="onboarding_pair_with_people_button">Request pairing</string>
 

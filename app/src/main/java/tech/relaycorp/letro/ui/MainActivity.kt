@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,10 +49,18 @@ class MainActivity : ComponentActivity() {
                     LetroNavHost(
                         navController = navController,
                         stringsProvider = stringsProvider,
+                        onGoToSettingsClick = { goToSettings() },
                     )
                 }
             }
         }
+    }
+
+    private fun goToSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivity(intent)
     }
 
     private fun observeViewModel() {
