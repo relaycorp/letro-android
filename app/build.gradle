@@ -106,6 +106,8 @@ dependencies {
     // Utils:
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     implementation 'com.google.code.gson:gson:2.10.1' // TODO: remove
+    implementation "com.google.accompanist:accompanist-permissions:0.33.1-alpha"
+
 
     // Testing
     def junitVersion = "5.8.2"

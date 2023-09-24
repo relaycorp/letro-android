@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.contacts.ManageContactScreenContent.Companion.REQUEST_SENT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.EDIT_CONTACT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.NEW_CONTACT
 import tech.relaycorp.letro.contacts.model.Contact
@@ -60,6 +61,10 @@ class ManageContactViewModel @Inject constructor(
     private val _goBackSignal = MutableSharedFlow<Unit>()
     val goBackSignal: SharedFlow<Unit>
         get() = _goBackSignal
+
+    private val _showPermissionGoToSettingsSignal = MutableSharedFlow<Unit>()
+    val showPermissionGoToSettingsSignal: SharedFlow<Unit>
+        get() = _showPermissionGoToSettingsSignal
 
     private val contacts: HashSet<Contact> = hashSetOf()
 
@@ -127,7 +132,7 @@ class ManageContactViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update {
                         it.copy(
-                            showRequestSentScreen = true,
+                            content = REQUEST_SENT,
                         )
                     }
                 }
@@ -146,6 +151,19 @@ class ManageContactViewModel @Inject constructor(
         contactsRepository.saveRequestWasOnceSent()
         viewModelScope.launch {
             _goBackSignal.emit(Unit)
+        }
+    }
+
+    fun onNotificationPermissionResult(isGranted: Boolean) {
+        viewModelScope.launch {
+            if (!isGranted) {
+                _showPermissionGoToSettingsSignal.emit(Unit)
+            }
+            _uiState.update {
+                it.copy(
+                    showNotificationPermissionRequestIfNoPermission = false,
+                )
+            }
         }
     }
 
@@ -218,7 +236,8 @@ data class PairWithOthersUiState(
     val isSentRequestAgainHintVisible: Boolean = false,
     val isVeraIdInputEnabled: Boolean = true,
     val pairingErrorCaption: PairingErrorCaption? = null,
-    val showRequestSentScreen: Boolean = false,
+    val showNotificationPermissionRequestIfNoPermission: Boolean = true,
+    @ManageContactScreenContent val content: Int = ManageContactScreenContent.MANAGE_CONTACT,
 )
 
 @Immutable
@@ -240,3 +259,11 @@ sealed class ManageContactTexts(
 data class PairingErrorCaption(
     @StringRes val message: Int,
 )
+
+annotation class ManageContactScreenContent {
+
+    companion object {
+        const val MANAGE_CONTACT = 0
+        const val REQUEST_SENT = 1
+    }
+}

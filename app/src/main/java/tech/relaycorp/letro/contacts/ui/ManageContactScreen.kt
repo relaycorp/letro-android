@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.contacts.ManageContactScreenContent
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.PairWithOthersUiState
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
@@ -30,15 +34,26 @@ import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
-import tech.relaycorp.letro.ui.theme.LetroTheme
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.permission.rememberNotificationPermissionStateCompat
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ManageContactScreen(
     onBackClick: () -> Unit,
     onEditContactCompleted: (String) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    snackbarStringsProvider: SnackbarStringsProvider,
+    onGoToSettingsClick: () -> Unit,
     viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val notificationsPermissionState = rememberNotificationPermissionStateCompat(
+        onPermissionResult = {
+            viewModel.onNotificationPermissionResult(it)
+        },
+    )
 
     LaunchedEffect(Unit) {
         viewModel.onEditContactCompleted.collect {
@@ -52,21 +67,49 @@ fun ManageContactScreen(
         }
     }
 
-    if (!uiState.showRequestSentScreen) {
-        ManageContactView(
-            onBackClick,
-            uiState,
-            viewModel,
-        )
-    } else {
-        ActionTakingScreen(
-            actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
-                boldPartOfMessage = uiState.veraidId,
-                onGotItClicked = {
-                    viewModel.onGotItClick()
-                },
-            ),
-        )
+    LaunchedEffect(Unit) {
+        viewModel.showPermissionGoToSettingsSignal.collect {
+            val result = snackbarHostState.showSnackbar(
+                message = snackbarStringsProvider.notificationPermissionDenied,
+                actionLabel = snackbarStringsProvider.goToSettings,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onGoToSettingsClick()
+            }
+        }
+    }
+
+    when (uiState.content) {
+        ManageContactScreenContent.MANAGE_CONTACT -> {
+            ManageContactView(
+                onBackClick,
+                uiState,
+                viewModel,
+            )
+        }
+        ManageContactScreenContent.REQUEST_SENT -> {
+            if (!notificationsPermissionState.status.isGranted && uiState.showNotificationPermissionRequestIfNoPermission) {
+                ActionTakingScreen(
+                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSentWithPermissionRequest(
+                        onRequestPermissionClick = {
+                            notificationsPermissionState.launchPermissionRequest()
+                        },
+                        onSkipClicked = {
+                            viewModel.onGotItClick()
+                        },
+                    ),
+                )
+            } else {
+                ActionTakingScreen(
+                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
+                        boldPartOfMessage = uiState.veraidId,
+                        onGotItClicked = {
+                            viewModel.onGotItClick()
+                        },
+                    ),
+                )
+            }
+        }
     }
 }
 
@@ -154,18 +197,6 @@ private fun ManageContactView(
             text = stringResource(id = uiState.manageContactTexts.button),
             onClick = { viewModel.onUpdateContactButtonClick() },
             isEnabled = uiState.isActionButtonEnabled,
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UseExistingAccountPreview() {
-    LetroTheme {
-        ManageContactScreen(
-            onBackClick = {},
-            onEditContactCompleted = {},
-            viewModel = hiltViewModel(),
         )
     }
 }

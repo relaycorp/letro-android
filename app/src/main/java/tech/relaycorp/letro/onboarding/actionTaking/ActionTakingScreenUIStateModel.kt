@@ -48,4 +48,17 @@ sealed class ActionTakingScreenUIStateModel(
         buttonFilledStringRes = R.string.onboarding_pairing_request_sent_button,
         onButtonFilledClicked = onGotItClicked,
     )
+
+    class PairingRequestSentWithPermissionRequest(
+        onRequestPermissionClick: () -> Unit,
+        onSkipClicked: () -> Unit,
+    ) : ActionTakingScreenUIStateModel(
+        titleStringRes = R.string.onboarding_pairing_request_sent_title,
+        image = R.drawable.pairing_request_sent,
+        messageStringRes = R.string.we_need_your_permission,
+        buttonFilledStringRes = R.string.grant_permission,
+        buttonOutlinedStringRes = R.string.skip,
+        onButtonFilledClicked = onRequestPermissionClick,
+        onButtonOutlinedClicked = onSkipClicked,
+    )
 }

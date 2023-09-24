@@ -61,6 +61,7 @@ fun ActionTakingScreen(
                     text = stringResource(id = actionTakingScreenUIStateModel.messageStringRes),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
                 )
             } else {
                 BoldText(
