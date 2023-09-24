@@ -26,6 +26,7 @@ class AccountCreation(
     val assignedUserId: String,
     val veraidBundle: ByteArray,
 ) {
+    @Throws(InvalidAccountCreationException::class)
     suspend fun validate(memberPublicKey: PublicKey) {
         val (bundle, bundleMember) = verifyBundle()
 
@@ -48,6 +49,7 @@ class AccountCreation(
         }
     }
 
+    @Throws(InvalidAccountCreationException::class)
     private suspend fun verifyBundle(): Pair<MemberIdBundle, Member> {
         val bundle = try {
             MemberIdBundle.deserialise(veraidBundle)
