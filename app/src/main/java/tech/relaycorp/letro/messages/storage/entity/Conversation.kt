@@ -14,7 +14,7 @@ const val TABLE_NAME_CONVERSATIONS = "conversations"
     foreignKeys = [
         ForeignKey(
             entity = Account::class,
-            parentColumns = ["veraId"],
+            parentColumns = ["accountId"],
             childColumns = ["ownerVeraId"],
             onDelete = ForeignKey.CASCADE,
         ),

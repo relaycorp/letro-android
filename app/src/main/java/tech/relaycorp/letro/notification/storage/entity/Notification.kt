@@ -15,7 +15,7 @@ const val TABLE_NAME_NOTIFICATIONS = "notifications"
     foreignKeys = [
         ForeignKey(
             entity = Account::class,
-            parentColumns = ["veraId"],
+            parentColumns = ["accountId"],
             childColumns = ["ownerId"],
             onDelete = ForeignKey.CASCADE,
         ),

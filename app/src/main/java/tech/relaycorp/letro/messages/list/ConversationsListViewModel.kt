@@ -67,7 +67,7 @@ class ConversationsListViewModel @Inject constructor(
             accountRepository.currentAccount.collect {
                 currentAccount = it
                 if (it != null) {
-                    _isOnboardingMessageVisible.emit(!conversationsOnboardingManager.isOnboardingMessageWasShown(it.veraidId))
+                    _isOnboardingMessageVisible.emit(!conversationsOnboardingManager.isOnboardingMessageWasShown(it.accountId))
                 } else {
                     _isOnboardingMessageVisible.emit(false)
                 }
@@ -122,7 +122,7 @@ class ConversationsListViewModel @Inject constructor(
     fun onCloseOnboardingButtonClick() {
         viewModelScope.launch {
             currentAccount?.let {
-                conversationsOnboardingManager.saveOnboardingMessageShown(it.veraidId)
+                conversationsOnboardingManager.saveOnboardingMessageShown(it.accountId)
                 _isOnboardingMessageVisible.emit(false)
             }
         }

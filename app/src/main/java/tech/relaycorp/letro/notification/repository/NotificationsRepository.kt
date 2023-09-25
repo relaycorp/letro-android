@@ -72,7 +72,7 @@ class NotificationsRepositoryImpl @Inject constructor(
             notificationsDao.getAll().collect {
                 _notifications.emit(
                     it
-                        .filter { it.ownerId == currentAccount.veraId }
+                        .filter { it.ownerId == currentAccount.accountId }
                         .sortedByDescending { it.timestamp },
                 )
             }
