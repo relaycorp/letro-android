@@ -132,7 +132,7 @@ class AccountCreation(
                     exc,
                 )
             }
-            return localeEncoded.string.parseLocale()
+            return parseLocale(localeEncoded.string)
         }
 
         private fun decodeAssignedUserId(assignedUserIdTagged: ASN1Encodable): String {

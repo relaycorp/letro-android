@@ -59,17 +59,17 @@ class LocaleTest {
         inner class LanguageCode {
             @Test
             fun `Language should be decoded`() {
-                localeString.parseLocale().language shouldBe LOCALE.language
+                parseLocale(localeString).language shouldBe LOCALE.language
             }
 
             @Test
             fun `Language should be lower cased for consistency with Android`() {
-                "EN-gb".parseLocale().language shouldBe "en"
+                parseLocale("EN-gb").language shouldBe "en"
             }
 
             @Test
             fun `Empty string should be allowed`() {
-                "".parseLocale().language shouldBe ""
+                parseLocale("").language shouldBe ""
             }
         }
 
@@ -77,17 +77,17 @@ class LocaleTest {
         inner class CountryCode {
             @Test
             fun `Should be decoded if present`() {
-                localeString.parseLocale().country shouldBe LOCALE.country
+                parseLocale(localeString).country shouldBe LOCALE.country
             }
 
             @Test
             fun `Should be upper cased for consistency with Android`() {
-                "en-gb".parseLocale().country shouldBe "GB"
+                parseLocale("en-gb").country shouldBe "GB"
             }
 
             @Test
             fun `Should be absent if not present in string`() {
-                "en".parseLocale().country shouldBe ""
+                parseLocale("en").country shouldBe ""
             }
         }
 
@@ -95,12 +95,12 @@ class LocaleTest {
         inner class VariantCode {
             @Test
             fun `Should be decoded if present`() {
-                "en-gb-oxford".parseLocale().variant shouldBe "oxford"
+                parseLocale("en-gb-oxford").variant shouldBe "oxford"
             }
 
             @Test
             fun `Should be absent if not present in string`() {
-                "en-gb".parseLocale().variant shouldBe ""
+                parseLocale("en-gb").variant shouldBe ""
             }
         }
     }

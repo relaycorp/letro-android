@@ -1,3 +1,5 @@
+@file:JvmName("Locale")
+
 package tech.relaycorp.letro.utils.i18n
 
 import java.util.Locale
@@ -14,8 +16,8 @@ fun Locale.normaliseString(): String {
     }
 }
 
-fun String.parseLocale(): Locale {
-    val localeParts = split("-")
+fun parseLocale(localeCode: String): Locale {
+    val localeParts = localeCode.split("-")
     val languageCode = localeParts[0].lowercase()
     val countryCode = localeParts.getOrNull(1)?.uppercase() ?: ""
     val variantCode = localeParts.getOrNull(2) ?: ""
