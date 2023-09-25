@@ -43,8 +43,8 @@ class AccountCreationProcessorImpl @Inject constructor(
             return
         }
 
-        accountRepository.completeRegistration(
-            account.id,
+        accountRepository.updateAccount(
+            account,
             accountCreation.assignedUserId,
             accountCreation.veraidBundle,
         )

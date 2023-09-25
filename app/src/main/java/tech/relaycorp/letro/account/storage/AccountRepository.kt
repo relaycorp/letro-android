@@ -28,7 +28,7 @@ interface AccountRepository {
         locale: Locale,
     ): Account?
 
-    suspend fun completeRegistration(id: Long, veraidId: String, veraidBundle: ByteArray)
+    suspend fun updateAccount(account: Account, veraidId: String, veraidBundle: ByteArray)
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -80,15 +80,17 @@ class AccountRepositoryImpl @Inject constructor(
             locale = locale.normaliseString(),
         )
 
-    override suspend fun completeRegistration(id: Long, veraidId: String, veraidBundle: ByteArray) {
-        accountDao.getById(id)?.let {
-            accountDao.update(
-                it.copy(
-                    veraidId = veraidId,
-                    veraidMemberBundle = veraidBundle,
-                    isCreated = true,
-                ),
-            )
-        }
+    override suspend fun updateAccount(
+        account: Account,
+        veraidId: String,
+        veraidBundle: ByteArray,
+    ) {
+        accountDao.update(
+            account.copy(
+                veraidId = veraidId,
+                veraidMemberBundle = veraidBundle,
+                isCreated = true,
+            ),
+        )
     }
 }
