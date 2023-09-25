@@ -85,7 +85,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
-    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.31.5-beta'
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.33.1-alpha'
 
     // Compose related
     implementation 'androidx.navigation:navigation-compose:2.6.0'
