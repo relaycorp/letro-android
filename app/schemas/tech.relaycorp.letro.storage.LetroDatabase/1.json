@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d80c574c6882c1c80c0f103b6a6ec580",
+    "identityHash": "5f2174158254547dddd8483c68da34b4",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraId` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `isCreated` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraidId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `isCreated` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,8 +15,20 @@
             "notNull": true
           },
           {
-            "fieldPath": "veraId",
-            "columnName": "veraId",
+            "fieldPath": "veraidId",
+            "columnName": "veraidId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestedUserName",
+            "columnName": "requestedUserName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "normalisedLocale",
+            "columnName": "normalisedLocale",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -25,6 +37,18 @@
             "columnName": "isCurrent",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "veraidPrivateKey",
+            "columnName": "veraidPrivateKey",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "veraidMemberBundle",
+            "columnName": "veraidMemberBundle",
+            "affinity": "BLOB",
+            "notNull": false
           },
           {
             "fieldPath": "isCreated",
@@ -41,20 +65,20 @@
         },
         "indices": [
           {
-            "name": "index_account_veraId",
+            "name": "index_account_veraidId",
             "unique": true,
             "columnNames": [
-              "veraId"
+              "veraidId"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_account_veraId` ON `${TABLE_NAME}` (`veraId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_account_veraidId` ON `${TABLE_NAME}` (`veraidId`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`veraId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`veraidId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -119,7 +143,7 @@
               "ownerVeraId"
             ],
             "referencedColumns": [
-              "veraId"
+              "veraidId"
             ]
           }
         ]
@@ -262,7 +286,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd80c574c6882c1c80c0f103b6a6ec580')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5f2174158254547dddd8483c68da34b4')"
     ]
   }
 }

@@ -9,13 +9,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.utils.i18n.normaliseString
+import java.security.PrivateKey
+import java.util.Locale
 import javax.inject.Inject
 
 interface AccountRepository {
     val currentAccount: Flow<Account?>
-    suspend fun createAccount(id: String)
+    suspend fun createAccount(
+        requestedUserName: String,
+        domainName: String,
+        locale: Locale,
+        veraidPrivateKey: PrivateKey,
+    )
 
-    suspend fun updateAccountId(id: String, newId: String)
+    suspend fun getByRequest(
+        requestedUserName: String,
+        locale: Locale,
+    ): Account?
+
+    suspend fun updateAccount(account: Account, veraidId: String, veraidBundle: ByteArray)
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -44,23 +57,40 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createAccount(id: String) {
+    override suspend fun createAccount(
+        requestedUserName: String,
+        domainName: String,
+        locale: Locale,
+        veraidPrivateKey: PrivateKey,
+    ) {
         accountDao.insert(
             Account(
-                veraId = id,
+                veraidId = "$requestedUserName@$domainName",
+                requestedUserName = requestedUserName,
+                normalisedLocale = locale.normaliseString(),
+                veraidPrivateKey = veraidPrivateKey.encoded,
                 isCurrent = true,
             ),
         )
     }
 
-    override suspend fun updateAccountId(id: String, newId: String) {
-        accountDao.getByVeraId(id)?.let {
-            accountDao.update(
-                it.copy(
-                    veraId = newId,
-                    isCreated = true,
-                ),
-            )
-        }
+    override suspend fun getByRequest(requestedUserName: String, locale: Locale): Account? =
+        accountDao.getByRequestParams(
+            requestedUserName = requestedUserName,
+            locale = locale.normaliseString(),
+        )
+
+    override suspend fun updateAccount(
+        account: Account,
+        veraidId: String,
+        veraidBundle: ByteArray,
+    ) {
+        accountDao.update(
+            account.copy(
+                veraidId = veraidId,
+                veraidMemberBundle = veraidBundle,
+                isCreated = true,
+            ),
+        )
     }
 }

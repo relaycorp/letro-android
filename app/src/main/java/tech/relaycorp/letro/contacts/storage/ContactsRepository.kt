@@ -114,7 +114,7 @@ class ContactsRepositoryImpl @Inject constructor(
     override fun saveRequestWasOnceSent() {
         val currentAccount = currentAccount ?: return
         scope.launch {
-            preferences.putBoolean(getContactRequestHasEverBeenSentKey(currentAccount.veraId), true)
+            preferences.putBoolean(getContactRequestHasEverBeenSentKey(currentAccount.veraidId), true)
             updateContactsState(currentAccount)
         }
     }
@@ -137,9 +137,9 @@ class ContactsRepositoryImpl @Inject constructor(
         val isPairedContactExist = contacts
             .value
             .any {
-                it.ownerVeraId == account.veraId && it.status == ContactPairingStatus.COMPLETED
+                it.ownerVeraId == account.veraidId && it.status == ContactPairingStatus.COMPLETED
             }
-        val isPairRequestWasEverSent = preferences.getBoolean(getContactRequestHasEverBeenSentKey(account.veraId), false)
+        val isPairRequestWasEverSent = preferences.getBoolean(getContactRequestHasEverBeenSentKey(account.veraidId), false)
         _contactsState.emit(
             ContactsState(
                 isPairedContactExist = isPairedContactExist,
@@ -149,8 +149,8 @@ class ContactsRepositoryImpl @Inject constructor(
     }
 
     private fun getContactRequestHasEverBeenSentKey(
-        veraId: String,
-    ) = "${KEY_CONTACT_REQUEST_HAS_EVER_BEEN_SENT_PREFIX}$veraId"
+        veraidId: String,
+    ) = "${KEY_CONTACT_REQUEST_HAS_EVER_BEEN_SENT_PREFIX}$veraidId"
 
     private companion object {
         private const val TAG = "ContactsRepository"

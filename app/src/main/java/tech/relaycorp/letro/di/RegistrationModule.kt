@@ -6,14 +6,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.onboarding.registration.AccountCreationProcessor
+import tech.relaycorp.letro.onboarding.registration.AccountCreationProcessorImpl
 import tech.relaycorp.letro.onboarding.registration.RegistrationDomainProvider
 import tech.relaycorp.letro.onboarding.registration.RegistrationDomainProviderImpl
 import tech.relaycorp.letro.onboarding.registration.RegistrationRepository
 import tech.relaycorp.letro.onboarding.registration.RegistrationRepositoryImpl
-import tech.relaycorp.letro.onboarding.registration.parser.RegistrationMessageParser
-import tech.relaycorp.letro.onboarding.registration.parser.RegistrationMessageParserImpl
-import tech.relaycorp.letro.onboarding.registration.processor.RegistrationMessageProcessor
-import tech.relaycorp.letro.onboarding.registration.processor.RegistrationMessageProcessorImpl
 import javax.inject.Singleton
 
 @Module
@@ -38,12 +36,7 @@ interface RegistrationModuleSingleton {
     ): RegistrationRepository
 
     @Binds
-    fun bindRegistrationMessageParser(
-        impl: RegistrationMessageParserImpl,
-    ): RegistrationMessageParser
-
-    @Binds
     fun bindRegistrationMessageProcessor(
-        impl: RegistrationMessageProcessorImpl,
-    ): RegistrationMessageProcessor
+        impl: AccountCreationProcessorImpl,
+    ): AccountCreationProcessor
 }

@@ -56,6 +56,11 @@ android {
         lintConfig file('lint.xml')
         warningsAsErrors true
     }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -65,8 +70,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
 
-    // Awala
+    // Awala-powered messaging
     implementation 'com.github.relaycorp:awala-endpoint-android:1.13.23'
+    def bouncy_castle_version = "1.70"
+    implementation "org.bouncycastle:bcprov-jdk15on:$bouncy_castle_version"
+    implementation "org.bouncycastle:bcpkix-jdk15on:$bouncy_castle_version"
+
+    // VeraId
+    implementation 'tech.relaycorp:veraid:1.10.0'
 
     // Compose
     implementation platform('androidx.compose:compose-bom:2023.09.00')
@@ -99,13 +110,19 @@ dependencies {
 
 
     // Testing
-    testImplementation 'junit:junit:4.13.2'
+    def junitVersion = "5.8.2"
+    def kotlinCoroutinesVersion = "1.7.3"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation platform('androidx.compose:compose-bom:2023.06.01')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    testImplementation 'io.kotest:kotest-assertions-core:5.7.2'
+    testImplementation "io.mockk:mockk:1.13.7"
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
 }
 
 // Allow references to generated code

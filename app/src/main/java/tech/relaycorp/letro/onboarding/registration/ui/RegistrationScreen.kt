@@ -64,7 +64,7 @@ fun RegistrationScreen(
                 value = uiState.username,
                 onValueChange = { viewModel.onUsernameInput(it) },
                 hintText = stringResource(id = R.string.onboarding_create_account_id_placeholder),
-                suffixText = uiState.domain,
+                suffixText = "@${uiState.domain}",
                 isError = uiState.isError,
                 label = R.string.general_id,
             )
