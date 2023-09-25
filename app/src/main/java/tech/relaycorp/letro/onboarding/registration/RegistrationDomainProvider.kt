@@ -15,8 +15,7 @@ class RegistrationDomainProviderImpl @Inject constructor() : RegistrationDomainP
     }
 
     private val lazyDomain: String by lazy {
-        val locale = Locale.getDefault()
-        DOMAIN_BY_LOCALE[locale.toString()] ?: FALLBACK_DOMAIN
+        DOMAIN_BY_LOCALE[lazyDomainLocale.toString()] ?: FALLBACK_DOMAIN
     }
 
     override fun getDomain(): String {
