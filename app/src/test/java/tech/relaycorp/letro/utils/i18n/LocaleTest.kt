@@ -66,6 +66,11 @@ class LocaleTest {
             fun `Language should be lower cased for consistency with Android`() {
                 "EN-gb".parseLocale().language shouldBe "en"
             }
+
+            @Test
+            fun `Empty string should be allowed`() {
+                "".parseLocale().language shouldBe ""
+            }
         }
 
         @Nested
