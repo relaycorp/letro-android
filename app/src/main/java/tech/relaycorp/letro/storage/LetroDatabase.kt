@@ -11,6 +11,8 @@ import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
+import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
+import tech.relaycorp.letro.notification.storage.entity.Notification
 import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
 
 @Database(
@@ -19,6 +21,7 @@ import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
         Contact::class,
         Conversation::class,
         Message::class,
+        Notification::class,
     ],
     version = 1,
 )
@@ -30,4 +33,5 @@ abstract class LetroDatabase : RoomDatabase() {
     abstract fun contactsDao(): ContactsDao
     abstract fun conversationsDao(): ConversationsDao
     abstract fun messagesDao(): MessagesDao
+    abstract fun notificationsDao(): NotificationsDao
 }

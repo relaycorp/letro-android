@@ -16,6 +16,8 @@ import tech.relaycorp.letro.home.tabs.LetroTabs
 import tech.relaycorp.letro.messages.list.ConversationsListScreen
 import tech.relaycorp.letro.messages.list.ConversationsListViewModel
 import tech.relaycorp.letro.messages.model.ExtendedConversation
+import tech.relaycorp.letro.notification.NotificationsScreen
+import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.ui.utils.StringsProvider
 
 @Composable
@@ -27,6 +29,7 @@ fun HomeScreen(
     snackbarHostState: SnackbarHostState,
     conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
     contactsViewModel: ContactsViewModel = hiltViewModel(),
+    notificationsViewModel: NotificationsViewModel = hiltViewModel(),
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
 
@@ -52,8 +55,9 @@ fun HomeScreen(
                         snackbarStringsProvider = stringsProvider.snackbar,
                         onEditContactClick = { onEditContactClick(it) },
                     )
-                    TAB_NOTIFICATIONS -> Column {
-                    }
+                    TAB_NOTIFICATIONS -> NotificationsScreen(
+                        viewModel = notificationsViewModel,
+                    )
                     else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
                 }
             }
