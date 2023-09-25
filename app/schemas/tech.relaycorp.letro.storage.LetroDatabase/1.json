@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dc43f5c1432dfa4a804e8ab2f5182994",
+    "identityHash": "5f2174158254547dddd8483c68da34b4",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraidId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `locale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `isCreated` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `veraidId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `isCreated` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -27,8 +27,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "locale",
-            "columnName": "locale",
+            "fieldPath": "normalisedLocale",
+            "columnName": "normalisedLocale",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -286,7 +286,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc43f5c1432dfa4a804e8ab2f5182994')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5f2174158254547dddd8483c68da34b4')"
     ]
   }
 }

@@ -67,7 +67,7 @@ class AccountRepositoryImpl @Inject constructor(
             Account(
                 veraidId = "$requestedUserName@$domainName",
                 requestedUserName = requestedUserName,
-                locale = locale.normaliseString(),
+                normalisedLocale = locale.normaliseString(),
                 veraidPrivateKey = veraidPrivateKey.encoded,
                 isCurrent = true,
             ),
