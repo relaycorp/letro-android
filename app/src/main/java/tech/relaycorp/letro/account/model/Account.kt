@@ -8,12 +8,12 @@ const val TABLE_NAME_ACCOUNT = "account"
 
 @Entity(
     tableName = TABLE_NAME_ACCOUNT,
-    indices = [Index("veraidId", unique = true)],
+    indices = [Index("accountId", unique = true)],
 )
 data class Account(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
-    val veraidId: String,
+    val accountId: String,
     val requestedUserName: String,
     val normalisedLocale: String,
     val isCurrent: Boolean,
@@ -29,7 +29,7 @@ data class Account(
         other as Account
 
         if (id != other.id) return false
-        if (veraidId != other.veraidId) return false
+        if (accountId != other.accountId) return false
         if (requestedUserName != other.requestedUserName) return false
         if (normalisedLocale != other.normalisedLocale) return false
         if (isCurrent != other.isCurrent) return false
@@ -45,7 +45,7 @@ data class Account(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
-        result = 31 * result + veraidId.hashCode()
+        result = 31 * result + accountId.hashCode()
         result = 31 * result + requestedUserName.hashCode()
         result = 31 * result + normalisedLocale.hashCode()
         result = 31 * result + isCurrent.hashCode()

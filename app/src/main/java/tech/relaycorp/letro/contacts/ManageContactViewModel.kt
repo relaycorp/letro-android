@@ -77,7 +77,7 @@ class ManageContactViewModel @Inject constructor(
                     editingContact = contactToEdit
                     _uiState.update {
                         it.copy(
-                            veraidId = contactToEdit.contactVeraId,
+                            accountId = contactToEdit.contactVeraId,
                             alias = contactToEdit.alias,
                             isVeraIdInputEnabled = false,
                         )
@@ -107,7 +107,7 @@ class ManageContactViewModel @Inject constructor(
             val trimmedId = id.trim()
             _uiState.update {
                 it.copy(
-                    veraidId = trimmedId,
+                    accountId = trimmedId,
                     isSentRequestAgainHintVisible = contacts.any { it.contactVeraId == trimmedId && it.status == ContactPairingStatus.REQUEST_SENT },
                 )
             }
@@ -140,7 +140,7 @@ class ManageContactViewModel @Inject constructor(
             EDIT_CONTACT -> {
                 updateContact()
                 viewModelScope.launch {
-                    _onEditContactCompleted.emit(uiState.value.veraidId)
+                    _onEditContactCompleted.emit(uiState.value.accountId)
                 }
             }
             else -> throw IllegalStateException("Unknown screen type: $screenType")
@@ -195,7 +195,7 @@ class ManageContactViewModel @Inject constructor(
             contactsRepository.addNewContact(
                 contact = Contact(
                     ownerVeraId = currentAccountId,
-                    contactVeraId = uiState.value.veraidId,
+                    contactVeraId = uiState.value.accountId,
                     alias = uiState.value.alias?.nullIfBlankOrEmpty(),
                     status = ContactPairingStatus.REQUEST_SENT,
                 ),
@@ -230,7 +230,7 @@ class ManageContactViewModel @Inject constructor(
 
 data class PairWithOthersUiState(
     val manageContactTexts: ManageContactTexts,
-    val veraidId: String = "",
+    val accountId: String = "",
     val alias: String? = null,
     val isActionButtonEnabled: Boolean = false,
     val isSentRequestAgainHintVisible: Boolean = false,

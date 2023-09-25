@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverterImpl
-import tech.relaycorp.letro.messages.converter.MessageTimestampConverter
-import tech.relaycorp.letro.messages.converter.MessageTimestampConverterImpl
+import tech.relaycorp.letro.messages.converter.MessageTimestampFormatter
+import tech.relaycorp.letro.messages.converter.MessageTimestampFormatterImpl
 import tech.relaycorp.letro.messages.onboarding.ConversationsOnboardingManager
 import tech.relaycorp.letro.messages.onboarding.ConversationsOnboardingManagerImpl
 import tech.relaycorp.letro.messages.parser.NewConversationMessageParser
@@ -59,8 +59,8 @@ object ConversationsModule {
 
         @Binds
         fun bindMessageTimestampConverter(
-            impl: MessageTimestampConverterImpl,
-        ): MessageTimestampConverter
+            impl: MessageTimestampFormatterImpl,
+        ): MessageTimestampFormatter
 
         @Binds
         fun bindOutgoingConversationMessageEncoder(

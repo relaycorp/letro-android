@@ -119,7 +119,7 @@ class ContactsViewModel @Inject constructor(
         contactsCollectionJob = null
         if (account != null) {
             contactsCollectionJob = viewModelScope.launch {
-                contactsRepository.getContacts(account.veraidId).collect {
+                contactsRepository.getContacts(account.accountId).collect {
                     _contacts.emit(it.filter { it.status == ContactPairingStatus.COMPLETED })
                 }
             }

@@ -20,7 +20,7 @@ interface ExtendedConversationConverter {
 }
 
 class ExtendedConversationConverterImpl @Inject constructor(
-    private val messageTimestampConverter: MessageTimestampConverter,
+    private val messageTimestampFormatter: MessageTimestampFormatter,
 ) : ExtendedConversationConverter {
 
     override fun convert(
@@ -63,8 +63,8 @@ class ExtendedConversationConverterImpl @Inject constructor(
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = it.text,
-                            sentAtBriefFormatted = messageTimestampConverter.convertBrief(it.sentAt),
-                            sentAtDetailedFormatted = messageTimestampConverter.convertDetailed(it.sentAt),
+                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(it.sentAt),
+                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(it.sentAt),
                         )
                     }
                 ExtendedConversation(
@@ -74,7 +74,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     contactDisplayName = contactDisplayName,
                     subject = conversation.subject,
                     lastMessageTimestamp = Timestamp.from(lastMessage.sentAt.toInstant(ZoneOffset.UTC)).time,
-                    lastMessageFormattedTimestamp = messageTimestampConverter.convertBrief(lastMessage.sentAt),
+                    lastMessageFormattedTimestamp = messageTimestampFormatter.formatBrief(lastMessage.sentAt),
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
                     isRead = conversation.isRead,

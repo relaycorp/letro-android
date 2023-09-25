@@ -6,14 +6,14 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-interface MessageTimestampConverter {
-    fun convertBrief(timestamp: LocalDateTime): String
-    fun convertDetailed(timestamp: LocalDateTime): String
+interface MessageTimestampFormatter {
+    fun formatBrief(timestamp: LocalDateTime): String
+    fun formatDetailed(timestamp: LocalDateTime): String
 }
 
-class MessageTimestampConverterImpl @Inject constructor() : MessageTimestampConverter {
+class MessageTimestampFormatterImpl @Inject constructor() : MessageTimestampFormatter {
 
-    override fun convertBrief(timestamp: LocalDateTime): String {
+    override fun formatBrief(timestamp: LocalDateTime): String {
         return if (timestamp.isToday()) {
             timestamp.format(DateTimeFormatter.ofPattern("hh:mm a"))
         } else if (timestamp.isCurrentYear()) {
@@ -23,7 +23,7 @@ class MessageTimestampConverterImpl @Inject constructor() : MessageTimestampConv
         }
     }
 
-    override fun convertDetailed(timestamp: LocalDateTime): String {
+    override fun formatDetailed(timestamp: LocalDateTime): String {
         return timestamp.format(DateTimeFormatter.ofPattern("dd MMM y, hh:mm a"))
     }
 }

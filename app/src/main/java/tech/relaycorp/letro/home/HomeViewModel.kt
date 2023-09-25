@@ -3,6 +3,7 @@ package tech.relaycorp.letro.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,10 +34,20 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+        viewModelScope.launch {
+            unreadBadgesManager.unreadNotifications.collect {
+                updateTabBadges(
+                    unreadNotifications = it,
+                )
+            }
+        }
     }
 
     fun onTabClick(index: Int) {
-        viewModelScope.launch {
+        if (index == _uiState.value.currentTab) {
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
                 it.copy(
                     currentTab = index,
@@ -74,20 +85,27 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateTabBadges(
-        unreadConversations: Int,
+        unreadConversations: Int? = null,
+        unreadNotifications: Int? = null,
     ) {
-        val badge = when {
-            unreadConversations > 9 -> "9+"
-            unreadConversations > 0 -> unreadConversations.toString()
-            else -> null
-        }
         _uiState.update {
             it.copy(
-                tabCounters = mapOf(
-                    TAB_CHATS to badge,
-                ),
+                tabCounters = HashMap(it.tabCounters).apply {
+                    unreadConversations?.let {
+                        put(TAB_CHATS, getUnreadBadgeText(it))
+                    }
+                    unreadNotifications?.let {
+                        put(TAB_NOTIFICATIONS, getUnreadBadgeText(it))
+                    }
+                },
             )
         }
+    }
+
+    private fun getUnreadBadgeText(count: Int) = when {
+        count > 9 -> "9+"
+        count > 0 -> count.toString()
+        else -> null
     }
 
     private fun getFloatingActionButtonConfig(tabIndex: Int) = when (tabIndex) {

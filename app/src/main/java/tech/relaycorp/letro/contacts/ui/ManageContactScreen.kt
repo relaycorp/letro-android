@@ -102,7 +102,7 @@ fun ManageContactScreen(
             } else {
                 ActionTakingScreen(
                     actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
-                        boldPartOfMessage = uiState.veraidId,
+                        boldPartOfMessage = uiState.accountId,
                         onGotItClicked = {
                             viewModel.onGotItClick()
                         },
@@ -153,7 +153,7 @@ private fun ManageContactView(
             modifier = Modifier.height(8.dp),
         )
         LetroOutlinedTextField(
-            value = uiState.veraidId,
+            value = uiState.accountId,
             onValueChange = viewModel::onIdChanged,
             label = R.string.general_id,
             hintText = stringResource(id = R.string.new_contact_id_hint),

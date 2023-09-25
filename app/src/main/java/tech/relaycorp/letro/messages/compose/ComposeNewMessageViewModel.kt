@@ -64,10 +64,10 @@ class CreateNewMessageViewModel @Inject constructor(
                 it?.let { account ->
                     _uiState.update { state ->
                         state.copy(
-                            sender = account.veraidId,
+                            sender = account.accountId,
                         )
                     }
-                    startCollectingConnectedContacts(account.veraidId)
+                    startCollectingConnectedContacts(account.accountId)
                 }
             }
         }

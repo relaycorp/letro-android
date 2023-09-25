@@ -64,6 +64,16 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
 
+    <string name="read">Read</string>
+    <string name="unread">Unread</string>
+
+    <string name="you_re_now_connected_to">You’re now connected to</string>
+
+    <string name="notification_time_minutes">%dm</string>
+    <string name="notification_time_hours">%dh</string>
+    <string name="notification_time_days">%dd</string>
+    <string name="notification_time_weeks">%dw</string>
+
     <string name="snackbar_contact_deleted">Contact deleted.</string>
     <string name="snackbar_contact_edited">Changes saved!</string>
     <string name="snackbar_message_sent">Message sent!</string>

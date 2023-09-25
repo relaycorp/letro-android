@@ -198,7 +198,7 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     private fun startCollectContacts(account: Account) {
         contactsCollectionJob = scope.launch {
-            contactsRepository.getContacts(account.veraidId).collect {
+            contactsRepository.getContacts(account.accountId).collect {
                 contacts.emit(it)
             }
         }
@@ -216,10 +216,10 @@ class ConversationsRepositoryImpl @Inject constructor(
                 _conversations.emit(conversations)
                 _extendedConversations.emit(
                     conversationsConverter.convert(
-                        conversations = conversations.filter { it.ownerVeraId == account.veraidId },
-                        messages = messages.filter { it.ownerVeraId == account.veraidId },
-                        contacts = contacts.filter { it.ownerVeraId == account.veraidId },
-                        ownerVeraId = account.veraidId,
+                        conversations = conversations.filter { it.ownerVeraId == account.accountId },
+                        messages = messages.filter { it.ownerVeraId == account.accountId },
+                        contacts = contacts.filter { it.ownerVeraId == account.accountId },
+                        ownerVeraId = account.accountId,
                     ),
                 )
             }.collect()

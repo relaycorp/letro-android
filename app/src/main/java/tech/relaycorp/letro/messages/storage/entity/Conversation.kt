@@ -1,14 +1,24 @@
 package tech.relaycorp.letro.messages.storage.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import tech.relaycorp.letro.account.model.Account
 import java.util.UUID
 
 const val TABLE_NAME_CONVERSATIONS = "conversations"
 
 @Entity(
     tableName = TABLE_NAME_CONVERSATIONS,
+    foreignKeys = [
+        ForeignKey(
+            entity = Account::class,
+            parentColumns = ["accountId"],
+            childColumns = ["ownerVeraId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
     indices = [Index("conversationId", unique = true)],
 )
 /**
