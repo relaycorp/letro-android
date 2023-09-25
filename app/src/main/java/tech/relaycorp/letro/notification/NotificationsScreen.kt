@@ -15,35 +15,46 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.notification.converter.NotificationDateInfo
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
+import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import java.time.LocalDateTime
 
 @Composable
 fun NotificationsScreen(
     viewModel: NotificationsViewModel,
 ) {
+    val lifecycleEvent = rememberLifecycleEvent()
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(lifecycleEvent) {
+        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+            viewModel.onScreenResumed()
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
     ) {
         if (uiState.unreadNotifications.isNotEmpty()) {
-            NotificationsBlock(
+            notificationsBlock(
                 title = R.string.unread,
                 notifications = uiState.unreadNotifications,
             )
         }
         if (uiState.readNotifications.isNotEmpty()) {
-            NotificationsBlock(
+            notificationsBlock(
                 title = R.string.read,
                 notifications = uiState.readNotifications,
             )
@@ -51,7 +62,7 @@ fun NotificationsScreen(
     }
 }
 
-private fun LazyListScope.NotificationsBlock(
+private fun LazyListScope.notificationsBlock(
     @StringRes title: Int,
     notifications: List<ExtendedNotification>,
 ) {
@@ -122,16 +133,16 @@ private fun Notification(
 @Composable
 private fun Notifications_Preview() {
     LazyColumn {
-        NotificationsBlock(
+        notificationsBlock(
             title = R.string.unread,
             notifications = listOf(
-                ExtendedNotification(id = 0L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days), ownerId = "", isRead = false),
+                ExtendedNotification(id = 0L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, LocalDateTime.now()), ownerId = "", isRead = false),
             ),
         )
-        NotificationsBlock(
+        notificationsBlock(
             title = R.string.read,
             notifications = listOf(
-                ExtendedNotification(id = 2L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks), ownerId = "", isRead = true),
+                ExtendedNotification(id = 2L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, LocalDateTime.now()), ownerId = "", isRead = true),
             ),
         )
     }

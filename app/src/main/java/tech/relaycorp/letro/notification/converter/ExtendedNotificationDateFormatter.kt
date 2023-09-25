@@ -21,18 +21,22 @@ class ExtendedNotificationDateFormatterImpl @Inject constructor() : ExtendedNoti
             timestamp.isLessThanHourAgo() -> NotificationDateInfo(
                 value = ChronoUnit.MINUTES.between(timestamp, LocalDateTime.now()),
                 stringRes = R.string.notification_time_minutes,
+                timestamp = timestamp,
             )
             timestamp.isLessThanDayAgo() -> NotificationDateInfo(
                 value = ChronoUnit.HOURS.between(timestamp, LocalDateTime.now()),
                 stringRes = R.string.notification_time_hours,
+                timestamp = timestamp,
             )
             timestamp.isLessThanWeekAgo() -> NotificationDateInfo(
                 value = ChronoUnit.DAYS.between(timestamp, LocalDateTime.now()),
                 stringRes = R.string.notification_time_days,
+                timestamp = timestamp,
             )
             else -> NotificationDateInfo(
                 value = ChronoUnit.WEEKS.between(timestamp, LocalDateTime.now()),
                 stringRes = R.string.notification_time_weeks,
+                timestamp = timestamp,
             )
         }
     }
@@ -41,4 +45,5 @@ class ExtendedNotificationDateFormatterImpl @Inject constructor() : ExtendedNoti
 data class NotificationDateInfo(
     val value: Long,
     @StringRes val stringRes: Int,
+    val timestamp: LocalDateTime,
 )
