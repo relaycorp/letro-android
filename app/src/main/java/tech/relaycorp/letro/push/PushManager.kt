@@ -52,7 +52,7 @@ class PushManagerImpl @Inject constructor(
         val summaryNotification = NotificationCompat.Builder(context, pushData.channelId)
             .setSmallIcon(R.drawable.letro_icon) // TODO: icon
             .setContentTitle(groupName)
-            .setContentText(context.getString(R.string.new_notifications_group_count, notificationsInGroupCount))
+            .setContentText(context.resources.getQuantityString(R.plurals.new_notifications_group_count, notificationsInGroupCount, notificationsInGroupCount))
             .setGroup(groupName)
             .setGroupSummary(true)
             .build()

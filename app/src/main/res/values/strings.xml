@@ -130,7 +130,10 @@
     <string name="push_channel_default_name">Name</string>
     <string name="push_channel_default_description">Description</string>
 
-    <string name="new_notifications_group_count">%d new notifications</string>
+    <plurals name="new_notifications_group_count">
+        <item quantity="one">%d new notification</item>
+        <item quantity="other">%d new notifications</item>
+    </plurals>
 
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
