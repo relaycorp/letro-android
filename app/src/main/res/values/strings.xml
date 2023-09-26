@@ -127,6 +127,9 @@
     <string name="sent">Sent</string>
     <string name="archive">Archive</string>
 
+    <string name="push_channel_default_name">Name</string>
+    <string name="push_channel_default_description">Description</string>
+
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
