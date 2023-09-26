@@ -10,6 +10,9 @@ import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
+import tech.relaycorp.letro.push.PushManager
+import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.push.model.PushData
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -17,6 +20,7 @@ import javax.inject.Inject
 interface NewConversationProcessor : AwalaMessageProcessor
 
 class NewConversationProcessorImpl @Inject constructor(
+    private val pushManager: PushManager,
     private val newConversationMessageParser: NewConversationMessageParser,
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
@@ -28,8 +32,9 @@ class NewConversationProcessorImpl @Inject constructor(
     }
 
     private suspend fun createLocalConversation(conversationWrapper: ConversationAwalaWrapper) {
+        val conversationId = UUID.fromString(conversationWrapper.conversationId)
         val conversation = Conversation(
-            conversationId = UUID.fromString(conversationWrapper.conversationId),
+            conversationId = conversationId,
             ownerVeraId = conversationWrapper.recipientVeraId,
             contactVeraId = conversationWrapper.senderVeraId,
             subject = conversationWrapper.subject,
@@ -45,5 +50,14 @@ class NewConversationProcessorImpl @Inject constructor(
         )
         conversationsDao.createNewConversation(conversation)
         messagesDao.insert(message)
+        pushManager.showPush(
+            PushData(
+                title = conversationWrapper.senderVeraId,
+                text = conversationWrapper.messageText,
+                action = PushAction.OpenConversation(conversationWrapper.conversationId),
+                recipientAccountId = conversation.ownerVeraId,
+                notificationId = conversationId.hashCode(),
+            ),
+        )
     }
 }

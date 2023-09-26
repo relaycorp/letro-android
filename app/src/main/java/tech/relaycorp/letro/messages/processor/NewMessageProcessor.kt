@@ -9,6 +9,9 @@ import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
+import tech.relaycorp.letro.push.PushManager
+import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.push.model.PushData
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -16,6 +19,7 @@ import javax.inject.Inject
 interface NewMessageProcessor : AwalaMessageProcessor
 
 class NewMessageProcessorImpl @Inject constructor(
+    private val pushManager: PushManager,
     private val parser: NewMessageMessageParser,
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
@@ -51,5 +55,14 @@ class NewMessageProcessorImpl @Inject constructor(
             sentAt = LocalDateTime.now(),
         )
         messagesDao.insert(message)
+        pushManager.showPush(
+            PushData(
+                title = message.senderVeraId,
+                text = message.text,
+                action = PushAction.OpenConversation(messageWrapper.conversationId),
+                recipientAccountId = conversation.ownerVeraId,
+                notificationId = conversationId.hashCode(),
+            ),
+        )
     }
 }

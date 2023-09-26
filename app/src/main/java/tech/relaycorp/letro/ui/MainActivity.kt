@@ -3,6 +3,7 @@ package tech.relaycorp.letro.ui
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -20,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.push.KEY_PUSH_ACTION
+import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -50,10 +53,25 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         stringsProvider = stringsProvider,
                         onGoToSettingsClick = { goToSettings() },
+                        mainViewModel = viewModel,
                     )
                 }
             }
         }
+        onNewIntent(intent)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent ?: return
+        setIntent(intent)
+        val pushAction = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(KEY_PUSH_ACTION, PushAction::class.java)
+        } else {
+            intent.getParcelableExtra(KEY_PUSH_ACTION)
+        }
+        viewModel.onNewPushAction(pushAction)
     }
 
     private fun goToSettings() {

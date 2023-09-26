@@ -30,19 +30,26 @@ class PushManagerImpl @Inject constructor(
     private val channels: List<PushChannel>,
 ) : PushManager {
 
+    private val notificationManager by lazy { NotificationManagerCompat.from(context) }
+
     @SuppressLint("MissingPermission")
     override fun showPush(pushData: PushData) {
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra(KEY_PUSH_ACTION, pushData.action)
         }
+        val groupName = pushData.recipientAccountId
         val notification = NotificationCompat.Builder(context, pushData.channelId)
             .setSmallIcon(R.drawable.letro_icon) // TODO: icon
             .setContentTitle(pushData.title)
             .setContentText(pushData.text)
-            .setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE))
+            .setContentIntent(PendingIntent.getActivity(context, pushData.notificationId, intent, PendingIntent.FLAG_IMMUTABLE))
+            .setGroup(groupName)
+            .setGroupSummary((notificationManager.activeNotifications.count { it.notification.group == groupName } == 0))
+            .setAutoCancel(true)
             .build()
+
         if (permissionManager.isPermissionGranted()) {
-            NotificationManagerCompat.from(context).notify(pushData.notificationId, notification)
+            notificationManager.notify(pushData.notificationId, notification)
         }
     }
 
