@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import tech.relaycorp.awaladroid.Awala
 import tech.relaycorp.awaladroid.GatewayBindingException
@@ -78,6 +79,8 @@ class AwalaManagerImpl @Inject constructor(
     private val _awalaInitializationState = MutableStateFlow<Int>(AwalaInitializationState.NOT_INITIALIZED)
     override val awalaInitializationState: StateFlow<Int>
         get() = _awalaInitializationState
+
+    // TODO: Log how much it is being joined to figure out, can we remove it or not?
     private var awalaSetupJob: Job? = null
 
     private val _awalaUnsuccessfulBindings = MutableSharedFlow<Unit>()
@@ -90,11 +93,14 @@ class AwalaManagerImpl @Inject constructor(
     private var thirdPartyServerEndpoint: ThirdPartyEndpoint? = null
 
     init {
+        runBlocking {
+            Log.i(TAG, "Setting up Awala")
+            Awala.setUp(context)
+            _awalaInitializationState.emit(AWALA_SET_UP)
+            Log.i(TAG, "Awala set up")
+        }
         awalaSetupJob = awalaScope.launch {
             withContext(awalaThreadContext) {
-                Log.i(TAG, "Setting up Awala")
-                Awala.setUp(context)
-                _awalaInitializationState.emit(AWALA_SET_UP)
                 initializeGateway()
                 awalaSetupJob = null
             }
