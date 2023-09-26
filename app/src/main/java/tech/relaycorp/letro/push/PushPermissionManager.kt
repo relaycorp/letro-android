@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.notification
+package tech.relaycorp.letro.push
 
 import android.Manifest
 import android.content.Context
@@ -7,14 +7,14 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-interface NotificationPermissionManager {
+interface PushPermissionManager {
 
     fun isPermissionGranted(): Boolean
 }
 
-class NotificationPermissionManagerImpl @Inject constructor(
+class PushPermissionManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-) : NotificationPermissionManager {
+) : PushPermissionManager {
 
     override fun isPermissionGranted(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
