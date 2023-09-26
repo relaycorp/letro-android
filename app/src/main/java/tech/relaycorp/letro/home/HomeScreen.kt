@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import tech.relaycorp.letro.home.tabs.LetroTabs
 import tech.relaycorp.letro.messages.list.ConversationsListScreen
 import tech.relaycorp.letro.messages.list.ConversationsListViewModel
 import tech.relaycorp.letro.messages.model.ExtendedConversation
+import tech.relaycorp.letro.notification.NotificationClickAction
 import tech.relaycorp.letro.notification.NotificationsScreen
 import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -26,12 +28,19 @@ fun HomeScreen(
     stringsProvider: StringsProvider,
     onConversationClick: (ExtendedConversation) -> Unit,
     onEditContactClick: (Contact) -> Unit,
+    onNotificationsAction: (NotificationClickAction) -> Unit,
     snackbarHostState: SnackbarHostState,
     conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
     contactsViewModel: ContactsViewModel = hiltViewModel(),
     notificationsViewModel: NotificationsViewModel = hiltViewModel(),
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        notificationsViewModel.actions.collect {
+            onNotificationsAction(it)
+        }
+    }
 
     Box {
         Column {

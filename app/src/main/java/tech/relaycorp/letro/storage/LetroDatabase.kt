@@ -24,6 +24,7 @@ import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
         Notification::class,
     ],
     version = 1,
+    exportSchema = true,
 )
 @TypeConverters(
     LocalDateTimeConverter::class,

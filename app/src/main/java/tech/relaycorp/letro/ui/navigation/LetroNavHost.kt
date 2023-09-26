@@ -39,10 +39,12 @@ import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
 import tech.relaycorp.letro.home.HomeScreen
 import tech.relaycorp.letro.home.HomeViewModel
+import tech.relaycorp.letro.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.messages.compose.CreateNewMessageScreen
 import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel
 import tech.relaycorp.letro.messages.viewing.ConversationScreen
+import tech.relaycorp.letro.notification.NotificationClickAction
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
@@ -232,6 +234,13 @@ fun LetroNavHost(
                                             contactIdToEdit = contact.id,
                                         ),
                                     )
+                                },
+                                onNotificationsAction = { notificationsAction ->
+                                    when (notificationsAction) {
+                                        NotificationClickAction.OpenContacts -> {
+                                            homeViewModel.onTabClick(TAB_CONTACTS)
+                                        }
+                                    }
                                 },
                             )
                         }

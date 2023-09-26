@@ -2,6 +2,7 @@ package tech.relaycorp.letro.notification
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,12 +52,14 @@ fun NotificationsScreen(
             notificationsBlock(
                 title = R.string.unread,
                 notifications = uiState.unreadNotifications,
+                onClick = { viewModel.onNotificationClick(it) },
             )
         }
         if (uiState.readNotifications.isNotEmpty()) {
             notificationsBlock(
                 title = R.string.read,
                 notifications = uiState.readNotifications,
+                onClick = { viewModel.onNotificationClick(it) },
             )
         }
     }
@@ -65,6 +68,7 @@ fun NotificationsScreen(
 private fun LazyListScope.notificationsBlock(
     @StringRes title: Int,
     notifications: List<ExtendedNotification>,
+    onClick: (ExtendedNotification) -> Unit,
 ) {
     items(1) {
         Spacer(modifier = Modifier.height(8.dp))
@@ -88,6 +92,7 @@ private fun LazyListScope.notificationsBlock(
                 formatArgs = arrayOf(it.date.value),
             ),
             isRead = it.isRead,
+            onClick = { onClick(it) },
         )
     }
 }
@@ -98,10 +103,12 @@ private fun Notification(
     bottomText: String,
     date: String,
     isRead: Boolean,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .background(if (isRead) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant)
             .padding(
                 vertical = 12.dp,
@@ -136,14 +143,16 @@ private fun Notifications_Preview() {
         notificationsBlock(
             title = R.string.unread,
             notifications = listOf(
-                ExtendedNotification(id = 0L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, LocalDateTime.now()), ownerId = "", isRead = false),
+                ExtendedNotification(id = 0L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, LocalDateTime.now()), ownerId = "", isRead = false),
             ),
+            onClick = {},
         )
         notificationsBlock(
             title = R.string.read,
             notifications = listOf(
-                ExtendedNotification(id = 2L, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, LocalDateTime.now()), ownerId = "", isRead = true),
+                ExtendedNotification(id = 2L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, LocalDateTime.now()), ownerId = "", isRead = true),
             ),
+            onClick = {},
         )
     }
 }
