@@ -54,14 +54,14 @@ class NewMessageProcessorImpl @Inject constructor(
             senderVeraId = messageWrapper.senderVeraId,
             sentAt = LocalDateTime.now(),
         )
-        messagesDao.insert(message)
+        val messageId = messagesDao.insert(message)
         pushManager.showPush(
             PushData(
                 title = message.senderVeraId,
                 text = message.text,
                 action = PushAction.OpenConversation(messageWrapper.conversationId),
                 recipientAccountId = conversation.ownerVeraId,
-                notificationId = conversationId.hashCode(),
+                notificationId = messageId.toInt(),
             ),
         )
     }

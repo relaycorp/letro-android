@@ -49,14 +49,14 @@ class NewConversationProcessorImpl @Inject constructor(
             sentAt = LocalDateTime.now(),
         )
         conversationsDao.createNewConversation(conversation)
-        messagesDao.insert(message)
+        val messageId = messagesDao.insert(message)
         pushManager.showPush(
             PushData(
                 title = conversationWrapper.senderVeraId,
                 text = conversationWrapper.messageText,
                 action = PushAction.OpenConversation(conversationWrapper.conversationId),
                 recipientAccountId = conversation.ownerVeraId,
-                notificationId = conversationId.hashCode(),
+                notificationId = messageId.toInt(),
             ),
         )
     }

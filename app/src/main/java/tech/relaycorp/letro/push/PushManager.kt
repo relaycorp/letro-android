@@ -37,6 +37,7 @@ class PushManagerImpl @Inject constructor(
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra(KEY_PUSH_ACTION, pushData.action)
         }
+
         val groupName = pushData.recipientAccountId
         val notification = NotificationCompat.Builder(context, pushData.channelId)
             .setSmallIcon(R.drawable.letro_icon) // TODO: icon
@@ -44,12 +45,21 @@ class PushManagerImpl @Inject constructor(
             .setContentText(pushData.text)
             .setContentIntent(PendingIntent.getActivity(context, pushData.notificationId, intent, PendingIntent.FLAG_IMMUTABLE))
             .setGroup(groupName)
-            .setGroupSummary((notificationManager.activeNotifications.count { it.notification.group == groupName } == 0))
             .setAutoCancel(true)
+            .build()
+
+        val notificationsInGroupCount = notificationManager.activeNotifications.count { it.notification.group == groupName }.takeIf { it > 0 } ?: 1
+        val summaryNotification = NotificationCompat.Builder(context, pushData.channelId)
+            .setSmallIcon(R.drawable.letro_icon) // TODO: icon
+            .setContentTitle(groupName)
+            .setContentText(context.getString(R.string.new_notifications_group_count, notificationsInGroupCount))
+            .setGroup(groupName)
+            .setGroupSummary(true)
             .build()
 
         if (permissionManager.isPermissionGranted()) {
             notificationManager.notify(pushData.notificationId, notification)
+            notificationManager.notify(groupName.hashCode(), summaryNotification)
         }
     }
 
