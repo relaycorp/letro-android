@@ -18,6 +18,7 @@ class ExtendedNotificationConverterImpl @Inject constructor(
     override fun convert(notification: Notification): ExtendedNotification {
         return ExtendedNotification(
             id = notification.id,
+            type = notification.type,
             ownerId = notification.ownerId,
             upperText = getUpperText(notification.type),
             bottomText = notification.contactVeraId,

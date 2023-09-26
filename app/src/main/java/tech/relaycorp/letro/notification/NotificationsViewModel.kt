@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.repository.NotificationsRepository
+import tech.relaycorp.letro.notification.storage.entity.NotificationType
+import tech.relaycorp.letro.utils.ext.emitOn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +28,10 @@ class NotificationsViewModel @Inject constructor(
 
     private val unreadNotificationsOnPreviousResume = hashSetOf<Long>()
 
+    private val _actions: MutableSharedFlow<NotificationClickAction> = MutableSharedFlow()
+    val actions: SharedFlow<NotificationClickAction>
+        get() = _actions
+
     init {
         viewModelScope.launch {
             notificationsRepository.notifications.collect { newNotifications ->
@@ -34,6 +42,14 @@ class NotificationsViewModel @Inject constructor(
                         readNotifications = notifications.read,
                     )
                 }
+            }
+        }
+    }
+
+    fun onNotificationClick(notification: ExtendedNotification) {
+        when (notification.type) {
+            NotificationType.PAIRING_COMPLETED -> {
+                _actions.emitOn(NotificationClickAction.OpenContacts, viewModelScope)
             }
         }
     }
