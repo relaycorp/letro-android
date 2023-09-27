@@ -53,8 +53,8 @@ val Typography = Typography(
         fontFamily = Inter,
         fontWeight = FontWeight.Medium,
         fontSize = 17.sp,
-        lineHeight = 25.sp,
-        letterSpacing = (-0.2).sp,
+        lineHeight = 23.sp,
+        letterSpacing = (-0.15).sp,
     ),
     titleSmall = TextStyle(
         fontFamily = Inter,
@@ -66,36 +66,36 @@ val Typography = Typography(
     labelLarge = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
-        letterSpacing = (-0.1).sp,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        letterSpacing = (-0.25).sp,
     ),
     labelMedium = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.2.sp,
+        fontSize = 13.sp,
+        lineHeight = 17.sp,
+        letterSpacing = (-0.25).sp,
     ),
     labelSmall = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.sp,
+        fontSize = 12.sp,
+        lineHeight = 15.sp,
+        letterSpacing = -0.15.sp,
     ),
     bodyLarge = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
-        letterSpacing = (-0.15).sp,
+        fontSize = 17.sp,
+        lineHeight = 23.sp,
+        letterSpacing = (-0.25).sp,
     ),
     bodyMedium = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
         letterSpacing = (-0.25).sp,
     ),
     bodySmall = TextStyle(
@@ -111,32 +111,34 @@ val Typography.LabelLargeProminent: TextStyle
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
         fontSize = 15.sp,
-        lineHeight = 21.sp,
+        lineHeight = 20.sp,
+        letterSpacing = (-0.25).sp,
     )
 
 val Typography.LabelMediumProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 13.sp,
+        lineHeight = 17.sp,
+        letterSpacing = (-0.25).sp,
     )
 
 val Typography.LabelSmallProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 16.sp,
+        fontSize = 12.sp,
+        lineHeight = 15.sp,
+        letterSpacing = (-0.15).sp,
     )
 
 val Typography.TitleMediumProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
+        fontSize = 17.sp,
+        lineHeight = 23.sp,
         letterSpacing = (-0.15).sp,
     )
 
@@ -153,16 +155,16 @@ val Typography.BodyLargeProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
-        letterSpacing = (-0.15).sp,
+        fontSize = 17.sp,
+        lineHeight = 23.sp,
+        letterSpacing = (-0.25).sp,
     )
 
 val Typography.BodyMediumProminent: TextStyle
     get() = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
         letterSpacing = (-0.25).sp,
     )
