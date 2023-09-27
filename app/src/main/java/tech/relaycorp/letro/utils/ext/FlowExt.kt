@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.utils.ext
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -21,4 +22,12 @@ fun <T> MutableStateFlow<T>.emitOn(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) {
     scope.launch(coroutineContext) { emit(value) }
+}
+
+fun <T> Channel<T>.sendOn(
+    value: T,
+    scope: CoroutineScope,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+) {
+    scope.launch(coroutineContext) { send(value) }
 }

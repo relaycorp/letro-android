@@ -5,8 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import tech.relaycorp.letro.notification.NotificationPermissionManager
-import tech.relaycorp.letro.notification.NotificationPermissionManagerImpl
 import tech.relaycorp.letro.notification.converter.ExtendedNotificationConverter
 import tech.relaycorp.letro.notification.converter.ExtendedNotificationConverterImpl
 import tech.relaycorp.letro.notification.converter.ExtendedNotificationDateFormatter
@@ -31,12 +29,6 @@ object NotificationModule {
     @Module
     @InstallIn(SingletonComponent::class)
     interface Bindings {
-
-        @Binds
-        @Singleton
-        fun bindNotificationPermissionManager(
-            impl: NotificationPermissionManagerImpl,
-        ): NotificationPermissionManager
 
         @Binds
         @Singleton

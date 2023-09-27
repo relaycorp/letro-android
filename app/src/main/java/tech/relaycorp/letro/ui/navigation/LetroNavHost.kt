@@ -48,6 +48,7 @@ import tech.relaycorp.letro.notification.NotificationClickAction
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
@@ -61,7 +62,7 @@ fun LetroNavHost(
     navController: NavHostController,
     stringsProvider: StringsProvider,
     onGoToSettingsClick: () -> Unit,
-    mainViewModel: MainViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
@@ -75,6 +76,8 @@ fun LetroNavHost(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var isHomeScreenInitialized by remember { mutableStateOf(false) }
+
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             currentRoute = backStackEntry.destination.route.toRoute()
@@ -85,12 +88,32 @@ fun LetroNavHost(
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
             handleFirstNavigation(navController, firstNavigation)
+            if (firstNavigation == RootNavigationScreen.Home) {
+                isHomeScreenInitialized = true
+            }
         }
     }
 
     LaunchedEffect(Unit) {
         homeViewModel.createNewConversationSignal.collect {
             navController.navigate(Route.CreateNewMessage.getRouteName(CreateNewMessageViewModel.ScreenType.NEW_CONVERSATION))
+        }
+    }
+
+    LaunchedEffect(isHomeScreenInitialized) {
+        if (!isHomeScreenInitialized) {
+            return@LaunchedEffect
+        }
+        mainViewModel.pushAction.collect { pushAction ->
+            when (pushAction) {
+                is PushAction.OpenConversation -> {
+                    navController.navigate(
+                        Route.Conversation.getRouteName(
+                            conversationId = pushAction.conversationId,
+                        ),
+                    )
+                }
+            }
         }
     }
 
