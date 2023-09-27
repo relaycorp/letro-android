@@ -151,6 +151,13 @@ fun LetroOutlinedTextField(
             isError = isError,
             enabled = isEnabled,
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2F),
                 errorIndicatorColor = MaterialTheme.colorScheme.error,
             ),
         )
