@@ -72,13 +72,22 @@ fun ConversationsListScreen(
                 onDismissRequest = { viewModel.onConversationSectionDialogDismissed() },
             )
         }
-        Column {
-            if (isOnboardingVisible) {
-                ConversationsOnboardingView(
-                    onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+        val conversations = conversations
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            if (conversations is ConversationsListContent.Empty) {
+                EmptyConversationsView(
+                    image = conversations.image,
+                    text = conversations.text,
                 )
             }
-            Box {
+            Column {
+                if (isOnboardingVisible) {
+                    ConversationsOnboardingView(
+                        onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+                    )
+                }
                 LazyColumn {
                     items(1) {
                         ConversationsSectionSelector(
@@ -90,7 +99,7 @@ fun ConversationsListScreen(
                         )
                     }
 
-                    when (val conversations = conversations) {
+                    when (conversations) {
                         is ConversationsListContent.Conversations -> {
                             items(conversations.conversations) { conversation ->
                                 Conversation(
@@ -103,15 +112,7 @@ fun ConversationsListScreen(
                             }
                         }
                         is ConversationsListContent.Empty -> {
-                            items(1) {
-                                Column {
-                                    Spacer(modifier = Modifier.height(24.dp))
-                                    EmptyConversationsView(
-                                        image = conversations.image,
-                                        text = conversations.text,
-                                    )
-                                }
-                            }
+                            // No more elements in lazy list
                         }
                     }
                 }
@@ -234,18 +235,22 @@ private fun EmptyConversationsView(
     @DrawableRes image: Int,
     @StringRes text: Int,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+            .padding(bottom = 48.dp),
     ) {
-        Image(painter = painterResource(id = image), contentDescription = null)
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = stringResource(id = text),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(painter = painterResource(id = image), contentDescription = null)
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = stringResource(id = text),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 
