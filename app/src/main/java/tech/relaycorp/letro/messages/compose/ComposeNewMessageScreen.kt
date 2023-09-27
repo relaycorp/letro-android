@@ -21,6 +21,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -85,51 +86,57 @@ fun CreateNewMessageScreen(
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Row(
+        Surface(
+            shadowElevation = TopBarElevation,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    PaddingValues(
-                        end = HorizontalScreenPadding,
+                .fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        PaddingValues(
+                            end = HorizontalScreenPadding,
+                            top = 8.dp,
+                            bottom = 8.dp,
+                        ),
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(
+                    onClick = onBackClicked,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_back),
+                        contentDescription = stringResource(id = R.string.general_navigate_back),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(
+                    onClick = { },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.attachment),
+                        contentDescription = stringResource(id = R.string.new_message_attach),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                LetroButton(
+                    text = stringResource(id = R.string.new_message_send),
+                    onClick = { viewModel.onSendMessageClick() },
+                    leadingIconResId = R.drawable.ic_send,
+                    contentPadding = PaddingValues(
                         top = 8.dp,
                         bottom = 8.dp,
+                        start = 16.dp,
+                        end = 24.dp,
                     ),
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = onBackClicked,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow_back),
-                    contentDescription = stringResource(id = R.string.general_navigate_back),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    enabled = uiState.isSendButtonEnabled,
                 )
             }
-            Spacer(
-                modifier = Modifier.weight(1f),
-            )
-            IconButton(
-                onClick = { },
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.attachment),
-                    contentDescription = stringResource(id = R.string.new_message_attach),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            LetroButton(
-                text = stringResource(id = R.string.new_message_send),
-                onClick = { viewModel.onSendMessageClick() },
-                leadingIconResId = R.drawable.ic_send,
-                contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 8.dp,
-                    start = 16.dp,
-                    end = 24.dp,
-                ),
-                enabled = uiState.isSendButtonEnabled,
-            )
         }
         LazyColumn(
             modifier = Modifier
@@ -359,3 +366,5 @@ private fun RecipientChipView(
         }
     }
 }
+
+private val TopBarElevation = 2.dp
