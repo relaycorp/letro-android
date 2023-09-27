@@ -43,6 +43,7 @@ import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
+import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
 import java.util.UUID
 
@@ -228,12 +229,22 @@ private fun MessageInfoView(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                if (message.senderDisplayName != message.senderVeraId) {
+                    Spacer(
+                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().minus(2.dp)),
+                    )
+                }
                 Text(
                     text = stringResource(id = R.string.to),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                if (message.recipientDisplayName != message.recipientVeraId) {
+                    Spacer(
+                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().minus(2.dp)),
+                    )
+                }
                 Text(
                     text = stringResource(id = R.string.date),
                     style = MaterialTheme.typography.labelLarge,
@@ -248,6 +259,14 @@ private fun MessageInfoView(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
+                if (message.senderDisplayName != message.senderVeraId) {
+                    Text(
+                        text = message.senderVeraId,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = message.recipientDisplayName,
@@ -255,6 +274,14 @@ private fun MessageInfoView(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
+                if (message.recipientDisplayName != message.recipientVeraId) {
+                    Text(
+                        text = message.recipientVeraId,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = message.sentAtDetailedFormatted,

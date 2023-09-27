@@ -6,7 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -24,4 +27,12 @@ fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.
         }
     }
     return state
+}
+
+@Composable
+fun TextUnit.toDp(): Dp {
+    val textUnit = this
+    with(LocalDensity.current) {
+        return textUnit.toDp()
+    }
 }
