@@ -51,14 +51,14 @@ fun ActionTakingScreen(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        if (actionTakingScreenUIStateModel.messageStringRes != null) {
+        if (actionTakingScreenUIStateModel.firstMessageStringRes != null) {
             Spacer(
                 modifier = Modifier.height(24.dp),
             )
-            val boldPartOfMessage = actionTakingScreenUIStateModel.boldPartOfMessage
+            val boldPartOfMessage = actionTakingScreenUIStateModel.boldPartOfMessageInFirstMessage
             if (boldPartOfMessage == null) {
                 Text(
-                    text = stringResource(id = actionTakingScreenUIStateModel.messageStringRes),
+                    text = stringResource(id = actionTakingScreenUIStateModel.firstMessageStringRes),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -66,13 +66,24 @@ fun ActionTakingScreen(
             } else {
                 BoldText(
                     fullText = stringResource(
-                        id = actionTakingScreenUIStateModel.messageStringRes,
+                        id = actionTakingScreenUIStateModel.firstMessageStringRes,
                         boldPartOfMessage,
                     ),
                     boldParts = listOf(boldPartOfMessage),
                     textAlign = TextAlign.Center,
                 )
             }
+        }
+        if (actionTakingScreenUIStateModel.secondMessageStringRes != null) {
+            Spacer(
+                modifier = Modifier.height(24.dp),
+            )
+            Text(
+                text = stringResource(id = actionTakingScreenUIStateModel.secondMessageStringRes),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
         }
         if (actionTakingScreenUIStateModel.buttonFilledStringRes != null) {
             Spacer(

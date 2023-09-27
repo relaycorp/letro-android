@@ -7,8 +7,9 @@ import tech.relaycorp.letro.R
 sealed class ActionTakingScreenUIStateModel(
     @StringRes val titleStringRes: Int?,
     @DrawableRes val image: Int,
-    @StringRes val messageStringRes: Int? = null,
-    val boldPartOfMessage: String? = null,
+    @StringRes val firstMessageStringRes: Int? = null,
+    val boldPartOfMessageInFirstMessage: String? = null,
+    @StringRes val secondMessageStringRes: Int? = null,
     @StringRes val buttonFilledStringRes: Int? = null,
     @StringRes val buttonOutlinedStringRes: Int? = null,
     val onButtonFilledClicked: () -> Unit = {},
@@ -24,7 +25,7 @@ sealed class ActionTakingScreenUIStateModel(
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = title,
         image = image,
-        messageStringRes = message,
+        firstMessageStringRes = message,
         buttonFilledStringRes = R.string.general_pair_with_others,
         buttonOutlinedStringRes = R.string.onboarding_account_confirmation_share_your_id,
         onButtonFilledClicked = onPairWithOthersClick,
@@ -34,7 +35,7 @@ sealed class ActionTakingScreenUIStateModel(
     object RegistrationWaiting : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_waiting_title,
         image = R.drawable.waiting_for_account_creation,
-        messageStringRes = R.string.onboarding_waiting_message,
+        firstMessageStringRes = R.string.onboarding_waiting_message,
     )
 
     class PairingRequestSent(
@@ -43,19 +44,22 @@ sealed class ActionTakingScreenUIStateModel(
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_pairing_request_sent_title,
         image = R.drawable.pairing_request_sent,
-        messageStringRes = R.string.onboarding_pairing_request_sent_message,
-        boldPartOfMessage = boldPartOfMessage,
+        firstMessageStringRes = R.string.onboarding_pairing_request_sent_message,
+        boldPartOfMessageInFirstMessage = boldPartOfMessage,
         buttonFilledStringRes = R.string.onboarding_pairing_request_sent_button,
         onButtonFilledClicked = onGotItClicked,
     )
 
     class PairingRequestSentWithPermissionRequest(
+        boldPartOfMessage: String? = null,
         onRequestPermissionClick: () -> Unit,
         onSkipClicked: () -> Unit,
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_pairing_request_sent_title,
         image = R.drawable.pairing_request_sent,
-        messageStringRes = R.string.we_need_your_permission,
+        firstMessageStringRes = R.string.onboarding_pairing_request_sent_message,
+        boldPartOfMessageInFirstMessage = boldPartOfMessage,
+        secondMessageStringRes = R.string.we_need_your_permission,
         buttonFilledStringRes = R.string.grant_permission,
         buttonOutlinedStringRes = R.string.skip,
         onButtonFilledClicked = onRequestPermissionClick,
