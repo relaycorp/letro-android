@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -52,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     LetroNavHost(
                         navController = navController,
                         stringsProvider = stringsProvider,
-                        onGoToSettingsClick = { goToSettings() },
+                        onGoToSettingsClick = { goToNotificationsSettings() },
                         mainViewModel = viewModel,
                     )
                 }
@@ -74,10 +73,13 @@ class MainActivity : ComponentActivity() {
         viewModel.onNewPushAction(pushAction)
     }
 
-    private fun goToSettings() {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        val uri = Uri.fromParts("package", packageName, null)
-        intent.data = uri
+    private fun goToNotificationsSettings() {
+        val intent = Intent()
+        intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("app_package", packageName)
+        intent.putExtra("app_uid", applicationInfo.uid)
+        intent.putExtra("android.provider.extra.APP_PACKAGE", packageName)
         startActivity(intent)
     }
 
