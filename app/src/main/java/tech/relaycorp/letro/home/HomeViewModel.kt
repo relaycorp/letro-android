@@ -57,14 +57,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onOutsideFloatingMenuClicked() {
+        closeContactFloatingMenu()
+    }
+
     fun onOptionFromContactsFloatingMenuClicked() {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isAddContactFloatingMenuVisible = false,
-                )
-            }
-        }
+        closeContactFloatingMenu()
     }
 
     fun onFloatingActionButtonClick() {
@@ -80,6 +78,16 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    private fun closeContactFloatingMenu() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isAddContactFloatingMenuVisible = false,
+                )
             }
         }
     }
