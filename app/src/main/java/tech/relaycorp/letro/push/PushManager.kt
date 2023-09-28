@@ -40,7 +40,7 @@ class PushManagerImpl @Inject constructor(
 
         val groupName = pushData.recipientAccountId
         val notification = NotificationCompat.Builder(context, pushData.channelId)
-            .setSmallIcon(R.drawable.letro_icon) // TODO: icon
+            .setSmallIcon(R.drawable.letro_notification_icon)
             .setContentTitle(pushData.title)
             .setContentText(pushData.text)
             .setContentIntent(PendingIntent.getActivity(context, pushData.notificationId, intent, PendingIntent.FLAG_IMMUTABLE))
@@ -50,7 +50,7 @@ class PushManagerImpl @Inject constructor(
 
         val notificationsInGroupCount = notificationManager.activeNotifications.count { it.notification.group == groupName }.takeIf { it > 0 } ?: 1
         val summaryNotification = NotificationCompat.Builder(context, pushData.channelId)
-            .setSmallIcon(R.drawable.letro_icon) // TODO: icon
+            .setSmallIcon(R.drawable.letro_notification_icon)
             .setContentTitle(groupName)
             .setContentText(context.resources.getQuantityString(R.plurals.new_notifications_group_count, notificationsInGroupCount, notificationsInGroupCount))
             .setGroup(groupName)
