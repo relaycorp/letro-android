@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.ui.common
 
+import android.util.Log
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -26,6 +27,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -34,14 +36,16 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// @Deprecated("Copy pasted from TabRow compose class, because they don't provide an option to add padding between items")
+/**
+ * Tab row that fills max space if width of tabbar is less than width of a screen.
+ */
 @Composable
-fun ScrollableTabRow(
+fun ScrollableTabRowFillMaxWidth(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
     containerColor: Color = TabRowDefaults.containerColor,
     contentColor: Color = TabRowDefaults.contentColor,
-    tabPaddingEnd: Dp = 8.dp,
+    paddingBetweenTabs: Dp = 8.dp,
     edgePadding: Dp = 9.dp,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
         TabRowDefaults.Indicator(
@@ -66,6 +70,7 @@ fun ScrollableTabRow(
                 coroutineScope = coroutineScope,
             )
         }
+        val screenWidth = LocalConfiguration.current.screenWidthDp
         SubcomposeLayout(
             Modifier
                 .fillMaxWidth()
@@ -74,8 +79,10 @@ fun ScrollableTabRow(
                 .selectableGroup()
                 .clipToBounds(),
         ) { constraints ->
+            val screenWidthPx = screenWidth.dp.toPx().toInt()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.roundToPx()
-            val padding = edgePadding.roundToPx()
+            val tabPaddingEndPx = paddingBetweenTabs.roundToPx()
+            val edgePaddingPx = edgePadding.roundToPx()
 
             val tabMeasurables = subcompose(TabSlots.Tabs, tabs)
 
@@ -88,22 +95,42 @@ fun ScrollableTabRow(
                 minHeight = layoutHeight,
                 maxHeight = layoutHeight,
             )
-            val tabPlaceables = tabMeasurables
-                .map { it.measure(tabConstraints) }
+            val wholeViewWidth = tabMeasurables
+                .foldIndexed(initial = edgePaddingPx * 2) { index, curr, measurable ->
+                    curr + measurable.maxIntrinsicWidth(tabConstraints.maxHeight) + if (index == tabMeasurables.size - 1) 0 else tabPaddingEndPx
+                }
 
-            val layoutWidth = tabPlaceables.fold(initial = padding * 2) { curr, measurable ->
-                curr + measurable.width + tabPaddingEnd.value.toInt()
+            val tabsWithoutEndPaddingsWidth = tabMeasurables
+                .fold(initial = edgePaddingPx * 2) { curr, measurable ->
+                    curr + measurable.maxIntrinsicWidth(tabConstraints.maxHeight)
+                }
+
+            Log.d(TAG, "total view width: $wholeViewWidth, view without end paddings: $tabsWithoutEndPaddingsWidth, screen width: $screenWidthPx")
+            val isNeedAdditionalPaddingToFillAllSpace = wholeViewWidth < screenWidthPx
+            val paddingEndToFillAllSpace = if (isNeedAdditionalPaddingToFillAllSpace) (screenWidthPx - tabsWithoutEndPaddingsWidth) / (tabMeasurables.size - 1) else tabPaddingEndPx
+
+            Log.d(TAG, "PreviousPadding: $tabPaddingEndPx, NewPadding: $paddingEndToFillAllSpace")
+
+            val tabPlaceables = tabMeasurables
+                .map { measurable ->
+                    measurable.measure(tabConstraints)
+                }
+
+            val layoutWidth = tabPlaceables.foldIndexed(initial = edgePaddingPx * 2) { index, curr, placeable ->
+                curr + placeable.width + if (index == tabMeasurables.size - 1) 0 else paddingEndToFillAllSpace
             }
+
+            Log.d(TAG, "new layout width: $layoutWidth")
 
             // Position the children.
             layout(layoutWidth, layoutHeight) {
                 // Place the tabs
                 val tabPositions = mutableListOf<TabPosition>()
-                var left = padding
-                tabPlaceables.forEach {
-                    it.placeRelative(left, 0)
-                    tabPositions.add(TabPosition(left = left.toDp(), width = it.width.toDp()))
-                    left += it.width + tabPaddingEnd.value.toInt()
+                var left = edgePaddingPx
+                tabPlaceables.forEachIndexed { index, placeable ->
+                    placeable.placeRelative(left, 0)
+                    tabPositions.add(TabPosition(left = left.toDp(), width = placeable.width.toDp()))
+                    left += placeable.width + if (index != tabPlaceables.size - 1) paddingEndToFillAllSpace else 0
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
@@ -129,7 +156,7 @@ fun ScrollableTabRow(
 
                 scrollableTabData.onLaidOut(
                     density = this@SubcomposeLayout,
-                    edgeOffset = padding,
+                    edgeOffset = edgePaddingPx,
                     tabPositions = tabPositions,
                     selectedTab = selectedTabIndex,
                 )
@@ -252,3 +279,5 @@ fun Modifier.tabIndicatorOffset(
         .offset(x = indicatorOffset)
         .width(currentTabWidth)
 }
+
+private const val TAG = "ScrollableTabRow"
