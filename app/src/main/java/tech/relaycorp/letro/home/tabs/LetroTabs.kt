@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.home.HomeViewModel
+import tech.relaycorp.letro.ui.common.ScrollableTabRowFillMaxWidth
+import tech.relaycorp.letro.ui.common.tabIndicatorOffset
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @SuppressLint
@@ -42,7 +42,7 @@ fun LetroTabs(
     )
     val tabCounters = uiState.tabCounters
 
-    ScrollableTabRow(
+    ScrollableTabRowFillMaxWidth(
         selectedTabIndex = uiState.currentTab,
         containerColor = LetroColor.SurfaceContainerHigh,
         contentColor = LetroColor.OnSurfaceContainerHigh,
