@@ -21,6 +21,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,8 +41,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
 import tech.relaycorp.letro.ui.common.LetroButton
+import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
-import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
@@ -82,25 +83,32 @@ fun ConversationScreen(
                 )
             }
             Column {
-                ConversationToolbar(
-                    onReplyClick = onReplyClick,
-                    onBackClicked = onBackClicked,
-                    onArchiveClick = {
-                        val isArchived = viewModel.onArchiveConversationClicked()
-                        onConversationArchived(isArchived)
-                    },
-                    onDeleteClick = { viewModel.onDeleteConversationClick() },
-                )
-                Text(
-                    text = conversation.subject ?: conversationsStringsProvider.noSubject,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 10.dp,
-                        ),
-                )
+                Surface(
+                    shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
+                ) {
+                    Column {
+                        ConversationToolbar(
+                            isArchived = conversation.isArchived,
+                            onReplyClick = onReplyClick,
+                            onBackClicked = onBackClicked,
+                            onArchiveClick = {
+                                val isArchived = viewModel.onArchiveConversationClicked()
+                                onConversationArchived(isArchived)
+                            },
+                            onDeleteClick = { viewModel.onDeleteConversationClick() },
+                        )
+                        Text(
+                            text = conversation.subject ?: conversationsStringsProvider.noSubject,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 16.dp,
+                                    vertical = 10.dp,
+                                ),
+                        )
+                    }
+                }
                 LazyColumn(
                     state = scrollState,
                 ) {
@@ -219,7 +227,7 @@ private fun MessageInfoView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, LetroColor.SurfaceContainer, RoundedCornerShape(6.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
                 .padding(8.dp),
         ) {
             Column {
@@ -296,6 +304,7 @@ private fun MessageInfoView(
 
 @Composable
 private fun ConversationToolbar(
+    isArchived: Boolean,
     onReplyClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onArchiveClick: () -> Unit,
@@ -325,7 +334,7 @@ private fun ConversationToolbar(
             onClick = { onArchiveClick() },
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.archive),
+                painter = painterResource(id = if (isArchived) R.drawable.ic_unarchive_24 else R.drawable.ic_archive_24),
                 contentDescription = stringResource(id = R.string.archive),
                 tint = MaterialTheme.colorScheme.onSurface,
             )

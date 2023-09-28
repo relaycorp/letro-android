@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Divider
@@ -46,6 +47,7 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactView
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.common.LetroTextField
+import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
@@ -77,6 +79,8 @@ fun CreateNewMessageScreen(
         )
     }
 
+    val scrollState = rememberLazyListState()
+
     LaunchedEffect(key1 = Unit) {
         viewModel.messageSentSignal.collect {
             onMessageSent()
@@ -87,7 +91,7 @@ fun CreateNewMessageScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
         Surface(
-            shadowElevation = TopBarElevation,
+            shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
@@ -141,6 +145,7 @@ fun CreateNewMessageScreen(
         LazyColumn(
             modifier = Modifier
                 .weight(1f),
+            state = scrollState,
         ) {
             items(1) {
                 Row(
@@ -366,5 +371,3 @@ private fun RecipientChipView(
         }
     }
 }
-
-private val TopBarElevation = 2.dp
