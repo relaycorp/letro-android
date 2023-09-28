@@ -3,6 +3,7 @@
     <!-- We're using dependabot to keep dependencies up-to-date -->
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="GradleDependency" severity="ignore" />
+    <issue id="MonochromeLauncherIcon" severity="ignore" />
     <issue id="LogConditional">
         <ignore path="**"/>
     </issue>

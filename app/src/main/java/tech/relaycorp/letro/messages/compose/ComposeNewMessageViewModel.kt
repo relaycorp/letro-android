@@ -42,7 +42,8 @@ class CreateNewMessageViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         NewMessageUiState(
             sender = conversation?.ownerVeraId ?: "",
-            recipient = conversation?.contactVeraId ?: "",
+            recipientDisplayedText = conversation?.contactDisplayName ?: "",
+            recipientAccountId = conversation?.contactVeraId ?: "",
             subject = conversation?.subject ?: "",
             showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
             showRecipientAsChip = conversation != null,
@@ -74,13 +75,14 @@ class CreateNewMessageViewModel @Inject constructor(
     }
 
     fun onRecipientTextChanged(text: String) {
-        if (text == _uiState.value.recipient) {
+        if (text == _uiState.value.recipientDisplayedText) {
             return
         }
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    recipient = text,
+                    recipientDisplayedText = text,
+                    recipientAccountId = text,
                     suggestedContacts = if (text.isEmptyOrBlank()) null else contacts.filter { it.contactVeraId.lowercase().contains(text.lowercase()) || it.alias?.lowercase()?.contains(text.lowercase()) == true },
                     showRecipientIsNotYourContactError = if (text.isEmptyOrBlank()) false else it.showRecipientIsNotYourContactError,
                     isSendButtonEnabled = isSendButtonEnabled(text, it.messageText),
@@ -93,7 +95,8 @@ class CreateNewMessageViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    recipient = contact.contactVeraId,
+                    recipientDisplayedText = contact.alias ?: contact.contactVeraId,
+                    recipientAccountId = contact.contactVeraId,
                     suggestedContacts = null,
                     showRecipientIsNotYourContactError = false,
                     showRecipientAsChip = true,
@@ -107,7 +110,8 @@ class CreateNewMessageViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    recipient = "",
+                    recipientDisplayedText = "",
+                    recipientAccountId = "",
                     suggestedContacts = null,
                     showRecipientIsNotYourContactError = false,
                     showRecipientAsChip = false,
@@ -119,7 +123,7 @@ class CreateNewMessageViewModel @Inject constructor(
 
     fun onSubjectTextChanged(text: String) {
         viewModelScope.launch {
-            val isFromContacts = contacts.any { it.contactVeraId == uiState.value.recipient }
+            val isFromContacts = contacts.any { it.contactVeraId == uiState.value.recipientAccountId }
             _uiState.update {
                 it.copy(
                     subject = text,
@@ -135,7 +139,7 @@ class CreateNewMessageViewModel @Inject constructor(
                 it.copy(
                     messageText = text,
                     suggestedContacts = null,
-                    isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipient, text),
+                    isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, text),
                 )
             }
         }
@@ -154,7 +158,7 @@ class CreateNewMessageViewModel @Inject constructor(
     }
 
     fun onSendMessageClick() {
-        val contact = contacts.find { it.contactVeraId == uiState.value.recipient } ?: return
+        val contact = contacts.find { it.contactVeraId == uiState.value.recipientAccountId } ?: return
         when (screenType) {
             NEW_CONVERSATION -> {
                 conversationsRepository.createNewConversation(
@@ -182,7 +186,7 @@ class CreateNewMessageViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    showRecipientIsNotYourContactError = !contacts.any { it.contactVeraId == uiState.value.recipient } && uiState.value.recipient.isNotEmptyOrBlank(),
+                    showRecipientIsNotYourContactError = !contacts.any { it.contactVeraId == uiState.value.recipientAccountId } && uiState.value.recipientAccountId.isNotEmptyOrBlank(),
                 )
             }
         }
@@ -202,10 +206,10 @@ class CreateNewMessageViewModel @Inject constructor(
     }
 
     private fun isSendButtonEnabled(
-        recipient: String,
+        recipientAccountId: String,
         messageText: String,
     ): Boolean {
-        return contacts.any { recipient == it.contactVeraId } && messageText.isNotEmptyOrBlank()
+        return contacts.any { recipientAccountId == it.contactVeraId } && messageText.isNotEmptyOrBlank()
     }
 
     @IntDef(NEW_CONVERSATION, REPLY_TO_EXISTING_CONVERSATION)
@@ -219,7 +223,8 @@ class CreateNewMessageViewModel @Inject constructor(
 
 data class NewMessageUiState(
     val sender: String = "",
-    val recipient: String = "",
+    val recipientDisplayedText: String = "",
+    val recipientAccountId: String = "",
     val subject: String = "",
     val messageText: String = "",
     val showRecipientIsNotYourContactError: Boolean = false,

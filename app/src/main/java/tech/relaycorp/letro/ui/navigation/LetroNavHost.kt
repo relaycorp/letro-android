@@ -355,6 +355,9 @@ fun LetroNavHost(
                             )
                             homeViewModel.onOptionFromContactsFloatingMenuClicked()
                         },
+                        onOutsideClick = {
+                            homeViewModel.onOutsideFloatingMenuClicked()
+                        },
                     )
                 } else {
                     systemUiController.isStatusBarVisible = currentRoute.isStatusBarVisible

@@ -26,7 +26,7 @@ val NeutralVariant4 = Color(0xFF403D4A)
 val NeutralVariant5 = Color(0xFFAFB3BE)
 val NeutralVariant6 = Color(0xFFBDC2CF)
 val NeutralVariant7 = Color(0xFFE6E8EE)
-val NeutralVariant8 = Color(0xFFEFF0F3)
+val NeutralVariant8 = Color(0xFFE6E8EE)
 
 object LetroColor {
 
@@ -51,6 +51,10 @@ object LetroColor {
     val OnSurfaceVariant: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant5 else Neutral3
+
+    val SurfaceContainerLow: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant3 else Neutral8
 
     @Composable
     fun statusBarUnderDialogOverlay(): Color {

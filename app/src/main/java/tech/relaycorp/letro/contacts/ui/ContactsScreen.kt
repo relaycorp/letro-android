@@ -21,6 +21,8 @@ import tech.relaycorp.letro.ui.common.BottomSheetAction
 import tech.relaycorp.letro.ui.common.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
+import tech.relaycorp.letro.ui.theme.LetroColor
+import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.ext.showSnackbar
 
@@ -74,7 +76,7 @@ fun ContactsScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.delete_contact_dialog_title),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.TitleMediumProminent,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
@@ -111,6 +113,7 @@ fun ContactsScreen(
                         )
                     }
                 },
+                containerColor = LetroColor.SurfaceContainerLow,
             )
         }
         LazyColumn(

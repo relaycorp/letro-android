@@ -97,6 +97,7 @@ fun ManageContactScreen(
                         onSkipClicked = {
                             viewModel.onGotItClick()
                         },
+                        boldPartOfMessage = uiState.accountId,
                     ),
                 )
             } else {

@@ -23,7 +23,7 @@ sealed class ConversationSectionInfo(
 
     object Archived : ConversationSectionInfo(
         title = R.string.archive,
-        icon = R.drawable.archive,
+        icon = R.drawable.ic_archive_24,
     )
 
     companion object {

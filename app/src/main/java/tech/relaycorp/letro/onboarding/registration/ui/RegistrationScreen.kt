@@ -105,14 +105,17 @@ fun RegistrationScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
-                Divider(modifier = Modifier.fillMaxWidth())
+                Divider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
                 Text(
                     text = stringResource(id = R.string.onboarding_create_account_or),
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(8.dp),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Spacer(

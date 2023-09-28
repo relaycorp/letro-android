@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
@@ -72,13 +73,22 @@ fun ConversationsListScreen(
                 onDismissRequest = { viewModel.onConversationSectionDialogDismissed() },
             )
         }
-        Column {
-            if (isOnboardingVisible) {
-                ConversationsOnboardingView(
-                    onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+        val conversations = conversations
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            if (conversations is ConversationsListContent.Empty) {
+                EmptyConversationsView(
+                    image = conversations.image,
+                    text = conversations.text,
                 )
             }
-            Box {
+            Column {
+                if (isOnboardingVisible) {
+                    ConversationsOnboardingView(
+                        onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
+                    )
+                }
                 LazyColumn {
                     items(1) {
                         ConversationsSectionSelector(
@@ -90,7 +100,7 @@ fun ConversationsListScreen(
                         )
                     }
 
-                    when (val conversations = conversations) {
+                    when (conversations) {
                         is ConversationsListContent.Conversations -> {
                             items(conversations.conversations) { conversation ->
                                 Conversation(
@@ -103,15 +113,7 @@ fun ConversationsListScreen(
                             }
                         }
                         is ConversationsListContent.Empty -> {
-                            items(1) {
-                                Column {
-                                    Spacer(modifier = Modifier.height(24.dp))
-                                    EmptyConversationsView(
-                                        image = conversations.image,
-                                        text = conversations.text,
-                                    )
-                                }
-                            }
+                            // No more elements in lazy list
                         }
                     }
                 }
@@ -172,17 +174,21 @@ private fun Conversation(
                     style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = " - ",
                     style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = conversation.messages.last().text,
                     style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -234,18 +240,22 @@ private fun EmptyConversationsView(
     @DrawableRes image: Int,
     @StringRes text: Int,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+            .padding(bottom = 48.dp),
     ) {
-        Image(painter = painterResource(id = image), contentDescription = null)
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = stringResource(id = text),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(painter = painterResource(id = image), contentDescription = null)
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = stringResource(id = text),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 
@@ -333,7 +343,34 @@ fun Conversation_Preview() {
                 lastMessage = message,
                 totalMessagesFormattedText = "(2)",
                 messages = listOf(
-                    message,
+                    message.copy(
+                        text = "This is example of a very long text. So long, that it doesn't fit...",
+                    ),
+                ),
+                isArchived = false,
+            ),
+            noSubjectText = "(No subject)",
+        ) {
+        }
+        Divider(
+            modifier = Modifier.height(1.dp),
+        )
+        Conversation(
+            conversation = ExtendedConversation(
+                conversationId = conversationId,
+                ownerVeraId = "ft@applepie.rocks",
+                contactVeraId = "contact@vera.id",
+                contactDisplayName = "Alias",
+                subject = "Very long subject. So long, that it doesn't fit on the screen at all",
+                lastMessageTimestamp = System.currentTimeMillis(),
+                isRead = true,
+                lastMessageFormattedTimestamp = "01:03 PM",
+                lastMessage = message,
+                totalMessagesFormattedText = "(2)",
+                messages = listOf(
+                    message.copy(
+                        text = "This is example of a very long text. So long, that it doesn't fit...",
+                    ),
                 ),
                 isArchived = false,
             ),

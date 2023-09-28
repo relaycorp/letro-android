@@ -48,7 +48,7 @@ fun LetroActionsBottomSheet(
     title: String? = null,
 ) {
     ModalBottomSheet(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = LetroColor.SurfaceContainerLow,
         onDismissRequest = {
             onDismissRequest()
         },

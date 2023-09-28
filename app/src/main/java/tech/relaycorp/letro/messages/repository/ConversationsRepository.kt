@@ -4,9 +4,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.AccountRepository
@@ -40,6 +43,7 @@ interface ConversationsRepository {
         messageText: String,
     )
     fun getConversation(id: String): ExtendedConversation?
+    fun getConversationFlow(scope: CoroutineScope, id: String): StateFlow<ExtendedConversation?>
     fun markConversationAsRead(conversationId: String)
     fun deleteConversation(conversationId: String)
     fun archiveConversation(
@@ -91,6 +95,13 @@ class ConversationsRepositoryImpl @Inject constructor(
     override fun getConversation(id: String): ExtendedConversation? {
         val uuid = UUID.fromString(id)
         return _extendedConversations.value.find { it.conversationId == uuid }
+    }
+
+    override fun getConversationFlow(scope: CoroutineScope, id: String): StateFlow<ExtendedConversation?> {
+        val uuid = UUID.fromString(id)
+        return conversations
+            .map { it.find { it.conversationId == uuid } }
+            .stateIn(scope, SharingStarted.Eagerly, getConversation(id))
     }
 
     override fun createNewConversation(

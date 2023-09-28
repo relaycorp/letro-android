@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.model.Contact
+import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
@@ -45,13 +46,13 @@ fun ContactView(
                 Text(
                     text = contact.alias,
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.TitleMediumProminent,
                 )
             }
             Text(
                 text = contact.contactVeraId,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = if (contact.alias == null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+                style = if (contact.alias == null) MaterialTheme.typography.TitleMediumProminent else MaterialTheme.typography.bodyMedium,
             )
         }
         if (onActionsButtonClick != null) {
