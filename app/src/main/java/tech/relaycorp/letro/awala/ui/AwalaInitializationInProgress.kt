@@ -65,7 +65,7 @@ fun AwalaInitializationInProgress(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = texts[currentTextIndex % texts.size],
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(24.dp))
