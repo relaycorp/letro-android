@@ -7,8 +7,10 @@ import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.AccountDao
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.ContactsDao
+import tech.relaycorp.letro.messages.storage.AttachmentsDao
 import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
+import tech.relaycorp.letro.messages.storage.entity.Attachment
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
 import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
@@ -22,6 +24,7 @@ import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
         Conversation::class,
         Message::class,
         Notification::class,
+        Attachment::class,
     ],
     version = 1,
     exportSchema = true,
@@ -35,4 +38,5 @@ abstract class LetroDatabase : RoomDatabase() {
     abstract fun conversationsDao(): ConversationsDao
     abstract fun messagesDao(): MessagesDao
     abstract fun notificationsDao(): NotificationsDao
+    abstract fun attachmentsDao(): AttachmentsDao
 }

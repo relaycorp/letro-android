@@ -25,9 +25,10 @@ import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.utils.ext.applyIf
+import java.util.UUID
 
 data class AttachmentInfo(
-    val fileId: Int,
+    val fileId: UUID,
     val name: String,
     val size: String,
     @DrawableRes val icon: Int,
@@ -37,12 +38,16 @@ data class AttachmentInfo(
 fun Attachment(
     modifier: Modifier = Modifier,
     attachment: AttachmentInfo,
+    onAttachmentClick: (() -> Unit)? = null,
     onDeleteClick: (() -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .background(LetroColor.SurfaceContainer, RoundedCornerShape(6.dp))
+            .applyIf(onAttachmentClick != null) {
+                clickable { onAttachmentClick?.invoke() }
+            }
             .padding(
                 horizontal = 16.dp,
                 vertical = 8.dp,
@@ -94,7 +99,7 @@ private fun Attachment_Preview() {
                 name = "Short_name.pdf",
                 size = "126 KB",
                 icon = R.drawable.attachment_pdf,
-                fileId = 0,
+                fileId = UUID.randomUUID(),
             ),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -106,7 +111,7 @@ private fun Attachment_Preview() {
                 name = "Very long name of the file, that it can barely fit on the screen.img",
                 size = "126 KB",
                 icon = R.drawable.attachment_image,
-                fileId = 0,
+                fileId = UUID.randomUUID(),
             ),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -118,7 +123,7 @@ private fun Attachment_Preview() {
                 name = "Deleteable attachment with very long name of the file, that it can barely fit on the screen.img",
                 size = "126 KB",
                 icon = R.drawable.attachment_image,
-                fileId = 0,
+                fileId = UUID.randomUUID(),
             ),
             onDeleteClick = {},
             modifier = Modifier

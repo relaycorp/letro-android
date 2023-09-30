@@ -64,6 +64,7 @@ fun ComposeNewMessageScreen(
     viewModel: ComposeNewMessageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val attachments by viewModel.attachments.collectAsState()
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -158,7 +159,7 @@ fun ComposeNewMessageScreen(
                 .weight(1f),
             state = scrollState,
         ) {
-            items(1) {
+            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -261,7 +262,7 @@ fun ComposeNewMessageScreen(
                 }
 
                 else -> {
-                    items(1) {
+                    item {
                         Column {
                             if (!uiState.isOnlyTextEditale) {
                                 LetroTextField(
@@ -307,21 +308,21 @@ fun ComposeNewMessageScreen(
                                 placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .then(Modifier)
-                                    .applyIf(uiState.attachments.isEmpty()) {
+                                    .applyIf(attachments.isEmpty()) {
                                         defaultMinSize(
                                             minHeight = 500.dp,
                                         )
                                     }
                                     .onFocusChanged { viewModel.onMessageTextFieldFocused(it.isFocused) },
                             )
-                            if (uiState.attachments.isNotEmpty()) {
-                                attachments(
-                                    lazyListScope = this@LazyColumn,
-                                    attachments = uiState.attachments,
-                                    onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
-                                )
-                            }
                         }
+                    }
+                    if (attachments.isNotEmpty()) {
+                        attachments(
+                            lazyListScope = this@LazyColumn,
+                            attachments = attachments,
+                            onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
+                        )
                     }
                 }
             }
@@ -399,7 +400,10 @@ private fun attachments(
     onAttachmentDeleteClick: (AttachmentInfo) -> Unit,
 ) {
     with(lazyListScope) {
-        items(attachments.size) {
+        items(
+            count = attachments.size,
+            key = { attachments[it].fileId },
+        ) {
             Column {
                 if (it != 0) {
                     Spacer(modifier = Modifier.height(8.dp))

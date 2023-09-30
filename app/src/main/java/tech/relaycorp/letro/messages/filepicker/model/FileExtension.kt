@@ -1,23 +1,42 @@
 package tech.relaycorp.letro.messages.filepicker.model
 
 sealed class FileExtension(
-    val name: String,
+    val mimeType: String,
 ) {
-    data object Pdf : FileExtension(PDF)
+    class Pdf(
+        mimeType: String = PDF,
+    ) : FileExtension(mimeType)
 
-    data object Image : FileExtension(IMAGE)
+    class Image(
+        mimeType: String = IMAGE,
+    ) : FileExtension(mimeType)
 
-    data object Video : FileExtension(VIDEO)
+    class Video(
+        mimeType: String = VIDEO,
+    ) : FileExtension(mimeType)
 
-    data object Audio : FileExtension(AUDIO)
+    class Audio(
+        mimeType: String = AUDIO,
+    ) : FileExtension(mimeType)
 
-    data object Other : FileExtension(OTHER)
+    class Other(
+        mimeType: String = OTHER,
+    ) : FileExtension(mimeType)
 
-    private companion object {
-        private const val PDF = "pdf"
-        private const val IMAGE = "image"
-        private const val VIDEO = "video"
-        private const val AUDIO = "audio"
-        private const val OTHER = "other"
+    companion object {
+        private const val PDF = "application/pdf"
+        private const val IMAGE = "image/*"
+        private const val VIDEO = "video/*"
+        private const val AUDIO = "audio/*"
+        private const val OTHER = "*/*"
+
+        fun fromMimeType(mimeType: String?) = when {
+            mimeType == null -> Other()
+            mimeType.startsWith("application/pdf") -> Pdf(mimeType)
+            mimeType.startsWith("image/") -> Image(mimeType)
+            mimeType.startsWith("video/") -> Video(mimeType)
+            mimeType.startsWith("audio/") -> Audio(mimeType)
+            else -> Other(mimeType)
+        }
     }
 }

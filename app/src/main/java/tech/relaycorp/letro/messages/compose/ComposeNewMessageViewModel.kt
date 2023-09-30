@@ -56,7 +56,6 @@ class ComposeNewMessageViewModel @Inject constructor(
             showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
             showRecipientAsChip = conversation != null,
             isOnlyTextEditale = conversation != null,
-            attachments = emptyList(),
         ),
     )
     val uiState: StateFlow<NewMessageUiState>
@@ -68,7 +67,10 @@ class ComposeNewMessageViewModel @Inject constructor(
     val messageSentSignal: SharedFlow<Unit>
         get() = _messageSentSignal
 
-    private val attachments = arrayListOf<File>()
+    private val attachedFiles = arrayListOf<File.FileWithContent>()
+    private val _attachments: MutableStateFlow<List<AttachmentInfo>> = MutableStateFlow(emptyList())
+    val attachments: StateFlow<List<AttachmentInfo>>
+        get() = _attachments
 
     init {
         viewModelScope.launch {
@@ -89,24 +91,20 @@ class ComposeNewMessageViewModel @Inject constructor(
         uri ?: return
         viewModelScope.launch(Dispatchers.IO) {
             val file = fileConverter.getFile(uri) ?: return@launch
-            attachments.add(file)
-            _uiState.update {
-                it.copy(
-                    attachments = ArrayList(it.attachments).apply {
-                        add(attachmentInfoConverter.convert(file))
-                    },
-                )
+            attachedFiles.add(file)
+            _attachments.update {
+                ArrayList(it).apply {
+                    add(attachmentInfoConverter.convert(file))
+                }
             }
         }
     }
 
     fun onAttachmentDeleteClick(attachmentInfo: AttachmentInfo) {
         viewModelScope.launch {
-            attachments.removeAll { it.id == attachmentInfo.fileId }
-            _uiState.update {
-                it.copy(
-                    attachments = it.attachments.filter { it.fileId != attachmentInfo.fileId },
-                )
+            attachedFiles.removeAll { it.id == attachmentInfo.fileId }
+            _attachments.update {
+                it.filter { it.fileId != attachmentInfo.fileId }
             }
         }
     }
@@ -203,6 +201,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                     recipient = contact,
                     messageText = uiState.value.messageText,
                     subject = uiState.value.subject,
+                    attachments = attachedFiles,
                 )
             }
             REPLY_TO_EXISTING_CONVERSATION -> {
@@ -210,6 +209,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 conversationsRepository.reply(
                     conversationId = conversation.conversationId,
                     messageText = uiState.value.messageText,
+                    attachments = attachedFiles,
                 )
             }
             else -> {
@@ -270,5 +270,4 @@ data class NewMessageUiState(
     val isOnlyTextEditale: Boolean = false,
     val showNoSubjectText: Boolean = false,
     val suggestedContacts: List<Contact>? = null,
-    val attachments: List<AttachmentInfo> = emptyList(),
 )

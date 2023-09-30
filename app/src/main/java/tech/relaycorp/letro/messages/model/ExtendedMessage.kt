@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.messages.model
 
+import tech.relaycorp.letro.messages.ui.AttachmentInfo
 import java.util.UUID
 
 data class ExtendedMessage(
@@ -13,4 +14,5 @@ data class ExtendedMessage(
     val text: String,
     val sentAtBriefFormatted: String,
     val sentAtDetailedFormatted: String,
+    val attachments: List<AttachmentInfo> = emptyList(),
 )

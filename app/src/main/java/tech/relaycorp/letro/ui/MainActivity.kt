@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -119,5 +120,25 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.openFileSignal.collect { file ->
+                try {
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW).apply {
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            setDataAndType(FileProvider.getUriForFile(this@MainActivity, AUTHORITY, file.toFile()), file.extension.mimeType)
+                        },
+                    )
+                } catch (e: ActivityNotFoundException) {
+                    Toast
+                        .makeText(this@MainActivity, R.string.no_app_to_open_file, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+    }
+
+    private companion object {
+        private const val AUTHORITY = "tech.relaycorp.letro.provider"
     }
 }

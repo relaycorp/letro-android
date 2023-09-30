@@ -335,6 +335,9 @@ fun LetroNavHost(
                                 onBackClicked = {
                                     navController.popBackStack()
                                 },
+                                onAttachmentClick = { fileId ->
+                                    mainViewModel.onAttachmentClick(fileId)
+                                },
                             )
                         }
                     }

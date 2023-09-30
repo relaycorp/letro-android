@@ -32,28 +32,28 @@ class AttachmentInfoConverterImpl @Inject constructor(
 
     private fun getDisplayedSize(file: File): String {
         return when {
-            file.content.isMoreThanMegabyte() -> {
-                val size = file.content.size.bytesToMb()
+            file.size.isMoreThanMegabyte() -> {
+                val size = file.size.bytesToMb()
                 context.getString(R.string.file_size_megabytes, String.format("%.2f", size))
             }
 
-            file.content.isMoreThanKilobyte() -> {
-                val size = file.content.size.bytesToKb()
+            file.size.isMoreThanKilobyte() -> {
+                val size = file.size.bytesToKb()
                 context.getString(R.string.file_size_kilobytes, String.format("%.2f", size))
             }
 
             else -> {
-                context.getString(R.string.file_size_bytes, file.content.size.toString())
+                context.getString(R.string.file_size_bytes, file.size.toString())
             }
         }
     }
 
     @DrawableRes
     private fun getIcon(file: File): Int = when (file.extension) {
-        FileExtension.Pdf -> R.drawable.attachment_pdf
-        FileExtension.Image -> R.drawable.attachment_image
-        FileExtension.Video -> R.drawable.attachment_video
-        FileExtension.Audio -> R.drawable.attachment_audio
-        FileExtension.Other -> R.drawable.attachment_default
+        is FileExtension.Pdf -> R.drawable.attachment_pdf
+        is FileExtension.Image -> R.drawable.attachment_image
+        is FileExtension.Video -> R.drawable.attachment_video
+        is FileExtension.Audio -> R.drawable.attachment_audio
+        is FileExtension.Other -> R.drawable.attachment_default
     }
 }

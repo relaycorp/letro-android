@@ -19,7 +19,9 @@ import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepository
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
+import tech.relaycorp.letro.messages.filepicker.model.File
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.parser.OutgoingMessageMessageEncoder
 import tech.relaycorp.letro.messages.storage.ConversationsDao
@@ -37,10 +39,12 @@ interface ConversationsRepository {
         recipient: Contact,
         messageText: String,
         subject: String? = null,
+        attachments: List<File.FileWithContent> = emptyList(),
     )
     fun reply(
         conversationId: UUID,
         messageText: String,
+        attachments: List<File.FileWithContent> = emptyList(),
     )
     fun getConversation(id: String): ExtendedConversation?
     fun getConversationFlow(scope: CoroutineScope, id: String): StateFlow<ExtendedConversation?>
@@ -55,6 +59,7 @@ interface ConversationsRepository {
 class ConversationsRepositoryImpl @Inject constructor(
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
+    private val attachmentsRepository: AttachmentsRepository,
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
     private val conversationsConverter: ExtendedConversationConverter,
@@ -109,6 +114,7 @@ class ConversationsRepositoryImpl @Inject constructor(
         recipient: Contact,
         messageText: String,
         subject: String?,
+        attachments: List<File.FileWithContent>,
     ) {
         val recipientNodeId = recipient.contactEndpointId ?: return
         scope.launch {
@@ -127,7 +133,11 @@ class ConversationsRepositoryImpl @Inject constructor(
                 sentAt = LocalDateTime.now(),
             )
             conversationsDao.createNewConversation(conversation)
-            messagesDao.insert(message)
+            val messageId = messagesDao.insert(message)
+
+            if (attachments.isNotEmpty()) {
+                attachmentsRepository.saveAttachments(messageId, attachments)
+            }
 
             awalaManager.sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
@@ -144,7 +154,11 @@ class ConversationsRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun reply(conversationId: UUID, messageText: String) {
+    override fun reply(
+        conversationId: UUID,
+        messageText: String,
+        attachments: List<File.FileWithContent>,
+    ) {
         scope.launch {
             val conversation = _conversations.value
                 .find { it.conversationId == conversationId } ?: return@launch
@@ -159,7 +173,12 @@ class ConversationsRepositoryImpl @Inject constructor(
                 recipientVeraId = conversation.contactVeraId,
                 sentAt = LocalDateTime.now(),
             )
-            messagesDao.insert(message)
+
+            val messageId = messagesDao.insert(message)
+            if (attachments.isNotEmpty()) {
+                attachmentsRepository.saveAttachments(messageId, attachments)
+            }
+
             awalaManager.sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.NewMessage,
@@ -222,14 +241,21 @@ class ConversationsRepositoryImpl @Inject constructor(
             combine(
                 conversationsDao.getAll(),
                 messagesDao.getAll(),
+                attachmentsRepository.attachments,
                 contacts,
-            ) { conversations, messages, contacts ->
+            ) { conversations, messages, attachments, contacts ->
+
                 _conversations.emit(conversations)
+
+                val messagesOfCurrentAccount = messages.filter { it.ownerVeraId == account.accountId }
+                val messageIdsOfCurrentAccount = messagesOfCurrentAccount.map { it.id }.toSet()
+
                 _extendedConversations.emit(
                     conversationsConverter.convert(
                         conversations = conversations.filter { it.ownerVeraId == account.accountId },
-                        messages = messages.filter { it.ownerVeraId == account.accountId },
+                        messages = messagesOfCurrentAccount,
                         contacts = contacts.filter { it.ownerVeraId == account.accountId },
+                        attachments = attachments.filter { messageIdsOfCurrentAccount.contains(it.messageId) },
                         ownerVeraId = account.accountId,
                     ),
                 )

@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepository
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepositoryImpl
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.messages.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.messages.converter.MessageTimestampFormatter
@@ -23,6 +25,7 @@ import tech.relaycorp.letro.messages.processor.NewMessageProcessor
 import tech.relaycorp.letro.messages.processor.NewMessageProcessorImpl
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
 import tech.relaycorp.letro.messages.repository.ConversationsRepositoryImpl
+import tech.relaycorp.letro.messages.storage.AttachmentsDao
 import tech.relaycorp.letro.messages.storage.ConversationsDao
 import tech.relaycorp.letro.messages.storage.MessagesDao
 import tech.relaycorp.letro.storage.LetroDatabase
@@ -41,6 +44,11 @@ object ConversationsModule {
     fun provideMessagesDao(
         letroDatabase: LetroDatabase,
     ): MessagesDao = letroDatabase.messagesDao()
+
+    @Provides
+    fun provideAttachmentsDao(
+        letroDatabase: LetroDatabase,
+    ): AttachmentsDao = letroDatabase.attachmentsDao()
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -91,5 +99,11 @@ object ConversationsModule {
         fun bindOnboardingMessageManager(
             impl: ConversationsOnboardingManagerImpl,
         ): ConversationsOnboardingManager
+
+        @Binds
+        @Singleton
+        fun bindAttachmentsRepository(
+            impl: AttachmentsRepositoryImpl,
+        ): AttachmentsRepository
     }
 }
