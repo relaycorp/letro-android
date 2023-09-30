@@ -3,6 +3,7 @@ package tech.relaycorp.letro.messages.processor
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepository
 import tech.relaycorp.letro.messages.dto.NewMessageIncomingMessage
 import tech.relaycorp.letro.messages.parser.NewMessageMessageParser
 import tech.relaycorp.letro.messages.storage.ConversationsDao
@@ -23,6 +24,7 @@ class NewMessageProcessorImpl @Inject constructor(
     private val parser: NewMessageMessageParser,
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
+    private val attachmentsRepository: AttachmentsRepository,
 ) : NewMessageProcessor {
 
     @Suppress("NAME_SHADOWING")
@@ -55,6 +57,7 @@ class NewMessageProcessorImpl @Inject constructor(
             sentAt = LocalDateTime.now(),
         )
         val messageId = messagesDao.insert(message)
+        attachmentsRepository.saveMessageAttachments(messageId, messageWrapper.attachments)
         pushManager.showPush(
             PushData(
                 title = message.senderVeraId,

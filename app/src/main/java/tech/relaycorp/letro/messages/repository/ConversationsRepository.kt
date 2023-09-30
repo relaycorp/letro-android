@@ -145,6 +145,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     content = outgoingMessageMessageEncoder.encodeNewConversationContent(
                         conversation = conversation,
                         messageText = message.text,
+                        attachments = attachments,
                     ),
                 ),
                 recipient = MessageRecipient.User(
@@ -182,7 +183,10 @@ class ConversationsRepositoryImpl @Inject constructor(
             awalaManager.sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.NewMessage,
-                    content = outgoingMessageMessageEncoder.encodeNewMessageContent(message),
+                    content = outgoingMessageMessageEncoder.encodeNewMessageContent(
+                        message = message,
+                        attachments = attachments,
+                    ),
                 ),
                 recipient = MessageRecipient.User(
                     nodeId = recipientNodeId,
