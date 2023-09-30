@@ -3,6 +3,7 @@ package tech.relaycorp.letro.messages.processor
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepository
 import tech.relaycorp.letro.messages.dto.NewConversationIncomingMessage
 import tech.relaycorp.letro.messages.model.ConversationAwalaWrapper
 import tech.relaycorp.letro.messages.parser.NewConversationMessageParser
@@ -24,6 +25,7 @@ class NewConversationProcessorImpl @Inject constructor(
     private val newConversationMessageParser: NewConversationMessageParser,
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
+    private val attachmentsRepository: AttachmentsRepository,
 ) : NewConversationProcessor {
 
     override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
@@ -50,6 +52,9 @@ class NewConversationProcessorImpl @Inject constructor(
         )
         conversationsDao.createNewConversation(conversation)
         val messageId = messagesDao.insert(message)
+
+        attachmentsRepository.saveMessageAttachments(messageId, conversationWrapper.attachments)
+
         pushManager.showPush(
             PushData(
                 title = conversationWrapper.senderVeraId,
