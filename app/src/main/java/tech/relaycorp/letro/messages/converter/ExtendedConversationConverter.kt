@@ -1,32 +1,39 @@
 package tech.relaycorp.letro.messages.converter
 
 import tech.relaycorp.letro.contacts.model.Contact
+import tech.relaycorp.letro.messages.filepicker.FileConverter
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.model.ExtendedMessage
+import tech.relaycorp.letro.messages.storage.entity.Attachment
 import tech.relaycorp.letro.messages.storage.entity.Conversation
 import tech.relaycorp.letro.messages.storage.entity.Message
+import tech.relaycorp.letro.messages.ui.utils.AttachmentInfoConverter
 import java.sql.Timestamp
 import java.time.ZoneOffset
 import java.util.UUID
 import javax.inject.Inject
 
 interface ExtendedConversationConverter {
-    fun convert(
+    suspend fun convert(
         conversations: List<Conversation>,
         messages: List<Message>,
         contacts: List<Contact>,
+        attachments: List<Attachment>,
         ownerVeraId: String,
     ): List<ExtendedConversation>
 }
 
 class ExtendedConversationConverterImpl @Inject constructor(
     private val messageTimestampFormatter: MessageTimestampFormatter,
+    private val fileConverter: FileConverter,
+    private val attachmentInfoConverter: AttachmentInfoConverter,
 ) : ExtendedConversationConverter {
 
-    override fun convert(
+    override suspend fun convert(
         conversations: List<Conversation>,
         messages: List<Message>,
         contacts: List<Contact>,
+        attachments: List<Attachment>,
         ownerVeraId: String,
     ): List<ExtendedConversation> {
         val conversationsMap = hashMapOf<UUID, Conversation>()
@@ -52,19 +59,20 @@ class ExtendedConversationConverterImpl @Inject constructor(
                 val lastMessage = messagesToConversation[conversation.conversationId]!!.last()
                 val extendedMessagesList = sortedMessages
                     .filter { it.conversationId == conversation.conversationId }
-                    .map {
-                        val isOutgoing = ownerVeraId == it.senderVeraId
+                    .map { message ->
+                        val isOutgoing = ownerVeraId == message.senderVeraId
                         ExtendedMessage(
                             conversationId = conversation.conversationId,
-                            senderVeraId = it.senderVeraId,
-                            recipientVeraId = it.recipientVeraId,
-                            senderDisplayName = if (isOutgoing) it.ownerVeraId else contactDisplayName,
-                            recipientDisplayName = if (isOutgoing) contactDisplayName else it.ownerVeraId,
+                            senderVeraId = message.senderVeraId,
+                            recipientVeraId = message.recipientVeraId,
+                            senderDisplayName = if (isOutgoing) message.ownerVeraId else contactDisplayName,
+                            recipientDisplayName = if (isOutgoing) contactDisplayName else message.ownerVeraId,
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
-                            text = it.text,
-                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(it.sentAt),
-                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(it.sentAt),
+                            text = message.text,
+                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(message.sentAt),
+                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(message.sentAt),
+                            attachments = attachments.filter { it.messageId == message.id }.mapNotNull { fileConverter.getFile(it)?.let { attachmentInfoConverter.convert(it) } },
                         )
                     }
                 ExtendedConversation(

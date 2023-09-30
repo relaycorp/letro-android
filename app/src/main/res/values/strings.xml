@@ -42,6 +42,7 @@
 
     <string name="no_browser">There is no app to install Awala</string>
     <string name="no_app_to_share">There is no app to share your id</string>
+    <string name="no_app_to_open_file">There is no app to open the file</string>
 
     <string name="pair_request_was_already_sent_hint">You already tried to connect with them, but we can send another request if you want.</string>
     <string name="pair_request_already_paired">You two are already connected.</string>
@@ -135,8 +136,14 @@
         <item quantity="other">%d new notifications</item>
     </plurals>
 
+    <string name="content_description_delete_attachment">Delete attachment</string>
+
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
+
+    <string name="file_size_megabytes" translatable="false">%s MB</string>
+    <string name="file_size_kilobytes" translatable="false">%s KB</string>
+    <string name="file_size_bytes" translatable="false">%s B</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
 
 </resources>

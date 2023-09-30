@@ -21,9 +21,14 @@ import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.awala.AwalaInitializationState
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.messages.attachments.AttachmentsRepository
+import tech.relaycorp.letro.messages.filepicker.FileConverter
+import tech.relaycorp.letro.messages.filepicker.model.File
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
+import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.sendOn
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +36,8 @@ class MainViewModel @Inject constructor(
     private val awalaManager: AwalaManager,
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
+    private val attachmentsRepository: AttachmentsRepository,
+    private val fileConverter: FileConverter,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -44,6 +51,10 @@ class MainViewModel @Inject constructor(
     private val _joinMeOnLetroSignal = MutableSharedFlow<String>()
     val joinMeOnLetroSignal: SharedFlow<String>
         get() = _joinMeOnLetroSignal
+
+    private val _openFileSignal = MutableSharedFlow<File.FileWithoutContent>()
+    val openFileSignal: SharedFlow<File.FileWithoutContent>
+        get() = _openFileSignal
 
     private val _rootNavigationScreen: MutableStateFlow<RootNavigationScreen> =
         MutableStateFlow(RootNavigationScreen.Splash)
@@ -114,6 +125,18 @@ class MainViewModel @Inject constructor(
         currentAccount?.accountId?.let { accountId ->
             viewModelScope.launch {
                 _joinMeOnLetroSignal.emit(getJoinMeLink(accountId))
+            }
+        }
+    }
+
+    fun onAttachmentClick(fileId: UUID) {
+        viewModelScope.launch {
+            attachmentsRepository.getById(fileId)?.let { attachment ->
+                fileConverter.getFile(attachment)?.let { file ->
+                    if (file.exists()) {
+                        _openFileSignal.emitOn(file, viewModelScope)
+                    }
+                }
             }
         }
     }

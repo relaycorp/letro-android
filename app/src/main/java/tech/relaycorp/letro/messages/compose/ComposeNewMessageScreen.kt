@@ -1,5 +1,7 @@
 package tech.relaycorp.letro.messages.compose
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -45,6 +47,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactView
+import tech.relaycorp.letro.messages.ui.Attachment
+import tech.relaycorp.letro.messages.ui.AttachmentInfo
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.common.LetroTextField
 import tech.relaycorp.letro.ui.theme.Elevation2
@@ -53,13 +57,21 @@ import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
-fun CreateNewMessageScreen(
+fun ComposeNewMessageScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
     onBackClicked: () -> Unit,
     onMessageSent: () -> Unit,
-    viewModel: CreateNewMessageViewModel = hiltViewModel(),
+    viewModel: ComposeNewMessageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val attachments by viewModel.attachments.collectAsState()
+
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {
+            viewModel.onFilePickerResult(it)
+        },
+    )
 
     var recipientTextFieldValueState by remember {
         mutableStateOf(
@@ -120,7 +132,7 @@ fun CreateNewMessageScreen(
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(
-                    onClick = { },
+                    onClick = { documentPickerLauncher.launch("*/*") },
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.attachment),
@@ -147,7 +159,7 @@ fun CreateNewMessageScreen(
                 .weight(1f),
             state = scrollState,
         ) {
-            items(1) {
+            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -250,7 +262,7 @@ fun CreateNewMessageScreen(
                 }
 
                 else -> {
-                    items(1) {
+                    item {
                         Column {
                             if (!uiState.isOnlyTextEditale) {
                                 LetroTextField(
@@ -295,12 +307,22 @@ fun CreateNewMessageScreen(
                                 singleLine = false,
                                 placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
-                                    .defaultMinSize(
-                                        minHeight = 500.dp,
-                                    )
+                                    .then(Modifier)
+                                    .applyIf(attachments.isEmpty()) {
+                                        defaultMinSize(
+                                            minHeight = 500.dp,
+                                        )
+                                    }
                                     .onFocusChanged { viewModel.onMessageTextFieldFocused(it.isFocused) },
                             )
                         }
+                    }
+                    if (attachments.isNotEmpty()) {
+                        attachments(
+                            lazyListScope = this@LazyColumn,
+                            attachments = attachments,
+                            onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
+                        )
                     }
                 }
             }
@@ -368,6 +390,32 @@ private fun RecipientChipView(
                 modifier = Modifier
                     .clickable { onRemoveClick() },
             )
+        }
+    }
+}
+
+private fun attachments(
+    lazyListScope: LazyListScope,
+    attachments: List<AttachmentInfo>,
+    onAttachmentDeleteClick: (AttachmentInfo) -> Unit,
+) {
+    with(lazyListScope) {
+        items(
+            count = attachments.size,
+            key = { attachments[it].fileId },
+        ) {
+            Column {
+                if (it != 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Attachment(
+                    attachment = attachments[it],
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(fraction = 0.87F),
+                    onDeleteClick = { onAttachmentDeleteClick(attachments[it]) },
+                )
+            }
         }
     }
 }

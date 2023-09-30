@@ -1,10 +1,12 @@
 package tech.relaycorp.letro.messages.compose
 
+import android.net.Uri
 import androidx.annotation.IntDef
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,10 +17,14 @@ import tech.relaycorp.letro.account.storage.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.ContactsRepository
-import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
-import tech.relaycorp.letro.messages.compose.CreateNewMessageViewModel.ScreenType.Companion.REPLY_TO_EXISTING_CONVERSATION
+import tech.relaycorp.letro.messages.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
+import tech.relaycorp.letro.messages.compose.ComposeNewMessageViewModel.ScreenType.Companion.REPLY_TO_EXISTING_CONVERSATION
+import tech.relaycorp.letro.messages.filepicker.FileConverter
+import tech.relaycorp.letro.messages.filepicker.model.File
 import tech.relaycorp.letro.messages.model.ExtendedConversation
 import tech.relaycorp.letro.messages.repository.ConversationsRepository
+import tech.relaycorp.letro.messages.ui.AttachmentInfo
+import tech.relaycorp.letro.messages.ui.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
@@ -26,10 +32,12 @@ import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateNewMessageViewModel @Inject constructor(
+class ComposeNewMessageViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
     private val conversationsRepository: ConversationsRepository,
+    private val fileConverter: FileConverter,
+    private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -59,6 +67,11 @@ class CreateNewMessageViewModel @Inject constructor(
     val messageSentSignal: SharedFlow<Unit>
         get() = _messageSentSignal
 
+    private val attachedFiles = arrayListOf<File.FileWithContent>()
+    private val _attachments: MutableStateFlow<List<AttachmentInfo>> = MutableStateFlow(emptyList())
+    val attachments: StateFlow<List<AttachmentInfo>>
+        get() = _attachments
+
     init {
         viewModelScope.launch {
             accountRepository.currentAccount.collect {
@@ -70,6 +83,28 @@ class CreateNewMessageViewModel @Inject constructor(
                     }
                     startCollectingConnectedContacts(account.accountId)
                 }
+            }
+        }
+    }
+
+    fun onFilePickerResult(uri: Uri?) {
+        uri ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = fileConverter.getFile(uri) ?: return@launch
+            attachedFiles.add(file)
+            _attachments.update {
+                ArrayList(it).apply {
+                    add(attachmentInfoConverter.convert(file))
+                }
+            }
+        }
+    }
+
+    fun onAttachmentDeleteClick(attachmentInfo: AttachmentInfo) {
+        viewModelScope.launch {
+            attachedFiles.removeAll { it.id == attachmentInfo.fileId }
+            _attachments.update {
+                it.filter { it.fileId != attachmentInfo.fileId }
             }
         }
     }
@@ -166,6 +201,7 @@ class CreateNewMessageViewModel @Inject constructor(
                     recipient = contact,
                     messageText = uiState.value.messageText,
                     subject = uiState.value.subject,
+                    attachments = attachedFiles,
                 )
             }
             REPLY_TO_EXISTING_CONVERSATION -> {
@@ -173,6 +209,7 @@ class CreateNewMessageViewModel @Inject constructor(
                 conversationsRepository.reply(
                     conversationId = conversation.conversationId,
                     messageText = uiState.value.messageText,
+                    attachments = attachedFiles,
                 )
             }
             else -> {

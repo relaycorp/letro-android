@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.messages.model.ExtendedMessage
+import tech.relaycorp.letro.messages.ui.Attachment
+import tech.relaycorp.letro.messages.ui.AttachmentInfo
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
@@ -55,6 +57,7 @@ fun ConversationScreen(
     onConversationDeleted: () -> Unit,
     onConversationArchived: (Boolean) -> Unit,
     onBackClicked: () -> Unit,
+    onAttachmentClick: (UUID) -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberLazyListState()
@@ -119,6 +122,7 @@ fun ConversationScreen(
                             message = message,
                             isCollapsable = conversation.messages.size > 1,
                             isLastMessage = isLastMessage,
+                            onAttachmentClick = { onAttachmentClick(it.fileId) },
                         )
                         if (!isLastMessage) {
                             Divider(
@@ -140,6 +144,7 @@ private fun Message(
     message: ExtendedMessage,
     isCollapsable: Boolean,
     isLastMessage: Boolean,
+    onAttachmentClick: (AttachmentInfo) -> Unit,
 ) {
     var isCollapsed: Boolean by remember { mutableStateOf(!isLastMessage) }
     var isDetailsCollapsed: Boolean by remember { mutableStateOf(true) }
@@ -213,6 +218,23 @@ private fun Message(
                     horizontal = 16.dp,
                 ),
         )
+        if (!isCollapsed) {
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                message.attachments.forEachIndexed { index, attachment ->
+                    if (index != 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    Attachment(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(fraction = 0.73F),
+                        attachment = attachment,
+                        onAttachmentClick = { onAttachmentClick(attachment) },
+                    )
+                }
+            }
+        }
     }
 }
 
