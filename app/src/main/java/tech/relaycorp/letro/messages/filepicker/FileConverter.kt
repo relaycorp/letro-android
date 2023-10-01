@@ -7,6 +7,7 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import tech.relaycorp.letro.messages.filepicker.model.File
 import tech.relaycorp.letro.messages.filepicker.model.FileExtension
+import tech.relaycorp.letro.messages.model.AttachmentAwalaWrapper
 import tech.relaycorp.letro.messages.storage.entity.Attachment
 import java.util.UUID
 import javax.inject.Inject
@@ -14,6 +15,7 @@ import javax.inject.Inject
 interface FileConverter {
     suspend fun getFile(uri: Uri): File.FileWithContent?
     suspend fun getFile(attachment: Attachment): File.FileWithoutContent?
+    suspend fun getFile(attachmentAwalaWrapper: AttachmentAwalaWrapper): File.FileWithContent?
 }
 
 class FileConverterImpl @Inject constructor(
@@ -47,6 +49,16 @@ class FileConverterImpl @Inject constructor(
             extension = getFileExtension(file.toUri()),
             size = file.length(),
             path = file.absolutePath,
+        )
+    }
+
+    override suspend fun getFile(attachmentAwalaWrapper: AttachmentAwalaWrapper): File.FileWithContent? {
+        return File.FileWithContent(
+            id = UUID.randomUUID(),
+            name = attachmentAwalaWrapper.fileName,
+            extension = FileExtension.fromMimeType(attachmentAwalaWrapper.mimeType),
+            size = attachmentAwalaWrapper.content.size.toLong(),
+            content = attachmentAwalaWrapper.content,
         )
     }
 
