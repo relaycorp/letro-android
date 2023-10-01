@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.utils.i18n.normaliseString
 import java.security.PrivateKey
 import java.util.Locale
@@ -33,6 +34,7 @@ interface AccountRepository {
 
 class AccountRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
+    private val pushManager: PushManager,
 ) : AccountRepository {
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
@@ -49,6 +51,7 @@ class AccountRepositoryImpl @Inject constructor(
         }
         databaseScope.launch {
             _allAccounts.collect { list ->
+                pushManager.createNotificationChannelsForAccounts(list.map { it.accountId })
                 Log.d(MainViewModel.TAG, "AccountRepository.emit(currentAccount)")
                 _currentAccount.emit(
                     list.firstOrNull { it.isCurrent },
