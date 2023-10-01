@@ -97,6 +97,11 @@ class ComposeNewMessageViewModel @Inject constructor(
                     add(attachmentInfoConverter.convert(file))
                 }
             }
+            _uiState.update {
+                it.copy(
+                    isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, it.messageText),
+                )
+            }
         }
     }
 
@@ -105,6 +110,11 @@ class ComposeNewMessageViewModel @Inject constructor(
             attachedFiles.removeAll { it.id == attachmentInfo.fileId }
             _attachments.update {
                 it.filter { it.fileId != attachmentInfo.fileId }
+            }
+            _uiState.update {
+                it.copy(
+                    isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, it.messageText),
+                )
             }
         }
     }
@@ -246,7 +256,7 @@ class ComposeNewMessageViewModel @Inject constructor(
         recipientAccountId: String,
         messageText: String,
     ): Boolean {
-        return contacts.any { recipientAccountId == it.contactVeraId } && messageText.isNotEmptyOrBlank()
+        return contacts.any { recipientAccountId == it.contactVeraId } && (messageText.isNotEmptyOrBlank() || attachedFiles.isNotEmpty())
     }
 
     @IntDef(NEW_CONVERSATION, REPLY_TO_EXISTING_CONVERSATION)
