@@ -29,43 +29,44 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.awala.ui.AwalaInitializationInProgress
 import tech.relaycorp.letro.awala.ui.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
-import tech.relaycorp.letro.home.HomeScreen
-import tech.relaycorp.letro.home.HomeViewModel
-import tech.relaycorp.letro.home.TAB_CONTACTS
+import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
+import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
+import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
 import tech.relaycorp.letro.main.MainViewModel
-import tech.relaycorp.letro.messages.compose.ComposeNewMessageScreen
-import tech.relaycorp.letro.messages.compose.ComposeNewMessageViewModel
-import tech.relaycorp.letro.messages.viewing.ConversationScreen
-import tech.relaycorp.letro.notification.NotificationClickAction
-import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
-import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
-import tech.relaycorp.letro.onboarding.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.main.home.HomeViewModel
+import tech.relaycorp.letro.main.home.TAB_CONTACTS
+import tech.relaycorp.letro.main.home.ui.HomeScreen
+import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
+import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.StringsProvider
+import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
+import tech.relaycorp.letro.utils.compose.showSnackbar
 import tech.relaycorp.letro.utils.ext.encodeToUTF
-import tech.relaycorp.letro.utils.ext.showSnackbar
-import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 
 @Composable
 fun LetroNavHost(
-    navController: NavHostController,
     stringsProvider: StringsProvider,
     onGoToSettingsClick: () -> Unit,
     mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val systemUiController: SystemUiController = rememberSystemUiController()
     var currentRoute: Route by remember { mutableStateOf(Route.Splash) }

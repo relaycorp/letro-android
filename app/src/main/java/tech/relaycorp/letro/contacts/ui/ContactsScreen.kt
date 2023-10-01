@@ -24,7 +24,7 @@ import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
-import tech.relaycorp.letro.utils.ext.showSnackbar
+import tech.relaycorp.letro.utils.compose.showSnackbar
 
 @Composable
 fun ContactsScreen(

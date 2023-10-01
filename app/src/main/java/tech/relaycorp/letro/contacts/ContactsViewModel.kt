@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
-import tech.relaycorp.letro.account.storage.AccountRepository
+import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import javax.inject.Inject
 
 @HiltViewModel
