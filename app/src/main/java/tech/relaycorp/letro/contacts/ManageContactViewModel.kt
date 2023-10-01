@@ -21,7 +21,7 @@ import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.EDIT_
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.NEW_CONTACT
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.contacts.storage.ContactsRepository
+import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty

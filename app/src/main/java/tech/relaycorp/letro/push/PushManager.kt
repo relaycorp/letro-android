@@ -12,9 +12,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.main.ui.MainActivity
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
-import tech.relaycorp.letro.ui.MainActivity
 import javax.inject.Inject
 
 interface PushManager {

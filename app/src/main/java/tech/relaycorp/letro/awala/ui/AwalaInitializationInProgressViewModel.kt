@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import tech.relaycorp.letro.di.MainModule
+import tech.relaycorp.letro.main.di.MainModule
 import javax.inject.Inject
 
 @HiltViewModel

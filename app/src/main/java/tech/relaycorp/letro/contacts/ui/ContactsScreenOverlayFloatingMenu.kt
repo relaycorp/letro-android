@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.home.HomeViewModel
+import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.FloatingActionButtonPadding
 import tech.relaycorp.letro.ui.theme.LetroColor

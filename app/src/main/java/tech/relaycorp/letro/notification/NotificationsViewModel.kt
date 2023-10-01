@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.notification.model.ExtendedNotification
-import tech.relaycorp.letro.notification.repository.NotificationsRepository
 import tech.relaycorp.letro.notification.storage.entity.NotificationType
+import tech.relaycorp.letro.notification.storage.repository.NotificationsRepository
+import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.utils.ext.emitOn
 import javax.inject.Inject
 

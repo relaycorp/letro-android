@@ -28,8 +28,8 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.ManageContactScreenContent
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.PairWithOthersUiState
-import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreen
-import tech.relaycorp.letro.onboarding.actionTaking.ActionTakingScreenUIStateModel
+import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
+import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField

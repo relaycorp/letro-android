@@ -1,7 +1,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import tech.relaycorp.letro.contacts.ManageContactViewModel
-import tech.relaycorp.letro.messages.compose.ComposeNewMessageViewModel
+import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 
 /**
  * Class which contains all possible routes
