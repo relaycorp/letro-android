@@ -2,10 +2,10 @@ package tech.relaycorp.letro.push
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
+import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -21,6 +21,10 @@ interface PushManager {
 
     fun showPush(
         pushData: PushData,
+    )
+
+    fun createNotificationChannelsForAccounts(
+        accounts: List<String>,
     )
 }
 
@@ -63,19 +67,31 @@ class PushManagerImpl @Inject constructor(
         }
     }
 
-    init {
-        createNotificationChannels()
+    override fun createNotificationChannelsForAccounts(accounts: List<String>) {
+        accounts.forEach {
+            createGroupedNotificationChannels(it)
+        }
     }
 
-    private fun createNotificationChannels() {
+    private fun createGroupedNotificationChannels(account: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
         }
-        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannelGroup(
+            NotificationChannelGroup(account, account),
+        )
+        createNotificationChannels(account)
+    }
+
+    private fun createNotificationChannels(groupName: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
         channels
             .map { channel ->
                 NotificationChannel(channel.id, context.getString(channel.name), NotificationManager.IMPORTANCE_DEFAULT).apply {
                     description = context.getString(channel.description)
+                    group = groupName
                 }
             }
             .forEach(notificationManager::createNotificationChannel)
