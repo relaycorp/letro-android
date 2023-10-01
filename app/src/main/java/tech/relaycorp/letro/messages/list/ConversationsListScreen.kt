@@ -45,6 +45,7 @@ import tech.relaycorp.letro.ui.theme.BodyLargeProminent
 import tech.relaycorp.letro.ui.theme.BodyMediumProminent
 import tech.relaycorp.letro.ui.theme.LabelSmallProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
+import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import java.util.UUID
 
 @Composable
@@ -183,8 +184,9 @@ private fun Conversation(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+                val messageDisplayedText = if (conversation.messages.last().text.isNotEmptyOrBlank()) conversation.messages.last().text else conversation.messages.last().attachments.firstOrNull()?.name ?: ""
                 Text(
-                    text = conversation.messages.last().text,
+                    text = messageDisplayedText,
                     style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
