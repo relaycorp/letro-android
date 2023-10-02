@@ -31,7 +31,7 @@
     <string name="pair_request_was_already_sent_hint">Ya intentaste conectar con este usuario, pero podemos intentarlo nuevamente si quieres.</string>
     <string name="pair_request_already_paired">Ustedes dos ya están conectados.</string>
     <string name="pair_request_already_in_progress">La conexión con este usuario ya está en progreso.</string>
-    <string name="top_bar_tab_conversations">Conversaciones</string>
+    <string name="conversations">Conversaciones</string>
     <string name="top_bar_tab_contacts">Contactos</string>
     <string name="top_bar_tab_notifications">Notificaciones</string>
     <string name="floating_action_button_write_new_message_content_description">Escribe un mensaje nuevo</string>
