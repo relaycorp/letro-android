@@ -141,6 +141,10 @@
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
 
+    <string name="message_exceeds_limit_megabytes">This message exceeds the 8MB limit by %s MB.</string>
+    <string name="message_exceeds_limit_kilobytes">This message exceeds the 8MB limit by %s KB.</string>
+    <string name="message_exceeds_limit_bytes">This message exceeds the 8MB limit by %s bytes.</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>

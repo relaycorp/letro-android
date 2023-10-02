@@ -2,6 +2,7 @@ package tech.relaycorp.letro.conversation.compose
 
 import android.net.Uri
 import androidx.annotation.IntDef
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -29,6 +31,10 @@ import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
+import tech.relaycorp.letro.utils.files.bytesToKb
+import tech.relaycorp.letro.utils.files.bytesToMb
+import tech.relaycorp.letro.utils.files.isMoreThanKilobyte
+import tech.relaycorp.letro.utils.files.isMoreThanMegabyte
 import javax.inject.Inject
 
 @HiltViewModel
@@ -100,6 +106,7 @@ class ComposeNewMessageViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, it.messageText),
+                    messageExceedsLimitTextError = getMessageExceedsLimitError(it.messageText),
                 )
             }
         }
@@ -114,6 +121,7 @@ class ComposeNewMessageViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, it.messageText),
+                    messageExceedsLimitTextError = getMessageExceedsLimitError(it.messageText),
                 )
             }
         }
@@ -179,12 +187,16 @@ class ComposeNewMessageViewModel @Inject constructor(
     }
 
     fun onMessageTextChanged(text: String) {
+        if (text == _uiState.value.messageText) {
+            return
+        }
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
                     messageText = text,
                     suggestedContacts = null,
                     isSendButtonEnabled = isSendButtonEnabled(uiState.value.recipientAccountId, text),
+                    messageExceedsLimitTextError = getMessageExceedsLimitError(text),
                 )
             }
         }
@@ -256,7 +268,30 @@ class ComposeNewMessageViewModel @Inject constructor(
         recipientAccountId: String,
         messageText: String,
     ): Boolean {
-        return contacts.any { recipientAccountId == it.contactVeraId } && (messageText.isNotEmptyOrBlank() || attachedFiles.isNotEmpty())
+        val isMessageSizeExceedsLimit = isMessageSizeExceedsLimit(messageText)
+        return !isMessageSizeExceedsLimit && contacts.any { recipientAccountId == it.contactVeraId } && (messageText.isNotEmptyOrBlank() || attachedFiles.isNotEmpty())
+    }
+
+    private fun isMessageSizeExceedsLimit(messageText: String): Boolean =
+        getMessageSize(messageText) > MESSAGE_SIZE_LIMIT_BYTES
+
+    private fun getMessageExceedsLimitError(messageText: String): MessageExceedsLimitError? {
+        val messageExceedsLimitBy = (getMessageSize(messageText) - MESSAGE_SIZE_LIMIT_BYTES).toLong()
+        return when {
+            !isMessageSizeExceedsLimit(messageText) -> null
+            messageExceedsLimitBy <= 0 -> null
+            messageExceedsLimitBy.isMoreThanMegabyte() -> MessageExceedsLimitError(String.format("%.2f", messageExceedsLimitBy.bytesToMb()), R.string.message_exceeds_limit_megabytes)
+            messageExceedsLimitBy.isMoreThanKilobyte() -> MessageExceedsLimitError(String.format("%.2f", messageExceedsLimitBy.bytesToKb()), R.string.message_exceeds_limit_kilobytes)
+            else -> MessageExceedsLimitError(String.format("%.2f", messageExceedsLimitBy), R.string.message_exceeds_limit_bytes)
+        }
+    }
+
+    private fun getMessageSize(messageText: String) =
+        messageText.length * MESSAGE_TEXT_COMPRESSION_RATIO + attachedFiles.sumOf { it.size }
+
+    private companion object {
+        private const val MESSAGE_SIZE_LIMIT_BYTES = 8_388_608 // 8MB
+        private const val MESSAGE_TEXT_COMPRESSION_RATIO = 0.25
     }
 
     @IntDef(NEW_CONVERSATION, REPLY_TO_EXISTING_CONVERSATION)
@@ -279,5 +314,11 @@ data class NewMessageUiState(
     val showRecipientAsChip: Boolean = false,
     val isOnlyTextEditale: Boolean = false,
     val showNoSubjectText: Boolean = false,
+    val messageExceedsLimitTextError: MessageExceedsLimitError? = null,
     val suggestedContacts: List<Contact>? = null,
+)
+
+data class MessageExceedsLimitError(
+    val value: String,
+    @StringRes val stringRes: Int,
 )
