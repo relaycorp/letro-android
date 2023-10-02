@@ -111,7 +111,7 @@ dependencies {
 
 
     // Testing
-    def junitVersion = "5.8.2"
+    def junitVersion = "5.10.0"
     def kotlinCoroutinesVersion = "1.7.3"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
