@@ -107,11 +107,11 @@ dependencies {
     // Utils:
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     implementation 'com.google.code.gson:gson:2.10.1' // TODO: remove
-    implementation "com.google.accompanist:accompanist-permissions:0.33.1-alpha"
+    implementation "com.google.accompanist:accompanist-permissions:0.33.2-alpha"
 
 
     // Testing
-    def junitVersion = "5.8.2"
+    def junitVersion = "5.10.0"
     def kotlinCoroutinesVersion = "1.7.3"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
