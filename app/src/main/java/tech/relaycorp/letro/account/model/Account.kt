@@ -54,4 +54,8 @@ data class Account(
         result = 31 * result + isCreated.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "Account(accountId = $accountId, requestedUserName = $requestedUserName, normalisedLocale = $normalisedLocale, isCurrent = $isCurrent, isCreated = $isCreated)"
+    }
 }

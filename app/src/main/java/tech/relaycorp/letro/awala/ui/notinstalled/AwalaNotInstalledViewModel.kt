@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.awala.ui
+package tech.relaycorp.letro.awala.ui.notinstalled
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel

@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.awala.ui
+package tech.relaycorp.letro.awala.ui.initialization
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

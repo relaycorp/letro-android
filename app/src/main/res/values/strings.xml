@@ -142,6 +142,11 @@
     <string name="message_exceeds_limit_kilobytes">This message exceeds the 8MB limit by %s KB.</string>
     <string name="message_exceeds_limit_bytes">This message exceeds the 8MB limit by %s bytes.</string>
 
+    <string name="we_failed_to_set_up_awala">We failed to set up Awala</string>
+    <string name="try_again">Try again</string>
+    <string name="unable_setup_letro_text">Letro is unable to use Awala due to a bug in Android’s security library, which we know affects some devices.</string>
+    <string name="reinstall_letro_error">Google are yet to fix this issue, but we know that reinstalling Letro helps in some cases.</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>

@@ -35,8 +35,9 @@ import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
-import tech.relaycorp.letro.awala.ui.AwalaInitializationInProgress
-import tech.relaycorp.letro.awala.ui.AwalaNotInstalledScreen
+import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
+import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
+import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
@@ -150,6 +151,16 @@ fun LetroNavHost(
                         }
                         composable(Route.AwalaInitializing.name) {
                             AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
+                        }
+                        composable(
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.FATAL_SUFFIX}",
+                        ) {
+                            AwalaInitializationError(isFatal = true)
+                        }
+                        composable(
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.NONFATAL_SUFFIX}",
+                        ) {
+                            AwalaInitializationError(isFatal = false)
                         }
                         composable(Route.Splash.name) {
                             SplashScreen()
@@ -441,6 +452,14 @@ private fun handleFirstNavigation(
 
         RootNavigationScreen.AwalaInitializing -> {
             navController.navigateWithPoppingAllBackStack(Route.AwalaInitializing)
+        }
+
+        is RootNavigationScreen.AwalaInitializationError -> {
+            navController.navigateWithPoppingAllBackStack(
+                Route.AwalaInitializationError(
+                    isFatal = firstNavigation.isFatal,
+                ),
+            )
         }
     }
 }
