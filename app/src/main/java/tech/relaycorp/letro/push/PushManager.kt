@@ -90,7 +90,6 @@ class PushManagerImpl @Inject constructor(
         channels
             .map { channel ->
                 NotificationChannel(channel.id, context.getString(channel.name), NotificationManager.IMPORTANCE_DEFAULT).apply {
-                    description = context.getString(channel.description)
                     group = groupName
                 }
             }

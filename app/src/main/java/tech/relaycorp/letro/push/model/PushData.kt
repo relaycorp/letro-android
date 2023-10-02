@@ -9,7 +9,7 @@ data class PushData(
     val action: PushAction,
     val notificationId: Int,
     val recipientAccountId: String,
-    @PushChannel.ChannelId val channelId: String = PushChannel.ChannelId.ID_DEFAULT,
+    @PushChannel.ChannelId val channelId: String = PushChannel.ChannelId.ID_CONVERSATIONS,
 )
 
 sealed interface PushAction : Parcelable {

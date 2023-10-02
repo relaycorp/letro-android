@@ -21,9 +21,8 @@ object PushesModule {
     fun providePushChannels(): List<PushChannel> {
         return listOf(
             PushChannel(
-                id = PushChannel.ChannelId.ID_DEFAULT,
-                name = R.string.push_channel_default_name,
-                description = R.string.push_channel_default_description,
+                id = PushChannel.ChannelId.ID_CONVERSATIONS,
+                name = R.string.conversations,
             ),
         )
     }
