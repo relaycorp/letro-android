@@ -1,5 +1,6 @@
-package tech.relaycorp.letro.awala.ui
+package tech.relaycorp.letro.awala.ui.error
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,29 +10,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @Composable
-fun AwalaInitializationInProgress(
-    texts: Array<String>,
-    viewModel: AwalaInitializationInProgressViewModel = hiltViewModel(),
+fun AwalaInitializationError(
+    viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
-    val currentTextIndex by viewModel.stringsIndexPointer.collectAsState()
-
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             contentAlignment = Alignment.Center,
@@ -52,37 +48,31 @@ fun AwalaInitializationInProgress(
         }
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(
+                    horizontal = 16.dp,
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Image(painter = painterResource(id = R.drawable.awala_initialization_error), contentDescription = null)
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = stringResource(id = R.string.we_setting_things_up),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = texts[currentTextIndex % texts.size],
-                style = MaterialTheme.typography.bodyLarge,
+                text = stringResource(id = R.string.we_failed_to_set_up_awala),
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(24.dp))
-            LinearProgressIndicator(
-                trackColor = LetroColor.SurfaceContainer,
-                color = MaterialTheme.colorScheme.primary,
-                strokeCap = StrokeCap.Round,
+            LetroButtonMaxWidthFilled(
+                text = stringResource(id = R.string.try_again),
+                onClick = { viewModel.onTryAgainClick() },
             )
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun AwalaInstallationProgressView_Preview() {
-    AwalaInitializationInProgress(
-        arrayOf("Hello"),
-        hiltViewModel(),
-    )
+@Preview
+private fun AwalaInitializationError_Preview() {
+    AwalaInitializationError()
 }

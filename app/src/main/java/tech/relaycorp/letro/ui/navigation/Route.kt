@@ -37,6 +37,12 @@ sealed class Route(
         isStatusBarPrimaryColor = true,
     )
 
+    object AwalaInitializationError : Route(
+        name = "awala_initialization_error",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
     object RegistrationProcessWaiting : Route(
         name = "registration_waiting_route",
         showTopBar = true,
@@ -114,6 +120,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
+            it.startsWith(Route.AwalaInitializationError.name) -> Route.AwalaInitializationError
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro

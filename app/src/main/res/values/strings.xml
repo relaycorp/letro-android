@@ -145,6 +145,9 @@
     <string name="message_exceeds_limit_kilobytes">This message exceeds the 8MB limit by %s KB.</string>
     <string name="message_exceeds_limit_bytes">This message exceeds the 8MB limit by %s bytes.</string>
 
+    <string name="we_failed_to_set_up_awala">We failed to set up Awala</string>
+    <string name="try_again">Try again</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>

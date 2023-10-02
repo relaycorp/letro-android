@@ -8,5 +8,6 @@ sealed interface RootNavigationScreen {
     object NoContactsScreen : RootNavigationScreen
     object Home : RootNavigationScreen
     object AwalaNotInstalled : RootNavigationScreen
+    object AwalaInitializationError : RootNavigationScreen
     object AwalaInitializing : RootNavigationScreen
 }
