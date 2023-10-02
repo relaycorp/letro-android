@@ -95,6 +95,8 @@ class MainViewModel @Inject constructor(
                 Log.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState")
                 when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
+                    awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = false)
+                    awalaInitializationState == AwalaInitializationState.INITIALIZATION_FATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = true)
                     awalaInitializationState < AwalaInitializationState.INITIALIZED -> RootNavigationScreen.AwalaInitializing
                     currentAccount == null -> RootNavigationScreen.Registration
                     !currentAccount.isCreated -> RootNavigationScreen.RegistrationWaiting
