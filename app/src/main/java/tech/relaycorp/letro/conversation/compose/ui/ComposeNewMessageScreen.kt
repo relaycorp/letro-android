@@ -309,6 +309,9 @@ fun ComposeNewMessageScreen(
                                 placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .then(Modifier)
+                                    .applyIf(uiState.messageExceedsLimitTextError != null) {
+                                        background(MaterialTheme.colorScheme.errorContainer)
+                                    }
                                     .applyIf(attachments.isEmpty()) {
                                         defaultMinSize(
                                             minHeight = 500.dp,
@@ -318,12 +321,25 @@ fun ComposeNewMessageScreen(
                             )
                         }
                     }
+                    val messageExceedsLimitError = uiState.messageExceedsLimitTextError
                     if (attachments.isNotEmpty()) {
                         attachments(
                             lazyListScope = this@LazyColumn,
                             attachments = attachments,
+                            isError = messageExceedsLimitError != null,
                             onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
                         )
+                    }
+                    if (messageExceedsLimitError != null) {
+                        item {
+                            Text(
+                                text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(vertical = 18.dp, horizontal = 16.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -398,6 +414,7 @@ private fun RecipientChipView(
 private fun attachments(
     lazyListScope: LazyListScope,
     attachments: List<AttachmentInfo>,
+    isError: Boolean,
     onAttachmentDeleteClick: (AttachmentInfo) -> Unit,
 ) {
     with(lazyListScope) {
@@ -405,7 +422,13 @@ private fun attachments(
             count = attachments.size,
             key = { attachments[it].fileId },
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .applyIf(isError) {
+                        background(MaterialTheme.colorScheme.errorContainer)
+                    },
+            ) {
                 if (it != 0) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -416,6 +439,9 @@ private fun attachments(
                         .fillMaxWidth(fraction = 0.87F),
                     onDeleteClick = { onAttachmentDeleteClick(attachments[it]) },
                 )
+                if (it == attachments.size - 1) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }
