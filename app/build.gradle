@@ -72,7 +72,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
 
     // Awala-powered messaging
-    implementation 'com.github.relaycorp:awala-endpoint-android:1.13.24'
+    implementation 'com.github.relaycorp:awala-endpoint-android:1.13.25'
     def bouncy_castle_version = "1.70"
     implementation "org.bouncycastle:bcprov-jdk15on:$bouncy_castle_version"
     implementation "org.bouncycastle:bcpkix-jdk15on:$bouncy_castle_version"

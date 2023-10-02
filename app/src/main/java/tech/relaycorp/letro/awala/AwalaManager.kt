@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import tech.relaycorp.awaladroid.Awala
+import tech.relaycorp.awaladroid.EncryptionInitializationException
 import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
@@ -32,7 +33,8 @@ import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_NOT_I
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_SET_UP
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.FIRST_PARTY_ENDPOINT_REGISTRED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.GATEWAY_CLIENT_BINDED
-import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZATION_ERROR
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZATION_FATAL_ERROR
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZATION_NONFATAL_ERROR
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
@@ -42,6 +44,8 @@ import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.utils.awala.loadNonNullPrivateThirdPartyEndpoint
 import tech.relaycorp.letro.utils.awala.loadNonNullPublicFirstPartyEndpoint
 import tech.relaycorp.letro.utils.awala.loadNonNullPublicThirdPartyEndpoint
+import tech.relaycorp.letro.utils.ext.emitOnDelayed
+import java.lang.Thread.UncaughtExceptionHandler
 import javax.inject.Inject
 
 interface AwalaManager {
@@ -90,11 +94,30 @@ class AwalaManagerImpl @Inject constructor(
     private var firstPartyEndpoint: FirstPartyEndpoint? = null
     private var thirdPartyServerEndpoint: ThirdPartyEndpoint? = null
 
+    private var previousUncaughtExceptionHandler: UncaughtExceptionHandler? = null
+    private var uncaughtExceptionHandler = UncaughtExceptionHandler { thread, exception ->
+        if (exception is EncryptionInitializationException) {
+            Log.w(TAG, exception)
+            _awalaInitializationState.emitOnDelayed(INITIALIZATION_FATAL_ERROR, awalaScope, 1_000L, awalaThreadContext)
+        } else {
+            previousUncaughtExceptionHandler?.uncaughtException(thread, exception)
+        }
+    }
+
     init {
+        previousUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler)
         awalaSetupJob = awalaScope.launch {
             withContext(awalaThreadContext) {
                 Log.i(TAG, "Setting up Awala")
-                Awala.setUp(context)
+                try {
+                    Awala.setUp(context)
+                } catch (e: EncryptionInitializationException) {
+                    Log.w(TAG, e)
+                    _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
+                    awalaSetupJob = null
+                    return@withContext
+                }
                 _awalaInitializationState.emit(AWALA_SET_UP)
                 initializeGateway()
                 awalaSetupJob = null
@@ -215,17 +238,25 @@ class AwalaManagerImpl @Inject constructor(
         withContext(awalaThreadContext) {
             try {
                 registerFirstPartyEndpointIfNeeded()
+            } catch (e: EncryptionInitializationException) {
+                Log.w(TAG, e)
+                _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
+                return@withContext
             } catch (e: Exception) {
                 Log.w(TAG, e)
-                _awalaInitializationState.emit(INITIALIZATION_ERROR)
+                _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
             _awalaInitializationState.emit(FIRST_PARTY_ENDPOINT_REGISTRED)
             try {
                 importServerThirdPartyEndpointIfNeeded()
+            } catch (e: EncryptionInitializationException) {
+                Log.w(TAG, e)
+                _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
+                return@withContext
             } catch (e: Exception) {
                 Log.w(TAG, e)
-                _awalaInitializationState.emit(INITIALIZATION_ERROR)
+                _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
             _awalaInitializationState.emit(INITIALIZED)
@@ -330,7 +361,8 @@ class AwalaManagerImpl @Inject constructor(
 internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)
 
 @IntDef(
-    INITIALIZATION_ERROR,
+    INITIALIZATION_FATAL_ERROR,
+    INITIALIZATION_NONFATAL_ERROR,
     AWALA_NOT_INSTALLED,
     NOT_INITIALIZED,
     AWALA_SET_UP,
@@ -340,7 +372,8 @@ internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)
 )
 annotation class AwalaInitializationState {
     companion object {
-        const val INITIALIZATION_ERROR = -2
+        const val INITIALIZATION_FATAL_ERROR = -999
+        const val INITIALIZATION_NONFATAL_ERROR = -2
         const val AWALA_NOT_INSTALLED = -1
         const val NOT_INITIALIZED = 0
         const val AWALA_SET_UP = 1

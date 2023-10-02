@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +27,7 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 
 @Composable
 fun AwalaInitializationError(
+    isFatal: Boolean,
     viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -63,10 +65,26 @@ fun AwalaInitializationError(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(24.dp))
-            LetroButtonMaxWidthFilled(
-                text = stringResource(id = R.string.try_again),
-                onClick = { viewModel.onTryAgainClick() },
-            )
+            if (!isFatal) {
+                LetroButtonMaxWidthFilled(
+                    text = stringResource(id = R.string.try_again),
+                    onClick = { viewModel.onTryAgainClick() },
+                )
+            } else {
+                Text(
+                    text = stringResource(id = R.string.unable_setup_letro_text),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(id = R.string.reinstall_letro_error),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -74,5 +92,7 @@ fun AwalaInitializationError(
 @Composable
 @Preview
 private fun AwalaInitializationError_Preview() {
-    AwalaInitializationError()
+    AwalaInitializationError(
+        isFatal = true,
+    )
 }

@@ -152,8 +152,15 @@ fun LetroNavHost(
                         composable(Route.AwalaInitializing.name) {
                             AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
                         }
-                        composable(Route.AwalaInitializationError.name) {
-                            AwalaInitializationError()
+                        composable(
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.FATAL_SUFFIX}",
+                        ) {
+                            AwalaInitializationError(isFatal = true)
+                        }
+                        composable(
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.NONFATAL_SUFFIX}",
+                        ) {
+                            AwalaInitializationError(isFatal = false)
                         }
                         composable(Route.Splash.name) {
                             SplashScreen()
@@ -447,8 +454,12 @@ private fun handleFirstNavigation(
             navController.navigateWithPoppingAllBackStack(Route.AwalaInitializing)
         }
 
-        RootNavigationScreen.AwalaInitializationError -> {
-            navController.navigateWithPoppingAllBackStack(Route.AwalaInitializationError)
+        is RootNavigationScreen.AwalaInitializationError -> {
+            navController.navigateWithPoppingAllBackStack(
+                Route.AwalaInitializationError(
+                    isFatal = firstNavigation.isFatal,
+                ),
+            )
         }
     }
 }

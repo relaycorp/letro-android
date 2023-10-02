@@ -8,6 +8,8 @@ sealed interface RootNavigationScreen {
     object NoContactsScreen : RootNavigationScreen
     object Home : RootNavigationScreen
     object AwalaNotInstalled : RootNavigationScreen
-    object AwalaInitializationError : RootNavigationScreen
+    data class AwalaInitializationError(
+        val isFatal: Boolean,
+    ) : RootNavigationScreen
     object AwalaInitializing : RootNavigationScreen
 }

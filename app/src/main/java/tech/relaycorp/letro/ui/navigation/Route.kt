@@ -37,11 +37,22 @@ sealed class Route(
         isStatusBarPrimaryColor = true,
     )
 
-    object AwalaInitializationError : Route(
-        name = "awala_initialization_error",
-        showTopBar = true,
+    data class AwalaInitializationError(
+        val isFatal: Boolean,
+    ) : Route(
+        name = "$NAME_PREFIX${suffix(isFatal)}",
+        showTopBar = false,
         isStatusBarPrimaryColor = true,
-    )
+    ) {
+
+        companion object {
+            internal const val NAME_PREFIX = "awala_initialization_error_"
+            const val FATAL_SUFFIX = "FATAL"
+            const val NONFATAL_SUFFIX = "NON_FATAL"
+
+            fun suffix(isFatal: Boolean) = if (isFatal) FATAL_SUFFIX else NONFATAL_SUFFIX
+        }
+    }
 
     object RegistrationProcessWaiting : Route(
         name = "registration_waiting_route",
@@ -120,7 +131,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
-            it.startsWith(Route.AwalaInitializationError.name) -> Route.AwalaInitializationError
+            it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toBoolean())
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
