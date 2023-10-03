@@ -148,13 +148,16 @@
     <string name="reinstall_letro_error">Google are yet to fix this issue, but we know that reinstalling Letro helps in some cases.</string>
 
     <string name="manage_accounts">Manage accounts</string>
-<!--    <string name="add_another_account">Add another account</string>-->
+    <string name="add_another_account">Add another account</string>
     <string name="about_letro">About letro</string>
     <string name="app_version_x">App version (%s)</string>
     <string name="terms_and_conditions">Terms &amp; Conditions</string>
     <string name="delete_account">Delete account</string>
     <string name="delete_account_dialog_text">By deleting the account %s you will lose all your contacts and conversations.</string>
     <string name="account_deleted">Account deleted.</string>
+    <string name="switch_accounts">Switch accounts</string>
+    <string name="content_description_selected_item">Selected item</string>
+    <string name="content_description_unselected_item">Unselected item</string>
 
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>

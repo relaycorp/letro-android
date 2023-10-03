@@ -17,5 +17,11 @@ sealed interface PushAction : Parcelable {
     @Parcelize
     data class OpenConversation(
         val conversationId: String,
+        val accountId: String,
+    ) : PushAction
+
+    @Parcelize
+    data class OpenMainPage(
+        val accountId: String,
     ) : PushAction
 }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.dao.AccountDao
@@ -34,6 +35,8 @@ interface AccountRepository {
     suspend fun updateAccount(account: Account, accountId: String, veraidBundle: ByteArray)
 
     suspend fun deleteAccount(account: Account)
+    suspend fun switchAccount(newCurrentAccount: Account)
+    suspend fun switchAccount(accountId: String)
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -67,12 +70,31 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun switchAccount(accountId: String) {
+        _allAccounts.value.find { it.accountId == accountId }?.let {
+            switchAccount(it)
+        }
+    }
+
+    override suspend fun switchAccount(newCurrentAccount: Account) {
+        if (newCurrentAccount.accountId == _currentAccount.value?.accountId) {
+            return
+        }
+        markAllExistingAccountsAsNonCurrent()
+        accountDao.update(
+            newCurrentAccount.copy(
+                isCurrent = true,
+            ),
+        )
+    }
+
     override suspend fun createAccount(
         requestedUserName: String,
         domainName: String,
         locale: Locale,
         veraidPrivateKey: PrivateKey,
     ) {
+        markAllExistingAccountsAsNonCurrent()
         accountDao.insert(
             Account(
                 accountId = "$requestedUserName@$domainName",
@@ -91,6 +113,15 @@ class AccountRepositoryImpl @Inject constructor(
         )
 
     override suspend fun deleteAccount(account: Account) {
+        if (account.isCurrent) {
+            _allAccounts.value.firstOrNull { !it.isCurrent }?.let {
+                accountDao.update(
+                    it.copy(
+                        isCurrent = true,
+                    ),
+                )
+            }
+        }
         accountDao.deleteAccount(account)
     }
 
@@ -106,5 +137,13 @@ class AccountRepositoryImpl @Inject constructor(
                 isCreated = true,
             ),
         )
+    }
+
+    private suspend fun markAllExistingAccountsAsNonCurrent() {
+        val updatedAccounts = _allAccounts.value
+            .map { it.copy(isCurrent = false) }
+        if (updatedAccounts.isNotEmpty()) {
+            accountDao.update(updatedAccounts)
+        }
     }
 }

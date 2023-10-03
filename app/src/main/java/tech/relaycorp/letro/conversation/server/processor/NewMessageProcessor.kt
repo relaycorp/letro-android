@@ -62,7 +62,10 @@ class NewMessageProcessorImpl @Inject constructor(
             PushData(
                 title = message.senderVeraId,
                 text = message.text,
-                action = PushAction.OpenConversation(messageWrapper.conversationId),
+                action = PushAction.OpenConversation(
+                    conversationId = messageWrapper.conversationId,
+                    accountId = conversation.ownerVeraId,
+                ),
                 recipientAccountId = conversation.ownerVeraId,
                 notificationId = messageId.toInt(),
             ),

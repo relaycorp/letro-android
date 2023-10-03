@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
-import tech.relaycorp.letro.ui.common.BottomSheetAction
-import tech.relaycorp.letro.ui.common.LetroActionsBottomSheet
+import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
+import tech.relaycorp.letro.ui.common.bottomsheet.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor

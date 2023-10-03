@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.ui.MainActivity
+import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
 import javax.inject.Inject
@@ -43,6 +44,11 @@ class PushManagerImpl @Inject constructor(
         }
 
         val groupName = pushData.recipientAccountId
+
+        val groupIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(KEY_PUSH_ACTION, PushAction.OpenMainPage(groupName))
+        }
+
         val notification = NotificationCompat.Builder(context, pushData.channelId)
             .setSmallIcon(R.drawable.letro_notification_icon)
             .setContentTitle(pushData.title)
@@ -59,6 +65,8 @@ class PushManagerImpl @Inject constructor(
             .setContentText(context.resources.getQuantityString(R.plurals.new_notifications_group_count, notificationsInGroupCount, notificationsInGroupCount))
             .setGroup(groupName)
             .setGroupSummary(true)
+            .setContentIntent(PendingIntent.getActivity(context, groupName.hashCode(), groupIntent, PendingIntent.FLAG_IMMUTABLE))
+            .setAutoCancel(true)
             .build()
 
         if (permissionManager.isPermissionGranted()) {
