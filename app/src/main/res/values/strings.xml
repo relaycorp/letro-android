@@ -38,9 +38,9 @@
     <string name="onboarding_waiting_message">We are creating your account…</string>
 
     <string name="top_bar_change_account">Change account</string>
-    <string name="top_bar_settings">Settings</string>
+    <string name="settings">Settings</string>
 
-    <string name="no_browser">There is no app to install Awala</string>
+    <string name="no_browser">There is no app to open this link</string>
     <string name="no_app_to_share">There is no app to share your id</string>
     <string name="no_app_to_open_file">There is no app to open the file</string>
 
@@ -51,7 +51,7 @@
 
     <string name="conversations">Conversations</string>
     <string name="top_bar_tab_contacts">Contacts</string>
-    <string name="top_bar_tab_notifications">Notifications</string>
+    <string name="notifications">Notifications</string>
 
     <string name="floating_action_button_write_new_message_content_description">Write new message</string>
     <string name="floating_action_button_add_contact_content_description">Add contact</string>
@@ -146,6 +146,15 @@
     <string name="try_again">Try again</string>
     <string name="unable_setup_letro_text">Letro is unable to use Awala due to a bug in Android’s security library, which we know affects some devices.</string>
     <string name="reinstall_letro_error">Google are yet to fix this issue, but we know that reinstalling Letro helps in some cases.</string>
+
+    <string name="manage_accounts">Manage accounts</string>
+<!--    <string name="add_another_account">Add another account</string>-->
+    <string name="about_letro">About letro</string>
+    <string name="app_version_x">App version (%s)</string>
+    <string name="terms_and_conditions">Terms &amp; Conditions</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_dialog_text">By deleting the account %s you will lose all your contacts and conversations.</string>
+    <string name="account_deleted">Account deleted.</string>
 
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>

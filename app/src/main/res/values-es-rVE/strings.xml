@@ -25,15 +25,14 @@
     <string name="onboarding_waiting_title">¡Espera un momento!</string>
     <string name="onboarding_waiting_message">Estamos creando tu cuenta…</string>
     <string name="top_bar_change_account">Cambia de cuenta</string>
-    <string name="top_bar_settings">Ajustes</string>
-    <string name="no_browser">No hay ninguna app para instalar Awala</string>
+    <string name="settings">Ajustes</string>
     <string name="no_app_to_share">No hay ninguna app para compartir tu identificador</string>
     <string name="pair_request_was_already_sent_hint">Ya intentaste conectar con este usuario, pero podemos intentarlo nuevamente si quieres.</string>
     <string name="pair_request_already_paired">Ustedes dos ya están conectados.</string>
     <string name="pair_request_already_in_progress">La conexión con este usuario ya está en progreso.</string>
     <string name="conversations">Conversaciones</string>
     <string name="top_bar_tab_contacts">Contactos</string>
-    <string name="top_bar_tab_notifications">Notificaciones</string>
+    <string name="notifications">Notificaciones</string>
     <string name="floating_action_button_write_new_message_content_description">Escribe un mensaje nuevo</string>
     <string name="floating_action_button_add_contact_content_description">Añadir contacto</string>
     <string name="floating_action_button_close_content_description">Cerrar</string>

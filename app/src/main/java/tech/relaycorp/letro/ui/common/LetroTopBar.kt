@@ -72,7 +72,7 @@ fun LetroTopBar(
                 IconButton(onClick = onSettingsClicked) {
                     Icon(
                         painterResource(id = R.drawable.settings),
-                        contentDescription = stringResource(id = R.string.top_bar_settings),
+                        contentDescription = stringResource(id = R.string.settings),
                         tint = LetroColor.OnSurfaceContainerHigh,
                     )
                 }

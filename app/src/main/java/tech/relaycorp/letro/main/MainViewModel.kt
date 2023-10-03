@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,7 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.main.di.TermsAndConditionsLink
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.utils.ext.emitOn
@@ -38,6 +40,7 @@ class MainViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val attachmentsRepository: AttachmentsRepository,
     private val fileConverter: FileConverter,
+    @TermsAndConditionsLink private val termsAndConditionsLink: String,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -118,21 +121,21 @@ class MainViewModel @Inject constructor(
     }
 
     fun onInstallAwalaClick() {
-        viewModelScope.launch {
-            _openLinkSignal.emit(AWALA_GOOGLE_PLAY_LINK)
-        }
+        _openLinkSignal.emitOn(AWALA_GOOGLE_PLAY_LINK, viewModelScope)
+    }
+
+    fun onTermsAndConditionsClick() {
+        _openLinkSignal.emitOn(termsAndConditionsLink, viewModelScope)
     }
 
     fun onShareIdClick() {
         currentAccount?.accountId?.let { accountId ->
-            viewModelScope.launch {
-                _joinMeOnLetroSignal.emit(getJoinMeLink(accountId))
-            }
+            _joinMeOnLetroSignal.emitOn(getJoinMeLink(accountId), viewModelScope)
         }
     }
 
     fun onAttachmentClick(fileId: UUID) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             attachmentsRepository.getById(fileId)?.let { attachment ->
                 fileConverter.getFile(attachment)?.let { file ->
                     if (file.exists()) {

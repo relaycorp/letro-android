@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     LetroNavHost(
                         stringsProvider = stringsProvider,
-                        onGoToSettingsClick = { goToNotificationSettings() },
+                        onGoToNotificationsSettingsClick = { goToNotificationSettings() },
                         mainViewModel = viewModel,
                     )
                 }
