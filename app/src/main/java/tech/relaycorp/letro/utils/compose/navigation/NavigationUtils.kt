@@ -11,6 +11,12 @@ fun NavController.navigateWithPoppingAllBackStack(route: Route) {
     }
 }
 
+fun NavController.navigateSingleTop(route: Route) {
+    navigate(route.name) {
+        launchSingleTop = true
+    }
+}
+
 fun NavController.navigateWithDropCurrentScreen(route: String) {
     navigate(route) {
         popBackStack()
