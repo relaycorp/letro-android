@@ -66,6 +66,7 @@ import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.StringsProvider
+import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
 import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
 import tech.relaycorp.letro.utils.compose.showSnackbar
 import tech.relaycorp.letro.utils.ext.encodeToUTF
@@ -154,7 +155,7 @@ fun LetroNavHost(
                         accounts = switchAccountsBottomSheetState.accounts,
                         onAccountClick = { switchAccountViewModel.onSwitchAccountRequested(it) },
                         onManageContactsClick = {
-                            navController.navigate(Route.Settings.name)
+                            navController.navigateSingleTop(Route.Settings)
                             switchAccountViewModel.onSwitchAccountDialogDismissed()
                         },
                         onDismissRequest = { switchAccountViewModel.onSwitchAccountDialogDismissed() },
@@ -166,7 +167,7 @@ fun LetroNavHost(
                             accountVeraId = currentAccount,
                             isAccountCreated = uiState.isCurrentAccountCreated,
                             onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
-                            onSettingsClicked = { navController.navigate(Route.Settings.name) },
+                            onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
                         )
                     }
                     NavHost(
