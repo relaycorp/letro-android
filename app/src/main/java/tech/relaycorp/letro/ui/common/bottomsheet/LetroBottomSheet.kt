@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.ui.common
+package tech.relaycorp.letro.ui.common.bottomsheet
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -32,6 +32,35 @@ import tech.relaycorp.letro.ui.theme.TitleSmallProminent
 import tech.relaycorp.letro.utils.ext.applyIf
 import androidx.compose.ui.res.painterResource as painterResource1
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LetroBottomSheet(
+    onDismissRequest: () -> Unit,
+    title: String? = null,
+    content: @Composable () -> Unit,
+) {
+    ModalBottomSheet(
+        containerColor = LetroColor.SurfaceContainerLow,
+        onDismissRequest = {
+            onDismissRequest()
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(
+                    PaddingValues(
+                        bottom = 44.dp,
+                    ),
+                ),
+        ) {
+            if (title != null) {
+                BottomSheetTitle(title = title)
+            }
+            content()
+        }
+    }
+}
+
 data class BottomSheetAction(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
@@ -53,7 +82,7 @@ fun LetroActionsBottomSheet(
             onDismissRequest()
         },
     ) {
-        BottomSheetContent(
+        ActionsBottomSheetContent(
             actions = actions,
             title = title,
         )
@@ -61,7 +90,7 @@ fun LetroActionsBottomSheet(
 }
 
 @Composable
-private fun BottomSheetContent(
+private fun ActionsBottomSheetContent(
     actions: List<BottomSheetAction>,
     title: String? = null,
 ) {
@@ -74,33 +103,47 @@ private fun BottomSheetContent(
             ),
     ) {
         if (title != null) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.TitleSmallProminent,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                    ),
-            )
-            Spacer(
-                modifier = Modifier.height(14.dp),
-            )
-            Divider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-            )
+            BottomSheetTitle(title = title)
         }
-        LazyColumn {
-            items(actions) {
-                BottomSheetActionView(
-                    icon = it.icon,
-                    title = it.title,
-                    onClick = it.action,
-                    isChosen = it.isChosen,
-                    trailingText = it.trailingText,
-                )
-            }
+        ActionsContent(actions = actions)
+    }
+}
+
+@Composable
+private fun BottomSheetTitle(
+    title: String,
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.TitleSmallProminent,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = 16.dp,
+            ),
+    )
+    Spacer(
+        modifier = Modifier.height(14.dp),
+    )
+    Divider(
+        color = MaterialTheme.colorScheme.outlineVariant,
+    )
+}
+
+@Composable
+private fun ActionsContent(
+    actions: List<BottomSheetAction>,
+) {
+    LazyColumn {
+        items(actions) {
+            BottomSheetActionView(
+                icon = it.icon,
+                title = it.title,
+                onClick = it.action,
+                isChosen = it.isChosen,
+                trailingText = it.trailingText,
+            )
         }
     }
 }

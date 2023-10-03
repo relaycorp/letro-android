@@ -12,16 +12,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
+import tech.relaycorp.letro.account.utils.AccountsSorter
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
+    private val accountsSorter: AccountsSorter,
 ) : ViewModel() {
 
     val accounts: StateFlow<List<Account>>
         get() = accountRepository.allAccounts
-            .map(::moveCurrentAccountToTop)
+            .map(accountsSorter::withCurrentAccountFirst)
             .stateIn(viewModelScope, SharingStarted.Eagerly, accountRepository.allAccounts.value)
 
     private val _deleteAccountConfirmationDialog = MutableStateFlow(DeleteAccountDialogState())
@@ -38,6 +40,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun onConfirmAccountDeleteClick(account: Account) {
+        onConfirmAccountDeleteDialogDismissed()
         viewModelScope.launch {
             accountRepository.deleteAccount(account)
         }
@@ -49,20 +52,6 @@ class SettingsViewModel @Inject constructor(
                 isShown = false,
                 account = null,
             )
-        }
-    }
-
-    private fun moveCurrentAccountToTop(accounts: List<Account>): List<Account> {
-        val currentIndex = accounts.indexOfFirst { it.isCurrent }
-        if (currentIndex == -1) {
-            return accounts
-        }
-        return arrayListOf<Account>().apply {
-            add(accounts[currentIndex])
-            for (i in 0 until currentIndex) {
-                if (currentIndex == i) continue
-                add(accounts[i])
-            }
         }
     }
 }

@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.account.storage.repository.AccountRepositoryImpl
+import tech.relaycorp.letro.account.utils.AccountsSorter
+import tech.relaycorp.letro.account.utils.AccountsSorterImpl
 import javax.inject.Singleton
 
 @Module
@@ -17,4 +19,9 @@ interface AccountModule {
     fun bindAccountRepository(
         impl: AccountRepositoryImpl,
     ): AccountRepository
+
+    @Binds
+    fun bindAccountSorter(
+        impl: AccountsSorterImpl,
+    ): AccountsSorter
 }

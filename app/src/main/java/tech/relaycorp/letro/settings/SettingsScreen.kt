@@ -43,6 +43,7 @@ fun SettingsScreen(
     onNotificationsClick: () -> Unit,
     onTermsAndConditionsClick: () -> Unit,
     onBackClick: () -> Unit,
+    onAddAccountClick: () -> Unit,
     onAccountDeleted: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -65,6 +66,9 @@ fun SettingsScreen(
             accounts = accounts,
             onAccountDeleteClick = {
                 viewModel.onAccountDeleteClick(it)
+            },
+            onAddAccountClick = {
+                onAddAccountClick()
             },
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -91,6 +95,7 @@ fun SettingsScreen(
 @Composable
 private fun AccountsBlock(
     accounts: List<Account>,
+    onAddAccountClick: () -> Unit,
     onAccountDeleteClick: (Account) -> Unit,
 ) {
     SettingsBlock(
@@ -100,6 +105,27 @@ private fun AccountsBlock(
             Account(
                 accountId = accounts[i].accountId,
                 onDeleteClick = { onAccountDeleteClick(accounts[i]) },
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onAddAccountClick() }
+                .padding(
+                    horizontal = ELEMENT_HORIZONTAL_PADDING,
+                    vertical = ELEMENT_VERTICAL_PADDING,
+                ),
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_plus_18),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(id = R.string.add_another_account),
+                style = MaterialTheme.typography.LabelLargeProminent,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }
@@ -115,8 +141,8 @@ private fun Account(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = 16.dp,
-                vertical = 14.dp,
+                horizontal = ELEMENT_HORIZONTAL_PADDING,
+                vertical = ELEMENT_VERTICAL_PADDING,
             ),
     ) {
         Text(
@@ -209,8 +235,8 @@ private fun SettingElement(
                 clickable { onClick?.invoke() }
             }
             .padding(
-                horizontal = 16.dp,
-                vertical = 12.dp,
+                horizontal = ELEMENT_HORIZONTAL_PADDING,
+                vertical = ELEMENT_VERTICAL_PADDING,
             ),
     ) {
         Icon(
@@ -283,3 +309,6 @@ private fun DeleteAccountDialog(
         },
     )
 }
+
+private val ELEMENT_HORIZONTAL_PADDING = 16.dp
+private val ELEMENT_VERTICAL_PADDING = 12.dp

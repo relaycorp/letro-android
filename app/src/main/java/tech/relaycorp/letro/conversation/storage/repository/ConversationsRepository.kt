@@ -81,15 +81,16 @@ class ConversationsRepositoryImpl @Inject constructor(
 
     init {
         scope.launch {
-            accountRepository.currentAccount.collect {
-                if (it != null) {
-                    startCollectContacts(it)
-                    startCollectConversations(it)
+            accountRepository.allAccounts.collect {
+                val currentAccount = it.firstOrNull { it.isCurrent }
+                conversationsCollectionJob?.cancel()
+                conversationsCollectionJob = null
+                contactsCollectionJob?.cancel()
+                contactsCollectionJob = null
+                if (currentAccount != null) {
+                    startCollectContacts(currentAccount)
+                    startCollectConversations(currentAccount)
                 } else {
-                    conversationsCollectionJob?.cancel()
-                    conversationsCollectionJob = null
-                    contactsCollectionJob?.cancel()
-                    contactsCollectionJob = null
                     _extendedConversations.emit(emptyList())
                     contacts.emit(emptyList())
                 }

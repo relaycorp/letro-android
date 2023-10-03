@@ -40,8 +40,8 @@ import tech.relaycorp.letro.conversation.list.ConversationsListViewModel
 import tech.relaycorp.letro.conversation.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.model.ExtendedMessage
-import tech.relaycorp.letro.ui.common.BottomSheetAction
-import tech.relaycorp.letro.ui.common.LetroActionsBottomSheet
+import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
+import tech.relaycorp.letro.ui.common.bottomsheet.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.theme.BodyLargeProminent
 import tech.relaycorp.letro.ui.theme.BodyMediumProminent
 import tech.relaycorp.letro.ui.theme.LabelSmallProminent

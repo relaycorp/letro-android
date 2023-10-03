@@ -1,3 +1,5 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package tech.relaycorp.letro.ui.navigation
 
 import android.util.Log
@@ -33,8 +35,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.SwitchAccountViewModel
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
 import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
@@ -67,6 +76,7 @@ fun LetroNavHost(
     onGoToNotificationsSettingsClick: () -> Unit,
     mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
@@ -74,6 +84,8 @@ fun LetroNavHost(
     var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
 
     val uiState by mainViewModel.uiState.collectAsState()
+
+    val switchAccountsBottomSheetState by switchAccountViewModel.switchAccountBottomSheetState.collectAsState()
 
     val homeUiState by homeViewModel.uiState.collectAsState()
     val floatingActionButtonConfig = homeUiState.floatingActionButtonConfig
@@ -109,13 +121,21 @@ fun LetroNavHost(
             return@LaunchedEffect
         }
         mainViewModel.pushAction.collect { pushAction ->
-            when (pushAction) {
-                is PushAction.OpenConversation -> {
-                    navController.navigate(
-                        Route.Conversation.getRouteName(
-                            conversationId = pushAction.conversationId,
-                        ),
-                    )
+            withContext(Dispatchers.IO) {
+                when (pushAction) {
+                    is PushAction.OpenConversation -> {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            navController.navigate(
+                                Route.Conversation.getRouteName(
+                                    conversationId = pushAction.conversationId,
+                                ),
+                            )
+                        }
+                        switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
+                    }
+                    is PushAction.OpenMainPage -> {
+                        switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
+                    }
                 }
             }
         }
@@ -129,12 +149,23 @@ fun LetroNavHost(
                     .fillMaxSize()
                     .padding(paddingValues),
             ) {
+                if (switchAccountsBottomSheetState.isShown) {
+                    SwitchAccountsBottomSheet(
+                        accounts = switchAccountsBottomSheetState.accounts,
+                        onAccountClick = { switchAccountViewModel.onSwitchAccountRequested(it) },
+                        onManageContactsClick = {
+                            navController.navigate(Route.Settings.name)
+                            switchAccountViewModel.onSwitchAccountDialogDismissed()
+                        },
+                        onDismissRequest = { switchAccountViewModel.onSwitchAccountDialogDismissed() },
+                    )
+                }
                 Column {
                     if (currentRoute.showTopBar && currentAccount != null) {
                         LetroTopBar(
                             accountVeraId = currentAccount,
                             isAccountCreated = uiState.isCurrentAccountCreated,
-                            onChangeAccountClicked = { /*TODO*/ },
+                            onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
                             onSettingsClicked = { navController.navigate(Route.Settings.name) },
                         )
                     }
@@ -355,6 +386,7 @@ fun LetroNavHost(
                         }
                         composable(Route.Settings.name) {
                             SettingsScreen(
+                                onAddAccountClick = { navController.navigate(Route.Registration.name) },
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
                                 onBackClick = { navController.popBackStack() },
