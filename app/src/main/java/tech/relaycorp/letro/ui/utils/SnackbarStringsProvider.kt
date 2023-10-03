@@ -14,6 +14,7 @@ interface SnackbarStringsProvider {
     val conversationUnarchived: String
     val notificationPermissionDenied: String
     val goToSettings: String
+    val accountDeleted: String
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -42,4 +43,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val goToSettings: String
         get() = activity.getString(R.string.go_to_settings)
+
+    override val accountDeleted: String
+        get() = activity.getString(R.string.account_deleted)
 }

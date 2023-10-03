@@ -1,14 +1,17 @@
 package tech.relaycorp.letro.main.di
 
+import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
+import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManagerImpl
 import tech.relaycorp.letro.ui.utils.AwalaInitializationStringsProvider
@@ -59,6 +62,14 @@ object MainModule {
 object MainActivityRetainedModule {
 
     @Provides
+    @TermsAndConditionsLink
+    fun provideTermsAndConditionsLink(
+        @ApplicationContext context: Context,
+    ): String {
+        return context.getString(R.string.url_letro_terms_and_conditions)
+    }
+
+    @Provides
     @ActivityRetainedScoped
     @MainModule.AwalaInitializationStringsIndexPointer
     fun bindAwalaInitializationStringsIndexPointer(): MutableStateFlow<Int> {
@@ -75,3 +86,6 @@ interface MainSingletonModule {
         impl: UnreadBadgesManagerImpl,
     ): UnreadBadgesManager
 }
+
+@Qualifier
+annotation class TermsAndConditionsLink

@@ -50,6 +50,7 @@ import tech.relaycorp.letro.main.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.home.ui.HomeScreen
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
@@ -63,7 +64,7 @@ import tech.relaycorp.letro.utils.ext.encodeToUTF
 @Composable
 fun LetroNavHost(
     stringsProvider: StringsProvider,
-    onGoToSettingsClick: () -> Unit,
+    onGoToNotificationsSettingsClick: () -> Unit,
     mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -134,7 +135,7 @@ fun LetroNavHost(
                             accountVeraId = currentAccount,
                             isAccountCreated = uiState.isCurrentAccountCreated,
                             onChangeAccountClicked = { /*TODO*/ },
-                            onSettingsClicked = { },
+                            onSettingsClicked = { navController.navigate(Route.Settings.name) },
                         )
                     }
                     NavHost(
@@ -247,7 +248,7 @@ fun LetroNavHost(
                                 },
                                 snackbarHostState = snackbarHostState,
                                 snackbarStringsProvider = stringsProvider.snackbar,
-                                onGoToSettingsClick = onGoToSettingsClick,
+                                onGoToSettingsClick = onGoToNotificationsSettingsClick,
                             )
                         }
                         composable(Route.Home.name) {
@@ -349,6 +350,16 @@ fun LetroNavHost(
                                 },
                                 onAttachmentClick = { fileId ->
                                     mainViewModel.onAttachmentClick(fileId)
+                                },
+                            )
+                        }
+                        composable(Route.Settings.name) {
+                            SettingsScreen(
+                                onNotificationsClick = onGoToNotificationsSettingsClick,
+                                onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
+                                onBackClick = { navController.popBackStack() },
+                                onAccountDeleted = {
+                                    snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.accountDeleted)
                                 },
                             )
                         }

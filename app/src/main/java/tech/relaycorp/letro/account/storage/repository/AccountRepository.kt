@@ -4,8 +4,8 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.dao.AccountDao
@@ -18,6 +18,7 @@ import javax.inject.Inject
 
 interface AccountRepository {
     val currentAccount: Flow<Account?>
+    val allAccounts: StateFlow<List<Account>>
     suspend fun createAccount(
         requestedUserName: String,
         domainName: String,
@@ -31,6 +32,8 @@ interface AccountRepository {
     ): Account?
 
     suspend fun updateAccount(account: Account, accountId: String, veraidBundle: ByteArray)
+
+    suspend fun deleteAccount(account: Account)
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -39,7 +42,10 @@ class AccountRepositoryImpl @Inject constructor(
 ) : AccountRepository {
 
     private val databaseScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-    private val _allAccounts = MutableSharedFlow<List<Account>>()
+    private val _allAccounts = MutableStateFlow<List<Account>>(emptyList())
+    override val allAccounts: StateFlow<List<Account>>
+        get() = _allAccounts
+
     private val _currentAccount = MutableStateFlow<Account?>(null)
     override val currentAccount: Flow<Account?>
         get() = _currentAccount
@@ -83,6 +89,10 @@ class AccountRepositoryImpl @Inject constructor(
             requestedUserName = requestedUserName,
             locale = locale.normaliseString(),
         )
+
+    override suspend fun deleteAccount(account: Account) {
+        accountDao.deleteAccount(account)
+    }
 
     override suspend fun updateAccount(
         account: Account,

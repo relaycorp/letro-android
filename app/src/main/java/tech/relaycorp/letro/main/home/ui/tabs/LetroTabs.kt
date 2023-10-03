@@ -38,7 +38,7 @@ fun LetroTabs(
     val tabTitles = listOf(
         stringResource(id = R.string.conversations),
         stringResource(id = R.string.top_bar_tab_contacts),
-        stringResource(id = R.string.top_bar_tab_notifications),
+        stringResource(id = R.string.notifications),
     )
     val tabCounters = uiState.tabCounters
 

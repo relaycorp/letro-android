@@ -123,6 +123,12 @@ sealed class Route(
         fun getRouteName(conversationId: String) =
             "${Conversation.name}/$conversationId"
     }
+
+    object Settings : Route(
+        name = "settings_route",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
 }
 
 fun String?.toRoute(): Route {
@@ -140,6 +146,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.Home.name) -> Route.Home
             it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
             it.startsWith(Route.Conversation.name) -> Route.Conversation
+            it.startsWith(Route.Settings.name) -> Route.Settings
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }
