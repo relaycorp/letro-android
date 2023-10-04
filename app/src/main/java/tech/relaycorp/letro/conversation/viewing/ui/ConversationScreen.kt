@@ -241,7 +241,7 @@ private fun Message(
                 Spacer(modifier = Modifier.height(16.dp))
                 message.attachments.forEachIndexed { index, attachment ->
                     if (index != 0) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                     Attachment(
                         modifier = Modifier
