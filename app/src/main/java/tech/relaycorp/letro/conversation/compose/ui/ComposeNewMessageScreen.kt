@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -307,6 +308,9 @@ fun ComposeNewMessageScreen(
                                 placeHolderText = stringResource(id = R.string.new_message_body_hint),
                                 singleLine = false,
                                 placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                ),
                                 modifier = Modifier
                                     .then(Modifier)
                                     .applyIf(uiState.messageExceedsLimitTextError != null) {
