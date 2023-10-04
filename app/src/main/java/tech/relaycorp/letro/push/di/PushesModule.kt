@@ -8,6 +8,8 @@ import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.push.PushManagerImpl
+import tech.relaycorp.letro.push.PushNewMessageTextFormatter
+import tech.relaycorp.letro.push.PushNewMessageTextFormatterImpl
 import tech.relaycorp.letro.push.PushPermissionManager
 import tech.relaycorp.letro.push.PushPermissionManagerImpl
 import tech.relaycorp.letro.push.model.PushChannel
@@ -41,5 +43,10 @@ object PushesModule {
         fun bindNotificationPermissionManager(
             impl: PushPermissionManagerImpl,
         ): PushPermissionManager
+
+        @Binds
+        fun bindPushNewMessageTextFormatter(
+            impl: PushNewMessageTextFormatterImpl,
+        ): PushNewMessageTextFormatter
     }
 }

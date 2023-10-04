@@ -131,12 +131,13 @@ private fun Conversation(
     onConversationClick: () -> Unit,
 ) {
     Box(
+        contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .fillMaxWidth()
+            .height(64.dp)
             .clickable { onConversationClick() }
             .padding(
                 horizontal = 16.dp,
-                vertical = 10.dp,
             ),
     ) {
         Column {
@@ -170,6 +171,7 @@ private fun Conversation(
                     maxLines = 1,
                 )
             }
+            Spacer(modifier = Modifier.height(2.dp))
             Row {
                 Text(
                     text = conversation.subject ?: noSubjectText,
@@ -187,7 +189,7 @@ private fun Conversation(
                 )
                 val messageDisplayedText = if (conversation.messages.last().text.isNotEmptyOrBlank()) conversation.messages.last().text else conversation.messages.last().attachments.firstOrNull()?.name ?: ""
                 Text(
-                    text = messageDisplayedText,
+                    text = messageDisplayedText.replace("[\\r\\n]+".toRegex(), " "),
                     style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
                     color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -212,8 +214,10 @@ private fun ConversationsSectionSelector(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(
-                    horizontal = 16.dp,
-                    vertical = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 16.dp,
+                    bottom = 12.dp,
                 )
                 .clickable { onClick() },
         ) {
@@ -245,7 +249,8 @@ private fun EmptyConversationsView(
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(bottom = 48.dp),
     ) {
         Column(

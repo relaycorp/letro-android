@@ -159,11 +159,7 @@ class ManageContactViewModel @Inject constructor(
             if (!isGranted) {
                 _showPermissionGoToSettingsSignal.emit(Unit)
             }
-            _uiState.update {
-                it.copy(
-                    showNotificationPermissionRequestIfNoPermission = false,
-                )
-            }
+            onGotItClick()
         }
     }
 

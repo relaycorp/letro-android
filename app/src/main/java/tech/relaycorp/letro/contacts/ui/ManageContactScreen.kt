@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +27,6 @@ import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroOutlinedTextField
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
-import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.permission.rememberNotificationPermissionStateCompat
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -37,9 +34,7 @@ import tech.relaycorp.letro.utils.permission.rememberNotificationPermissionState
 fun ManageContactScreen(
     onBackClick: () -> Unit,
     onEditContactCompleted: (String) -> Unit,
-    snackbarHostState: SnackbarHostState,
-    snackbarStringsProvider: SnackbarStringsProvider,
-    onGoToSettingsClick: () -> Unit,
+    showGoToSettingsPermissionSnackbar: () -> Unit,
     viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -64,13 +59,7 @@ fun ManageContactScreen(
 
     LaunchedEffect(Unit) {
         viewModel.showPermissionGoToSettingsSignal.collect {
-            val result = snackbarHostState.showSnackbar(
-                message = snackbarStringsProvider.notificationPermissionDenied,
-                actionLabel = snackbarStringsProvider.goToSettings,
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                onGoToSettingsClick()
-            }
+            showGoToSettingsPermissionSnackbar()
         }
     }
 
@@ -137,11 +126,17 @@ private fun ManageContactView(
             isError = errorCaption != null,
             isEnabled = uiState.isVeraIdInputEnabled,
         ) {
+            Spacer(modifier = Modifier.height(6.dp))
             if (errorCaption != null) {
-                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = stringResource(id = errorCaption.message),
                     color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            } else if (!uiState.isActionButtonEnabled) {
+                Text(
+                    text = stringResource(id = R.string.pair_request_invalid_id),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }

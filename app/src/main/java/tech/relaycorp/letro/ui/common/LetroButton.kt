@@ -41,7 +41,7 @@ fun LetroButton(
             },
             contentColor = when (buttonType) {
                 ButtonType.Filled -> MaterialTheme.colorScheme.onPrimary
-                ButtonType.Outlined -> MaterialTheme.colorScheme.primary
+                ButtonType.Outlined -> MaterialTheme.colorScheme.onSurface
             },
             disabledContainerColor = LetroColor.disabledButtonBackgroundColor(),
             disabledContentColor = LetroColor.disabledButtonTextColor(),
@@ -57,10 +57,11 @@ fun LetroButton(
         contentPadding = contentPadding,
         onClick = onClick,
     ) {
+        val contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary else LetroColor.disabledButtonTextColor()
         if (leadingIconResId != null) {
             Icon(
                 painter = painterResource(id = leadingIconResId),
-                tint = if (enabled) MaterialTheme.colorScheme.onPrimary else LetroColor.disabledButtonTextColor(),
+                tint = contentColor,
                 contentDescription = null,
             )
             Spacer(
@@ -70,6 +71,7 @@ fun LetroButton(
         Text(
             text = text,
             style = MaterialTheme.typography.LabelLargeProminent,
+            color = contentColor,
         )
     }
 }
