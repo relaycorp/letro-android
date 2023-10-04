@@ -3,6 +3,7 @@ package tech.relaycorp.letro.conversation.server.processor
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.server.dto.NewMessageIncomingMessage
 import tech.relaycorp.letro.conversation.server.parser.NewMessageMessageParser
@@ -11,6 +12,7 @@ import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.push.PushManager
+import tech.relaycorp.letro.push.PushNewMessageTextFormatter
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.push.model.PushData
 import java.time.LocalDateTime
@@ -25,6 +27,8 @@ class NewMessageProcessorImpl @Inject constructor(
     private val conversationsDao: ConversationsDao,
     private val messagesDao: MessagesDao,
     private val attachmentsRepository: AttachmentsRepository,
+    private val contactsDao: ContactsDao,
+    private val messageTextFormatter: PushNewMessageTextFormatter,
 ) : NewMessageProcessor {
 
     @Suppress("NAME_SHADOWING")
@@ -58,10 +62,15 @@ class NewMessageProcessorImpl @Inject constructor(
         )
         val messageId = messagesDao.insert(message)
         attachmentsRepository.saveMessageAttachments(messageId, messageWrapper.attachments)
+
+        val senderAlias = contactsDao.getContact(
+            ownerVeraId = conversation.ownerVeraId,
+            contactVeraId = conversation.contactVeraId,
+        )?.alias
         pushManager.showPush(
             PushData(
-                title = message.senderVeraId,
-                text = message.text,
+                title = senderAlias ?: message.senderVeraId,
+                text = messageTextFormatter.getText(conversation.subject, message.text, messageWrapper.attachments.map { it.fileName }),
                 action = PushAction.OpenConversation(
                     conversationId = messageWrapper.conversationId,
                     accountId = conversation.ownerVeraId,

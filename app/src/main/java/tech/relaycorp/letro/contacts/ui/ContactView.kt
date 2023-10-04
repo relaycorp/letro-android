@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,13 +30,14 @@ fun ContactView(
     onContactClick: (() -> Unit)? = null,
 ) {
     Box(
+        contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .fillMaxWidth()
+            .height(if (contact.alias != null) 64.dp else 56.dp)
             .applyIf(onContactClick != null) {
                 clickable { onContactClick?.invoke() }
             }
             .padding(
-                vertical = if (contact.alias == null) 16.dp else 10.dp,
                 horizontal = 16.dp,
             )
             .background(MaterialTheme.colorScheme.surface),
@@ -48,6 +51,7 @@ fun ContactView(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.TitleMediumProminent,
                 )
+                Spacer(modifier = Modifier.height(2.dp))
             }
             Text(
                 text = contact.contactVeraId,

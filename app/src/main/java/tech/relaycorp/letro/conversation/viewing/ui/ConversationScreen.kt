@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.conversation.viewing.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
 import java.util.UUID
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConversationScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
@@ -86,11 +88,13 @@ fun ConversationScreen(
                     },
                 )
             }
-            Column {
-                Surface(
-                    shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
-                ) {
-                    Column {
+            LazyColumn(
+                state = scrollState,
+            ) {
+                stickyHeader {
+                    Surface(
+                        shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
+                    ) {
                         ConversationToolbar(
                             isArchived = conversation.isArchived,
                             onReplyClick = onReplyClick,
@@ -101,38 +105,36 @@ fun ConversationScreen(
                             },
                             onDeleteClick = { viewModel.onDeleteConversationClick() },
                         )
-                        Text(
-                            text = conversation.subject ?: conversationsStringsProvider.noSubject,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 16.dp,
-                                    vertical = 10.dp,
-                                ),
-                        )
                     }
                 }
-                LazyColumn(
-                    state = scrollState,
-                ) {
-                    items(conversation.messages.size) { position ->
-                        val message = conversation.messages[position]
-                        val isLastMessage = position == conversation.messages.size - 1
-                        Message(
-                            message = message,
-                            isCollapsable = conversation.messages.size > 1,
-                            isLastMessage = isLastMessage,
-                            onAttachmentClick = { onAttachmentClick(it.fileId) },
+                item {
+                    Text(
+                        text = conversation.subject ?: conversationsStringsProvider.noSubject,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 10.dp,
+                            ),
+                    )
+                }
+                items(conversation.messages.size) { position ->
+                    val message = conversation.messages[position]
+                    val isLastMessage = position == conversation.messages.size - 1
+                    Message(
+                        message = message,
+                        isCollapsable = conversation.messages.size > 1,
+                        isLastMessage = isLastMessage,
+                        onAttachmentClick = { onAttachmentClick(it.fileId) },
+                    )
+                    if (!isLastMessage) {
+                        Divider(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.outlineVariant)
+                                .fillMaxWidth()
+                                .height(1.dp),
                         )
-                        if (!isLastMessage) {
-                            Divider(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.outlineVariant)
-                                    .fillMaxWidth()
-                                    .height(1.dp),
-                            )
-                        }
                     }
                 }
             }
@@ -153,6 +155,9 @@ private fun Message(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .applyIf(isCollapsed) {
+                height(CollapsedMessageHeight)
+            }
             .applyIf(isCollapsable && isCollapsed) {
                 clickable { isCollapsed = !isCollapsed }
             }
@@ -184,6 +189,7 @@ private fun Message(
             )
         }
         if (!isCollapsed) {
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
                 style = MaterialTheme.typography.bodySmall,
@@ -215,7 +221,7 @@ private fun Message(
             maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
             modifier = Modifier
                 .padding(
-                    vertical = if (isCollapsed) 0.dp else 10.dp,
+                    vertical = if (isCollapsed) 2.dp else 10.dp,
                     horizontal = 16.dp,
                 ),
         )
@@ -475,3 +481,5 @@ private fun MessageInfo_Preview() {
         )
     }
 }
+
+private val CollapsedMessageHeight = 64.dp

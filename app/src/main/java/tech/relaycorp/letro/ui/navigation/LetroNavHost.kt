@@ -13,8 +13,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -278,9 +280,18 @@ fun LetroNavHost(
                                         else -> throw IllegalStateException("Unknown screen type: $type")
                                     }
                                 },
-                                snackbarHostState = snackbarHostState,
-                                snackbarStringsProvider = stringsProvider.snackbar,
-                                onGoToSettingsClick = onGoToNotificationsSettingsClick,
+                                showGoToSettingsPermissionSnackbar = {
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = stringsProvider.snackbar.notificationPermissionDenied,
+                                            actionLabel = stringsProvider.snackbar.goToSettings,
+                                            duration = SnackbarDuration.Long,
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            onGoToNotificationsSettingsClick()
+                                        }
+                                    }
+                                },
                             )
                         }
                         composable(Route.Home.name) {

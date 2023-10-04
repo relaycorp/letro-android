@@ -112,7 +112,7 @@ val Typography.LabelLargeProminent: TextStyle
         fontWeight = FontWeight.SemiBold,
         fontSize = 15.sp,
         lineHeight = 20.sp,
-        letterSpacing = (-0.25).sp,
+        letterSpacing = (-0.1).sp,
     )
 
 val Typography.LabelMediumProminent: TextStyle
