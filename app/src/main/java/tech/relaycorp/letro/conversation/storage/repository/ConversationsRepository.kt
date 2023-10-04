@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.conversation.storage.repository
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -91,6 +92,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     startCollectContacts(currentAccount)
                     startCollectConversations(currentAccount)
                 } else {
+                    Log.d(TAG, "Current account is null. Emitting empty conversations.")
                     _extendedConversations.emit(emptyList())
                     contacts.emit(emptyList())
                 }
@@ -255,6 +257,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                 val messagesOfCurrentAccount = messages.filter { it.ownerVeraId == account.accountId }
                 val messageIdsOfCurrentAccount = messagesOfCurrentAccount.map { it.id }.toSet()
 
+                Log.d(TAG, "Emitting conversations before formatting with size: ${conversations.size}")
                 _extendedConversations.emit(
                     conversationsConverter.convert(
                         conversations = conversations.filter { it.ownerVeraId == account.accountId },
@@ -262,9 +265,13 @@ class ConversationsRepositoryImpl @Inject constructor(
                         contacts = contacts.filter { it.ownerVeraId == account.accountId },
                         attachments = attachments.filter { messageIdsOfCurrentAccount.contains(it.messageId) },
                         ownerVeraId = account.accountId,
-                    ),
+                    ).also { Log.d(TAG, "Emitting Extended conversations after formatting with size: ${it.size}") },
                 )
             }.collect()
         }
+    }
+
+    companion object {
+        const val TAG = "ConversationsRepository"
     }
 }

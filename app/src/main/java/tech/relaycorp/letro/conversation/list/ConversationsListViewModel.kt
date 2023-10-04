@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.conversation.list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import tech.relaycorp.letro.conversation.list.onboarding.ConversationsOnboarding
 import tech.relaycorp.letro.conversation.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.conversation.list.ui.ConversationsListContent
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
+import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepositoryImpl
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import javax.inject.Inject
 
@@ -49,6 +51,7 @@ class ConversationsListViewModel @Inject constructor(
                     conversations.filter { it.isArchived }
                 }
             }
+            Log.d(ConversationsRepositoryImpl.TAG, "Displaying new messages for state ${currentTab.currentSection} with size = ${conversations.size}")
             if (conversations.isNotEmpty()) {
                 ConversationsListContent.Conversations(conversations)
             } else {
