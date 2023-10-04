@@ -15,6 +15,9 @@ interface SnackbarStringsProvider {
     val notificationPermissionDenied: String
     val goToSettings: String
     val accountDeleted: String
+    val youNeedAtLeastOneContact: String
+    val youNoLongerConnected: String
+    val addContact: String
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -46,4 +49,13 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val accountDeleted: String
         get() = activity.getString(R.string.account_deleted)
+
+    override val youNeedAtLeastOneContact: String
+        get() = activity.getString(R.string.you_need_at_least_one_contact)
+
+    override val addContact: String
+        get() = activity.getString(R.string.general_pair_with_others)
+
+    override val youNoLongerConnected: String
+        get() = activity.getString(R.string.you_cannot_reply_not_connected)
 }

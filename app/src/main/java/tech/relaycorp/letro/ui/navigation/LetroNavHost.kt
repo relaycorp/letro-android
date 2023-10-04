@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -116,6 +117,20 @@ fun LetroNavHost(
     LaunchedEffect(Unit) {
         homeViewModel.createNewConversationSignal.collect {
             navController.navigate(Route.CreateNewMessage.getRouteName(ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        homeViewModel.showNoContactsSnackbarSignal.collect {
+            showSnackbar(
+                scope = this,
+                snackbarHostState = snackbarHostState,
+                message = stringsProvider.snackbar.youNeedAtLeastOneContact,
+                actionLabel = stringsProvider.snackbar.addContact,
+                onActionPerformed = {
+                    navController.navigate(Route.ManageContact.getRouteName(ManageContactViewModel.Type.NEW_CONTACT))
+                },
+            )
         }
     }
 
@@ -283,7 +298,7 @@ fun LetroNavHost(
                                         val result = snackbarHostState.showSnackbar(
                                             message = stringsProvider.snackbar.notificationPermissionDenied,
                                             actionLabel = stringsProvider.snackbar.goToSettings,
-                                            duration = SnackbarDuration.Long,
+                                            duration = SnackbarDuration.Short,
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
                                             onGoToNotificationsSettingsClick()
@@ -391,6 +406,17 @@ fun LetroNavHost(
                                 onAttachmentClick = { fileId ->
                                     mainViewModel.onAttachmentClick(fileId)
                                 },
+                                showAddContactSnackbar = {
+                                    showSnackbar(
+                                        scope = scope,
+                                        snackbarHostState = snackbarHostState,
+                                        message = stringsProvider.snackbar.youNoLongerConnected,
+                                        actionLabel = stringsProvider.snackbar.addContact,
+                                        onActionPerformed = {
+                                            navController.navigate(Route.ManageContact.getRouteName(ManageContactViewModel.Type.NEW_CONTACT))
+                                        },
+                                    )
+                                },
                             )
                         }
                         composable(Route.Settings.name) {
@@ -467,6 +493,25 @@ fun LetroNavHost(
             )
         },
     )
+}
+
+private fun showSnackbar(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    actionLabel: String,
+    onActionPerformed: () -> Unit,
+) {
+    scope.launch {
+        val result = snackbarHostState.showSnackbar(
+            message = message,
+            actionLabel = actionLabel,
+            duration = SnackbarDuration.Short,
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            onActionPerformed()
+        }
+    }
 }
 
 private fun handleFirstNavigation(

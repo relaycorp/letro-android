@@ -61,6 +61,7 @@ fun ConversationScreen(
     onConversationArchived: (Boolean) -> Unit,
     onBackClicked: () -> Unit,
     onAttachmentClick: (UUID) -> Unit,
+    showAddContactSnackbar: () -> Unit,
     viewModel: ConversationViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberLazyListState()
@@ -69,6 +70,12 @@ fun ConversationScreen(
     val conversation = conversationState
 
     val deleteConversationDialogState by viewModel.deleteConversationDialogState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.showNoContactsSnackbarSignal.collect {
+            showAddContactSnackbar()
+        }
+    }
 
     if (conversation != null) {
         LaunchedEffect(Unit) { // Scroll to the top of a conversation on screen opening
@@ -97,7 +104,11 @@ fun ConversationScreen(
                     ) {
                         ConversationToolbar(
                             isArchived = conversation.isArchived,
-                            onReplyClick = onReplyClick,
+                            onReplyClick = {
+                                if (viewModel.canReply()) {
+                                    onReplyClick()
+                                }
+                            },
                             onBackClicked = onBackClicked,
                             onArchiveClick = {
                                 val isArchived = viewModel.onArchiveConversationClicked()

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.main.home.ui.HomeFloatingActionButtonConfig
 import javax.inject.Inject
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val unreadBadgesManager: UnreadBadgesManager,
+    private val contactsRepository: ContactsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -26,6 +28,10 @@ class HomeViewModel @Inject constructor(
     private val _createNewConversationSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val createNewConversationSignal: SharedFlow<Unit>
         get() = _createNewConversationSignal
+
+    private val _showNoContactsSnackbarSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val showNoContactsSnackbarSignal: MutableSharedFlow<Unit>
+        get() = _showNoContactsSnackbarSignal
 
     init {
         viewModelScope.launch {
@@ -70,7 +76,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             when (uiState.value.currentTab) {
                 TAB_CHATS -> {
-                    _createNewConversationSignal.emit(Unit)
+                    if (contactsRepository.contactsState.value.isPairedContactExist) {
+                        _createNewConversationSignal.emit(Unit)
+                    } else {
+                        _showNoContactsSnackbarSignal.emit(Unit)
+                    }
                 }
                 TAB_CONTACTS -> {
                     _uiState.update {
