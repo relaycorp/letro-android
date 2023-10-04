@@ -10,7 +10,7 @@
 
     <string name="no_contacts_text">No contacts to message yet.</string>
 
-    <string name="onboarding_create_account_id_placeholder">username</string>
+    <string name="onboarding_create_account_id_placeholder">Username</string>
     <string name="onboarding_create_account_username_unavailable_hint">If your preferred username is unavailable, we’ll pick a similar one for you.</string>
     <string name="onboarding_create_account_wrong_username_hint">The username cannot contain spaces or at signs (@), or exceed 16 characters.</string>
     <string name="onboarding_create_account_terms_and_services">By requesting an account, you agree to our Terms and Conditions.</string>
@@ -121,7 +121,7 @@
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
 
-    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contact can read them.</string>
+    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contacts can read them.</string>
     <string name="close_onboarding_content_description">Close onboarding</string>
 
     <string name="inbox">Inbox</string>
