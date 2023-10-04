@@ -41,7 +41,7 @@ fun LetroButton(
             },
             contentColor = when (buttonType) {
                 ButtonType.Filled -> MaterialTheme.colorScheme.onPrimary
-                ButtonType.Outlined -> MaterialTheme.colorScheme.onSurface
+                ButtonType.Outlined -> MaterialTheme.colorScheme.primary
             },
             disabledContainerColor = LetroColor.disabledButtonBackgroundColor(),
             disabledContentColor = LetroColor.disabledButtonTextColor(),
@@ -71,7 +71,6 @@ fun LetroButton(
         Text(
             text = text,
             style = MaterialTheme.typography.LabelLargeProminent,
-            color = contentColor,
         )
     }
 }

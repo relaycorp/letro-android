@@ -25,6 +25,7 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
@@ -40,6 +41,7 @@ class MainViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val attachmentsRepository: AttachmentsRepository,
     private val fileConverter: FileConverter,
+    private val conversationsRepository: ConversationsRepository,
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
 ) : ViewModel() {
 
@@ -94,8 +96,9 @@ class MainViewModel @Inject constructor(
                 accountRepository.currentAccount,
                 contactsRepository.contactsState,
                 awalaManager.awalaInitializationState,
-            ) { currentAccount, contactsState, awalaInitializationState ->
-                Log.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState")
+                conversationsRepository.conversations,
+            ) { currentAccount, contactsState, awalaInitializationState, conversations ->
+                Log.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
                 when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = false)
@@ -104,7 +107,7 @@ class MainViewModel @Inject constructor(
                     currentAccount == null -> RootNavigationScreen.Registration
                     !currentAccount.isCreated -> RootNavigationScreen.RegistrationWaiting
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro
-                    !contactsState.isPairedContactExist -> RootNavigationScreen.NoContactsScreen
+                    !contactsState.isPairedContactExist && conversations.isEmpty() -> RootNavigationScreen.NoContactsScreen
                     else -> RootNavigationScreen.Home
                 }
             }
