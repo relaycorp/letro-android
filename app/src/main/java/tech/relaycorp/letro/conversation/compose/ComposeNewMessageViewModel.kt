@@ -62,6 +62,7 @@ class ComposeNewMessageViewModel @Inject constructor(
             showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
             showRecipientAsChip = conversation != null,
             isOnlyTextEditale = conversation != null,
+            isSendButtonEnabled = conversation?.contactVeraId != null,
         ),
     )
     val uiState: StateFlow<NewMessageUiState>
@@ -269,7 +270,7 @@ class ComposeNewMessageViewModel @Inject constructor(
         messageText: String,
     ): Boolean {
         val isMessageSizeExceedsLimit = isMessageSizeExceedsLimit(messageText)
-        return !isMessageSizeExceedsLimit && contacts.any { recipientAccountId == it.contactVeraId } && (messageText.isNotEmptyOrBlank() || attachedFiles.isNotEmpty())
+        return !isMessageSizeExceedsLimit && contacts.any { recipientAccountId == it.contactVeraId }
     }
 
     private fun isMessageSizeExceedsLimit(messageText: String): Boolean =
