@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import tech.relaycorp.awaladroid.Awala
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.EncryptionInitializationException
 import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
@@ -97,7 +98,7 @@ class AwalaManagerImpl @Inject constructor(
     private var previousUncaughtExceptionHandler: UncaughtExceptionHandler? = null
     private var uncaughtExceptionHandler = UncaughtExceptionHandler { thread, exception ->
         if (exception is EncryptionInitializationException) {
-            Log.w(TAG, exception)
+            Log.e(TAG, "Uncaught exception due to failure to use Android security library", exception)
             _awalaInitializationState.emitOnDelayed(INITIALIZATION_FATAL_ERROR, awalaScope, 1_000L, awalaThreadContext)
         } else {
             previousUncaughtExceptionHandler?.uncaughtException(thread, exception)
@@ -113,7 +114,7 @@ class AwalaManagerImpl @Inject constructor(
                 try {
                     Awala.setUp(context)
                 } catch (e: EncryptionInitializationException) {
-                    Log.w(TAG, e)
+                    Log.e(TAG, "Failed to set up Awala due to Android security lib bug", e)
                     _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                     awalaSetupJob = null
                     return@withContext
@@ -239,11 +240,11 @@ class AwalaManagerImpl @Inject constructor(
             try {
                 registerFirstPartyEndpointIfNeeded()
             } catch (e: EncryptionInitializationException) {
-                Log.w(TAG, e)
+                Log.e(TAG, "Failed to register endpoint due to Android security lib bug", e)
                 _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                 return@withContext
-            } catch (e: Exception) {
-                Log.w(TAG, e)
+            } catch (e: AwaladroidException) {
+                Log.e(TAG, "Failed to register endpoint", e)
                 _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
@@ -251,11 +252,11 @@ class AwalaManagerImpl @Inject constructor(
             try {
                 importServerThirdPartyEndpointIfNeeded()
             } catch (e: EncryptionInitializationException) {
-                Log.w(TAG, e)
+                Log.e(TAG, "Failed to import Letro server endpoint due to Android security lib bug", e)
                 _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                 return@withContext
-            } catch (e: Exception) {
-                Log.w(TAG, e)
+            } catch (e: AwaladroidException) {
+                Log.e(TAG, "Failed to import Letro server endpoint", e)
                 _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
