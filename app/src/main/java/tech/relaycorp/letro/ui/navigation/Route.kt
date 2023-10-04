@@ -84,9 +84,8 @@ sealed class Route(
 
         fun getRouteName(
             @ManageContactViewModel.Type screenType: Int,
-            currentAccountIdEncoded: String?,
             contactIdToEdit: Long = NO_ID,
-        ) = "${ManageContact.name}/$currentAccountIdEncoded&$screenType&$contactIdToEdit"
+        ) = "${ManageContact.name}/$screenType&$contactIdToEdit"
     }
 
     object Home : Route(

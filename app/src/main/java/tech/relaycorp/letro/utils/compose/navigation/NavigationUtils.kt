@@ -17,6 +17,12 @@ fun NavController.navigateSingleTop(route: Route) {
     }
 }
 
+fun NavController.popBackStackSafe() {
+    if (currentBackStack.value.size > 2) { // StartDestination (Splash) + Root screen.
+        popBackStack()
+    }
+}
+
 fun NavController.navigateWithDropCurrentScreen(route: String) {
     navigate(route) {
         popBackStack()
