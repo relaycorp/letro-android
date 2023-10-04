@@ -44,6 +44,7 @@ fun Attachment(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .height(50.dp)
             .background(LetroColor.SurfaceContainer, RoundedCornerShape(6.dp))
             .applyIf(onAttachmentClick != null) {
                 clickable { onAttachmentClick?.invoke() }
@@ -56,6 +57,7 @@ fun Attachment(
         Icon(
             painter = painterResource(id = attachment.icon),
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
@@ -72,6 +74,7 @@ fun Attachment(
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = attachment.size,
                 style = MaterialTheme.typography.labelSmall,
