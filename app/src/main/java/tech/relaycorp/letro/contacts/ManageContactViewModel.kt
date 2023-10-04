@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.contacts
 
+import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
@@ -7,15 +8,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.ManageContactScreenContent.Companion.REQUEST_SENT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.EDIT_CONTACT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.NEW_CONTACT
@@ -23,20 +28,19 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
-import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ManageContactViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
+    private val accountRepository: AccountRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     @Type
     private val screenType: Int = savedStateHandle[Route.ManageContact.KEY_SCREEN_TYPE]!!
-    private val currentAccountId: String? = (savedStateHandle.get(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) as? String)?.decodeFromUTF() // by default Android decode strings inside navigation library, but just in case we decode it here
     private val contactIdToEdit: Long? = savedStateHandle[Route.ManageContact.KEY_CONTACT_ID_TO_EDIT]
 
     private val _uiState = MutableStateFlow(
@@ -66,6 +70,7 @@ class ManageContactViewModel @Inject constructor(
     val showPermissionGoToSettingsSignal: SharedFlow<Unit>
         get() = _showPermissionGoToSettingsSignal
 
+    private var currentAccountId: String? = null
     private val contacts: HashSet<Contact> = hashSetOf()
 
     private var editingContact: Contact? = null
@@ -86,12 +91,19 @@ class ManageContactViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            currentAccountId?.let { currentAccountId ->
-                contactsRepository.getContacts(currentAccountId).collect {
+            accountRepository.currentAccount
+                .flatMapLatest {
+                    currentAccountId = it?.accountId
+                    if (it != null) {
+                        contactsRepository.getContacts(it.accountId)
+                    } else {
+                        emptyFlow()
+                    }
+                }
+                .collect {
                     contacts.clear()
                     contacts.addAll(it)
                 }
-            }
         }
         viewModelScope.launch {
             checkActionButtonAvailabilityFlow
@@ -138,6 +150,10 @@ class ManageContactViewModel @Inject constructor(
                 }
             }
             EDIT_CONTACT -> {
+                if (contacts.any { it.id == contactIdToEdit }) {
+                    Log.w(TAG, IllegalStateException("You cannot edit this contact. Contact belongs to ${contacts.firstOrNull()?.ownerVeraId}, but yours is $currentAccountId")) // TODO: log?
+                    return
+                }
                 updateContact()
                 viewModelScope.launch {
                     _onEditContactCompleted.emit(uiState.value.accountId)
@@ -211,6 +227,7 @@ class ManageContactViewModel @Inject constructor(
     }
 
     private companion object {
+        private const val TAG = "ManageContactViewModel"
         private const val CHECK_ID_DEBOUNCE_DELAY_MS = 1_500L
         private val CORRECT_ID_REGEX = """^([^@]+@)?\p{L}{1,63}(\.\p{L}{1,63})+$""".toRegex()
     }

@@ -70,8 +70,8 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
 import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
+import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafe
 import tech.relaycorp.letro.utils.compose.showSnackbar
-import tech.relaycorp.letro.utils.ext.encodeToUTF
 
 @Composable
 fun LetroNavHost(
@@ -214,7 +214,6 @@ fun LetroNavHost(
                                         navController.navigate(
                                             Route.ManageContact.getRouteName(
                                                 screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                             ),
                                         )
                                     },
@@ -234,7 +233,6 @@ fun LetroNavHost(
                                         navController.navigate(
                                             Route.ManageContact.getRouteName(
                                                 screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                                currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                             ),
                                         )
                                     },
@@ -250,7 +248,7 @@ fun LetroNavHost(
                             )
                         }
                         composable(
-                            route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED}}&{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
+                            route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
                             arguments = listOf(
                                 navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
                                     type = NavType.StringType
@@ -269,12 +267,12 @@ fun LetroNavHost(
                         ) { entry ->
                             ManageContactScreen(
                                 onBackClick = {
-                                    navController.popBackStack()
+                                    navController.popBackStackSafe()
                                 },
                                 onEditContactCompleted = {
                                     when (val type = entry.arguments?.getInt(Route.ManageContact.KEY_SCREEN_TYPE)) {
                                         ManageContactViewModel.Type.EDIT_CONTACT -> {
-                                            navController.popBackStack()
+                                            navController.popBackStackSafe()
                                             snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.contactEdited)
                                         }
                                         else -> throw IllegalStateException("Unknown screen type: $type")
@@ -310,7 +308,6 @@ fun LetroNavHost(
                                     navController.navigate(
                                         Route.ManageContact.getRouteName(
                                             screenType = ManageContactViewModel.Type.EDIT_CONTACT,
-                                            currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                             contactIdToEdit = contact.id,
                                         ),
                                     )
@@ -343,7 +340,7 @@ fun LetroNavHost(
                             val screenType = it.arguments?.getInt(Route.CreateNewMessage.KEY_SCREEN_TYPE)
                             ComposeNewMessageScreen(
                                 conversationsStringsProvider = stringsProvider.conversations,
-                                onBackClicked = { navController.popBackStack() },
+                                onBackClicked = { navController.popBackStackSafe() },
                                 onMessageSent = {
                                     when (screenType) {
                                         ComposeNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION -> {
@@ -353,7 +350,7 @@ fun LetroNavHost(
                                             )
                                         }
                                         ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION -> {
-                                            navController.popBackStack()
+                                            navController.popBackStackSafe()
                                         }
                                     }
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
@@ -373,11 +370,11 @@ fun LetroNavHost(
                             ConversationScreen(
                                 conversationsStringsProvider = stringsProvider.conversations,
                                 onConversationDeleted = {
-                                    navController.popBackStack()
+                                    navController.popBackStackSafe()
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.conversationDeleted)
                                 },
                                 onConversationArchived = { isArchived ->
-                                    navController.popBackStack()
+                                    navController.popBackStackSafe()
                                     snackbarHostState.showSnackbar(scope, if (isArchived) stringsProvider.snackbar.conversationArchived else stringsProvider.snackbar.conversationUnarchived)
                                 },
                                 onReplyClick = {
@@ -389,7 +386,7 @@ fun LetroNavHost(
                                     )
                                 },
                                 onBackClicked = {
-                                    navController.popBackStack()
+                                    navController.popBackStackSafe()
                                 },
                                 onAttachmentClick = { fileId ->
                                     mainViewModel.onAttachmentClick(fileId)
@@ -401,7 +398,7 @@ fun LetroNavHost(
                                 onAddAccountClick = { navController.navigate(Route.Registration.name) },
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
-                                onBackClick = { navController.popBackStack() },
+                                onBackClick = { navController.popBackStackSafe() },
                                 onAccountDeleted = {
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.accountDeleted)
                                 },
@@ -421,7 +418,6 @@ fun LetroNavHost(
                             navController.navigate(
                                 Route.ManageContact.getRouteName(
                                     screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                    currentAccountIdEncoded = uiState.currentAccount?.encodeToUTF(),
                                 ),
                             )
                             homeViewModel.onOptionFromContactsFloatingMenuClicked()
