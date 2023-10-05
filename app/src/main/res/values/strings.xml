@@ -10,7 +10,7 @@
 
     <string name="no_contacts_text">No contacts to message yet.</string>
 
-    <string name="onboarding_create_account_id_placeholder">username</string>
+    <string name="onboarding_create_account_id_placeholder">Username</string>
     <string name="onboarding_create_account_username_unavailable_hint">If your preferred username is unavailable, we’ll pick a similar one for you.</string>
     <string name="onboarding_create_account_wrong_username_hint">The username cannot contain spaces or at signs (@), or exceed 16 characters.</string>
     <string name="onboarding_create_account_terms_and_services">By requesting an account, you agree to our Terms and Conditions.</string>
@@ -121,7 +121,7 @@
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
 
-    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contact can read them.</string>
+    <string name="conversations_onboarding_text">All conversations are end-to-end encrypted, so only you and your contacts can read them.</string>
     <string name="close_onboarding_content_description">Close onboarding</string>
 
     <string name="inbox">Inbox</string>
@@ -138,9 +138,9 @@
     <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
     <string name="new_contact_alias_hint">James Bond</string>
 
-    <string name="message_exceeds_limit_megabytes">This message exceeds the 8MB limit by %s MB.</string>
-    <string name="message_exceeds_limit_kilobytes">This message exceeds the 8MB limit by %s KB.</string>
-    <string name="message_exceeds_limit_bytes">This message exceeds the 8MB limit by %s bytes.</string>
+    <string name="message_exceeds_limit_megabytes">This message exceeds the 8 MB limit by %s MB.</string>
+    <string name="message_exceeds_limit_kilobytes">This message exceeds the 8 MB limit by %s KB.</string>
+    <string name="message_exceeds_limit_bytes">This message exceeds the 8 MB limit by %s bytes.</string>
 
     <string name="we_failed_to_set_up_awala">We failed to set up Awala</string>
     <string name="try_again">Try again</string>
@@ -158,6 +158,9 @@
     <string name="switch_accounts">Switch accounts</string>
     <string name="content_description_selected_item">Selected item</string>
     <string name="content_description_unselected_item">Unselected item</string>
+    
+    <string name="you_need_at_least_one_contact">You need at least one contact to start a conversation</string>
+    <string name="you_cannot_reply_not_connected">You can\'t reply to this user because you\'re no longer connected.</string>
 
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>

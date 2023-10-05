@@ -444,7 +444,7 @@ private fun attachments(
                     onDeleteClick = { onAttachmentDeleteClick(attachments[it]) },
                 )
                 if (it == attachments.size - 1) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
