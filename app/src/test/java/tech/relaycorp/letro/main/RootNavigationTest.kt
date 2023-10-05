@@ -1,11 +1,11 @@
 package tech.relaycorp.letro.main
 
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,7 +14,8 @@ import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
-import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
+import tech.relaycorp.letro.conversation.storage.entity.Conversation
+import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.utils.models.AwalaInitializationResult
 import tech.relaycorp.letro.utils.models.createAccount
@@ -37,7 +38,7 @@ class RootNavigationTest {
 
     @BeforeEach
     fun setUpEach(testInfo: TestInfo) {
-        logger.println("\n=========\n\n${testInfo.displayName}:")
+        logger.i(TAG, "\n=========\n\n${testInfo.displayName}:")
     }
 
     @Test
@@ -54,13 +55,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.Home, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
 
     @Test
@@ -77,13 +73,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.NoContactsScreen, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
 
     @Test
@@ -100,13 +91,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.WelcomeToLetro, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro
     }
 
     @Test
@@ -123,13 +109,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.NoContactsScreen, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
 
     @Test
@@ -148,13 +129,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.RegistrationWaiting, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.RegistrationWaiting
     }
 
     @Test
@@ -173,15 +149,10 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                conversations = listOf(createConversation(conversationId)),
-                messages = listOf(createMessage(conversationId)),
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
+            conversations = listOf(createConversation(conversationId)),
+            messages = listOf(createMessage(conversationId)),
         )
-        assertEquals(RootNavigationScreen.Home, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
 
     @Test
@@ -199,13 +170,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.AwalaNotInstalled, viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaNotInstalled
     }
 
     @Test
@@ -223,13 +189,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.AwalaInitializationError(isFatal = false), viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = false)
     }
 
     @Test
@@ -248,13 +209,8 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.AwalaInitializationError(isFatal = false), viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = false)
     }
 
     @Test
@@ -272,31 +228,35 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            conversationsRepository = createConversationsRepository(
-                awalaManager = awalaManager,
-                contactsRepository = contactsRepository,
-                accountRepository = accountRepository,
-            ),
         )
-        assertEquals(RootNavigationScreen.AwalaInitializationError(isFatal = true), viewModel.rootNavigationScreen.value)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = true)
     }
 
     private fun createViewModel(
         awalaManager: AwalaManager,
         accountRepository: AccountRepository,
         contactsRepository: ContactsRepository,
-        conversationsRepository: ConversationsRepository,
+        conversations: List<Conversation> = emptyList(),
+        messages: List<Message> = emptyList(),
     ) = MainViewModel(
         awalaManager = awalaManager,
         accountRepository = accountRepository,
         contactsRepository = contactsRepository,
         attachmentsRepository = mockk(),
         fileConverter = mockk(),
-        conversationsRepository = conversationsRepository,
+        conversationsRepository = createConversationsRepository(
+            awalaManager = awalaManager,
+            contactsRepository = contactsRepository,
+            accountRepository = accountRepository,
+            conversations = conversations,
+            messages = messages,
+        ),
         termsAndConditionsLink = "https://terms_and_conditions",
         logger = mockk(relaxed = true),
     )
     private companion object {
+        private const val TAG = "RootNavigationTest"
+
         @OptIn(ExperimentalCoroutinesApi::class)
         @BeforeAll
         @JvmStatic

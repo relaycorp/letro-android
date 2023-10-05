@@ -10,7 +10,6 @@ interface Logger {
     fun w(tag: String, exception: Exception)
     fun d(tag: String, message: String)
     fun i(tag: String, message: String)
-    fun println(message: String)
 }
 
 class LoggerImpl @Inject constructor() : Logger {
@@ -32,9 +31,5 @@ class LoggerImpl @Inject constructor() : Logger {
 
     override fun w(tag: String, exception: Exception) {
         Log.w(tag, exception)
-    }
-
-    override fun println(message: String) {
-        kotlin.io.println(message)
     }
 }

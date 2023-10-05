@@ -21,8 +21,4 @@ fun createLogger() = object : Logger {
         System.err.println("E: $tag: ${exception.message}")
         exception.printStackTrace()
     }
-
-    override fun println(message: String) {
-        kotlin.io.println(message)
-    }
 }

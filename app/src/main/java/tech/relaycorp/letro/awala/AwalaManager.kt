@@ -1,10 +1,8 @@
 package tech.relaycorp.letro.awala
 
-import android.content.Context
 import android.util.Base64
 import androidx.annotation.IntDef
 import androidx.annotation.RawRes
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -66,7 +64,6 @@ interface AwalaManager {
 class AwalaManagerImpl @Inject constructor(
     private val awala: AwalaWrapper,
     private val awalaRepository: AwalaRepository,
-    @ApplicationContext private val context: Context,
     private val processor: AwalaMessageProcessor,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -138,7 +135,7 @@ class AwalaManagerImpl @Inject constructor(
                 sender = firstPartyEndpoint,
                 recipient = recipient,
             )
-            logger.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
+            logger.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: ${outgoingMessage.type})")
             awala.sendMessage(
                 outgoingMessage = outgoingMessage,
                 firstPartyEndpoint = firstPartyEndpoint,
@@ -221,7 +218,7 @@ class AwalaManagerImpl @Inject constructor(
 
             logger.i(TAG, "start receiving messages...")
             awala.receiveMessages().collect { message ->
-                logger.i(TAG, "Receive message: ${message.type}: ($message)")
+                logger.i(TAG, "Receive message: ${message.type}")
                 processor.process(message, this@AwalaManagerImpl)
                 logger.i(TAG, "Message ${message.type} processed")
                 message.ack()

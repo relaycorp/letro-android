@@ -32,7 +32,6 @@ internal fun createAwalaManager(
         every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
         every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
     },
-    context = mockk(),
     processor = mockk(),
     logger = createLogger(),
     awala = createAwalaWrapper(awalaInitializationResult),
