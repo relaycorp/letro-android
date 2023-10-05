@@ -1,8 +1,7 @@
 package tech.relaycorp.letro.conversation.storage.repository
 
-import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,6 +28,8 @@ import tech.relaycorp.letro.conversation.storage.dao.ConversationsDao
 import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
+import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.di.IODispatcher
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -66,9 +67,11 @@ class ConversationsRepositoryImpl @Inject constructor(
     private val conversationsConverter: ExtendedConversationConverter,
     private val awalaManager: AwalaManager,
     private val outgoingMessageMessageEncoder: OutgoingMessageMessageEncoder,
+    private val logger: Logger,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ConversationsRepository {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
 
     private val _conversations = MutableStateFlow<List<Conversation>>(emptyList())
     private val _extendedConversations = MutableStateFlow<List<ExtendedConversation>>(emptyList())
@@ -92,7 +95,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     startCollectContacts(currentAccount)
                     startCollectConversations(currentAccount)
                 } else {
-                    Log.d(TAG, "Current account is null. Emitting empty conversations.")
+                    logger.d(TAG, "Current account is null. Emitting empty conversations.")
                     _extendedConversations.emit(emptyList())
                     contacts.emit(emptyList())
                 }
@@ -257,7 +260,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                 val messagesOfCurrentAccount = messages.filter { it.ownerVeraId == account.accountId }
                 val messageIdsOfCurrentAccount = messagesOfCurrentAccount.map { it.id }.toSet()
 
-                Log.d(TAG, "Emitting conversations before formatting with size: ${conversations.size}")
+                logger.d(TAG, "Emitting conversations before formatting with size: ${conversations.size}")
                 _extendedConversations.emit(
                     conversationsConverter.convert(
                         conversations = conversations.filter { it.ownerVeraId == account.accountId },
@@ -265,7 +268,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                         contacts = contacts.filter { it.ownerVeraId == account.accountId },
                         attachments = attachments.filter { messageIdsOfCurrentAccount.contains(it.messageId) },
                         ownerVeraId = account.accountId,
-                    ).also { Log.d(TAG, "Emitting Extended conversations after formatting with size: ${it.size}") },
+                    ).also { logger.d(TAG, "Emitting Extended conversations after formatting with size: ${it.size}") },
                 )
             }.collect()
         }

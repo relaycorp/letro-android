@@ -2,13 +2,12 @@ package tech.relaycorp.letro.awala
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,17 +17,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
-import tech.relaycorp.awaladroid.Awala
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.EncryptionInitializationException
 import tech.relaycorp.awaladroid.GatewayBindingException
-import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
-import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
-import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_NOT_INSTALLED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_SET_UP
@@ -38,16 +33,17 @@ import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZAT
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZATION_NONFATAL_ERROR
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
+import tech.relaycorp.letro.awala.di.AwalaThreadContext
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
-import tech.relaycorp.letro.utils.awala.loadNonNullPrivateThirdPartyEndpoint
-import tech.relaycorp.letro.utils.awala.loadNonNullPublicFirstPartyEndpoint
-import tech.relaycorp.letro.utils.awala.loadNonNullPublicThirdPartyEndpoint
+import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.ext.emitOnDelayed
 import java.lang.Thread.UncaughtExceptionHandler
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 interface AwalaManager {
     val awalaInitializationState: StateFlow<Int>
@@ -68,15 +64,16 @@ interface AwalaManager {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AwalaManagerImpl @Inject constructor(
+    private val awala: AwalaWrapper,
     private val awalaRepository: AwalaRepository,
     @ApplicationContext private val context: Context,
     private val processor: AwalaMessageProcessor,
+    private val logger: Logger,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
+    @AwalaThreadContext private val awalaThreadContext: CoroutineContext,
 ) : AwalaManager {
 
-    private val awalaScope = CoroutineScope(Dispatchers.IO)
-
-    @OptIn(DelicateCoroutinesApi::class)
-    private val awalaThreadContext = newSingleThreadContext("AwalaManagerThread")
+    private val awalaScope = CoroutineScope(ioDispatcher)
 
     @OptIn(DelicateCoroutinesApi::class)
     private val messageReceivingThreadContext = newSingleThreadContext("AwalaManagerMessageReceiverThread")
@@ -98,7 +95,7 @@ class AwalaManagerImpl @Inject constructor(
     private var previousUncaughtExceptionHandler: UncaughtExceptionHandler? = null
     private var uncaughtExceptionHandler = UncaughtExceptionHandler { thread, exception ->
         if (exception is EncryptionInitializationException) {
-            Log.e(TAG, "Uncaught exception due to failure to use Android security library", exception)
+            logger.e(TAG, "Uncaught exception due to failure to use Android security library", exception)
             _awalaInitializationState.emitOnDelayed(INITIALIZATION_FATAL_ERROR, awalaScope, 1_000L, awalaThreadContext)
         } else {
             previousUncaughtExceptionHandler?.uncaughtException(thread, exception)
@@ -110,11 +107,11 @@ class AwalaManagerImpl @Inject constructor(
         Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler)
         awalaSetupJob = awalaScope.launch {
             withContext(awalaThreadContext) {
-                Log.i(TAG, "Setting up Awala")
+                logger.i(TAG, "Setting up Awala")
                 try {
-                    Awala.setUp(context)
+                    awala.setUp()
                 } catch (e: EncryptionInitializationException) {
-                    Log.e(TAG, "Failed to set up Awala due to Android security lib bug", e)
+                    logger.e(TAG, "Failed to set up Awala due to Android security lib bug", e)
                     _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                     awalaSetupJob = null
                     return@withContext
@@ -132,23 +129,20 @@ class AwalaManagerImpl @Inject constructor(
     ) {
         withContext(awalaThreadContext) {
             if (outgoingMessage.type != MessageType.AuthorizeReceivingFromServer && awalaSetupJob != null) {
-                Log.i(TAG, "Awala wasn't initialized while tried to send a message. Wait for completion... $outgoingMessage")
+                logger.i(TAG, "Awala wasn't initialized while tried to send a message. Wait for completion... $outgoingMessage")
                 awalaSetupJob?.join()
-                Log.i(TAG, "Awala was initialized, proceed futher...")
+                logger.i(TAG, "Awala was initialized, proceed futher...")
             }
             val firstPartyEndpoint = loadFirstPartyEndpoint()
             val thirdPartyEndpoint = loadThirdPartyEndpoint(
                 sender = firstPartyEndpoint,
                 recipient = recipient,
             )
-            Log.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
-            GatewayClient.sendMessage(
-                OutgoingMessage.build(
-                    type = outgoingMessage.type.value,
-                    content = outgoingMessage.content,
-                    senderEndpoint = firstPartyEndpoint,
-                    recipientEndpoint = thirdPartyEndpoint,
-                ),
+            logger.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: $outgoingMessage)")
+            awala.sendMessage(
+                outgoingMessage = outgoingMessage,
+                firstPartyEndpoint = firstPartyEndpoint,
+                thirdPartyEndpoint = thirdPartyEndpoint,
             )
         }
     }
@@ -183,7 +177,7 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
                 ?: registerFirstPartyEndpointIfNeeded()?.nodeId
                 ?: throw IllegalStateException("You should register first party endpoint first!")
-            firstPartyEndpoint ?: loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
+            firstPartyEndpoint ?: awala.loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
         }
     }
 
@@ -203,13 +197,13 @@ class AwalaManagerImpl @Inject constructor(
                         ?: awalaRepository.getServerThirdPartyEndpointNodeId()
                         ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
                         ?: throw IllegalStateException("You should register third party endpoint first!")
-                    loadNonNullPublicThirdPartyEndpoint(nodeId)
+                    awala.loadNonNullPublicThirdPartyEndpoint(nodeId)
                 }
 
                 is MessageRecipient.User -> {
                     val senderNodeId = sender.nodeId
                     val recipientNodeId = recipient.nodeId
-                    loadNonNullPrivateThirdPartyEndpoint(
+                    awala.loadNonNullPrivateThirdPartyEndpoint(
                         senderNodeId = senderNodeId,
                         recipientNodeId = recipientNodeId,
                     )
@@ -225,11 +219,11 @@ class AwalaManagerImpl @Inject constructor(
             }
             isReceivingMessages = true
 
-            Log.i(TAG, "start receiving messages...")
-            GatewayClient.receiveMessages().collect { message ->
-                Log.i(TAG, "Receive message: ${message.type}: ($message)")
+            logger.i(TAG, "start receiving messages...")
+            awala.receiveMessages().collect { message ->
+                logger.i(TAG, "Receive message: ${message.type}: ($message)")
                 processor.process(message, this@AwalaManagerImpl)
-                Log.i(TAG, "Message ${message.type} processed")
+                logger.i(TAG, "Message ${message.type} processed")
                 message.ack()
             }
         }
@@ -240,11 +234,11 @@ class AwalaManagerImpl @Inject constructor(
             try {
                 registerFirstPartyEndpointIfNeeded()
             } catch (e: EncryptionInitializationException) {
-                Log.e(TAG, "Failed to register endpoint due to Android security lib bug", e)
+                logger.e(TAG, "Failed to register endpoint due to Android security lib bug", e)
                 _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                 return@withContext
             } catch (e: AwaladroidException) {
-                Log.e(TAG, "Failed to register endpoint", e)
+                logger.e(TAG, "Failed to register endpoint", e)
                 _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
@@ -252,16 +246,16 @@ class AwalaManagerImpl @Inject constructor(
             try {
                 importServerThirdPartyEndpointIfNeeded()
             } catch (e: EncryptionInitializationException) {
-                Log.e(TAG, "Failed to import Letro server endpoint due to Android security lib bug", e)
+                logger.e(TAG, "Failed to import Letro server endpoint due to Android security lib bug", e)
                 _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
                 return@withContext
             } catch (e: AwaladroidException) {
-                Log.e(TAG, "Failed to import Letro server endpoint", e)
+                logger.e(TAG, "Failed to import Letro server endpoint", e)
                 _awalaInitializationState.emit(INITIALIZATION_NONFATAL_ERROR)
                 return@withContext
             }
             _awalaInitializationState.emit(INITIALIZED)
-            Log.d(TAG, "Awala is initialized")
+            logger.d(TAG, "Awala is initialized")
         }
     }
 
@@ -274,13 +268,13 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun initializeGateway() {
         withContext(awalaThreadContext) {
             try {
-                Log.i(TAG, "GatewayClient binding...")
-                GatewayClient.bind()
+                logger.i(TAG, "GatewayClient binding...")
+                awala.bindGateway()
                 _awalaInitializationState.emit(GATEWAY_CLIENT_BINDED)
-                Log.i(TAG, "GatewayClient bound")
+                logger.i(TAG, "GatewayClient bound")
                 configureAwala()
             } catch (exp: GatewayBindingException) {
-                Log.i(TAG, "GatewayClient cannot be bound: $exp")
+                logger.i(TAG, "GatewayClient cannot be bound: $exp")
                 _awalaUnsuccessfulBindings.emit(Unit)
                 _awalaInitializationState.emit(AWALA_NOT_INSTALLED)
             }
@@ -290,13 +284,13 @@ class AwalaManagerImpl @Inject constructor(
     private suspend fun registerFirstPartyEndpointIfNeeded(): FirstPartyEndpoint? {
         return withContext(awalaThreadContext) {
             if (awalaRepository.getServerFirstPartyEndpointNodeId() != null) {
-                Log.i(TAG, "First party endpoint is already registred ${awalaRepository.getServerFirstPartyEndpointNodeId()}")
+                logger.i(TAG, "First party endpoint is already registred ${awalaRepository.getServerFirstPartyEndpointNodeId()}")
                 startReceivingMessages()
                 return@withContext null
             }
-            Log.i(TAG, "Will register first-party endpoint...")
-            val firstPartyEndpoint = FirstPartyEndpoint.register()
-            Log.i(TAG, "First-party endpoint registered (${firstPartyEndpoint.nodeId})")
+            logger.i(TAG, "Will register first-party endpoint...")
+            val firstPartyEndpoint = awala.registerFirstPartyEndpoint()
+            logger.i(TAG, "First-party endpoint registered (${firstPartyEndpoint.nodeId})")
             awalaRepository.saveServerFirstPartyEndpointNodeId(firstPartyEndpoint.nodeId)
             startReceivingMessages()
             firstPartyEndpoint
@@ -316,12 +310,12 @@ class AwalaManagerImpl @Inject constructor(
             val thirdPartyEndpoint = importServerThirdPartyEndpoint(
                 connectionParams = R.raw.server_connection_params,
             )
-            Log.i(TAG, "Server third party endpoint was imported ${thirdPartyEndpoint.nodeId}")
+            logger.i(TAG, "Server third party endpoint was imported ${thirdPartyEndpoint.nodeId}")
 
-            val firstPartyEndpoint = loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
+            val firstPartyEndpoint = awala.loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
 
             // Create the Parcel Delivery Authorisation (PDA)
-            val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
+            val auth = awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
             sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.AuthorizeReceivingFromServer,
@@ -341,16 +335,7 @@ class AwalaManagerImpl @Inject constructor(
         @RawRes connectionParams: Int,
     ): PublicThirdPartyEndpoint {
         return withContext(awalaThreadContext) {
-            val endpoint = try {
-                PublicThirdPartyEndpoint.import(
-                    context.resources.openRawResource(connectionParams).use {
-                        it.readBytes()
-                    },
-                )
-            } catch (e: InvalidThirdPartyEndpoint) {
-                throw InvalidConnectionParams(e)
-            }
-            endpoint
+            awala.importServerThirdPartyEndpoint(connectionParams)
         }
     }
 

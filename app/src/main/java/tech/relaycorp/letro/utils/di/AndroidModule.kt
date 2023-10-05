@@ -8,8 +8,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import tech.relaycorp.letro.storage.Preferences
 import tech.relaycorp.letro.storage.PreferencesImpl
+import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.LoggerImpl
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -23,6 +27,10 @@ object AndroidModule {
         return context.contentResolver
     }
 
+    @Provides
+    @IODispatcher
+    fun provideIODispatcher() = Dispatchers.IO
+
     @Module
     @InstallIn(SingletonComponent::class)
     interface Bindings {
@@ -31,5 +39,14 @@ object AndroidModule {
         fun bindPreferences(
             impl: PreferencesImpl,
         ): Preferences
+
+        @Singleton
+        @Binds
+        fun provideLogger(
+            impl: LoggerImpl,
+        ): Logger
     }
 }
+
+@Qualifier
+annotation class IODispatcher

@@ -1,12 +1,13 @@
 package tech.relaycorp.letro.main.home.badge
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.notification.storage.repository.NotificationsRepository
+import tech.relaycorp.letro.utils.di.IODispatcher
 import javax.inject.Inject
 
 interface UnreadBadgesManager {
@@ -17,9 +18,10 @@ interface UnreadBadgesManager {
 class UnreadBadgesManagerImpl @Inject constructor(
     private val conversationsRepository: ConversationsRepository,
     private val notificationsRepository: NotificationsRepository,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : UnreadBadgesManager {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
 
     private val _unreadConversations = MutableStateFlow(0)
     override val unreadConversations: StateFlow<Int>
