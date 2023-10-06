@@ -1,7 +1,7 @@
 package tech.relaycorp.letro.notification.storage.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +15,7 @@ import tech.relaycorp.letro.notification.converter.ExtendedNotificationConverter
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
 import tech.relaycorp.letro.notification.storage.entity.Notification
+import tech.relaycorp.letro.utils.di.IODispatcher
 import javax.inject.Inject
 
 interface NotificationsRepository {
@@ -27,9 +28,10 @@ class NotificationsRepositoryImpl @Inject constructor(
     private val notificationsDao: NotificationsDao,
     private val accountRepository: AccountRepository,
     private val extendedNotificationConverter: ExtendedNotificationConverter,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : NotificationsRepository {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
 
     private val _notifications: MutableStateFlow<List<Notification>> = MutableStateFlow(emptyList())
     override val notifications: StateFlow<List<ExtendedNotification>>

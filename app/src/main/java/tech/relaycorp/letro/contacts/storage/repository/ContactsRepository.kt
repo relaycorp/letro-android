@@ -1,8 +1,7 @@
 package tech.relaycorp.letro.contacts.storage.repository
 
-import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +18,8 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.storage.Preferences
+import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.di.IODispatcher
 import javax.inject.Inject
 
 interface ContactsRepository {
@@ -37,9 +38,11 @@ class ContactsRepositoryImpl @Inject constructor(
     private val accountRepository: AccountRepository,
     private val awalaManager: AwalaManager,
     private val preferences: Preferences,
+    private val logger: Logger,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ContactsRepository {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
     private val contacts = MutableStateFlow<List<Contact>>(emptyList())
 
     private var currentAccount: Account? = null
@@ -130,7 +133,7 @@ class ContactsRepositoryImpl @Inject constructor(
     }
 
     private suspend fun updateContactsState(account: Account?) {
-        Log.d(MainViewModel.TAG, "ContactsRepository.emit(pairedContactExist)")
+        logger.d(MainViewModel.TAG, "ContactsRepository.emit(pairedContactExist)")
         account ?: run {
             _contactsState.emit(ContactsState())
             return

@@ -1,7 +1,7 @@
 package tech.relaycorp.letro.account.registration.storage
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
@@ -9,6 +9,7 @@ import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.server.messages.AccountRequest
+import tech.relaycorp.letro.utils.di.IODispatcher
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.util.Locale
@@ -21,9 +22,10 @@ interface RegistrationRepository {
 class RegistrationRepositoryImpl @Inject constructor(
     private val awalaManager: AwalaManager,
     private val accountRepository: AccountRepository,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : RegistrationRepository {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
 
     override fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale) {
         scope.launch {

@@ -1,6 +1,5 @@
 package tech.relaycorp.letro.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +28,7 @@ import tech.relaycorp.letro.conversation.storage.repository.ConversationsReposit
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
+import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.sendOn
 import java.util.UUID
@@ -43,6 +43,7 @@ class MainViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val conversationsRepository: ConversationsRepository,
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
+    private val logger: Logger,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -98,7 +99,7 @@ class MainViewModel @Inject constructor(
                 awalaManager.awalaInitializationState,
                 conversationsRepository.conversations,
             ) { currentAccount, contactsState, awalaInitializationState, conversations ->
-                Log.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
+                logger.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
                 when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = false)
