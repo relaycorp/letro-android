@@ -13,12 +13,14 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.account.utils.AccountsSorter
+import tech.relaycorp.letro.utils.di.AppVersion
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val accountsSorter: AccountsSorter,
+    @AppVersion val appVersion: String,
 ) : ViewModel() {
 
     val accounts: StateFlow<List<Account>>
