@@ -77,6 +77,7 @@ fun SettingsScreen(
         )
         Spacer(modifier = Modifier.height(24.dp))
         AboutLetroBlock(
+            appVersion = viewModel.appVersion,
             onTermsAndConditionsClick = onTermsAndConditionsClick,
         )
         if (confirmAccountDeleteDialog.isShown && confirmAccountDeleteDialog.account != null) {
@@ -179,6 +180,7 @@ private fun NotificationsBlock(
 
 @Composable
 private fun AboutLetroBlock(
+    appVersion: String,
     onTermsAndConditionsClick: () -> Unit,
 ) {
     SettingsBlock(
@@ -186,7 +188,7 @@ private fun AboutLetroBlock(
     ) {
         SettingElement(
             icon = painterResource(R.drawable.ic_info_24),
-            title = stringResource(id = R.string.app_version_x, "1.01"),
+            title = stringResource(id = R.string.app_version_x, appVersion),
         )
         SettingElement(
             icon = painterResource(R.drawable.ic_shield_24),

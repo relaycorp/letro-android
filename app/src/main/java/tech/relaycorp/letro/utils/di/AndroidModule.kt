@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import tech.relaycorp.letro.BuildConfig
 import tech.relaycorp.letro.storage.Preferences
 import tech.relaycorp.letro.storage.PreferencesImpl
 import tech.relaycorp.letro.utils.Logger
@@ -19,6 +20,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AndroidModule {
+
+    @Provides
+    @AppVersion
+    fun provideAppVersion(): String {
+        return BuildConfig.VERSION_NAME
+    }
 
     @Provides
     fun provideContentResolver(
@@ -50,3 +57,6 @@ object AndroidModule {
 
 @Qualifier
 annotation class IODispatcher
+
+@Qualifier
+annotation class AppVersion
