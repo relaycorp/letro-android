@@ -4,10 +4,12 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ fun LetroButton(
     buttonType: ButtonType = ButtonType.Filled,
     enabled: Boolean = true,
     leadingIconResId: Int? = null,
+    withProgressIndicator: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(
         vertical = 14.dp,
     ),
@@ -67,6 +70,16 @@ fun LetroButton(
             Spacer(
                 modifier = Modifier.width(8.dp),
             )
+        } else if (withProgressIndicator) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(20.dp, 20.dp),
+                color = contentColor,
+                strokeWidth = 2.dp,
+            )
+            Spacer(
+                modifier = Modifier.width(8.dp),
+            )
         }
         Text(
             text = text,
@@ -81,6 +94,7 @@ fun LetroButtonMaxWidthFilled(
     modifier: Modifier = Modifier,
     buttonType: ButtonType = ButtonType.Filled,
     isEnabled: Boolean = true,
+    withProgressIndicator: Boolean = false,
     leadingIconResId: Int? = null,
     onClick: () -> Unit,
 ) {
@@ -91,6 +105,7 @@ fun LetroButtonMaxWidthFilled(
         buttonType = buttonType,
         enabled = isEnabled,
         leadingIconResId = leadingIconResId,
+        withProgressIndicator = withProgressIndicator,
         onClick = onClick,
     )
 }

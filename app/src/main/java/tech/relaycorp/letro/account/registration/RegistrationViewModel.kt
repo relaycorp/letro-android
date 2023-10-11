@@ -2,10 +2,13 @@ package tech.relaycorp.letro.account.registration
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
@@ -38,11 +41,29 @@ class RegistrationViewModel @Inject constructor(
     }
 
     fun onCreateAccountClick() {
-        registrationRepository.createNewAccount(
-            requestedUserName = uiState.value.username,
-            domainName = uiState.value.domain,
-            locale = domainProvider.getDomainLocale(),
-        )
+        if (uiState.value.isSendingMessage) {
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(
+                    isSendingMessage = true,
+                )
+            }
+            try {
+                registrationRepository.createNewAccount(
+                    requestedUserName = uiState.value.username,
+                    domainName = uiState.value.domain,
+                    locale = domainProvider.getDomainLocale(),
+                )
+            } finally {
+                _uiState.update {
+                    it.copy(
+                        isSendingMessage = false,
+                    )
+                }
+            }
+        }
     }
 
     private companion object {
@@ -56,4 +77,5 @@ data class RegistrationScreenUiState(
     @StringRes val inputSuggestionText: Int = R.string.onboarding_create_account_username_unavailable_hint,
     val isError: Boolean = false,
     val isCreateAccountButtonEnabled: Boolean = false,
+    val isSendingMessage: Boolean = false,
 )

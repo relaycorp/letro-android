@@ -97,6 +97,7 @@ fun RegistrationScreen(
                     viewModel.onCreateAccountClick()
                 },
                 isEnabled = uiState.isCreateAccountButtonEnabled,
+                withProgressIndicator = uiState.isSendingMessage,
             )
             Spacer(
                 modifier = Modifier.height(24.dp),
