@@ -169,6 +169,11 @@ private fun ManageContactView(
             text = stringResource(id = uiState.manageContactTexts.button),
             onClick = { viewModel.onUpdateContactButtonClick() },
             isEnabled = uiState.isActionButtonEnabled,
+            withProgressIndicator = uiState.isSendingMessage,
+            modifier = Modifier
+                .height(SubmitButtonHeight),
         )
     }
 }
+
+private val SubmitButtonHeight = 48.dp

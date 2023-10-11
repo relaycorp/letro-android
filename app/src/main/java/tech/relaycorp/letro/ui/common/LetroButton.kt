@@ -28,6 +28,8 @@ fun LetroButton(
     enabled: Boolean = true,
     leadingIconResId: Int? = null,
     withProgressIndicator: Boolean = false,
+    progressIndicatorModifier: Modifier = Modifier
+        .size(20.dp, 20.dp),
     contentPadding: PaddingValues = PaddingValues(
         vertical = 14.dp,
     ),
@@ -72,8 +74,7 @@ fun LetroButton(
             )
         } else if (withProgressIndicator) {
             CircularProgressIndicator(
-                modifier = Modifier
-                    .size(20.dp, 20.dp),
+                modifier = progressIndicatorModifier,
                 color = contentColor,
                 strokeWidth = 2.dp,
             )

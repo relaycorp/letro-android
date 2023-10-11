@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -138,28 +139,35 @@ class ManageContactViewModel @Inject constructor(
     }
 
     fun onUpdateContactButtonClick() {
-        when (screenType) {
-            NEW_CONTACT -> {
-                sendNewContactRequest()
-                viewModelScope.launch {
+        if (_uiState.value.isSendingMessage) {
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isSendingMessage = true) }
+            when (screenType) {
+                NEW_CONTACT -> {
+                    try {
+                        sendNewContactRequest()
+                    } finally {
+                        _uiState.update { it.copy(isSendingMessage = false) }
+                    }
                     _uiState.update {
                         it.copy(
                             content = REQUEST_SENT,
                         )
                     }
                 }
-            }
-            EDIT_CONTACT -> {
-                if (!contacts.any { it.id == contactIdToEdit }) {
-                    Log.w(TAG, IllegalStateException("You cannot edit this contact. Contact belongs to ${contacts.firstOrNull()?.ownerVeraId}, but yours is $currentAccountId")) // TODO: log?
-                    return
-                }
-                updateContact()
-                viewModelScope.launch {
+                EDIT_CONTACT -> {
+                    if (!contacts.any { it.id == contactIdToEdit }) {
+                        Log.w(TAG, IllegalStateException("You cannot edit this contact. Contact belongs to ${contacts.firstOrNull()?.ownerVeraId}, but yours is $currentAccountId")) // TODO: log?
+                        return@launch
+                    }
+                    updateContact()
+                    _uiState.update { it.copy(isSendingMessage = false) }
                     _onEditContactCompleted.emit(uiState.value.accountId)
                 }
+                else -> throw IllegalStateException("Unknown screen type: $screenType")
             }
-            else -> throw IllegalStateException("Unknown screen type: $screenType")
         }
     }
 
@@ -192,7 +200,7 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
-    private fun updateContact() {
+    private suspend fun updateContact() {
         editingContact?.let { editingContact ->
             contactsRepository.updateContact(
                 editingContact.copy(
@@ -202,7 +210,7 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
-    private fun sendNewContactRequest() {
+    private suspend fun sendNewContactRequest() {
         currentAccountId?.let { currentAccountId ->
             contactsRepository.addNewContact(
                 contact = Contact(
@@ -250,6 +258,7 @@ data class PairWithOthersUiState(
     val isVeraIdInputEnabled: Boolean = true,
     val pairingErrorCaption: PairingErrorCaption? = null,
     val showNotificationPermissionRequestIfNoPermission: Boolean = true,
+    val isSendingMessage: Boolean = false,
     @ManageContactScreenContent val content: Int = ManageContactScreenContent.MANAGE_CONTACT,
 )
 
