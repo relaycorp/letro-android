@@ -16,6 +16,7 @@ import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
 import tech.relaycorp.letro.notification.storage.entity.Notification
 import tech.relaycorp.letro.utils.di.IODispatcher
+import tech.relaycorp.letro.utils.ext.isLessThanWeeksAgo
 import javax.inject.Inject
 
 interface NotificationsRepository {
@@ -74,10 +75,12 @@ class NotificationsRepositoryImpl @Inject constructor(
             notificationsDao.getAll().collect {
                 _notifications.emit(
                     it
-                        .filter { it.ownerId == currentAccount.accountId }
+                        .filter { it.ownerId == currentAccount.accountId && it.timestamp.isLessThanWeeksAgo(OLD_NOTIFICATIONS_FILTER_WEEKS) }
                         .sortedByDescending { it.timestamp },
                 )
             }
         }
     }
 }
+
+private const val OLD_NOTIFICATIONS_FILTER_WEEKS = 12L
