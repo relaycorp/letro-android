@@ -162,6 +162,8 @@
     <string name="you_need_at_least_one_contact">You need at least one contact to start a conversation</string>
     <string name="you_cannot_reply_not_connected">You can\'t reply to this user because you\'re no longer connected.</string>
 
+    <string name="we_failed_to_send_this_via_awala">We failed to send this via Awala. Try again.</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>

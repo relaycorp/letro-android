@@ -1,8 +1,10 @@
 package tech.relaycorp.letro.ui.utils
 
 import android.content.Context
+import androidx.annotation.IntDef
 import dagger.hilt.android.qualifiers.ActivityContext
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.SEND_MESSAGE_ERROR
 import javax.inject.Inject
 
 interface SnackbarStringsProvider {
@@ -18,6 +20,15 @@ interface SnackbarStringsProvider {
     val youNeedAtLeastOneContact: String
     val youNoLongerConnected: String
     val addContact: String
+
+    fun get(@Type type: Int): String
+
+    @IntDef(SEND_MESSAGE_ERROR)
+    annotation class Type {
+        companion object {
+            const val SEND_MESSAGE_ERROR = 0
+        }
+    }
 }
 
 class SnackbarStringsProviderImpl @Inject constructor(
@@ -58,4 +69,11 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val youNoLongerConnected: String
         get() = activity.getString(R.string.you_cannot_reply_not_connected)
+
+    override fun get(type: Int): String {
+        return when (type) {
+            SEND_MESSAGE_ERROR -> activity.getString(R.string.we_failed_to_send_this_via_awala)
+            else -> throw IllegalStateException("Unknown type $type")
+        }
+    }
 }

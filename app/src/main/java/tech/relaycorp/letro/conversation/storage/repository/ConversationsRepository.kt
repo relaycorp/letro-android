@@ -36,14 +36,14 @@ import javax.inject.Inject
 
 interface ConversationsRepository {
     val conversations: StateFlow<List<ExtendedConversation>>
-    fun createNewConversation(
+    suspend fun createNewConversation(
         ownerVeraId: String,
         recipient: Contact,
         messageText: String,
         subject: String? = null,
         attachments: List<File.FileWithContent> = emptyList(),
     )
-    fun reply(
+    suspend fun reply(
         conversationId: UUID,
         messageText: String,
         attachments: List<File.FileWithContent> = emptyList(),
@@ -115,7 +115,7 @@ class ConversationsRepositoryImpl @Inject constructor(
             .stateIn(scope, SharingStarted.Eagerly, getConversation(id))
     }
 
-    override fun createNewConversation(
+    override suspend fun createNewConversation(
         ownerVeraId: String,
         recipient: Contact,
         messageText: String,
@@ -123,81 +123,76 @@ class ConversationsRepositoryImpl @Inject constructor(
         attachments: List<File.FileWithContent>,
     ) {
         val recipientNodeId = recipient.contactEndpointId ?: return
-        scope.launch {
-            val conversation = Conversation(
-                ownerVeraId = ownerVeraId,
-                contactVeraId = recipient.contactVeraId,
-                subject = if (subject.isNullOrEmpty()) null else subject,
-                isRead = true,
-            )
-            val message = Message(
-                text = messageText,
-                conversationId = conversation.conversationId,
-                ownerVeraId = ownerVeraId,
-                senderVeraId = ownerVeraId,
-                recipientVeraId = recipient.contactVeraId,
-                sentAt = LocalDateTime.now(),
-            )
-            conversationsDao.createNewConversation(conversation)
-            val messageId = messagesDao.insert(message)
-
-            if (attachments.isNotEmpty()) {
-                attachmentsRepository.saveAttachments(messageId, attachments)
-            }
-
-            awalaManager.sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.NewConversation,
-                    content = outgoingMessageMessageEncoder.encodeNewConversationContent(
-                        conversation = conversation,
-                        messageText = message.text,
-                        attachments = attachments,
-                    ),
+        val conversation = Conversation(
+            ownerVeraId = ownerVeraId,
+            contactVeraId = recipient.contactVeraId,
+            subject = if (subject.isNullOrEmpty()) null else subject,
+            isRead = true,
+        )
+        val message = Message(
+            text = messageText,
+            conversationId = conversation.conversationId,
+            ownerVeraId = ownerVeraId,
+            senderVeraId = ownerVeraId,
+            recipientVeraId = recipient.contactVeraId,
+            sentAt = LocalDateTime.now(),
+        )
+        awalaManager.sendMessage(
+            outgoingMessage = AwalaOutgoingMessage(
+                type = MessageType.NewConversation,
+                content = outgoingMessageMessageEncoder.encodeNewConversationContent(
+                    conversation = conversation,
+                    messageText = message.text,
+                    attachments = attachments,
                 ),
-                recipient = MessageRecipient.User(
-                    nodeId = recipientNodeId,
-                ),
-            )
+            ),
+            recipient = MessageRecipient.User(
+                nodeId = recipientNodeId,
+            ),
+        )
+        conversationsDao.createNewConversation(conversation)
+        val messageId = messagesDao.insert(message)
+
+        if (attachments.isNotEmpty()) {
+            attachmentsRepository.saveAttachments(messageId, attachments)
         }
     }
 
-    override fun reply(
+    override suspend fun reply(
         conversationId: UUID,
         messageText: String,
         attachments: List<File.FileWithContent>,
     ) {
-        scope.launch {
-            val conversation = _conversations.value
-                .find { it.conversationId == conversationId } ?: return@launch
-            val recipientNodeId = contacts.value
-                .find { it.contactVeraId == conversation.contactVeraId && it.ownerVeraId == conversation.ownerVeraId }
-                ?.contactEndpointId ?: return@launch
-            val message = Message(
-                conversationId = conversationId,
-                text = messageText,
-                ownerVeraId = conversation.ownerVeraId,
-                senderVeraId = conversation.ownerVeraId,
-                recipientVeraId = conversation.contactVeraId,
-                sentAt = LocalDateTime.now(),
-            )
+        val conversation = _conversations.value
+            .find { it.conversationId == conversationId } ?: return
+        val recipientNodeId = contacts.value
+            .find { it.contactVeraId == conversation.contactVeraId && it.ownerVeraId == conversation.ownerVeraId }
+            ?.contactEndpointId ?: return
+        val message = Message(
+            conversationId = conversationId,
+            text = messageText,
+            ownerVeraId = conversation.ownerVeraId,
+            senderVeraId = conversation.ownerVeraId,
+            recipientVeraId = conversation.contactVeraId,
+            sentAt = LocalDateTime.now(),
+        )
 
-            val messageId = messagesDao.insert(message)
-            if (attachments.isNotEmpty()) {
-                attachmentsRepository.saveAttachments(messageId, attachments)
-            }
+        awalaManager.sendMessage(
+            outgoingMessage = AwalaOutgoingMessage(
+                type = MessageType.NewMessage,
+                content = outgoingMessageMessageEncoder.encodeNewMessageContent(
+                    message = message,
+                    attachments = attachments,
+                ),
+            ),
+            recipient = MessageRecipient.User(
+                nodeId = recipientNodeId,
+            ),
+        )
 
-            awalaManager.sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.NewMessage,
-                    content = outgoingMessageMessageEncoder.encodeNewMessageContent(
-                        message = message,
-                        attachments = attachments,
-                    ),
-                ),
-                recipient = MessageRecipient.User(
-                    nodeId = recipientNodeId,
-                ),
-            )
+        val messageId = messagesDao.insert(message)
+        if (attachments.isNotEmpty()) {
+            attachmentsRepository.saveAttachments(messageId, attachments)
         }
     }
 

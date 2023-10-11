@@ -370,6 +370,9 @@ fun LetroNavHost(
                                     }
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
                                 },
+                                showSnackbar = {
+                                    snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.get(it))
+                                },
                             )
                         }
                         composable(

@@ -27,7 +27,7 @@ fun LetroButton(
     buttonType: ButtonType = ButtonType.Filled,
     enabled: Boolean = true,
     leadingIconResId: Int? = null,
-    withProgressIndicator: Boolean = false,
+    isProgressIndicatorVisible: Boolean = false,
     progressIndicatorModifier: Modifier = Modifier
         .size(20.dp, 20.dp),
     contentPadding: PaddingValues = PaddingValues(
@@ -63,20 +63,20 @@ fun LetroButton(
         onClick = onClick,
     ) {
         val contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary else LetroColor.disabledButtonTextColor()
-        if (leadingIconResId != null) {
-            Icon(
-                painter = painterResource(id = leadingIconResId),
-                tint = contentColor,
-                contentDescription = null,
-            )
-            Spacer(
-                modifier = Modifier.width(8.dp),
-            )
-        } else if (withProgressIndicator) {
+        if (isProgressIndicatorVisible) {
             CircularProgressIndicator(
                 modifier = progressIndicatorModifier,
                 color = contentColor,
                 strokeWidth = 2.dp,
+            )
+            Spacer(
+                modifier = Modifier.width(8.dp),
+            )
+        } else if (leadingIconResId != null) {
+            Icon(
+                painter = painterResource(id = leadingIconResId),
+                tint = contentColor,
+                contentDescription = null,
             )
             Spacer(
                 modifier = Modifier.width(8.dp),
@@ -106,7 +106,7 @@ fun LetroButtonMaxWidthFilled(
         buttonType = buttonType,
         enabled = isEnabled,
         leadingIconResId = leadingIconResId,
-        withProgressIndicator = withProgressIndicator,
+        isProgressIndicatorVisible = withProgressIndicator,
         onClick = onClick,
     )
 }

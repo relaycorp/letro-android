@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
@@ -28,6 +29,7 @@ import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.Scre
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.ui.navigation.Route
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -73,6 +75,10 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val _messageSentSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val messageSentSignal: SharedFlow<Unit>
         get() = _messageSentSignal
+
+    private val _showSnackbar: MutableSharedFlow<Int> = MutableSharedFlow()
+    val showSnackbar: SharedFlow<Int>
+        get() = _showSnackbar
 
     private val attachedFiles = arrayListOf<File.FileWithContent>()
     private val _attachments: MutableStateFlow<List<AttachmentInfo>> = MutableStateFlow(emptyList())
@@ -217,29 +223,45 @@ class ComposeNewMessageViewModel @Inject constructor(
 
     fun onSendMessageClick() {
         val contact = contacts.find { it.contactVeraId == uiState.value.recipientAccountId } ?: return
-        when (screenType) {
-            NEW_CONVERSATION -> {
-                conversationsRepository.createNewConversation(
-                    ownerVeraId = uiState.value.sender,
-                    recipient = contact,
-                    messageText = uiState.value.messageText,
-                    subject = uiState.value.subject,
-                    attachments = attachedFiles,
-                )
-            }
-            REPLY_TO_EXISTING_CONVERSATION -> {
-                val conversation = conversation ?: return
-                conversationsRepository.reply(
-                    conversationId = conversation.conversationId,
-                    messageText = uiState.value.messageText,
-                    attachments = attachedFiles,
-                )
-            }
-            else -> {
-                throw IllegalStateException("Unknown screen type $screenType!")
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isSendingMessage = true) }
+            when (screenType) {
+                NEW_CONVERSATION -> {
+                    try {
+                        conversationsRepository.createNewConversation(
+                            ownerVeraId = uiState.value.sender,
+                            recipient = contact,
+                            messageText = uiState.value.messageText,
+                            subject = uiState.value.subject,
+                            attachments = attachedFiles,
+                        )
+                        _messageSentSignal.emitOn(Unit, viewModelScope)
+                    } catch (e: AwaladroidException) {
+                        _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                    } finally {
+                        _uiState.update { it.copy(isSendingMessage = false) }
+                    }
+                }
+                REPLY_TO_EXISTING_CONVERSATION -> {
+                    try {
+                        val conversation = conversation ?: return@launch
+                        conversationsRepository.reply(
+                            conversationId = conversation.conversationId,
+                            messageText = uiState.value.messageText,
+                            attachments = attachedFiles,
+                        )
+                        _messageSentSignal.emitOn(Unit, viewModelScope)
+                    } catch (e: AwaladroidException) {
+                        _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                    } finally {
+                        _uiState.update { it.copy(isSendingMessage = false) }
+                    }
+                }
+                else -> {
+                    throw IllegalStateException("Unknown screen type $screenType!")
+                }
             }
         }
-        _messageSentSignal.emitOn(Unit, viewModelScope)
     }
 
     private fun updateRecipientIsNotYourContactError() {
@@ -315,6 +337,7 @@ data class NewMessageUiState(
     val showRecipientAsChip: Boolean = false,
     val isOnlyTextEditale: Boolean = false,
     val showNoSubjectText: Boolean = false,
+    val isSendingMessage: Boolean = false,
     val messageExceedsLimitTextError: MessageExceedsLimitError? = null,
     val suggestedContacts: List<Contact>? = null,
 )
