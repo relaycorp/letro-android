@@ -134,6 +134,8 @@ fun LetroOutlinedTextField(
                 Text(
                     text = hintText,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = maxLines,
                 )
             },
             suffix = {

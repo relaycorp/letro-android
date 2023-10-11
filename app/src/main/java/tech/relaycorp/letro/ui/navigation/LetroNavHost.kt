@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,6 +45,7 @@ import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.SwitchAccountViewModel
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
+import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
 import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
 import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
@@ -72,6 +72,7 @@ import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
 import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
 import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafe
+import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafeUntil
 import tech.relaycorp.letro.utils.compose.showSnackbar
 
 @Composable
@@ -101,16 +102,23 @@ fun LetroNavHost(
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             currentRoute = backStackEntry.destination.route.toRoute()
-            Log.d("LetroNavHost", "New route: $currentRoute")
+            Log.d(TAG, "New route: $currentRoute")
         }
     }
 
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
-            handleFirstNavigation(navController, firstNavigation)
+            navController.navigateWithPoppingAllBackStack(firstNavigation.toRoute())
             if (firstNavigation == RootNavigationScreen.Home) {
                 isHomeScreenInitialized = true
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.clearBackstackSignal.collect {
+            Log.d(TAG, "clearing backstack until: $it")
+            navController.popBackStackSafeUntil(it.toRoute())
         }
     }
 
@@ -182,7 +190,7 @@ fun LetroNavHost(
                     if (currentRoute.showTopBar && currentAccount != null) {
                         LetroTopBar(
                             accountVeraId = currentAccount,
-                            isAccountCreated = uiState.isCurrentAccountCreated,
+                            accountStatus = uiState.accountStatus,
                             onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
                             onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
                         )
@@ -217,7 +225,14 @@ fun LetroNavHost(
                         }
                         composable(Route.Registration.name) {
                             RegistrationScreen(
-                                onUseExistingAccountClick = {},
+                                onUseExistingAccountClick = { navController.navigateSingleTop(Route.UseExistingAccount) },
+                            )
+                        }
+                        composable(Route.AccountCreationFailed.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountCreationFailed(
+                                    domain = uiState.domain ?: "",
+                                ),
                             )
                         }
                         composable(Route.WelcomeToLetro.name) {
@@ -260,6 +275,11 @@ fun LetroNavHost(
                         composable(Route.RegistrationProcessWaiting.name) {
                             ActionTakingScreen(
                                 actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
+                            )
+                        }
+                        composable(Route.UseExistingAccount.name) {
+                            UseExistingAccountScreen(
+                                onBackClick = { navController.popBackStackSafe() }
                             )
                         }
                         composable(
@@ -514,48 +534,4 @@ private fun showSnackbar(
     }
 }
 
-private fun handleFirstNavigation(
-    navController: NavHostController,
-    firstNavigation: RootNavigationScreen,
-) {
-    when (firstNavigation) {
-        RootNavigationScreen.Splash -> {
-            navController.navigateWithPoppingAllBackStack(Route.Splash)
-        }
-        RootNavigationScreen.Registration -> {
-            navController.navigateWithPoppingAllBackStack(Route.Registration)
-        }
-
-        RootNavigationScreen.Home -> {
-            navController.navigateWithPoppingAllBackStack(Route.Home)
-        }
-
-        RootNavigationScreen.NoContactsScreen -> {
-            navController.navigateWithPoppingAllBackStack(Route.NoContacts)
-        }
-
-        RootNavigationScreen.WelcomeToLetro -> {
-            navController.navigateWithPoppingAllBackStack(Route.WelcomeToLetro)
-        }
-
-        RootNavigationScreen.RegistrationWaiting -> {
-            navController.navigateWithPoppingAllBackStack(Route.RegistrationProcessWaiting)
-        }
-
-        RootNavigationScreen.AwalaNotInstalled -> {
-            navController.navigateWithPoppingAllBackStack(Route.AwalaNotInstalled)
-        }
-
-        RootNavigationScreen.AwalaInitializing -> {
-            navController.navigateWithPoppingAllBackStack(Route.AwalaInitializing)
-        }
-
-        is RootNavigationScreen.AwalaInitializationError -> {
-            navController.navigateWithPoppingAllBackStack(
-                Route.AwalaInitializationError(
-                    isFatal = firstNavigation.isFatal,
-                ),
-            )
-        }
-    }
-}
+private const val TAG = "LetroNavHost"

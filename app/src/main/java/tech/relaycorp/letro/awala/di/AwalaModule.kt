@@ -9,6 +9,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
 import tech.relaycorp.letro.account.registration.server.AccountCreationProcessor
+import tech.relaycorp.letro.account.registration.server.ConnectionParamsProcessor
+import tech.relaycorp.letro.account.registration.server.MisconfiguredInternetEndpointProcessor
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.AwalaManagerImpl
 import tech.relaycorp.letro.awala.AwalaRepository
@@ -36,6 +38,8 @@ object AwalaModule {
     @Provides
     fun provideMessageProcessor(
         accountCreationProcessor: AccountCreationProcessor,
+        connectionParamsProcessor: ConnectionParamsProcessor,
+        misconfiguredInternetEndpointProcessor: MisconfiguredInternetEndpointProcessor,
         contactPairingMatchProcessor: ContactPairingMatchProcessor,
         contactPairingAuthorizationProcessor: ContactPairingAuthorizationProcessor,
         newConversationProcessor: NewConversationProcessor,
@@ -44,6 +48,8 @@ object AwalaModule {
     ): AwalaMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreation to accountCreationProcessor,
+            MessageType.ConnectionParams to connectionParamsProcessor,
+            MessageType.MisconfiguredInternetEndpoint to misconfiguredInternetEndpointProcessor,
             MessageType.ContactPairingMatch to contactPairingMatchProcessor,
             MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
             MessageType.NewConversation to newConversationProcessor,

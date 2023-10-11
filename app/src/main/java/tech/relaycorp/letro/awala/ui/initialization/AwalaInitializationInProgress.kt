@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.common.LetroTopTitle
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @Composable
@@ -33,23 +34,7 @@ fun AwalaInitializationInProgress(
     val currentTextIndex by viewModel.stringsIndexPointer.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = LetroColor.SurfaceContainerHigh,
-                )
-                .padding(
-                    vertical = 16.dp,
-                ),
-        ) {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
-                color = LetroColor.OnSurfaceContainerHigh,
-            )
-        }
+        LetroTopTitle()
         Column(
             modifier = Modifier
                 .fillMaxSize(),

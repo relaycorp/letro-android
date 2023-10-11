@@ -1,8 +1,12 @@
 package tech.relaycorp.letro.account.model
 
+import androidx.annotation.IntDef
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATED
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATION_WAITING
 
 const val TABLE_NAME_ACCOUNT = "account"
 
@@ -15,12 +19,14 @@ data class Account(
     val id: Long = 0L,
     val accountId: String,
     val requestedUserName: String,
-    val normalisedLocale: String,
+    val normalisedLocale: String?,
+    val domain: String,
     val isCurrent: Boolean,
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
-    val isCreated: Boolean = false,
+    @AccountStatus val status: Int = CREATION_WAITING,
+    val token: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -38,7 +44,9 @@ data class Account(
             if (other.veraidMemberBundle == null) return false
             if (!veraidMemberBundle.contentEquals(other.veraidMemberBundle)) return false
         } else if (other.veraidMemberBundle != null) return false
-        if (isCreated != other.isCreated) return false
+        if (status != other.status) return false
+        if (domain != other.domain) return false
+        if (token != other.token) return false
 
         return true
     }
@@ -51,11 +59,22 @@ data class Account(
         result = 31 * result + isCurrent.hashCode()
         result = 31 * result + veraidPrivateKey.contentHashCode()
         result = 31 * result + (veraidMemberBundle?.contentHashCode() ?: 0)
-        result = 31 * result + isCreated.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + domain.hashCode()
+        result = 31 * result + (token?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "Account(accountId = $accountId, requestedUserName = $requestedUserName, normalisedLocale = $normalisedLocale, isCurrent = $isCurrent, isCreated = $isCreated)"
+        return "Account(accountId = $accountId, requestedUserName = $requestedUserName, normalisedLocale = $normalisedLocale, isCurrent = $isCurrent, isCreated = $status)"
+    }
+}
+
+@IntDef(ERROR, CREATION_WAITING, CREATED)
+annotation class AccountStatus {
+    companion object {
+        const val ERROR = -1
+        const val CREATION_WAITING = 0
+        const val CREATED = 1
     }
 }

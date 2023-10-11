@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.ui.common.LetroActionBarWithBackAction
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
@@ -54,7 +55,11 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 15.dp)
+            .padding(
+                bottom = 24.dp,
+                start = 15.dp,
+                end = 15.dp,
+            )
             .verticalScroll(rememberScrollState()),
     ) {
         LetroActionBarWithBackAction(
@@ -104,6 +109,7 @@ private fun AccountsBlock(
         for (i in accounts.indices) {
             Account(
                 accountId = accounts[i].accountId,
+                isCreationError = accounts[i].status == AccountStatus.ERROR,
                 onDeleteClick = { onAccountDeleteClick(accounts[i]) },
             )
         }
@@ -134,6 +140,7 @@ private fun AccountsBlock(
 @Composable
 private fun Account(
     accountId: String,
+    isCreationError: Boolean,
     onDeleteClick: () -> Unit,
 ) {
     Row(
@@ -145,15 +152,26 @@ private fun Account(
                 vertical = ELEMENT_VERTICAL_PADDING,
             ),
     ) {
-        Text(
-            text = accountId,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        Column(
             modifier = Modifier
                 .weight(1f),
-        )
+        ) {
+            Text(
+                text = accountId,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (isCreationError) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(id = R.string.account_linking_failed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Icon(
             painter = painterResource(id = R.drawable.ic_delete),
             contentDescription = null,

@@ -22,7 +22,7 @@ fun createAccount(
     normalisedLocale = normalisedLocale,
     isCurrent = isCurrent,
     veraidPrivateKey = ByteArray(0),
-    isCreated = isCreated,
+    status = isCreated,
 )
 
 @ExperimentalCoroutinesApi

@@ -25,6 +25,18 @@ sealed class Route(
         showTopBar = false,
     )
 
+    object UseExistingAccount: Route(
+        name = "use_existing_acccount_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = true,
+    )
+
+    object AccountCreationFailed: Route(
+        name = "account_creation_failed",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
     object AwalaNotInstalled : Route(
         name = "awala_not_installed_route",
         showTopBar = false,
@@ -139,6 +151,8 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toBoolean())
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
+            it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed
+            it.startsWith(Route.UseExistingAccount.name) -> Route.UseExistingAccount
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
             it.startsWith(Route.NoContacts.name) -> Route.NoContacts
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact

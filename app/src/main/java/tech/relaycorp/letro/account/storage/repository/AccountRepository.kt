@@ -5,9 +5,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.PushManager
@@ -15,6 +15,7 @@ import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.i18n.normaliseString
 import java.security.PrivateKey
+import java.security.PublicKey
 import java.util.Locale
 import javax.inject.Inject
 
@@ -24,8 +25,9 @@ interface AccountRepository {
     suspend fun createAccount(
         requestedUserName: String,
         domainName: String,
-        locale: Locale,
+        locale: Locale?,
         veraidPrivateKey: PrivateKey,
+        token: String? = null,
     )
 
     suspend fun getByRequest(
@@ -33,7 +35,15 @@ interface AccountRepository {
         locale: Locale,
     ): Account?
 
+    suspend fun getByDomain(
+        domain: String,
+    ): List<Account>
+
     suspend fun updateAccount(account: Account, accountId: String, veraidBundle: ByteArray)
+    suspend fun updateAccount(
+        account: Account,
+        @AccountStatus status: Int,
+    )
 
     suspend fun deleteAccount(account: Account)
     suspend fun switchAccount(newCurrentAccount: Account)
@@ -94,17 +104,20 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun createAccount(
         requestedUserName: String,
         domainName: String,
-        locale: Locale,
+        locale: Locale?,
         veraidPrivateKey: PrivateKey,
+        token: String?,
     ) {
         markAllExistingAccountsAsNonCurrent()
         accountDao.insert(
             Account(
                 accountId = "$requestedUserName@$domainName",
                 requestedUserName = requestedUserName,
-                normalisedLocale = locale.normaliseString(),
+                normalisedLocale = locale?.normaliseString(),
                 veraidPrivateKey = veraidPrivateKey.encoded,
+                domain = domainName,
                 isCurrent = true,
+                token = token,
             ),
         )
     }
@@ -137,9 +150,24 @@ class AccountRepositoryImpl @Inject constructor(
             account.copy(
                 accountId = accountId,
                 veraidMemberBundle = veraidBundle,
-                isCreated = true,
+                status = AccountStatus.CREATED,
             ),
         )
+    }
+
+    override suspend fun updateAccount(
+        account: Account,
+        @AccountStatus status: Int,
+    ) {
+        accountDao.update(
+            account.copy(
+                status = status,
+            ),
+        )
+    }
+
+    override suspend fun getByDomain(domain: String): List<Account> {
+        return accountDao.getByDomain(domain)
     }
 
     private suspend fun markAllExistingAccountsAsNonCurrent() {

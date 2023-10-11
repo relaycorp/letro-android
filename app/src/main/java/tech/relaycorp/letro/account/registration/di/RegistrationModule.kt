@@ -8,6 +8,10 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.account.registration.server.AccountCreationProcessor
 import tech.relaycorp.letro.account.registration.server.AccountCreationProcessorImpl
+import tech.relaycorp.letro.account.registration.server.ConnectionParamsProcessor
+import tech.relaycorp.letro.account.registration.server.ConnectionParamsProcessorImpl
+import tech.relaycorp.letro.account.registration.server.MisconfiguredInternetEndpointProcessor
+import tech.relaycorp.letro.account.registration.server.MisconfiguredInternetEndpointProcessorImpl
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepositoryImpl
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
@@ -39,4 +43,14 @@ interface RegistrationModuleSingleton {
     fun bindRegistrationMessageProcessor(
         impl: AccountCreationProcessorImpl,
     ): AccountCreationProcessor
+
+    @Binds
+    fun bindConnectionParamsProcessor(
+        impl: ConnectionParamsProcessorImpl
+    ): ConnectionParamsProcessor
+
+    @Binds
+    fun bindMisconfiguredInternetEndpointProcessor(
+        impl: MisconfiguredInternetEndpointProcessorImpl
+    ): MisconfiguredInternetEndpointProcessor
 }

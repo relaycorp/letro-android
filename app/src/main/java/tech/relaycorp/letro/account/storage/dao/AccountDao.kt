@@ -30,6 +30,9 @@ interface AccountDao {
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE requestedUserName=:requestedUserName AND normalisedLocale=:locale")
     suspend fun getByRequestParams(requestedUserName: String, locale: String): Account?
 
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE domain=:domain")
+    suspend fun getByDomain(domain: String): List<Account>
+
     @Delete
     suspend fun deleteAccount(account: Account)
 }

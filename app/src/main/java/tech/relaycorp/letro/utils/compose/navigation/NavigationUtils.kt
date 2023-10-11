@@ -23,6 +23,12 @@ fun NavController.popBackStackSafe() {
     }
 }
 
+fun NavController.popBackStackSafeUntil(route: Route) {
+    if (currentBackStack.value.any { it.destination.route == route.name }) {
+        popBackStack(route.name, inclusive = false)
+    }
+}
+
 fun NavController.navigateWithDropCurrentScreen(route: String) {
     navigate(route) {
         popBackStack()

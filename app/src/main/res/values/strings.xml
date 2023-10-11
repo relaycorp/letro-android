@@ -162,6 +162,19 @@
     <string name="you_need_at_least_one_contact">You need at least one contact to start a conversation</string>
     <string name="you_cannot_reply_not_connected">You can\'t reply to this user because you\'re no longer connected.</string>
 
+    <string name="domain">Domain</string>
+    <string name="awala_endpoint">Awala endpoint</string>
+    <string name="optional_braces">(optional)</string>
+    <string name="token">Token</string>
+    <string name="use_existing_account_hint">If you have any questions about these fields, you should contact your IT team.</string>
+    <string name="confirm_details">Confirm details</string>
+    <string name="use_existing_account_domain_hint" translatable="false">acme.com</string>
+    <string name="use_existing_account_awala_endpoint_hint" translatable="false">gb.relaycorp.cloud</string>
+    <string name="use_existing_account_token_hint">15f34569–e48a–7192–87a1–8a73d4f29t68</string>
+    <string name="account_linking_failed">Account linking failed</string>
+    <string name="we_could_not_claim_your_account">We couldn\'t claim your account</string>
+    <string name="you_need_to_contact_your_it_team_at">You need to contact your IT team at %s</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>
