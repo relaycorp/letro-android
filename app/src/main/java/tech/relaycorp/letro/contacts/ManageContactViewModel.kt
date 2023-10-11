@@ -150,7 +150,7 @@ class ManageContactViewModel @Inject constructor(
                 }
             }
             EDIT_CONTACT -> {
-                if (contacts.any { it.id == contactIdToEdit }) {
+                if (!contacts.any { it.id == contactIdToEdit }) {
                     Log.w(TAG, IllegalStateException("You cannot edit this contact. Contact belongs to ${contacts.firstOrNull()?.ownerVeraId}, but yours is $currentAccountId")) // TODO: log?
                     return
                 }
