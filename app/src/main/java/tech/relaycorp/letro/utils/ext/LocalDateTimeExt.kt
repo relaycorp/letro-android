@@ -22,7 +22,7 @@ fun LocalDateTime.isLessThanDayAgo(): Boolean {
     return now.minusDays(1L) <= this
 }
 
-fun LocalDateTime.isLessThanWeekAgo(): Boolean {
+fun LocalDateTime.isLessThanWeeksAgo(weeks: Long): Boolean {
     val now = LocalDateTime.now()
-    return now.minusWeeks(1L) <= this
+    return now.minusWeeks(weeks) <= this
 }
