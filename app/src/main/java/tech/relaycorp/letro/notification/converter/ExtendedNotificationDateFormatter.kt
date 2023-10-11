@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.utils.ext.isLessThanDayAgo
 import tech.relaycorp.letro.utils.ext.isLessThanHourAgo
-import tech.relaycorp.letro.utils.ext.isLessThanWeekAgo
+import tech.relaycorp.letro.utils.ext.isLessThanWeeksAgo
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class ExtendedNotificationDateFormatterImpl @Inject constructor() : ExtendedNoti
                 stringRes = R.string.notification_time_hours,
                 timestamp = timestamp,
             )
-            timestamp.isLessThanWeekAgo() -> NotificationDateInfo(
+            timestamp.isLessThanWeeksAgo(1L) -> NotificationDateInfo(
                 value = ChronoUnit.DAYS.between(timestamp, LocalDateTime.now()),
                 stringRes = R.string.notification_time_days,
                 timestamp = timestamp,
