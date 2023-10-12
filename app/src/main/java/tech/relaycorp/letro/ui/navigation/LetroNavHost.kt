@@ -68,6 +68,7 @@ import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
 import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
 import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
@@ -218,6 +219,14 @@ fun LetroNavHost(
                         composable(Route.Registration.name) {
                             RegistrationScreen(
                                 onUseExistingAccountClick = {},
+                                showSnackbar = {
+                                    showSnackbar(
+                                        type = it,
+                                        snackbarHostState = snackbarHostState,
+                                        scope = scope,
+                                        stringsProvider = stringsProvider.snackbar,
+                                    )
+                                },
                             )
                         }
                         composable(Route.WelcomeToLetro.name) {
@@ -305,6 +314,14 @@ fun LetroNavHost(
                                         }
                                     }
                                 },
+                                showSnackbar = {
+                                    showSnackbar(
+                                        type = it,
+                                        snackbarHostState = snackbarHostState,
+                                        scope = scope,
+                                        stringsProvider = stringsProvider.snackbar,
+                                    )
+                                },
                             )
                         }
                         composable(Route.Home.name) {
@@ -369,6 +386,14 @@ fun LetroNavHost(
                                         }
                                     }
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.messageSent)
+                                },
+                                showSnackbar = {
+                                    showSnackbar(
+                                        type = it,
+                                        snackbarHostState = snackbarHostState,
+                                        scope = scope,
+                                        stringsProvider = stringsProvider.snackbar,
+                                    )
                                 },
                             )
                         }
@@ -512,6 +537,15 @@ private fun showSnackbar(
             onActionPerformed()
         }
     }
+}
+
+private fun showSnackbar(
+    @SnackbarStringsProvider.Type type: Int,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    stringsProvider: SnackbarStringsProvider,
+) {
+    snackbarHostState.showSnackbar(scope, stringsProvider.get(type))
 }
 
 private fun handleFirstNavigation(

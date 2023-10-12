@@ -27,9 +27,9 @@ interface ContactsRepository {
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
     fun getContactById(id: Long): Contact?
 
-    fun addNewContact(contact: Contact)
     fun deleteContact(contact: Contact)
-    fun updateContact(contact: Contact)
+    suspend fun addNewContact(contact: Contact)
+    suspend fun updateContact(contact: Contact)
     fun saveRequestWasOnceSent()
 }
 
@@ -71,33 +71,31 @@ class ContactsRepositoryImpl @Inject constructor(
         return contacts.value.find { it.id == id }
     }
 
-    override fun addNewContact(contact: Contact) {
-        scope.launch {
-            val existingContact = contactsDao.getContact(
-                ownerVeraId = contact.ownerVeraId,
-                contactVeraId = contact.contactVeraId,
-            )
+    override suspend fun addNewContact(contact: Contact) {
+        val existingContact = contactsDao.getContact(
+            ownerVeraId = contact.ownerVeraId,
+            contactVeraId = contact.contactVeraId,
+        )
 
-            if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
-                if (existingContact == null) {
-                    contactsDao.insert(
-                        contact.copy(
-                            status = ContactPairingStatus.REQUEST_SENT,
-                        ),
-                    )
-                } else {
-                    contactsDao.update(
-                        contact.copy(
-                            status = ContactPairingStatus.REQUEST_SENT,
-                        ),
-                    )
-                }
-                awalaManager.sendMessage(
-                    outgoingMessage = AwalaOutgoingMessage(
-                        type = MessageType.ContactPairingRequest,
-                        content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
+        if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
+            awalaManager.sendMessage(
+                outgoingMessage = AwalaOutgoingMessage(
+                    type = MessageType.ContactPairingRequest,
+                    content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
+                ),
+                recipient = MessageRecipient.Server(),
+            )
+            if (existingContact == null) {
+                contactsDao.insert(
+                    contact.copy(
+                        status = ContactPairingStatus.REQUEST_SENT,
                     ),
-                    recipient = MessageRecipient.Server(),
+                )
+            } else {
+                contactsDao.update(
+                    contact.copy(
+                        status = ContactPairingStatus.REQUEST_SENT,
+                    ),
                 )
             }
         }
@@ -109,10 +107,8 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun updateContact(contact: Contact) {
-        scope.launch {
-            contactsDao.update(contact)
-        }
+    override suspend fun updateContact(contact: Contact) {
+        contactsDao.update(contact)
     }
 
     override fun saveRequestWasOnceSent() {

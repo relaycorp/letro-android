@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -63,6 +64,7 @@ fun ComposeNewMessageScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
     onBackClicked: () -> Unit,
     onMessageSent: () -> Unit,
+    showSnackbar: (Int) -> Unit,
     viewModel: ComposeNewMessageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -95,9 +97,15 @@ fun ComposeNewMessageScreen(
 
     val scrollState = rememberLazyListState()
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         viewModel.messageSentSignal.collect {
             onMessageSent()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.showSnackbar.collect {
+            showSnackbar(it)
         }
     }
 
@@ -153,6 +161,9 @@ fun ComposeNewMessageScreen(
                         end = 24.dp,
                     ),
                     enabled = uiState.isSendButtonEnabled,
+                    progressIndicatorModifier = Modifier
+                        .size(18.dp, 18.dp),
+                    isProgressIndicatorVisible = uiState.isSendingMessage,
                 )
             }
         }
@@ -340,7 +351,8 @@ fun ComposeNewMessageScreen(
                                 text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(vertical = 18.dp, horizontal = 16.dp),
                             )
                         }
