@@ -37,5 +37,6 @@ annotation class NotificationType {
 
     companion object {
         const val PAIRING_COMPLETED = 0
+        const val UNSUCCESSFUL_PAIRING = 1
     }
 }

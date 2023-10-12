@@ -30,6 +30,7 @@ class ExtendedNotificationConverterImpl @Inject constructor(
     @StringRes
     private fun getUpperText(@NotificationType type: Int) = when (type) {
         NotificationType.PAIRING_COMPLETED -> R.string.you_re_now_connected_to
+        NotificationType.UNSUCCESSFUL_PAIRING -> R.string.we_couldnt_connect_with
         else -> throw IllegalStateException("Unknown notification type $type")
     }
 }

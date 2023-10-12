@@ -31,7 +31,7 @@
     <string name="pair_request_already_paired">Ustedes dos ya están conectados.</string>
     <string name="pair_request_already_in_progress">La conexión con este usuario ya está en progreso.</string>
     <string name="conversations">Conversaciones</string>
-    <string name="top_bar_tab_contacts">Contactos</string>
+    <string name="contacts">Contactos</string>
     <string name="notifications">Notificaciones</string>
     <string name="floating_action_button_write_new_message_content_description">Escribe un mensaje nuevo</string>
     <string name="floating_action_button_add_contact_content_description">Añadir contacto</string>
