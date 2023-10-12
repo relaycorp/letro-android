@@ -14,14 +14,21 @@ data class PushData(
 
 sealed interface PushAction : Parcelable {
 
+    val accountId: String
+
     @Parcelize
     data class OpenConversation(
         val conversationId: String,
-        val accountId: String,
+        override val accountId: String,
     ) : PushAction
 
     @Parcelize
     data class OpenMainPage(
-        val accountId: String,
+        override val accountId: String,
+    ) : PushAction
+
+    @Parcelize
+    data class OpenContacts(
+        override val accountId: String,
     ) : PushAction
 }

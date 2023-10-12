@@ -60,10 +60,10 @@ class ContactPairingMatchProcessorImpl @Inject constructor(
                 ),
             )
             pushManager.showPush(
-                pushData = PushData( // TODO: check data here
-                    title = response.ownerVeraId,
+                pushData = PushData(
+                    title = context.getString(R.string.pairing_request_failed),
                     text = context.getString(R.string.we_couldnt_connect_with_arg, response.contactVeraId),
-                    action = PushAction.OpenMainPage(
+                    action = PushAction.OpenContacts(
                         accountId = response.ownerVeraId,
                     ),
                     notificationId = response.contactVeraId.hashCode(),
