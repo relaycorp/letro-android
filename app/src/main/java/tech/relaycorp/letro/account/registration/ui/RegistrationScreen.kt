@@ -13,10 +13,12 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +37,17 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 @Composable
 fun RegistrationScreen(
     onUseExistingAccountClick: () -> Unit,
+    showSnackbar: (Int) -> Unit,
     viewModel: RegistrationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        viewModel.showSnackbar.collect {
+            showSnackbar(it)
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -95,6 +105,7 @@ fun RegistrationScreen(
                 text = stringResource(id = R.string.onboarding_create_account_button),
                 onClick = {
                     viewModel.onCreateAccountClick()
+                    keyboardController?.hide()
                 },
                 isEnabled = uiState.isCreateAccountButtonEnabled,
                 withProgressIndicator = uiState.isSendingMessage,
@@ -137,6 +148,7 @@ private fun AccountCreationPreview() {
     LetroTheme {
         RegistrationScreen(
             hiltViewModel(),
+            {},
         )
     }
 }
