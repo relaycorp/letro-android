@@ -97,7 +97,7 @@ fun LetroNavHost(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var isHomeScreenInitialized by remember { mutableStateOf(false) }
+    var isAwalaInitialized by remember { mutableStateOf(false) }
 
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -109,8 +109,8 @@ fun LetroNavHost(
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
             handleFirstNavigation(navController, firstNavigation)
-            if (firstNavigation == RootNavigationScreen.Home) {
-                isHomeScreenInitialized = true
+            if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
+                isAwalaInitialized = true
             }
         }
     }
@@ -135,12 +135,13 @@ fun LetroNavHost(
         }
     }
 
-    LaunchedEffect(isHomeScreenInitialized) {
-        if (!isHomeScreenInitialized) {
+    LaunchedEffect(isAwalaInitialized) {
+        if (!isAwalaInitialized) {
             return@LaunchedEffect
         }
         mainViewModel.pushAction.collect { pushAction ->
             withContext(Dispatchers.IO) {
+                switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
                 when (pushAction) {
                     is PushAction.OpenConversation -> {
                         GlobalScope.launch(Dispatchers.Main) {
@@ -150,11 +151,13 @@ fun LetroNavHost(
                                 ),
                             )
                         }
-                        switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
                     }
-                    is PushAction.OpenMainPage -> {
-                        switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
+                    is PushAction.OpenContacts -> {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            homeViewModel.onTabClick(TAB_CONTACTS)
+                        }
                     }
+                    is PushAction.OpenMainPage -> {}
                 }
             }
         }
