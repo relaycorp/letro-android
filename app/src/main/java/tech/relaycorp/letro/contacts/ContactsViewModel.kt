@@ -3,6 +3,7 @@ package tech.relaycorp.letro.contacts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,11 +11,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,6 +41,10 @@ class ContactsViewModel @Inject constructor(
     private val _showContactDeletedSnackbarSignal = MutableSharedFlow<Unit>()
     val showContactDeletedSnackbarSignal: SharedFlow<Unit>
         get() = _showContactDeletedSnackbarSignal
+
+    private val _showSnackbar = MutableSharedFlow<Int>()
+    val showSnackbar: SharedFlow<Int>
+        get() = _showSnackbar
 
     private var contactsCollectionJob: Job? = null
 
@@ -85,10 +92,14 @@ class ContactsViewModel @Inject constructor(
     }
 
     fun onConfirmDeletingContactClick(contact: Contact) {
-        contactsRepository.deleteContact(contact)
-        closeDeleteContactDialog()
-        viewModelScope.launch {
-            _showContactDeletedSnackbarSignal.emit(Unit)
+        viewModelScope.launch(Dispatchers.IO) {
+            closeDeleteContactDialog()
+            try {
+                contactsRepository.deleteContact(contact)
+                _showContactDeletedSnackbarSignal.emit(Unit)
+            } catch (e: AwaladroidException) {
+                _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+            }
         }
     }
 

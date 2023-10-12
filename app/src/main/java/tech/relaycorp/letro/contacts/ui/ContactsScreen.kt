@@ -43,78 +43,36 @@ fun ContactsScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.showSnackbar.collect {
+            snackbarHostState.showSnackbar(this, snackbarStringsProvider.get(it))
+        }
+    }
+
     val editBottomSheet = editContactBottomSheetState
     val deleteContactDialog = deleteContactDialogState
     Box {
-        if (editBottomSheet.isShown && editBottomSheet.contact != null) {
-            LetroActionsBottomSheet(
-                title = editBottomSheet.contact.alias ?: editBottomSheet.contact.contactVeraId,
-                onDismissRequest = { viewModel.onEditBottomSheetDismissed() },
-                actions = listOf(
-                    BottomSheetAction(
-                        icon = R.drawable.edit,
-                        title = R.string.edit,
-                        action = {
-                            viewModel.onEditContactClick()
-                            onEditContactClick(editBottomSheet.contact)
-                        },
-                    ),
-                    BottomSheetAction(
-                        icon = R.drawable.ic_delete,
-                        title = R.string.delete,
-                        action = {
-                            viewModel.onDeleteContactClick(editBottomSheet.contact)
-                        },
-                    ),
-                ),
-            )
-        } else if (deleteContactDialog.isShown && deleteContactDialog.contact != null) {
-            AlertDialog(
-                onDismissRequest = {
-                    viewModel.onDeleteContactDialogDismissed()
-                },
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.delete_contact_dialog_title),
-                        style = MaterialTheme.typography.TitleMediumProminent,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                text = {
-                    BoldText(
-                        fullText = stringResource(id = R.string.delete_contact_dialog_message, deleteContactDialog.contact.contactVeraId),
-                        boldParts = listOf(deleteContactDialog.contact.contactVeraId),
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.onConfirmDeletingContactClick(deleteContactDialog.contact)
-                        },
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.delete),
-                            style = MaterialTheme.typography.LabelLargeProminent,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.onDeleteContactDialogDismissed()
-                        },
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.cancel),
-                            style = MaterialTheme.typography.LabelLargeProminent,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                },
-                containerColor = LetroColor.SurfaceContainerLow,
-            )
+        when {
+            editBottomSheet.isShown && editBottomSheet.contact != null -> {
+                EditContactDialog(
+                    contact = editBottomSheet.contact,
+                    onDismissed = { viewModel.onEditBottomSheetDismissed() },
+                    onEditClick = {
+                        viewModel.onEditContactClick()
+                        onEditContactClick(editBottomSheet.contact)
+                    },
+                    onDeleteClick = {
+                        viewModel.onDeleteContactClick(editBottomSheet.contact)
+                    },
+                )
+            }
+            deleteContactDialog.isShown && deleteContactDialog.contact != null -> {
+                DeleteContactDialog(
+                    contact = deleteContactDialog.contact,
+                    onDismissed = { viewModel.onDeleteContactDialogDismissed() },
+                    onConfirm = { viewModel.onConfirmDeletingContactClick(deleteContactDialog.contact) },
+                )
+            }
         }
         LazyColumn(
             contentPadding = PaddingValues(
@@ -129,4 +87,77 @@ fun ContactsScreen(
             }
         }
     }
+}
+
+@Composable
+private fun EditContactDialog(
+    contact: Contact,
+    onDismissed: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+) {
+    LetroActionsBottomSheet(
+        title = contact.alias ?: contact.contactVeraId,
+        onDismissRequest = onDismissed,
+        actions = listOf(
+            BottomSheetAction(
+                icon = R.drawable.edit,
+                title = R.string.edit,
+                action = onEditClick,
+            ),
+            BottomSheetAction(
+                icon = R.drawable.ic_delete,
+                title = R.string.delete,
+                action = onDeleteClick,
+            ),
+        ),
+    )
+}
+
+@Composable
+private fun DeleteContactDialog(
+    contact: Contact,
+    onDismissed: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismissed,
+        title = {
+            Text(
+                text = stringResource(id = R.string.delete_contact_dialog_title),
+                style = MaterialTheme.typography.TitleMediumProminent,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            BoldText(
+                fullText = stringResource(id = R.string.delete_contact_dialog_message, contact.contactVeraId),
+                boldParts = listOf(contact.contactVeraId),
+                textStyle = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.delete),
+                    style = MaterialTheme.typography.LabelLargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissed,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.cancel),
+                    style = MaterialTheme.typography.LabelLargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        containerColor = LetroColor.SurfaceContainerLow,
+    )
 }

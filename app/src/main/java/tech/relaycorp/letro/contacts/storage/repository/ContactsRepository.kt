@@ -27,7 +27,7 @@ interface ContactsRepository {
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
     fun getContactById(id: Long): Contact?
 
-    fun deleteContact(contact: Contact)
+    suspend fun deleteContact(contact: Contact)
     suspend fun addNewContact(contact: Contact)
     suspend fun updateContact(contact: Contact)
     fun saveRequestWasOnceSent()
@@ -101,10 +101,13 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun deleteContact(contact: Contact) {
-        scope.launch {
-            contactsDao.deleteContact(contact)
+    override suspend fun deleteContact(contact: Contact) {
+        contact.contactEndpointId?.let {
+            awalaManager.revokeAuthorization(
+                MessageRecipient.User(contact.contactEndpointId),
+            )
         }
+        contactsDao.deleteContact(contact)
     }
 
     override suspend fun updateContact(contact: Contact) {

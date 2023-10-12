@@ -56,6 +56,9 @@ interface AwalaManager {
         // TODO: after MVP handle several first party endpoints
         thirdPartyPublicKey: ByteArray,
     )
+    suspend fun revokeAuthorization(
+        user: MessageRecipient.User,
+    )
     suspend fun getFirstPartyPublicKey(): String
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
 }
@@ -158,6 +161,15 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
+    override suspend fun revokeAuthorization(user: MessageRecipient.User) {
+        withContext(awalaThreadContext) {
+            awala.revokeAuthorization(
+                firstPartyEndpoint = loadFirstPartyEndpoint(),
+                thirdPartyEndpointNodeId = user.nodeId,
+            )
+        }
+    }
+
     override suspend fun getFirstPartyPublicKey(): String {
         return withContext(awalaThreadContext) {
             val firstPartyEndpoint = loadFirstPartyEndpoint()
@@ -201,8 +213,8 @@ class AwalaManagerImpl @Inject constructor(
                     val senderNodeId = sender.nodeId
                     val recipientNodeId = recipient.nodeId
                     awala.loadNonNullPrivateThirdPartyEndpoint(
-                        senderNodeId = senderNodeId,
-                        recipientNodeId = recipientNodeId,
+                        firstPartyNodeId = senderNodeId,
+                        thirdPartyNodeId = recipientNodeId,
                     )
                 }
             }

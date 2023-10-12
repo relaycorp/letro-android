@@ -36,12 +36,17 @@ interface AwalaWrapper {
 
     suspend fun loadNonNullPublicThirdPartyEndpoint(nodeId: String?): PublicThirdPartyEndpoint
 
-    suspend fun loadNonNullPrivateThirdPartyEndpoint(senderNodeId: String, recipientNodeId: String): PrivateThirdPartyEndpoint
+    suspend fun loadNonNullPrivateThirdPartyEndpoint(firstPartyNodeId: String, thirdPartyNodeId: String): PrivateThirdPartyEndpoint
 
     suspend fun authorizeIndefinitely(
         firstPartyEndpoint: FirstPartyEndpoint,
         thirdPartyEndpoint: ThirdPartyEndpoint,
     ): ByteArray
+
+    suspend fun revokeAuthorization(
+        firstPartyEndpoint: FirstPartyEndpoint,
+        thirdPartyEndpointNodeId: String,
+    )
 }
 
 class AwalaWrapperImpl @Inject constructor(
@@ -98,6 +103,17 @@ class AwalaWrapperImpl @Inject constructor(
         return firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
     }
 
+    override suspend fun revokeAuthorization(
+        firstPartyEndpoint: FirstPartyEndpoint,
+        thirdPartyEndpointNodeId: String,
+    ) {
+        val thirdPartyEndpoint = loadNonNullPrivateThirdPartyEndpoint(
+            firstPartyNodeId = firstPartyEndpoint.nodeId,
+            thirdPartyNodeId = thirdPartyEndpointNodeId,
+        )
+        thirdPartyEndpoint.delete()
+    }
+
     override suspend fun loadNonNullPublicFirstPartyEndpoint(nodeId: String?): FirstPartyEndpoint {
         if (nodeId == null) throw Exception("nodeId for loading FirstPartyEndpoint is null")
         return FirstPartyEndpoint.load(nodeId) ?: throw Exception("FirstPartyEndpoint couldn't be loaded")
@@ -108,10 +124,10 @@ class AwalaWrapperImpl @Inject constructor(
         return PublicThirdPartyEndpoint.load(nodeId) ?: throw Exception("ThirdPartyEndpoint couldn't be loaded")
     }
 
-    override suspend fun loadNonNullPrivateThirdPartyEndpoint(senderNodeId: String, recipientNodeId: String): PrivateThirdPartyEndpoint {
+    override suspend fun loadNonNullPrivateThirdPartyEndpoint(firstPartyNodeId: String, thirdPartyNodeId: String): PrivateThirdPartyEndpoint {
         return PrivateThirdPartyEndpoint.load(
-            thirdPartyAddress = recipientNodeId,
-            firstPartyAddress = senderNodeId,
+            thirdPartyAddress = thirdPartyNodeId,
+            firstPartyAddress = firstPartyNodeId,
         ) ?: throw Exception("ThirdPartyEndpoint couldn't be loaded")
     }
 }
