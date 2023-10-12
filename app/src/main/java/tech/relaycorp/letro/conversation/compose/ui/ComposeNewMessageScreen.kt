@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.conversation.compose.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -21,12 +22,14 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,13 +59,16 @@ import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.common.LetroTextField
 import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
+import tech.relaycorp.letro.ui.theme.LabelLargeProminent
+import tech.relaycorp.letro.ui.theme.LetroColor
+import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
 fun ComposeNewMessageScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
-    onBackClicked: () -> Unit,
+    goBack: () -> Unit,
     onMessageSent: () -> Unit,
     showSnackbar: (Int) -> Unit,
     viewModel: ComposeNewMessageViewModel = hiltViewModel(),
@@ -97,6 +103,16 @@ fun ComposeNewMessageScreen(
 
     val scrollState = rememberLazyListState()
 
+    BackHandler {
+        viewModel.onBackPressed()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.goBackSignal.collect {
+            goBack()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.messageSentSignal.collect {
             onMessageSent()
@@ -109,252 +125,260 @@ fun ComposeNewMessageScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Surface(
-            shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
-            modifier = Modifier
-                .fillMaxWidth(),
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (uiState.isConfirmDiscardingDialogVisible) {
+            ConfirmGoBackDialog(
+                onConfirm = { viewModel.onConfirmDiscardingClick() },
+                onDismiss = { viewModel.onConfirmDiscardingDialogDismissed() },
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
         ) {
-            Row(
+            Surface(
+                shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        PaddingValues(
-                            end = HorizontalScreenPadding,
+                    .fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            PaddingValues(
+                                end = HorizontalScreenPadding,
+                                top = 8.dp,
+                                bottom = 8.dp,
+                            ),
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(
+                        onClick = { viewModel.onBackPressed() },
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.arrow_back),
+                            contentDescription = stringResource(id = R.string.general_navigate_back),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(
+                        onClick = { documentPickerLauncher.launch("*/*") },
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.attachment),
+                            contentDescription = stringResource(id = R.string.new_message_attach),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    LetroButton(
+                        text = stringResource(id = R.string.new_message_send),
+                        onClick = { viewModel.onSendMessageClick() },
+                        leadingIconResId = R.drawable.ic_send,
+                        contentPadding = PaddingValues(
                             top = 8.dp,
                             bottom = 8.dp,
+                            start = 16.dp,
+                            end = 24.dp,
                         ),
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
+                        enabled = uiState.isSendButtonEnabled,
+                        progressIndicatorModifier = Modifier
+                            .size(18.dp, 18.dp),
+                        isProgressIndicatorVisible = uiState.isSendingMessage,
+                    )
+                }
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f),
+                state = scrollState,
             ) {
-                IconButton(
-                    onClick = onBackClicked,
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = stringResource(id = R.string.general_navigate_back),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                Spacer(
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(
-                    onClick = { documentPickerLauncher.launch("*/*") },
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.attachment),
-                        contentDescription = stringResource(id = R.string.new_message_attach),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                LetroButton(
-                    text = stringResource(id = R.string.new_message_send),
-                    onClick = { viewModel.onSendMessageClick() },
-                    leadingIconResId = R.drawable.ic_send,
-                    contentPadding = PaddingValues(
-                        top = 8.dp,
-                        bottom = 8.dp,
-                        start = 16.dp,
-                        end = 24.dp,
-                    ),
-                    enabled = uiState.isSendButtonEnabled,
-                    progressIndicatorModifier = Modifier
-                        .size(18.dp, 18.dp),
-                    isProgressIndicatorVisible = uiState.isSendingMessage,
-                )
-            }
-        }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f),
-            state = scrollState,
-        ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(id = R.string.from),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                            .applyIf(uiState.isOnlyTextEditale) {
-                                copy(alpha = 0.38f)
-                            },
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = uiState.sender,
-                        color = MaterialTheme.colorScheme.onSurface
-                            .copy(alpha = 0.38F),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                }
-                Divider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(id = R.string.to),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                            .applyIf(uiState.isOnlyTextEditale) {
-                                copy(alpha = 0.38f)
-                            },
-                    )
-                    if (uiState.showRecipientAsChip) {
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Box(
-                            contentAlignment = Alignment.CenterStart,
-                        ) {
-                            RecipientChipView(
-                                text = uiState.recipientDisplayedText,
-                                onRemoveClick = {
-                                    viewModel.onRecipientRemoveClick()
-                                    recipientTextFieldValueState = TextFieldValue()
-                                },
-                                isEditable = !uiState.isOnlyTextEditale,
-                            )
-                            Spacer(modifier = Modifier.height(TextFieldDefaults.MinHeight))
-                        }
-                    } else {
-                        LetroTextField(
-                            value = recipientTextFieldValueState,
-                            textStyle = MaterialTheme.typography.bodyLarge,
-                            onValueChange = {
-                                if (uiState.showRecipientAsChip) {
-                                    return@LetroTextField
-                                }
-                                recipientTextFieldValueState = it
-                                viewModel.onRecipientTextChanged(it.text)
-                            },
-                        )
-                    }
-                }
-                Divider()
-            }
-
-            val suggestedContacts = uiState.suggestedContacts
-            when {
-                !suggestedContacts.isNullOrEmpty() -> {
-                    suggestContactsList(
-                        lazyListScope = this@LazyColumn,
-                        contacts = suggestedContacts,
-                        onContactClick = {
-                            recipientTextFieldValueState = TextFieldValue(
-                                it.contactVeraId,
-                                TextRange(it.contactVeraId.length),
-                            )
-                            viewModel.onSuggestClick(it)
-                        },
-                    )
-                }
-
-                uiState.showRecipientIsNotYourContactError -> {
-                    items(1) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(id = R.string.you_not_connected_to_this_contact_error),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(
-                                horizontal = 16.dp,
-                                vertical = 8.dp,
-                            ),
+                            text = stringResource(id = R.string.from),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                .applyIf(uiState.isOnlyTextEditale) {
+                                    copy(alpha = 0.38f)
+                                },
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = uiState.sender,
+                            color = MaterialTheme.colorScheme.onSurface
+                                .copy(alpha = 0.38F),
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
+                    Divider()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(id = R.string.to),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                .applyIf(uiState.isOnlyTextEditale) {
+                                    copy(alpha = 0.38f)
+                                },
+                        )
+                        if (uiState.showRecipientAsChip) {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Box(
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                RecipientChipView(
+                                    text = uiState.recipientDisplayedText,
+                                    onRemoveClick = {
+                                        viewModel.onRecipientRemoveClick()
+                                        recipientTextFieldValueState = TextFieldValue()
+                                    },
+                                    isEditable = !uiState.isOnlyTextEditale,
+                                )
+                                Spacer(modifier = Modifier.height(TextFieldDefaults.MinHeight))
+                            }
+                        } else {
+                            LetroTextField(
+                                value = recipientTextFieldValueState,
+                                textStyle = MaterialTheme.typography.bodyLarge,
+                                onValueChange = {
+                                    if (uiState.showRecipientAsChip) {
+                                        return@LetroTextField
+                                    }
+                                    recipientTextFieldValueState = it
+                                    viewModel.onRecipientTextChanged(it.text)
+                                },
+                            )
+                        }
+                    }
+                    Divider()
                 }
 
-                else -> {
-                    item {
-                        Column {
-                            if (!uiState.isOnlyTextEditale) {
-                                LetroTextField(
-                                    value = subjectTextFieldValueState,
-                                    onValueChange = {
-                                        subjectTextFieldValueState = it
-                                        viewModel.onSubjectTextChanged(it.text)
-                                    },
-                                    placeHolderText = stringResource(id = R.string.new_message_subject_hint),
-                                    keyboardOptions = KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Next,
-                                    ),
-                                    placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier
-                                        .onFocusChanged { viewModel.onSubjectTextFieldFocused(it.isFocused) },
+                val suggestedContacts = uiState.suggestedContacts
+                when {
+                    !suggestedContacts.isNullOrEmpty() -> {
+                        suggestContactsList(
+                            lazyListScope = this@LazyColumn,
+                            contacts = suggestedContacts,
+                            onContactClick = {
+                                recipientTextFieldValueState = TextFieldValue(
+                                    it.contactVeraId,
+                                    TextRange(it.contactVeraId.length),
                                 )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .height(TextFieldDefaults.MinHeight)
-                                        .padding(horizontal = 16.dp),
-                                ) {
-                                    Text(
-                                        text = if (uiState.showNoSubjectText) conversationsStringsProvider.noSubject else uiState.subject,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                            .copy(alpha = 0.38F),
-                                        maxLines = 1,
-                                        modifier = Modifier
-                                            .align(Alignment.CenterStart),
-                                    )
-                                }
-                            }
-                            Divider()
-                            LetroTextField(
-                                value = messageTextFieldValueState,
-                                onValueChange = {
-                                    messageTextFieldValueState = it
-                                    viewModel.onMessageTextChanged(it.text)
-                                },
-                                placeHolderText = stringResource(id = R.string.new_message_body_hint),
-                                singleLine = false,
-                                placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                keyboardOptions = KeyboardOptions.Default.copy(
-                                    capitalization = KeyboardCapitalization.Sentences,
+                                viewModel.onSuggestClick(it)
+                            },
+                        )
+                    }
+
+                    uiState.showRecipientIsNotYourContactError -> {
+                        items(1) {
+                            Text(
+                                text = stringResource(id = R.string.you_not_connected_to_this_contact_error),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 8.dp,
                                 ),
-                                modifier = Modifier
-                                    .then(Modifier)
-                                    .applyIf(uiState.messageExceedsLimitTextError != null) {
-                                        background(MaterialTheme.colorScheme.errorContainer)
-                                    }
-                                    .applyIf(attachments.isEmpty()) {
-                                        defaultMinSize(
-                                            minHeight = 500.dp,
+                            )
+                        }
+                    }
+
+                    else -> {
+                        item {
+                            Column {
+                                if (!uiState.isOnlyTextEditale) {
+                                    LetroTextField(
+                                        value = subjectTextFieldValueState,
+                                        onValueChange = {
+                                            subjectTextFieldValueState = it
+                                            viewModel.onSubjectTextChanged(it.text)
+                                        },
+                                        placeHolderText = stringResource(id = R.string.new_message_subject_hint),
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            imeAction = ImeAction.Next,
+                                        ),
+                                        placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier
+                                            .onFocusChanged { viewModel.onSubjectTextFieldFocused(it.isFocused) },
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(TextFieldDefaults.MinHeight)
+                                            .padding(horizontal = 16.dp),
+                                    ) {
+                                        Text(
+                                            text = if (uiState.showNoSubjectText) conversationsStringsProvider.noSubject else uiState.subject,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                                .copy(alpha = 0.38F),
+                                            maxLines = 1,
+                                            modifier = Modifier
+                                                .align(Alignment.CenterStart),
                                         )
                                     }
-                                    .onFocusChanged { viewModel.onMessageTextFieldFocused(it.isFocused) },
+                                }
+                                Divider()
+                                LetroTextField(
+                                    value = messageTextFieldValueState,
+                                    onValueChange = {
+                                        messageTextFieldValueState = it
+                                        viewModel.onMessageTextChanged(it.text)
+                                    },
+                                    placeHolderText = stringResource(id = R.string.new_message_body_hint),
+                                    singleLine = false,
+                                    placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        capitalization = KeyboardCapitalization.Sentences,
+                                    ),
+                                    modifier = Modifier
+                                        .then(Modifier)
+                                        .applyIf(uiState.messageExceedsLimitTextError != null) {
+                                            background(MaterialTheme.colorScheme.errorContainer)
+                                        }
+                                        .applyIf(attachments.isEmpty()) {
+                                            defaultMinSize(
+                                                minHeight = 500.dp,
+                                            )
+                                        }
+                                        .onFocusChanged { viewModel.onMessageTextFieldFocused(it.isFocused) },
+                                )
+                            }
+                        }
+                        val messageExceedsLimitError = uiState.messageExceedsLimitTextError
+                        if (attachments.isNotEmpty()) {
+                            attachments(
+                                lazyListScope = this@LazyColumn,
+                                attachments = attachments,
+                                isError = messageExceedsLimitError != null,
+                                onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
                             )
                         }
-                    }
-                    val messageExceedsLimitError = uiState.messageExceedsLimitTextError
-                    if (attachments.isNotEmpty()) {
-                        attachments(
-                            lazyListScope = this@LazyColumn,
-                            attachments = attachments,
-                            isError = messageExceedsLimitError != null,
-                            onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
-                        )
-                    }
-                    if (messageExceedsLimitError != null) {
-                        item {
-                            Text(
-                                text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 18.dp, horizontal = 16.dp),
-                            )
+                        if (messageExceedsLimitError != null) {
+                            item {
+                                Text(
+                                    text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 18.dp, horizontal = 16.dp),
+                                )
+                            }
                         }
                     }
                 }
@@ -461,4 +485,51 @@ private fun attachments(
             }
         }
     }
+}
+
+@Composable
+private fun ConfirmGoBackDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(id = R.string.discard_message_dialog_title),
+                style = MaterialTheme.typography.TitleMediumProminent,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.discard_message_dialog_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.discard_message),
+                    style = MaterialTheme.typography.LabelLargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.cancel),
+                    style = MaterialTheme.typography.LabelLargeProminent,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        containerColor = LetroColor.SurfaceContainerLow,
+    )
 }

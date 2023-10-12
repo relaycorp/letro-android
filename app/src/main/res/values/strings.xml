@@ -87,6 +87,10 @@
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
 
+    <string name="discard_message_dialog_title">Discard message?</string>
+    <string name="discard_message_dialog_message">Your message will be lost if you leave this screen.</string>
+    <string name="discard_message">Discard message</string>
+
     <string name="join_me_on_letro">Join me on Letro: %s</string>
 
     <string name="general_navigate_back">Go back</string>

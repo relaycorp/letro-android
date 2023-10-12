@@ -80,6 +80,10 @@ class ComposeNewMessageViewModel @Inject constructor(
     val showSnackbar: SharedFlow<Int>
         get() = _showSnackbar
 
+    private val _goBackSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
+    val goBackSignal: SharedFlow<Unit>
+        get() = _goBackSignal
+
     private val attachedFiles = arrayListOf<File.FileWithContent>()
     private val _attachments: MutableStateFlow<List<AttachmentInfo>> = MutableStateFlow(emptyList())
     val attachments: StateFlow<List<AttachmentInfo>>
@@ -264,6 +268,24 @@ class ComposeNewMessageViewModel @Inject constructor(
         }
     }
 
+    fun onBackPressed() {
+        val uiState = _uiState.value
+        if (uiState.messageText.isNotEmptyOrBlank() || attachedFiles.isNotEmpty()) {
+            _uiState.update { it.copy(isConfirmDiscardingDialogVisible = true) }
+        } else {
+            _goBackSignal.emitOn(Unit, viewModelScope)
+        }
+    }
+
+    fun onConfirmDiscardingDialogDismissed() {
+        _uiState.update { it.copy(isConfirmDiscardingDialogVisible = false) }
+    }
+
+    fun onConfirmDiscardingClick() {
+        _uiState.update { it.copy(isConfirmDiscardingDialogVisible = false) }
+        _goBackSignal.emitOn(Unit, viewModelScope)
+    }
+
     private fun updateRecipientIsNotYourContactError() {
         viewModelScope.launch {
             _uiState.update {
@@ -338,6 +360,7 @@ data class NewMessageUiState(
     val isOnlyTextEditale: Boolean = false,
     val showNoSubjectText: Boolean = false,
     val isSendingMessage: Boolean = false,
+    val isConfirmDiscardingDialogVisible: Boolean = false,
     val messageExceedsLimitTextError: MessageExceedsLimitError? = null,
     val suggestedContacts: List<Contact>? = null,
 )

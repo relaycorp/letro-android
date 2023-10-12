@@ -372,7 +372,7 @@ fun LetroNavHost(
                             val screenType = it.arguments?.getInt(Route.CreateNewMessage.KEY_SCREEN_TYPE)
                             ComposeNewMessageScreen(
                                 conversationsStringsProvider = stringsProvider.conversations,
-                                onBackClicked = { navController.popBackStackSafe() },
+                                goBack = { navController.popBackStackSafe() },
                                 onMessageSent = {
                                     when (screenType) {
                                         ComposeNewMessageViewModel.ScreenType.REPLY_TO_EXISTING_CONVERSATION -> {
