@@ -68,9 +68,12 @@
     <string name="read">Read</string>
     <string name="unread">Unread</string>
 
+    <string name="pairing_request_failed">Pairing request failed</string>
+    <string name="you_have_a_new_contact">You have a new contact</string>
     <string name="you_re_now_connected_to">You’re now connected to</string>
+    <string name="you_re_now_connected_to_arg">You are now connected to %s</string>
     <string name="we_couldnt_connect_with">We couldn’t connect with</string>
-    <string name="we_couldnt_connect_with_arg">We couldn’t connect with %s</string>
+    <string name="we_couldnt_connect_with_arg">We couldn’t connect you with %s</string>
 
     <string name="notification_time_minutes">%dm</string>
     <string name="notification_time_hours">%dh</string>
