@@ -49,7 +49,7 @@ class NotificationsViewModel @Inject constructor(
 
     fun onNotificationClick(notification: ExtendedNotification) {
         when (notification.type) {
-            NotificationType.PAIRING_COMPLETED -> {
+            NotificationType.PAIRING_COMPLETED, NotificationType.UNSUCCESSFUL_PAIRING -> {
                 _actions.emitOn(NotificationClickAction.OpenContacts, viewModelScope)
             }
         }

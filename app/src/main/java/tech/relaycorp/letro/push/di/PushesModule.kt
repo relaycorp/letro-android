@@ -26,6 +26,10 @@ object PushesModule {
                 id = PushChannel.ChannelId.ID_CONVERSATIONS,
                 name = R.string.conversations,
             ),
+            PushChannel(
+                id = PushChannel.ChannelId.ID_CONTACTS,
+                name = R.string.contacts,
+            ),
         )
     }
 
