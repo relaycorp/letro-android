@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +36,7 @@ fun ManageContactScreen(
     onBackClick: () -> Unit,
     onEditContactCompleted: (String) -> Unit,
     showGoToSettingsPermissionSnackbar: () -> Unit,
+    showSnackbar: (Int) -> Unit,
     viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -44,6 +46,12 @@ fun ManageContactScreen(
             viewModel.onNotificationPermissionResult(it)
         },
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.showSnackbar.collect {
+            showSnackbar(it)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onEditContactCompleted.collect {
@@ -104,6 +112,7 @@ private fun ManageContactView(
     uiState: PairWithOthersUiState,
     viewModel: ManageContactViewModel,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val errorCaption = uiState.pairingErrorCaption
 
     Column(
@@ -167,7 +176,10 @@ private fun ManageContactView(
         )
         LetroButtonMaxWidthFilled(
             text = stringResource(id = uiState.manageContactTexts.button),
-            onClick = { viewModel.onUpdateContactButtonClick() },
+            onClick = {
+                viewModel.onUpdateContactButtonClick()
+                keyboardController?.hide()
+            },
             isEnabled = uiState.isActionButtonEnabled,
             withProgressIndicator = uiState.isSendingMessage,
             modifier = Modifier

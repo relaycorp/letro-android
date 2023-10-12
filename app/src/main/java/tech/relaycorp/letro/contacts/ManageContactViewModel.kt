@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.ManageContactScreenContent.Companion.REQUEST_SENT
@@ -29,6 +30,7 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
@@ -70,6 +72,10 @@ class ManageContactViewModel @Inject constructor(
     private val _showPermissionGoToSettingsSignal = MutableSharedFlow<Unit>()
     val showPermissionGoToSettingsSignal: SharedFlow<Unit>
         get() = _showPermissionGoToSettingsSignal
+
+    private val _showSnackbar: MutableSharedFlow<Int> = MutableSharedFlow()
+    val showSnackbar: SharedFlow<Int>
+        get() = _showSnackbar
 
     private var currentAccountId: String? = null
     private val contacts: HashSet<Contact> = hashSetOf()
@@ -148,13 +154,15 @@ class ManageContactViewModel @Inject constructor(
                 NEW_CONTACT -> {
                     try {
                         sendNewContactRequest()
+                        _uiState.update {
+                            it.copy(
+                                content = REQUEST_SENT,
+                            )
+                        }
+                    } catch (e: AwaladroidException) {
+                        _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
-                    }
-                    _uiState.update {
-                        it.copy(
-                            content = REQUEST_SENT,
-                        )
                     }
                 }
                 EDIT_CONTACT -> {

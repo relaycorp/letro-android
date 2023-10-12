@@ -314,6 +314,14 @@ fun LetroNavHost(
                                         }
                                     }
                                 },
+                                showSnackbar = {
+                                    showSnackbar(
+                                        type = it,
+                                        snackbarHostState = snackbarHostState,
+                                        scope = scope,
+                                        stringsProvider = stringsProvider.snackbar,
+                                    )
+                                },
                             )
                         }
                         composable(Route.Home.name) {
