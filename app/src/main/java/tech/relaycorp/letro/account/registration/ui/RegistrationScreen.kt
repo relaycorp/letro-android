@@ -2,6 +2,7 @@ package tech.relaycorp.letro.account.registration.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +40,7 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 fun RegistrationScreen(
     onUseExistingAccountClick: () -> Unit,
     showSnackbar: (Int) -> Unit,
+    onBackClick: (() -> Unit)? = null,
     viewModel: RegistrationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -58,9 +61,19 @@ fun RegistrationScreen(
                 .fillMaxWidth()
                 .padding(
                     horizontal = HorizontalScreenPadding,
-                    vertical = 64.dp,
+                    vertical = if (onBackClick == null) 64.dp else 28.dp,
                 ),
         ) {
+            if (onBackClick != null) {
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow_back),
+                    contentDescription = stringResource(id = R.string.general_navigate_back),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .clickable { onBackClick() },
+                )
+                Spacer(modifier = Modifier.height(48.dp))
+            }
             Image(
                 modifier = Modifier
                     .fillMaxWidth(),
