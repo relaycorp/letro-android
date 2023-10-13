@@ -227,7 +227,19 @@ fun LetroNavHost(
                         composable(Route.Splash.name) {
                             SplashScreen()
                         }
-                        composable(Route.Registration.name) {
+                        composable(
+                            route = Route.Registration.name +
+                                "?${Route.Registration.WITH_BACK_BUTTON}={${Route.Registration.WITH_BACK_BUTTON}}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = Route.Registration.WITH_BACK_BUTTON,
+                                ) {
+                                    type = NavType.BoolType
+                                    defaultValue = false
+                                },
+                            ),
+                        ) {
+                            val withBackButton = it.arguments?.getBoolean(Route.Registration.WITH_BACK_BUTTON, false) ?: false
                             RegistrationScreen(
                                 onUseExistingAccountClick = { navController.navigateSingleTop(Route.UseExistingAccount) },
                                 showSnackbar = {
@@ -237,6 +249,11 @@ fun LetroNavHost(
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
                                     )
+                                },
+                                onBackClick = if (withBackButton) {
+                                    { navController.popBackStackSafe() }
+                                } else {
+                                    null
                                 },
                             )
                         }
@@ -385,7 +402,7 @@ fun LetroNavHost(
                             )
                         }
                         composable(
-                            route = "${Route.CreateNewMessage.name}" +
+                            route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
@@ -477,7 +494,7 @@ fun LetroNavHost(
                         }
                         composable(Route.Settings.name) {
                             SettingsScreen(
-                                onAddAccountClick = { navController.navigate(Route.Registration.name) },
+                                onAddAccountClick = { navController.navigate(Route.Registration.getRouteName(withBackButton = true)) },
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
                                 onBackClick = { navController.popBackStackSafe() },

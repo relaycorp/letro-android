@@ -23,7 +23,14 @@ sealed class Route(
     object Registration : Route(
         name = "registration_route",
         showTopBar = false,
-    )
+    ) {
+
+        const val WITH_BACK_BUTTON = "with_back_button"
+
+        fun getRouteName(
+            withBackButton: Boolean,
+        ) = "${Registration.name}?$WITH_BACK_BUTTON=$withBackButton"
+    }
 
     object UseExistingAccount : Route(
         name = "use_existing_acccount_route",
