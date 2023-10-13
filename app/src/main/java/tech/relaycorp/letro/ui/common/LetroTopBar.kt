@@ -20,15 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LetroTopBar(
     accountVeraId: String,
-    isAccountCreated: Boolean,
+    @AccountStatus accountStatus: Int,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
@@ -48,15 +50,32 @@ fun LetroTopBar(
                         text = accountVeraId,
                         style = MaterialTheme.typography.titleMedium,
                         color = LetroColor.OnSurfaceContainerHigh,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier.weight(
+                            weight = 1f,
+                            fill = false,
+                        ),
                     )
-                    if (!isAccountCreated) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(20.dp, 20.dp),
-                            color = LetroColor.OnSurfaceContainerHigh,
-                            strokeWidth = 2.dp,
-                        )
+                    when (accountStatus) {
+                        AccountStatus.CREATION_WAITING -> {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(20.dp, 20.dp),
+                                color = LetroColor.OnSurfaceContainerHigh,
+                                strokeWidth = 2.dp,
+                            )
+                        }
+                        AccountStatus.ERROR -> {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_error_24),
+                                contentDescription = stringResource(id = R.string.account_linking_failed),
+                                tint = LetroColor.OnSurfaceContainerHigh,
+                            )
+                        }
+                        else -> {}
                     }
                     Spacer(
                         modifier = Modifier.width(6.dp),

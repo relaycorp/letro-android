@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaInitializationState
 import tech.relaycorp.letro.awala.AwalaManager
@@ -66,6 +66,10 @@ class MainViewModel @Inject constructor(
         MutableStateFlow(RootNavigationScreen.Splash)
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
+    private val _clearBackstackSignal = MutableSharedFlow<RootNavigationScreen>()
+    val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
+        get() = _clearBackstackSignal
+
     /**
      * Replay = 1, in case that some action will be emitted, but no one handled this event
      */
@@ -75,6 +79,11 @@ class MainViewModel @Inject constructor(
 
     private var currentAccount: Account? = null
 
+    /**
+     * Used to figure out do we need to clear backstack after navigation event. We need to clear it, when account was changed
+     */
+    private var navigationHandledWithLastAccount: Long? = null
+
     init {
         viewModelScope.launch {
             accountRepository.currentAccount.collect { account ->
@@ -82,7 +91,8 @@ class MainViewModel @Inject constructor(
                     if (account != null) {
                         it.copy(
                             currentAccount = account.accountId,
-                            isCurrentAccountCreated = account.isCreated,
+                            domain = account.domain,
+                            accountStatus = account.status,
                         )
                     } else {
                         it
@@ -100,21 +110,30 @@ class MainViewModel @Inject constructor(
                 conversationsRepository.conversations,
             ) { currentAccount, contactsState, awalaInitializationState, conversations ->
                 logger.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
-                when {
+                val rootNavigationScreen = when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = false)
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_FATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(isFatal = true)
                     awalaInitializationState < AwalaInitializationState.INITIALIZED -> RootNavigationScreen.AwalaInitializing
                     currentAccount == null -> RootNavigationScreen.Registration
-                    !currentAccount.isCreated -> RootNavigationScreen.RegistrationWaiting
+                    currentAccount.status == AccountStatus.CREATION_WAITING -> RootNavigationScreen.RegistrationWaiting
+                    currentAccount.status == AccountStatus.ERROR -> RootNavigationScreen.AccountCreationFailed
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro
                     !contactsState.isPairedContactExist && conversations.isEmpty() -> RootNavigationScreen.NoContactsScreen
                     else -> RootNavigationScreen.Home
                 }
+                Pair(rootNavigationScreen, navigationHandledWithLastAccount != currentAccount?.id).also { navigationHandledWithLastAccount = currentAccount?.id }
             }
-                .distinctUntilChanged()
                 .collect {
-                    _rootNavigationScreen.emit(it)
+                    val rootNavigationScreen = it.first
+                    val lastRootNavigationScreen = _rootNavigationScreen.value
+                    _rootNavigationScreen.emit(rootNavigationScreen)
+
+                    val clearNavigationScreenToRoot = it.second
+                    if (clearNavigationScreenToRoot && rootNavigationScreen == lastRootNavigationScreen) {
+                        logger.d(TAG, "Send event to clear nav stack")
+                        _clearBackstackSignal.emit(rootNavigationScreen)
+                    }
                 }
         }
     }
@@ -161,5 +180,6 @@ class MainViewModel @Inject constructor(
 
 data class MainUiState(
     val currentAccount: String? = null,
-    val isCurrentAccountCreated: Boolean = true,
+    val domain: String? = null,
+    @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
 )

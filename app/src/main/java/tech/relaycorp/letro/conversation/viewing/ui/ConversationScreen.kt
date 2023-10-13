@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -191,8 +192,12 @@ private fun Message(
                 text = if (message.isOutgoing) message.senderVeraId else message.contactDisplayName,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp),
             )
-            Spacer(modifier = Modifier.weight(1F))
             Text(
                 text = message.sentAtBriefFormatted,
                 style = if (isCollapsed) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
@@ -306,6 +311,7 @@ private fun MessageInfoView(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (message.senderDisplayName != message.senderVeraId) {
                     Text(
@@ -313,6 +319,7 @@ private fun MessageInfoView(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -321,6 +328,7 @@ private fun MessageInfoView(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (message.recipientDisplayName != message.recipientVeraId) {
                     Text(
@@ -328,6 +336,7 @@ private fun MessageInfoView(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -336,6 +345,7 @@ private fun MessageInfoView(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

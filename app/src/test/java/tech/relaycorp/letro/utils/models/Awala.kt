@@ -77,7 +77,7 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
     coEvery { loadNonNullPublicFirstPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPublicThirdPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPrivateThirdPartyEndpoint(any(), any()) } answers { callOriginal() }
-    coEvery { authorizeIndefinitely(any(), any()) } returns ByteArray(0)
+    coEvery { authorizeIndefinitely(any(), any()) } returns Unit
 }
 
 internal enum class AwalaInitializationResult {

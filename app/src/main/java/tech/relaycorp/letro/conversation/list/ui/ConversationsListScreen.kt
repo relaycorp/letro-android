@@ -144,34 +144,40 @@ private fun Conversation(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = conversation.contactDisplayName,
-                    style = if (!conversation.isRead) MaterialTheme.typography.BodyLargeProminent else MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                )
-                if (conversation.totalMessagesFormattedText != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
+                Row(
+                    modifier = Modifier.weight(1f),
+                ) {
                     Text(
-                        text = conversation.totalMessagesFormattedText,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = conversation.contactDisplayName,
+                        style = if (!conversation.isRead) MaterialTheme.typography.BodyLargeProminent else MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
-                        modifier = Modifier
-                            .padding(
-                                top = if (conversation.isRead) 3.dp else 1.dp,
-                            ),
+                        overflow = TextOverflow.Ellipsis,
                     )
+                    if (conversation.totalMessagesFormattedText != null) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = conversation.totalMessagesFormattedText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(
+                                    top = if (conversation.isRead) 3.dp else 1.dp,
+                                ),
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = conversation.lastMessageFormattedTimestamp,
                     style = if (!conversation.isRead) MaterialTheme.typography.LabelSmallProminent else MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             Row {
                 Text(
                     text = conversation.subject ?: noSubjectText,

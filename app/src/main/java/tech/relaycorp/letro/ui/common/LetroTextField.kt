@@ -2,9 +2,11 @@ package tech.relaycorp.letro.ui.common
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -102,6 +104,7 @@ fun LetroOutlinedTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     @StringRes label: Int? = null,
+    @StringRes labelFollowingText: Int? = null,
     hintText: String = "",
     suffixText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -114,11 +117,21 @@ fun LetroOutlinedTextField(
     Column {
         if (label != null) {
             Column {
-                Text(
-                    text = stringResource(id = label),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                Row {
+                    Text(
+                        text = stringResource(id = label),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    if (labelFollowingText != null) {
+                        Spacer(modifier = Modifier.width(1.dp))
+                        Text(
+                            text = stringResource(id = labelFollowingText),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
                 Spacer(
                     modifier = Modifier.height(8.dp),
                 )
@@ -134,6 +147,8 @@ fun LetroOutlinedTextField(
                 Text(
                     text = hintText,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = maxLines,
                 )
             },
             suffix = {

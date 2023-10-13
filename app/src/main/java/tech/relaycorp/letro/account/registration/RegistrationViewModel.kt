@@ -1,18 +1,16 @@
 package tech.relaycorp.letro.account.registration
 
 import androidx.annotation.StringRes
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
@@ -22,7 +20,7 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
     private val domainProvider: RegistrationDomainProvider,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(
         RegistrationScreenUiState(
@@ -31,10 +29,6 @@ class RegistrationViewModel @Inject constructor(
     )
     val uiState: StateFlow<RegistrationScreenUiState>
         get() = _uiState
-
-    private val _showSnackbar: MutableSharedFlow<Int> = MutableSharedFlow()
-    val showSnackbar: SharedFlow<Int>
-        get() = _showSnackbar
 
     fun onUsernameInput(username: String) {
         val isValidText = !username.contains(" ") && !username.contains("@") && username.length <= USER_NAME_MAX_LENGTH

@@ -65,4 +65,13 @@ sealed class ActionTakingScreenUIStateModel(
         onButtonFilledClicked = onRequestPermissionClick,
         onButtonOutlinedClicked = onSkipClicked,
     )
+
+    class AccountCreationFailed(
+        domain: String,
+    ) : ActionTakingScreenUIStateModel(
+        titleStringRes = R.string.we_could_not_claim_your_account,
+        image = R.drawable.account_creation_failed,
+        firstMessageStringRes = R.string.you_need_to_contact_your_it_team_at,
+        boldPartOfMessageInFirstMessage = domain,
+    )
 }
