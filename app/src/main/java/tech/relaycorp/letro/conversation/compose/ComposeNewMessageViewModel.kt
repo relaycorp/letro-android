@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -47,7 +47,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : BaseViewModel() {
 
     @ScreenType
     private val screenType: Int = savedStateHandle[Route.CreateNewMessage.KEY_SCREEN_TYPE]!!
@@ -75,10 +75,6 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val _messageSentSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val messageSentSignal: SharedFlow<Unit>
         get() = _messageSentSignal
-
-    private val _showSnackbar: MutableSharedFlow<Int> = MutableSharedFlow()
-    val showSnackbar: SharedFlow<Int>
-        get() = _showSnackbar
 
     private val _goBackSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val goBackSignal: SharedFlow<Unit>

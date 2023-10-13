@@ -3,16 +3,12 @@ package tech.relaycorp.letro.server.messages
 import org.bouncycastle.asn1.ASN1Encodable
 import org.bouncycastle.asn1.ASN1TaggedObject
 import org.bouncycastle.asn1.ASN1UTF8String
-import tech.relaycorp.letro.utils.LetroOids
 import tech.relaycorp.letro.utils.asn1.ASN1Exception
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
 import tech.relaycorp.letro.utils.i18n.normaliseString
 import tech.relaycorp.letro.utils.i18n.parseLocale
-import tech.relaycorp.veraid.Member
-import tech.relaycorp.veraid.pki.MemberIdBundle
-import tech.relaycorp.veraid.pki.PkiException
+import tech.relaycorp.letro.utils.member.verifyBundle
 import java.security.PublicKey
-import java.time.ZonedDateTime
 import java.util.Locale
 
 /**
@@ -28,7 +24,7 @@ class AccountCreation(
 ) {
     @Throws(InvalidAccountCreationException::class)
     suspend fun validate(memberPublicKey: PublicKey) {
-        val (bundle, bundleMember) = verifyBundle()
+        val (bundle, bundleMember) = verifyBundle(veraidBundle)
 
         if (memberPublicKey != bundle.memberPublicKey) {
             throw InvalidAccountCreationException(
@@ -47,24 +43,6 @@ class AccountCreation(
                 "Member id bundle does not have expected org name",
             )
         }
-    }
-
-    @Throws(InvalidAccountCreationException::class)
-    private suspend fun verifyBundle(): Pair<MemberIdBundle, Member> {
-        val bundle = try {
-            MemberIdBundle.deserialise(veraidBundle)
-        } catch (exc: PkiException) {
-            throw InvalidAccountCreationException("Member id bundle is malformed", exc)
-        }
-
-        val now = ZonedDateTime.now()
-        val verificationPeriod = now..now
-        val bundleMember = try {
-            bundle.verify(LetroOids.LETRO_VERAID_OID, verificationPeriod)
-        } catch (exc: PkiException) {
-            throw InvalidAccountCreationException("Member id bundle is invalid", exc)
-        }
-        return Pair(bundle, bundleMember)
     }
 
     private fun parseAssignedUserId(): Pair<String?, String> {

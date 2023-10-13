@@ -14,6 +14,8 @@ import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
+import tech.relaycorp.letro.awala.message.MessageType
+import tech.relaycorp.letro.utils.Logger
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -41,7 +43,7 @@ interface AwalaWrapper {
     suspend fun authorizeIndefinitely(
         firstPartyEndpoint: FirstPartyEndpoint,
         thirdPartyEndpoint: ThirdPartyEndpoint,
-    ): ByteArray
+    )
 
     suspend fun revokeAuthorization(
         firstPartyEndpoint: FirstPartyEndpoint,
@@ -51,6 +53,7 @@ interface AwalaWrapper {
 
 class AwalaWrapperImpl @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val logger: Logger,
 ) : AwalaWrapper {
 
     override suspend fun setUp() {
@@ -74,6 +77,7 @@ class AwalaWrapperImpl @Inject constructor(
         firstPartyEndpoint: FirstPartyEndpoint,
         thirdPartyEndpoint: ThirdPartyEndpoint,
     ) {
+        logger.i(AwalaManagerImpl.TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: ${outgoingMessage.type})")
         GatewayClient.sendMessage(
             OutgoingMessage.build(
                 type = outgoingMessage.type.value,
@@ -99,8 +103,16 @@ class AwalaWrapperImpl @Inject constructor(
     override suspend fun authorizeIndefinitely(
         firstPartyEndpoint: FirstPartyEndpoint,
         thirdPartyEndpoint: ThirdPartyEndpoint,
-    ): ByteArray {
-        return firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
+    ) {
+        val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyEndpoint)
+        sendMessage(
+            outgoingMessage = AwalaOutgoingMessage(
+                type = MessageType.AuthorizeReceivingFromServer,
+                content = auth,
+            ),
+            firstPartyEndpoint = firstPartyEndpoint,
+            thirdPartyEndpoint = thirdPartyEndpoint,
+        )
     }
 
     override suspend fun revokeAuthorization(

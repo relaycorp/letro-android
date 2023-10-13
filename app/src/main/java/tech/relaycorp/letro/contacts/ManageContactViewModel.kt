@@ -5,7 +5,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.ManageContactScreenContent.Companion.REQUEST_SENT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.EDIT_CONTACT
@@ -40,7 +40,7 @@ class ManageContactViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : BaseViewModel() {
 
     @Type
     private val screenType: Int = savedStateHandle[Route.ManageContact.KEY_SCREEN_TYPE]!!
@@ -72,10 +72,6 @@ class ManageContactViewModel @Inject constructor(
     private val _showPermissionGoToSettingsSignal = MutableSharedFlow<Unit>()
     val showPermissionGoToSettingsSignal: SharedFlow<Unit>
         get() = _showPermissionGoToSettingsSignal
-
-    private val _showSnackbar: MutableSharedFlow<Int> = MutableSharedFlow()
-    val showSnackbar: SharedFlow<Int>
-        get() = _showSnackbar
 
     private var currentAccountId: String? = null
     private val contacts: HashSet<Contact> = hashSetOf()

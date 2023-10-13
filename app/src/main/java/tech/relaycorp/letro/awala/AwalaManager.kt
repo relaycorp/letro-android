@@ -56,6 +56,9 @@ interface AwalaManager {
         // TODO: after MVP handle several first party endpoints
         thirdPartyPublicKey: ByteArray,
     )
+    suspend fun authorizePublicThirdPartyEndpoint(
+        thirdPartyEndpoint: PublicThirdPartyEndpoint,
+    )
     suspend fun revokeAuthorization(
         user: MessageRecipient.User,
     )
@@ -138,12 +141,18 @@ class AwalaManagerImpl @Inject constructor(
                 sender = firstPartyEndpoint,
                 recipient = recipient,
             )
-            logger.i(TAG, "sendMessage() from ${firstPartyEndpoint.nodeId} to ${thirdPartyEndpoint.nodeId}: ${outgoingMessage.type})")
             awala.sendMessage(
                 outgoingMessage = outgoingMessage,
                 firstPartyEndpoint = firstPartyEndpoint,
                 thirdPartyEndpoint = thirdPartyEndpoint,
             )
+        }
+    }
+
+    override suspend fun authorizePublicThirdPartyEndpoint(thirdPartyEndpoint: PublicThirdPartyEndpoint) {
+        withContext(awalaThreadContext) {
+            val firstPartyEndpoint = loadFirstPartyEndpoint()
+            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
         }
     }
 
@@ -324,16 +333,7 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpoint = awala.loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
 
             // Create the Parcel Delivery Authorisation (PDA)
-            val auth = awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
-            sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.AuthorizeReceivingFromServer,
-                    content = auth,
-                ),
-                recipient = MessageRecipient.Server(
-                    nodeId = thirdPartyEndpoint.nodeId,
-                ),
-            )
+            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
             awalaRepository.saveServerThirdPartyEndpointNodeId(thirdPartyEndpoint.nodeId)
             thirdPartyEndpoint
         }

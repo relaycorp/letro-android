@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.account.storage.repository.AccountRepositoryImpl
 
@@ -15,14 +16,15 @@ fun createAccount(
     requestedUserName: String = "account",
     normalisedLocale: String = "test.id",
     isCurrent: Boolean = true,
-    isCreated: Boolean = true,
+    @AccountStatus status: Int = AccountStatus.CREATED,
 ) = Account(
     accountId = accountId,
     requestedUserName = requestedUserName,
     normalisedLocale = normalisedLocale,
+    domain = "test.id",
     isCurrent = isCurrent,
     veraidPrivateKey = ByteArray(0),
-    isCreated = isCreated,
+    status = status,
 )
 
 @ExperimentalCoroutinesApi

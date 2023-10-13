@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -117,7 +118,7 @@ class RootNavigationTest {
     fun `Test that Registration waiting screen is being opened, if Awala is successfully initialized, and account is not created yet (pending creation)`() {
         val awalaManager = createAwalaManager(ioDispatcher = dispatcher)
         val accountRepository = createAccountRepository(
-            accounts = listOf(createAccount(isCreated = false)),
+            accounts = listOf(createAccount(status = AccountStatus.CREATION_WAITING)),
         )
         val contactsRepository = createContactsRepository(
             contacts = emptyList(),

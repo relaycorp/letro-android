@@ -49,6 +49,9 @@ fun ActionTakingScreen(
                 text = stringResource(id = actionTakingScreenUIStateModel.titleStringRes),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
             )
         }
         if (actionTakingScreenUIStateModel.firstMessageStringRes != null) {

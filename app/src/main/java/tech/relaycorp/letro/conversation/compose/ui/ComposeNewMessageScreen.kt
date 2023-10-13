@@ -47,6 +47,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
@@ -210,6 +211,8 @@ fun ComposeNewMessageScreen(
                                 .applyIf(uiState.isOnlyTextEditale) {
                                     copy(alpha = 0.38f)
                                 },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
@@ -217,6 +220,8 @@ fun ComposeNewMessageScreen(
                             color = MaterialTheme.colorScheme.onSurface
                                 .copy(alpha = 0.38F),
                             style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     Divider()
@@ -234,6 +239,8 @@ fun ComposeNewMessageScreen(
                                 .applyIf(uiState.isOnlyTextEditale) {
                                     copy(alpha = 0.38f)
                                 },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         if (uiState.showRecipientAsChip) {
                             Spacer(modifier = Modifier.width(16.dp))
@@ -310,6 +317,7 @@ fun ComposeNewMessageScreen(
                                         placeHolderText = stringResource(id = R.string.new_message_subject_hint),
                                         keyboardOptions = KeyboardOptions.Default.copy(
                                             imeAction = ImeAction.Next,
+                                            capitalization = KeyboardCapitalization.Sentences,
                                         ),
                                         placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier
@@ -327,6 +335,7 @@ fun ComposeNewMessageScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                                 .copy(alpha = 0.38F),
                                             maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                             modifier = Modifier
                                                 .align(Alignment.CenterStart),
                                         )
@@ -437,6 +446,10 @@ private fun RecipientChipView(
                 .applyIf(!isEditable) {
                     copy(alpha = 0.3F)
                 },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f, fill = false),
         )
         if (isEditable) {
             Spacer(modifier = Modifier.width(11.dp))

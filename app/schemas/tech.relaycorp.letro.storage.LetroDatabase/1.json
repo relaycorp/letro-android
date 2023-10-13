@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e714cb3de1eddf34851bc19c7da0dd6f",
+    "identityHash": "b5b92c89750189cbec91ddc2ee6a4088",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `isCreated` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `status` INTEGER NOT NULL, `token` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -30,6 +30,12 @@
             "fieldPath": "normalisedLocale",
             "columnName": "normalisedLocale",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "domain",
+            "columnName": "domain",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -51,10 +57,16 @@
             "notNull": false
           },
           {
-            "fieldPath": "isCreated",
-            "columnName": "isCreated",
+            "fieldPath": "status",
+            "columnName": "status",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -416,7 +428,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e714cb3de1eddf34851bc19c7da0dd6f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5b92c89750189cbec91ddc2ee6a4088')"
     ]
   }
 }

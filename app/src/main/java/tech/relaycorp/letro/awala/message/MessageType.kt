@@ -5,6 +5,11 @@ import tech.relaycorp.letro.awala.AwalaManagerImpl
 
 sealed class MessageType(val value: String) {
     object AccountCreationRequest : MessageType("application/vnd.relaycorp.letro.account-request")
+    object ConnectionParamsRequest : MessageType("application/vnd.relaycorp.letro.connection-params-request")
+    object ConnectionParams : MessageType("application/vnd.relaycorp.letro.connection-params")
+    object MisconfiguredInternetEndpoint : MessageType("application/vnd.relaycorp.letro.misconfigured-internet-endpoint")
+    object MemberPublicKeyImport : MessageType("application/vnd.veraid-authority.member-public-key-import")
+    object VeraIdMemberBundle : MessageType("application/vnd.veraid.member-bundle")
     object AccountCreation : MessageType("application/vnd.relaycorp.letro.account-creation")
     object AuthorizeReceivingFromServer : MessageType("application/vnd+relaycorp.awala.pda-path")
     object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.pairing-request-tmp")
@@ -20,6 +25,11 @@ sealed class MessageType(val value: String) {
                 AccountCreationRequest.value -> AccountCreationRequest
                 AccountCreation.value -> AccountCreation
                 AuthorizeReceivingFromServer.value -> AuthorizeReceivingFromServer
+                ConnectionParamsRequest.value -> ConnectionParamsRequest
+                ConnectionParams.value -> ConnectionParams
+                MisconfiguredInternetEndpoint.value -> MisconfiguredInternetEndpoint
+                MemberPublicKeyImport.value -> MemberPublicKeyImport
+                VeraIdMemberBundle.value -> VeraIdMemberBundle
                 ContactPairingRequest.value -> ContactPairingRequest
                 ContactPairingMatch.value -> ContactPairingMatch
                 ContactPairingAuthorization.value -> ContactPairingAuthorization

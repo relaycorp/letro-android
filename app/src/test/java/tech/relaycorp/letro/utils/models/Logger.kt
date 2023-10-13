@@ -17,6 +17,11 @@ fun createLogger() = object : Logger {
         exception.printStackTrace()
     }
 
+    override fun w(tag: String, message: String, exception: Exception) {
+        System.err.println("W: $tag: ${exception.message}")
+        exception.printStackTrace()
+    }
+
     override fun e(tag: String, message: String, exception: Exception) {
         System.err.println("E: $tag: ${exception.message}")
         exception.printStackTrace()

@@ -1,13 +1,11 @@
 package tech.relaycorp.letro.awala.ui.error
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
-import tech.relaycorp.letro.ui.theme.LetroColor
+import tech.relaycorp.letro.ui.common.LetroTopTitle
 
 @Composable
 fun AwalaInitializationError(
@@ -31,23 +29,7 @@ fun AwalaInitializationError(
     viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = LetroColor.SurfaceContainerHigh,
-                )
-                .padding(
-                    vertical = 16.dp,
-                ),
-        ) {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
-                color = LetroColor.OnSurfaceContainerHigh,
-            )
-        }
+        LetroTopTitle()
         Column(
             modifier = Modifier
                 .fillMaxSize()
