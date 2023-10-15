@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.contacts
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,6 @@ import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
-import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import javax.inject.Inject
@@ -98,6 +98,7 @@ class ContactsViewModel @Inject constructor(
                 contactsRepository.deleteContact(contact)
                 _showContactDeletedSnackbarSignal.emit(Unit)
             } catch (e: AwaladroidException) {
+                Log.w(TAG, e)
                 _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
             }
         }
@@ -131,7 +132,7 @@ class ContactsViewModel @Inject constructor(
         if (account != null) {
             contactsCollectionJob = viewModelScope.launch {
                 contactsRepository.getContacts(account.accountId).collect {
-                    _contacts.emit(it.filter { it.status == ContactPairingStatus.COMPLETED })
+                    _contacts.emit(it)
                 }
             }
         }
@@ -147,3 +148,5 @@ data class DeleteContactDialogState(
     val isShown: Boolean = false,
     val contact: Contact? = null,
 )
+
+private const val TAG = "ContactsViewModel"

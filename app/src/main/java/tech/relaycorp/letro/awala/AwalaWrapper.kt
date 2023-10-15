@@ -5,6 +5,7 @@ import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.awaladroid.Awala
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
@@ -128,18 +129,20 @@ class AwalaWrapperImpl @Inject constructor(
 
     override suspend fun loadNonNullPublicFirstPartyEndpoint(nodeId: String?): FirstPartyEndpoint {
         if (nodeId == null) throw Exception("nodeId for loading FirstPartyEndpoint is null")
-        return FirstPartyEndpoint.load(nodeId) ?: throw Exception("FirstPartyEndpoint couldn't be loaded")
+        return FirstPartyEndpoint.load(nodeId) ?: throw AwalaException("FirstPartyEndpoint couldn't be loaded")
     }
 
     override suspend fun loadNonNullPublicThirdPartyEndpoint(nodeId: String?): PublicThirdPartyEndpoint {
         if (nodeId == null) throw Exception("nodeId for loading ThirdPartyEndpoint is null")
-        return PublicThirdPartyEndpoint.load(nodeId) ?: throw Exception("ThirdPartyEndpoint couldn't be loaded")
+        return PublicThirdPartyEndpoint.load(nodeId) ?: throw AwalaException("ThirdPartyEndpoint couldn't be loaded")
     }
 
     override suspend fun loadNonNullPrivateThirdPartyEndpoint(firstPartyNodeId: String, thirdPartyNodeId: String): PrivateThirdPartyEndpoint {
         return PrivateThirdPartyEndpoint.load(
             thirdPartyAddress = thirdPartyNodeId,
             firstPartyAddress = firstPartyNodeId,
-        ) ?: throw Exception("ThirdPartyEndpoint couldn't be loaded")
+        ) ?: throw AwalaException("ThirdPartyEndpoint couldn't be loaded")
     }
 }
+
+class AwalaException(message: String) : AwaladroidException(message)

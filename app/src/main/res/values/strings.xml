@@ -56,7 +56,6 @@
     <string name="floating_action_button_write_new_message_content_description">Write new message</string>
     <string name="floating_action_button_add_contact_content_description">Add contact</string>
     <string name="floating_action_button_close_content_description">Close</string>
-    <string name="icon_more_content_description">More</string>
 
     <string name="edit_name">Edit name</string>
     <string name="save_changes">Save changes</string>
@@ -97,6 +96,7 @@
     <string name="join_me_on_letro">Join me on Letro: %s</string>
 
     <string name="general_navigate_back">Go back</string>
+    <string name="pending">Pending</string>
 
     <string name="new_message_attach">Attach</string>
     <string name="new_message_send">Send</string>
