@@ -82,7 +82,7 @@ fun ContactsScreen(
             items(contacts.size) { index ->
                 ContactView(
                     contact = contacts[index],
-                    onActionsButtonClick = { viewModel.onActionsButtonClick(contacts[index]) },
+                    onClick = { viewModel.onActionsButtonClick(contacts[index]) },
                 )
             }
         }

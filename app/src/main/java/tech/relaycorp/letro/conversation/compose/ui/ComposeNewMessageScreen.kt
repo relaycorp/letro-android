@@ -410,7 +410,7 @@ private fun suggestContactsList(
         ) {
             ContactView(
                 contact = contacts[it],
-                onContactClick = { onContactClick(contacts[it]) },
+                onClick = { onContactClick(contacts[it]) },
             )
         }
     }
