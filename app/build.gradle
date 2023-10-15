@@ -94,6 +94,10 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'androidx.activity:activity-compose:1.7.2'
 
+    // Encryption:
+    implementation 'androidx.security:security-crypto:1.0.0'
+    implementation "net.zetetic:android-database-sqlcipher:4.5.4"
+
     // Hilt
     def hilt_version = "2.48.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"

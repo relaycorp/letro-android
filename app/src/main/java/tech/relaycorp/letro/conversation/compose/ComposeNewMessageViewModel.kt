@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.conversation.compose
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
@@ -237,6 +238,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                         )
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
+                        Log.w(TAG, e)
                         _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
@@ -365,3 +367,5 @@ data class MessageExceedsLimitError(
     val value: String,
     @StringRes val stringRes: Int,
 )
+
+private const val TAG = "ComposeNewMessageViewModel"
