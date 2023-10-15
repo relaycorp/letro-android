@@ -1,6 +1,8 @@
 package tech.relaycorp.letro.storage
 
 import android.content.Context
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -16,7 +18,15 @@ class PreferencesImpl @Inject constructor(
 ) : Preferences {
 
     private val preferences by lazy {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        EncryptedSharedPreferences.create(
+            context,
+            PREF_NAME,
+            MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build(),
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
     }
 
     override fun getString(key: String, defaultValue: String?): String? {
