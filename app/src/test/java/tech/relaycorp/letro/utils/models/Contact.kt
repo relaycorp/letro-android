@@ -17,6 +17,7 @@ import tech.relaycorp.letro.storage.Preferences
 fun createContact(
     ownerVeraId: String = "account@test.id",
     contactVeraId: String = "contact@test.id",
+    isPrivateEndpoint: Boolean = true,
     alias: String? = null,
     @ContactPairingStatus status: Int = ContactPairingStatus.COMPLETED,
 ) = Contact(
@@ -25,6 +26,7 @@ fun createContact(
     alias = alias,
     contactEndpointId = "",
     status = status,
+    isPrivateEndpoint = isPrivateEndpoint,
 )
 
 @ExperimentalCoroutinesApi

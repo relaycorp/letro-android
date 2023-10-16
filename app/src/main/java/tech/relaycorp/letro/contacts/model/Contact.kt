@@ -31,6 +31,7 @@ data class Contact(
     val id: Long = 0L,
     val ownerVeraId: String,
     val contactVeraId: String,
+    val isPrivateEndpoint: Boolean,
     val alias: String? = null,
     val contactEndpointId: String? = null,
     @ContactPairingStatus val status: Int = UNPAIRED,

@@ -146,9 +146,15 @@ class ConversationsRepositoryImpl @Inject constructor(
                     attachments = attachments,
                 ),
             ),
-            recipient = MessageRecipient.User(
-                nodeId = recipientNodeId,
-            ),
+            recipient = if (recipient.isPrivateEndpoint) {
+                MessageRecipient.User(
+                    nodeId = recipientNodeId,
+                )
+            } else {
+                MessageRecipient.Server(
+                    nodeId = recipientNodeId,
+                )
+            },
         )
         conversationsDao.createNewConversation(conversation)
         val messageId = messagesDao.insert(message)
@@ -165,9 +171,10 @@ class ConversationsRepositoryImpl @Inject constructor(
     ) {
         val conversation = _conversations.value
             .find { it.conversationId == conversationId } ?: return
-        val recipientNodeId = contacts.value
+        val recipient = contacts.value
             .find { it.contactVeraId == conversation.contactVeraId && it.ownerVeraId == conversation.ownerVeraId }
-            ?.contactEndpointId ?: return
+
+        val recipientNodeId = recipient?.contactEndpointId ?: return
         val message = Message(
             conversationId = conversationId,
             text = messageText,
@@ -185,9 +192,15 @@ class ConversationsRepositoryImpl @Inject constructor(
                     attachments = attachments,
                 ),
             ),
-            recipient = MessageRecipient.User(
-                nodeId = recipientNodeId,
-            ),
+            recipient = if (recipient.isPrivateEndpoint) {
+                MessageRecipient.User(
+                    nodeId = recipientNodeId,
+                )
+            } else {
+                MessageRecipient.Server(
+                    nodeId = recipientNodeId,
+                )
+            },
         )
 
         val messageId = messagesDao.insert(message)

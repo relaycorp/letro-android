@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b5b92c89750189cbec91ddc2ee6a4088",
+    "identityHash": "487fc779da2f573d8b4c0d9928442d04",
     "entities": [
       {
         "tableName": "account",
@@ -90,7 +90,7 @@
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `isPrivateEndpoint` INTEGER NOT NULL, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -121,6 +121,12 @@
             "columnName": "contactEndpointId",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "isPrivateEndpoint",
+            "columnName": "isPrivateEndpoint",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "status",
@@ -428,7 +434,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5b92c89750189cbec91ddc2ee6a4088')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '487fc779da2f573d8b4c0d9928442d04')"
     ]
   }
 }
