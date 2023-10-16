@@ -223,6 +223,7 @@ class ManageContactViewModel @Inject constructor(
                     contactVeraId = uiState.value.accountId,
                     alias = uiState.value.alias?.nullIfBlankOrEmpty(),
                     status = ContactPairingStatus.REQUEST_SENT,
+                    isPrivateEndpoint = uiState.value.accountId.contains("@"),
                 ),
             )
         }

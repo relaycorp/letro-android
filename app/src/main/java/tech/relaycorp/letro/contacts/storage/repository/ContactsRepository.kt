@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -78,13 +79,23 @@ class ContactsRepositoryImpl @Inject constructor(
         )
 
         if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
-            awalaManager.sendMessage(
-                outgoingMessage = AwalaOutgoingMessage(
-                    type = MessageType.ContactPairingRequest,
-                    content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
-                ),
-                recipient = MessageRecipient.Server(),
-            )
+            if (contact.isPrivateEndpoint) {
+                awalaManager.sendMessage(
+                    outgoingMessage = AwalaOutgoingMessage(
+                        type = MessageType.ContactPairingRequest,
+                        content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
+                    ),
+                    recipient = MessageRecipient.Server(),
+                )
+            } else {
+                awalaManager.sendMessage(
+                    outgoingMessage = AwalaOutgoingMessage(
+                        type = MessageType.ConnectionParamsRequest,
+                        content = contact.contactVeraId.toByteArray(),
+                    ),
+                    recipient = MessageRecipient.Server(),
+                )
+            }
             if (existingContact == null) {
                 contactsDao.insert(
                     contact.copy(

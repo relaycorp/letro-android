@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
+import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManagerImpl
 import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationParser
 import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationParserImpl
 import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingMatchParser
@@ -58,5 +60,10 @@ object ContactsModule {
         fun bindContactPairingAuthProcessor(
             impl: ContactPairingAuthorizationProcessorImpl,
         ): ContactPairingAuthorizationProcessor
+
+        @Binds
+        fun bindContactPairingSuccessNotificationManager(
+            impl: ContactPairingNotificationManagerImpl,
+        ): ContactPairingNotificationManager
     }
 }
