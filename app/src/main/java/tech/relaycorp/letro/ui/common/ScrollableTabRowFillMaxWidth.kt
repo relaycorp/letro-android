@@ -6,15 +6,15 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -24,7 +24,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,9 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScrollableTabRowFillMaxWidth(
     selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
     containerColor: Color = TabRowDefaults.containerColor,
-    contentColor: Color = TabRowDefaults.contentColor,
     paddingBetweenTabs: Dp = 8.dp,
     edgePadding: Dp = 9.dp,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
@@ -52,16 +49,9 @@ fun ScrollableTabRowFillMaxWidth(
             Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
         )
     },
-    divider: @Composable () -> Unit = @Composable {
-        Divider()
-    },
     tabs: @Composable () -> Unit,
 ) {
-    Surface(
-        modifier = modifier,
-        color = containerColor,
-        contentColor = contentColor,
-    ) {
+    Column {
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
         val scrollableTabData = remember(scrollState, coroutineScope) {
@@ -73,11 +63,11 @@ fun ScrollableTabRowFillMaxWidth(
         val screenWidth = LocalConfiguration.current.screenWidthDp
         SubcomposeLayout(
             Modifier
+                .background(containerColor)
                 .fillMaxWidth()
                 .wrapContentSize(align = Alignment.CenterStart)
                 .horizontalScroll(scrollState)
-                .selectableGroup()
-                .clipToBounds(),
+                .selectableGroup(),
         ) { constraints ->
             val screenWidthPx = screenWidth.dp.toPx().toInt()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.roundToPx()
@@ -105,9 +95,13 @@ fun ScrollableTabRowFillMaxWidth(
                     curr + measurable.maxIntrinsicWidth(tabConstraints.maxHeight)
                 }
 
-            Log.d(TAG, "total view width: $wholeViewWidth, view without end paddings: $tabsWithoutEndPaddingsWidth, screen width: $screenWidthPx")
+            Log.d(
+                TAG,
+                "total view width: $wholeViewWidth, view without end paddings: $tabsWithoutEndPaddingsWidth, screen width: $screenWidthPx",
+            )
             val isNeedAdditionalPaddingToFillAllSpace = wholeViewWidth < screenWidthPx
-            val paddingEndToFillAllSpace = if (isNeedAdditionalPaddingToFillAllSpace) (screenWidthPx - tabsWithoutEndPaddingsWidth) / (tabMeasurables.size - 1) else tabPaddingEndPx
+            val paddingEndToFillAllSpace =
+                if (isNeedAdditionalPaddingToFillAllSpace) (screenWidthPx - tabsWithoutEndPaddingsWidth) / (tabMeasurables.size - 1) else tabPaddingEndPx
 
             Log.d(TAG, "PreviousPadding: $tabPaddingEndPx, NewPadding: $paddingEndToFillAllSpace")
 
@@ -116,9 +110,10 @@ fun ScrollableTabRowFillMaxWidth(
                     measurable.measure(tabConstraints)
                 }
 
-            val layoutWidth = tabPlaceables.foldIndexed(initial = edgePaddingPx * 2) { index, curr, placeable ->
-                curr + placeable.width + if (index == tabMeasurables.size - 1) 0 else paddingEndToFillAllSpace
-            }
+            val layoutWidth =
+                tabPlaceables.foldIndexed(initial = edgePaddingPx * 2) { index, curr, placeable ->
+                    curr + placeable.width + if (index == tabMeasurables.size - 1) 0 else paddingEndToFillAllSpace
+                }
 
             Log.d(TAG, "new layout width: $layoutWidth")
 
@@ -129,21 +124,13 @@ fun ScrollableTabRowFillMaxWidth(
                 var left = edgePaddingPx
                 tabPlaceables.forEachIndexed { index, placeable ->
                     placeable.placeRelative(left, 0)
-                    tabPositions.add(TabPosition(left = left.toDp(), width = placeable.width.toDp()))
-                    left += placeable.width + if (index != tabPlaceables.size - 1) paddingEndToFillAllSpace else 0
-                }
-
-                // The divider is measured with its own height, and width equal to the total width
-                // of the tab row, and then placed on top of the tabs.
-                subcompose(TabSlots.Divider, divider).forEach {
-                    val placeable = it.measure(
-                        constraints.copy(
-                            minHeight = 0,
-                            minWidth = layoutWidth,
-                            maxWidth = layoutWidth,
+                    tabPositions.add(
+                        TabPosition(
+                            left = left.toDp(),
+                            width = placeable.width.toDp(),
                         ),
                     )
-                    placeable.placeRelative(0, layoutHeight - placeable.height)
+                    left += placeable.width + if (index != tabPlaceables.size - 1) paddingEndToFillAllSpace else 0
                 }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
