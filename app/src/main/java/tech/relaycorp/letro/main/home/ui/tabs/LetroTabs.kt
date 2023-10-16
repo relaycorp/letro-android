@@ -5,13 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,13 +27,13 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.ui.common.ScrollableTabRowFillMaxWidth
 import tech.relaycorp.letro.ui.common.tabIndicatorOffset
+import tech.relaycorp.letro.ui.theme.Elevation1
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @SuppressLint
 @Composable
 fun LetroTabs(
     viewModel: HomeViewModel,
-    modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -45,15 +47,24 @@ fun LetroTabs(
     ScrollableTabRowFillMaxWidth(
         selectedTabIndex = uiState.currentTab,
         containerColor = LetroColor.SurfaceContainerHigh,
-        contentColor = LetroColor.OnSurfaceContainerHigh,
         edgePadding = 9.dp,
         indicator = {
-            TabRowDefaults.Indicator(
-                color = LetroColor.OnSurfaceContainerHigh,
-                modifier = Modifier.tabIndicatorOffset(it[uiState.currentTab]),
-            )
+            Surface(
+                shadowElevation = Elevation1,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(TabIndicatorHeight)
+                    .tabIndicatorOffset(it[uiState.currentTab]),
+            ) {
+                Box(
+                    Modifier
+                        .tabIndicatorOffset(it[uiState.currentTab])
+                        .fillMaxWidth()
+                        .height(TabIndicatorHeight)
+                        .background(color = LetroColor.OnSurfaceContainerHigh),
+                )
+            }
         },
-        modifier = modifier,
     ) {
         tabTitles.forEachIndexed { index, title ->
             BadgedTab(
@@ -128,3 +139,5 @@ private fun TabBadge(
         )
     }
 }
+
+private val TabIndicatorHeight = 3.dp
