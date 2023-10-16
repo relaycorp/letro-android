@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.letro.contacts.model.Contact
+import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.model.TABLE_NAME_CONTACTS
 
 @Dao
@@ -20,6 +21,12 @@ interface ContactsDao {
         ownerVeraId: String,
         contactVeraId: String,
     ): Contact?
+
+    @Query("SELECT * FROM $TABLE_NAME_CONTACTS WHERE contactVeraId = :contactVeraId AND status = :pairingStatus AND contactEndpointId is NULL")
+    suspend fun getContactsWithNoEndpoint(
+        contactVeraId: String,
+        @ContactPairingStatus pairingStatus: Int,
+    ): List<Contact>
 
     @Update
     suspend fun update(contact: Contact)

@@ -164,7 +164,7 @@ private fun Conversation(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .padding(
-                                    top = if (conversation.isRead) 3.dp else 1.dp,
+                                    top = 3.dp,
                                 ),
                         )
                     }
