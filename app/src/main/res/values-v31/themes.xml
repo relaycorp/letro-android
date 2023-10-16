@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Letro.Splash" parent="Theme.Letro">
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_288</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
