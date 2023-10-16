@@ -18,6 +18,7 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
+import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.models.AwalaInitializationResult
 import tech.relaycorp.letro.utils.models.createAccount
 import tech.relaycorp.letro.utils.models.createAccountRepository
@@ -191,7 +192,7 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = false)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
 
     @Test
@@ -211,7 +212,7 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = false)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
 
     @Test
@@ -230,7 +231,7 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(isFatal = true)
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_FATAL_ERROR)
     }
 
     private fun createViewModel(

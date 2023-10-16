@@ -22,6 +22,7 @@ import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.utils.intent.goToNotificationSettings
+import tech.relaycorp.letro.utils.intent.openAwala
 import tech.relaycorp.letro.utils.intent.openFile
 import tech.relaycorp.letro.utils.intent.openLink
 import tech.relaycorp.letro.utils.intent.shareText
@@ -49,6 +50,7 @@ class MainActivity : ComponentActivity() {
                     LetroNavHost(
                         stringsProvider = stringsProvider,
                         onGoToNotificationsSettingsClick = { goToNotificationSettings() },
+                        onOpenAwalaClick = { openAwala() },
                         mainViewModel = viewModel,
                     )
                 }

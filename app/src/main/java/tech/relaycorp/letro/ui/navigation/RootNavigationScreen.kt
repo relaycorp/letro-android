@@ -10,7 +10,7 @@ sealed interface RootNavigationScreen {
     object Home : RootNavigationScreen
     object AwalaNotInstalled : RootNavigationScreen
     data class AwalaInitializationError(
-        val isFatal: Boolean,
+        val type: Int,
     ) : RootNavigationScreen
     object AwalaInitializing : RootNavigationScreen
 
@@ -52,7 +52,7 @@ sealed interface RootNavigationScreen {
 
         is AwalaInitializationError -> {
             Route.AwalaInitializationError(
-                isFatal = isFatal,
+                type = type,
             )
         }
     }

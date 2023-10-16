@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.EncryptionInitializationException
 import tech.relaycorp.awaladroid.GatewayBindingException
+import tech.relaycorp.awaladroid.GatewayUnregisteredException
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
@@ -25,6 +26,7 @@ import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_NOT_INSTALLED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.AWALA_SET_UP
+import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.FIRST_PARTY_ENDPOINT_REGISTRED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.GATEWAY_CLIENT_BINDED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZATION_FATAL_ERROR
@@ -46,11 +48,13 @@ import kotlin.coroutines.CoroutineContext
 interface AwalaManager {
     val awalaInitializationState: StateFlow<Int>
     val awalaUnsuccessfulBindings: SharedFlow<Unit>
+    val awalaUnsuccessfulConfigurations: SharedFlow<Unit>
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
         recipient: MessageRecipient,
     )
     fun initializeGatewayAsync()
+    fun configureEndpointsAsync()
 
     suspend fun authorizeUsers(
         // TODO: after MVP handle several first party endpoints
@@ -89,6 +93,10 @@ class AwalaManagerImpl @Inject constructor(
     private val _awalaUnsuccessfulBindings = MutableSharedFlow<Unit>()
     override val awalaUnsuccessfulBindings: SharedFlow<Unit>
         get() = _awalaUnsuccessfulBindings
+
+    private val _awalaUnsuccessfulConfigurations = MutableSharedFlow<Unit>()
+    override val awalaUnsuccessfulConfigurations: SharedFlow<Unit>
+        get() = _awalaUnsuccessfulConfigurations
 
     private var isReceivingMessages = false
 
@@ -247,13 +255,18 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
-    private suspend fun configureAwala() {
+    private suspend fun configureEndpoints() {
         withContext(awalaThreadContext) {
             try {
                 registerFirstPartyEndpointIfNeeded()
             } catch (e: EncryptionInitializationException) {
                 logger.e(TAG, "Failed to register endpoint due to Android security lib bug", e)
                 _awalaInitializationState.emit(INITIALIZATION_FATAL_ERROR)
+                return@withContext
+            } catch (e: GatewayUnregisteredException) {
+                logger.e(TAG, "Failed to register endpoint", e)
+                _awalaUnsuccessfulConfigurations.emit(Unit)
+                _awalaInitializationState.emit(COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT)
                 return@withContext
             } catch (e: AwaladroidException) {
                 logger.e(TAG, "Failed to register endpoint", e)
@@ -283,6 +296,12 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
+    override fun configureEndpointsAsync() {
+        awalaScope.launch(awalaThreadContext) {
+            configureEndpoints()
+        }
+    }
+
     private suspend fun initializeGateway() {
         withContext(awalaThreadContext) {
             try {
@@ -290,7 +309,7 @@ class AwalaManagerImpl @Inject constructor(
                 awala.bindGateway()
                 _awalaInitializationState.emit(GATEWAY_CLIENT_BINDED)
                 logger.i(TAG, "GatewayClient bound")
-                configureAwala()
+                configureEndpoints()
             } catch (exp: GatewayBindingException) {
                 logger.i(TAG, "GatewayClient cannot be bound: $exp")
                 _awalaUnsuccessfulBindings.emit(Unit)
@@ -356,6 +375,7 @@ class AwalaManagerImpl @Inject constructor(
 internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)
 
 @IntDef(
+    COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT,
     INITIALIZATION_FATAL_ERROR,
     INITIALIZATION_NONFATAL_ERROR,
     AWALA_NOT_INSTALLED,
@@ -368,6 +388,7 @@ internal class InvalidConnectionParams(cause: Throwable) : Exception(cause)
 annotation class AwalaInitializationState {
     companion object {
         const val INITIALIZATION_FATAL_ERROR = -999
+        const val COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT = -3
         const val INITIALIZATION_NONFATAL_ERROR = -2
         const val AWALA_NOT_INSTALLED = -1
         const val NOT_INITIALIZED = 0
