@@ -48,6 +48,7 @@ import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
 import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
 import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
+import tech.relaycorp.letro.awala.ui.error.AwalaInitializationErrorViewModel.Companion.CONFIGURE_ENDPOINTS_ON_RESUME
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
@@ -80,6 +81,7 @@ import tech.relaycorp.letro.utils.compose.showSnackbar
 fun LetroNavHost(
     stringsProvider: StringsProvider,
     onGoToNotificationsSettingsClick: () -> Unit,
+    onOpenAwalaClick: () -> Unit,
     mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
@@ -215,14 +217,36 @@ fun LetroNavHost(
                             AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
                         }
                         composable(
-                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.FATAL_SUFFIX}",
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_FATAL_ERROR}",
                         ) {
-                            AwalaInitializationError(isFatal = true)
+                            AwalaInitializationError(
+                                type = Route.AwalaInitializationError.TYPE_FATAL_ERROR,
+                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
+                            )
                         }
                         composable(
-                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.NONFATAL_SUFFIX}",
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR}",
                         ) {
-                            AwalaInitializationError(isFatal = false)
+                            AwalaInitializationError(
+                                type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR,
+                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
+                            )
+                        }
+                        composable(
+                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA}",
+                            arguments = listOf(
+                                navArgument(CONFIGURE_ENDPOINTS_ON_RESUME) {
+                                    this.type = NavType.BoolType
+                                    defaultValue = true
+                                    nullable = false
+                                },
+                            ),
+                        ) {
+                            AwalaInitializationError(
+                                type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
+                                onOpenAwalaClick = onOpenAwalaClick,
+                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
+                            )
                         }
                         composable(Route.Splash.name) {
                             SplashScreen()

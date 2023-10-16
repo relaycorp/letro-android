@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.ui.navigation
 
+import androidx.annotation.IntDef
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 
@@ -57,19 +58,21 @@ sealed class Route(
     )
 
     data class AwalaInitializationError(
-        val isFatal: Boolean,
+        @Type val type: Int,
     ) : Route(
-        name = "$NAME_PREFIX${suffix(isFatal)}",
+        name = "$NAME_PREFIX$type",
         showTopBar = false,
         isStatusBarPrimaryColor = true,
     ) {
 
+        @IntDef(TYPE_FATAL_ERROR, TYPE_NON_FATAL_ERROR, TYPE_NEED_TO_OPEN_AWALA)
+        annotation class Type
         companion object {
-            internal const val NAME_PREFIX = "awala_initialization_error_"
-            const val FATAL_SUFFIX = "FATAL"
-            const val NONFATAL_SUFFIX = "NON_FATAL"
+            const val TYPE_FATAL_ERROR = 0
+            const val TYPE_NON_FATAL_ERROR = 1
+            const val TYPE_NEED_TO_OPEN_AWALA = 2
 
-            fun suffix(isFatal: Boolean) = if (isFatal) FATAL_SUFFIX else NONFATAL_SUFFIX
+            internal const val NAME_PREFIX = "awala_initialization_error_"
         }
     }
 
@@ -155,7 +158,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
-            it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toBoolean())
+            it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toInt())
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
             it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed

@@ -153,6 +153,8 @@
 
     <string name="we_failed_to_set_up_awala">We failed to set up Awala</string>
     <string name="try_again">Try again</string>
+    <string name="awala_isnt_fully_setup_yet">Awala isn’t fully setup yet</string>
+    <string name="open_awala">Open Awala</string>
     <string name="unable_setup_letro_text">Letro is unable to use Awala due to a bug in Android’s security library, which we know affects some devices.</string>
     <string name="reinstall_letro_error">Google are yet to fix this issue, but we know that reinstalling Letro helps in some cases.</string>
 

@@ -69,4 +69,16 @@ fun Activity.openFile(file: File.FileWithoutContent) {
     }
 }
 
+fun Activity.openAwala() {
+    try {
+        startActivity(
+            packageManager.getLaunchIntentForPackage("tech.relaycorp.gateway"),
+        )
+    } catch (a: ActivityNotFoundException) {
+        Toast
+            .makeText(this, R.string.onboarding_install_awala_title, Toast.LENGTH_SHORT)
+            .show()
+    }
+}
+
 private const val AUTHORITY = "tech.relaycorp.letro.provider"
