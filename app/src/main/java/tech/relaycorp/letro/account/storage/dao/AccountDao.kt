@@ -33,6 +33,9 @@ interface AccountDao {
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE domain=:domain")
     suspend fun getByDomain(domain: String): List<Account>
 
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE awalaEndpoint=:awalaEndpoint")
+    suspend fun getByAwalaEndpoint(awalaEndpoint: String): List<Account>
+
     @Delete
     suspend fun deleteAccount(account: Account)
 }

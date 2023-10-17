@@ -25,6 +25,7 @@ data class Account(
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
+    val awalaEndpoint: String? = null,
     @AccountStatus val status: Int = CREATION_WAITING,
     val token: String? = null,
 ) {

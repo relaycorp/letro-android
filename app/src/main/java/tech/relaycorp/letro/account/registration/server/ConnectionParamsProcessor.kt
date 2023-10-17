@@ -34,7 +34,7 @@ class ConnectionParamsProcessorImpl @Inject constructor(
         val publicThirdPartyEndpoint = PublicThirdPartyEndpoint.import(message.content)
 
         val accountsToUpdate = accountsRepository.allAccounts.value
-            .filter { it.domain == publicThirdPartyEndpoint.internetAddress && it.token?.isNotEmptyOrBlank() == true && it.status != AccountStatus.CREATED }
+            .filter { (it.domain == publicThirdPartyEndpoint.internetAddress || it.awalaEndpoint == publicThirdPartyEndpoint.internetAddress) && it.token?.isNotEmptyOrBlank() == true && it.status != AccountStatus.CREATED }
         val contactsToUpdate = contactsDao.getContactsWithNoEndpoint(
             contactVeraId = publicThirdPartyEndpoint.internetAddress,
             pairingStatus = ContactPairingStatus.REQUEST_SENT,

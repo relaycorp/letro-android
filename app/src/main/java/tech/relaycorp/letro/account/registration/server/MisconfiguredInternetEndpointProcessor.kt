@@ -26,6 +26,12 @@ class MisconfiguredInternetEndpointProcessorImpl @Inject constructor(
                 status = AccountStatus.ERROR,
             )
         }
+        accountRepository.getByAwalaEndpoint(domain).forEach {
+            accountRepository.updateAccount(
+                account = it,
+                status = AccountStatus.ERROR,
+            )
+        }
         contactsDao.getContactsWithNoEndpoint(
             contactVeraId = domain,
             pairingStatus = ContactPairingStatus.REQUEST_SENT,
