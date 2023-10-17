@@ -70,7 +70,7 @@ sealed class ActionTakingScreenUIStateModel(
         domain: String,
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.we_could_not_claim_your_account,
-        image = R.drawable.account_creation_failed,
+        image = R.drawable.awala_initialization_error,
         firstMessageStringRes = R.string.you_need_to_contact_your_it_team_at,
         boldPartOfMessageInFirstMessage = domain,
     )
