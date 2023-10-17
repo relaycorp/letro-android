@@ -50,7 +50,6 @@ class RegistrationRepositoryImpl @Inject constructor(
     @Suppress("NAME_SHADOWING")
     override suspend fun loginToExistingAccount(domainName: String, awalaEndpoint: String, token: String) {
         val keyPair = generateRSAKeyPair()
-        val domainName = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else domainName
         awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
                 type = MessageType.ConnectionParamsRequest,
@@ -59,8 +58,9 @@ class RegistrationRepositoryImpl @Inject constructor(
             recipient = MessageRecipient.Server(),
         )
         accountRepository.createAccount(
-            "...",
-            domainName,
+            requestedUserName = "...",
+            domainName = domainName,
+            awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             veraidPrivateKey = keyPair.private,
             token = token,
         )

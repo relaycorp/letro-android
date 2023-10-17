@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "487fc779da2f573d8b4c0d9928442d04",
+    "identityHash": "8ad8f1069668e60e62a566ebf8f5fa7a",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `status` INTEGER NOT NULL, `token` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpoint` TEXT, `status` INTEGER NOT NULL, `token` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -57,6 +57,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "awalaEndpoint",
+            "columnName": "awalaEndpoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "status",
             "columnName": "status",
             "affinity": "INTEGER",
@@ -90,7 +96,7 @@
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `isPrivateEndpoint` INTEGER NOT NULL, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `isPrivateEndpoint` INTEGER NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -111,6 +117,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "isPrivateEndpoint",
+            "columnName": "isPrivateEndpoint",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "alias",
             "columnName": "alias",
             "affinity": "TEXT",
@@ -121,12 +133,6 @@
             "columnName": "contactEndpointId",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "isPrivateEndpoint",
-            "columnName": "isPrivateEndpoint",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "status",
@@ -434,7 +440,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '487fc779da2f573d8b4c0d9928442d04')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ad8f1069668e60e62a566ebf8f5fa7a')"
     ]
   }
 }

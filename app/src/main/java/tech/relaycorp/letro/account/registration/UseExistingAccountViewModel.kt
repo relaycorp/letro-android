@@ -11,7 +11,6 @@ import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
-import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
@@ -90,9 +89,8 @@ class UseExistingAccountViewModel @Inject constructor(
         domain: String,
         endpoint: String,
         token: String,
-    ) = token.isNotEmptyOrBlank() && (
-        endpoint.isNotEmptyOrBlank() && endpoint.matches(CorrectDomainRegex) ||
-            domain.isNotEmptyOrBlank() && domain.matches(CorrectDomainRegex) && endpoint.isEmptyOrBlank()
+    ) = token.isNotEmptyOrBlank() && domain.isNotEmptyOrBlank() && domain.matches(CorrectDomainRegex) && (
+        endpoint.isEmpty() || endpoint.isNotEmptyOrBlank() && endpoint.matches(CorrectDomainRegex)
         )
 }
 

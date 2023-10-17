@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.account.registration
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,6 +60,7 @@ class RegistrationViewModel @Inject constructor(
                     locale = domainProvider.getDomainLocale(),
                 )
             } catch (e: AwaladroidException) {
+                Log.w(TAG, e)
                 _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
             } finally {
                 _uiState.update {
@@ -83,3 +85,5 @@ data class RegistrationScreenUiState(
     val isCreateAccountButtonEnabled: Boolean = false,
     val isSendingMessage: Boolean = false,
 )
+
+private const val TAG = "RegistrationViewModel"
