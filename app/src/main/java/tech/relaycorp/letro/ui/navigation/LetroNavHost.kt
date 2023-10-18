@@ -111,7 +111,13 @@ fun LetroNavHost(
 
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
-            navController.navigateWithPoppingAllBackStack(firstNavigation.toRoute())
+            val rootNavigationRoute = firstNavigation.toRoute()
+            val isAlreadyInBackstack = navController.currentBackStack.value.any { it.destination.route == rootNavigationRoute.name }
+            Log.d(TAG, "RootNavigationCollector: isAlreadyInBackstack: $isAlreadyInBackstack; needToNavigateWithClearingBackstack=${mainViewModel.rootNavigationScreenAlreadyHandled}")
+            if (mainViewModel.rootNavigationScreenAlreadyHandled || !isAlreadyInBackstack) {
+                navController.navigateWithPoppingAllBackStack(firstNavigation.toRoute())
+                mainViewModel.onRootNavigationScreenHandled(firstNavigation)
+            }
             if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
                 isAwalaInitialized = true
             }
