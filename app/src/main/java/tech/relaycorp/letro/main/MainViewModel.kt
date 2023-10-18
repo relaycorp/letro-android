@@ -25,12 +25,13 @@ import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
-import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.sendOn
+import tech.relaycorp.letro.utils.navigation.UriToActionConverter
 import java.util.UUID
 import javax.inject.Inject
 
@@ -44,6 +45,7 @@ class MainViewModel @Inject constructor(
     private val conversationsRepository: ConversationsRepository,
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
     private val logger: Logger,
+    private val uriToActionConverter: UriToActionConverter,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -70,9 +72,9 @@ class MainViewModel @Inject constructor(
     val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
         get() = _clearBackstackSignal
 
-    private val _pushActions = Channel<PushActionAppLaunchInfo>()
-    val pushAction: Flow<PushActionAppLaunchInfo>
-        get() = _pushActions.receiveAsFlow()
+    private val _actions = Channel<ActionWithAppStartInfo>()
+    val actions: Flow<ActionWithAppStartInfo>
+        get() = _actions.receiveAsFlow()
 
     private var currentAccount: Account? = null
 
@@ -156,8 +158,15 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onNewPushAction(pushAction: PushActionAppLaunchInfo) {
-        _pushActions.sendOn(pushAction, viewModelScope)
+    fun onNewAction(action: ActionWithAppStartInfo) {
+        _actions.sendOn(action, viewModelScope)
+    }
+
+    fun onLinkOpened(link: String, isColdStart: Boolean) {
+        val action = uriToActionConverter.convert(link) ?: kotlin.run {
+            return
+        }
+        onNewAction(ActionWithAppStartInfo(action, isColdStart))
     }
 
     fun onInstallAwalaClick() {
@@ -201,7 +210,7 @@ data class MainUiState(
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
 )
 
-data class PushActionAppLaunchInfo(
-    val pushAction: PushAction,
+data class ActionWithAppStartInfo(
+    val action: Action,
     val isColdStart: Boolean,
 )

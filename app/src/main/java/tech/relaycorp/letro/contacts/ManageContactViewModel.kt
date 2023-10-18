@@ -31,6 +31,7 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
@@ -44,7 +45,8 @@ class ManageContactViewModel @Inject constructor(
 
     @Type
     private val screenType: Int = savedStateHandle[Route.ManageContact.KEY_SCREEN_TYPE]!!
-    private val contactIdToEdit: Long? = savedStateHandle[Route.ManageContact.KEY_CONTACT_ID_TO_EDIT]
+    private val contactIdToEdit: Long? = (savedStateHandle.get(Route.ManageContact.KEY_CONTACT_ID_TO_EDIT) as? Long)?.takeIf { it != Route.ManageContact.NO_ID }
+    private val prefilledContactAccountId: String? = (savedStateHandle.get(Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED) as? String)?.decodeFromUTF()
 
     private val _uiState = MutableStateFlow(
         PairWithOthersUiState(
@@ -80,18 +82,11 @@ class ManageContactViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            contactIdToEdit?.let { id ->
-                contactsRepository.getContactById(id)?.let { contactToEdit ->
-                    editingContact = contactToEdit
-                    _uiState.update {
-                        it.copy(
-                            accountId = contactToEdit.contactVeraId,
-                            alias = contactToEdit.alias,
-                            isVeraIdInputEnabled = false,
-                        )
-                    }
+            checkActionButtonAvailabilityFlow
+                .debounce(CHECK_ID_DEBOUNCE_DELAY_MS)
+                .collect {
+                    checkIfIdIsCorrect(it)
                 }
-            }
         }
         viewModelScope.launch {
             accountRepository.currentAccount
@@ -109,11 +104,23 @@ class ManageContactViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
-            checkActionButtonAvailabilityFlow
-                .debounce(CHECK_ID_DEBOUNCE_DELAY_MS)
-                .collect {
-                    checkIfIdIsCorrect(it)
+            when {
+                contactIdToEdit != null -> {
+                    contactsRepository.getContactById(contactIdToEdit)?.let { contactToEdit ->
+                        editingContact = contactToEdit
+                        _uiState.update {
+                            it.copy(
+                                accountId = contactToEdit.contactVeraId,
+                                alias = contactToEdit.alias,
+                                isVeraIdInputEnabled = false,
+                            )
+                        }
+                    }
                 }
+                prefilledContactAccountId != null -> {
+                    onIdChanged(prefilledContactAccountId)
+                }
+            }
         }
     }
 

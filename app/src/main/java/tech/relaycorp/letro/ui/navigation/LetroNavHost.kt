@@ -63,7 +63,6 @@ import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.main.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.home.ui.HomeScreen
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
-import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
@@ -72,11 +71,11 @@ import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
-import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
-import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
-import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafe
-import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafeUntil
 import tech.relaycorp.letro.utils.compose.showSnackbar
+import tech.relaycorp.letro.utils.navigation.navigateSingleTop
+import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
+import tech.relaycorp.letro.utils.navigation.popBackStackSafe
+import tech.relaycorp.letro.utils.navigation.popBackStackSafeUntil
 
 @Composable
 fun LetroNavHost(
@@ -156,34 +155,43 @@ fun LetroNavHost(
         if (!isAwalaInitialized) {
             return@LaunchedEffect
         }
-        mainViewModel.pushAction.collect { pushAction ->
+        mainViewModel.actions.collect { action ->
             GlobalScope.launch(Dispatchers.IO) {
-                val isAccountSwitched = switchAccountViewModel.onSwitchAccountRequested(pushAction.pushAction.accountId)
+                val isAccountSwitched = switchAccountViewModel.onSwitchAccountRequested(action.action.accountId)
                 // This delay is needed, because there are conditions, when there are different time needed to initialize navigation. Otherwise, there is a risk that RootNavigationScreen will clear the stack, and close the screen from notificatino.
                 delay(
                     when {
-                        pushAction.isColdStart && isAccountSwitched -> 3_000L
-                        pushAction.isColdStart -> 2_500L
+                        action.isColdStart && isAccountSwitched -> 3_000L
+                        action.isColdStart -> 2_500L
                         isAccountSwitched -> 1_500L
                         else -> 500L
                     },
                 )
-                when (pushAction.pushAction) {
-                    is PushAction.OpenConversation -> {
-                        withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
+                    when (action.action) {
+                        is Action.OpenConversation -> {
                             navController.navigate(
                                 Route.Conversation.getRouteName(
-                                    conversationId = pushAction.pushAction.conversationId,
+                                    conversationId = action.action.conversationId,
                                 ),
                             )
                         }
-                    }
-                    is PushAction.OpenContacts -> {
-                        withContext(Dispatchers.Main) {
+                        is Action.OpenContacts -> {
                             homeViewModel.onTabClick(TAB_CONTACTS)
                         }
+                        is Action.OpenPairRequest -> {
+                            if (uiState.currentAccount == null) {
+                                return@withContext
+                            }
+                            navController.navigate(
+                                Route.ManageContact.getRouteName(
+                                    screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                    prefilledContactAccountId = action.action.contactAccountId,
+                                ),
+                            )
+                        }
+                        is Action.OpenMainPage -> {}
                     }
-                    is PushAction.OpenMainPage -> {}
                 }
             }
         }
@@ -360,12 +368,11 @@ fun LetroNavHost(
                             )
                         }
                         composable(
-                            route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
+                            route = Route.ManageContact.name +
+                                "?${Route.ManageContact.KEY_SCREEN_TYPE}={${Route.ManageContact.KEY_SCREEN_TYPE}}" +
+                                "&${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}={${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}" +
+                                "&${Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED}={${Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED}}",
                             arguments = listOf(
-                                navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
-                                    type = NavType.StringType
-                                    nullable = true
-                                },
                                 navArgument(Route.ManageContact.KEY_SCREEN_TYPE) {
                                     type = NavType.IntType
                                     nullable = false
@@ -374,6 +381,10 @@ fun LetroNavHost(
                                     type = NavType.LongType
                                     nullable = false
                                     defaultValue = Route.ManageContact.NO_ID
+                                },
+                                navArgument(Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED) {
+                                    type = NavType.StringType
+                                    nullable = true
                                 },
                             ),
                         ) { entry ->

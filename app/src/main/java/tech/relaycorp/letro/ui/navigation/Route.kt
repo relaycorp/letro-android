@@ -3,6 +3,8 @@ package tech.relaycorp.letro.ui.navigation
 import androidx.annotation.IntDef
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
+import tech.relaycorp.letro.utils.ext.encodeToUTF
+import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 
 /**
  * Class which contains all possible routes
@@ -99,15 +101,19 @@ sealed class Route(
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     ) {
-        const val KEY_CURRENT_ACCOUNT_ID_ENCODED = "current_account_id_encoded"
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONTACT_ID_TO_EDIT = "contact_id"
+        const val KEY_PREFILLED_ACCOUNT_ID_ENCODED = "prefilled_account_id_encoded"
         const val NO_ID = -1L
 
         fun getRouteName(
             @ManageContactViewModel.Type screenType: Int,
             contactIdToEdit: Long = NO_ID,
-        ) = "${ManageContact.name}/$screenType&$contactIdToEdit"
+            prefilledContactAccountId: String = "",
+        ) = "${ManageContact.name}?" +
+            "$KEY_SCREEN_TYPE=$screenType" +
+            "&$KEY_CONTACT_ID_TO_EDIT=$contactIdToEdit" +
+            if (prefilledContactAccountId.isNotEmptyOrBlank()) "&$KEY_PREFILLED_ACCOUNT_ID_ENCODED=${prefilledContactAccountId.encodeToUTF()}" else ""
     }
 
     object Home : Route(

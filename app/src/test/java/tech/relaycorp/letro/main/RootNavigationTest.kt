@@ -255,6 +255,7 @@ class RootNavigationTest {
         ),
         termsAndConditionsLink = "https://terms_and_conditions",
         logger = mockk(relaxed = true),
+        uriToActionConverter = mockk(),
     )
     private companion object {
         private const val TAG = "RootNavigationTest"
