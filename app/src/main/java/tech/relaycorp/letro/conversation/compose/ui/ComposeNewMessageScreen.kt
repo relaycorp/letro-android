@@ -86,19 +86,25 @@ fun ComposeNewMessageScreen(
 
     var recipientTextFieldValueState by remember {
         mutableStateOf(
-            TextFieldValue(),
+            TextFieldValue(
+                text = uiState.recipientAccountId,
+            ),
         )
     }
 
     var subjectTextFieldValueState by remember {
         mutableStateOf(
-            TextFieldValue(),
+            TextFieldValue(
+                text = uiState.subject,
+            ),
         )
     }
 
     var messageTextFieldValueState by remember {
         mutableStateOf(
-            TextFieldValue(),
+            TextFieldValue(
+                text = uiState.messageText,
+            ),
         )
     }
 

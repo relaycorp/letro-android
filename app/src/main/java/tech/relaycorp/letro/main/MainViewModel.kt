@@ -71,14 +71,24 @@ class MainViewModel @Inject constructor(
     val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
         get() = _clearBackstackSignal
 
-    /**
-     * Replay = 1, in case that some action will be emitted, but no one handled this event
-     */
     private val _pushActions = Channel<PushAction>(UNLIMITED)
     val pushAction: Flow<PushAction>
         get() = _pushActions.consumeAsFlow()
 
     private var currentAccount: Account? = null
+
+    /**
+     * TODO: refactor it
+     * Navigation of the app is based on Root screens, managed by this view model.
+     *
+     * This variable needed to fix the problem https://relaycorp.atlassian.net/browse/LTR-136:
+     * The problem happened when configuration was changed (screen rotation/switching between dark/light mode):
+     * in this case, view subscribed to the StateFlow of root navigation screen, and navigated to it with popping the backstack, which resulted to losing state.
+     *
+     * Now, a subscriber of the root navigation screen flow must check this variable, and update it by calling [onRootNavigationScreenHandled], to not handle the same root navigation twice.
+     */
+    var rootNavigationScreenAlreadyHandled: Boolean = true
+        private set
 
     /**
      * Used to figure out do we need to clear backstack after navigation event. We need to clear it, when account was changed
@@ -129,6 +139,7 @@ class MainViewModel @Inject constructor(
                 .collect {
                     val rootNavigationScreen = it.first
                     val lastRootNavigationScreen = _rootNavigationScreen.value
+                    this@MainViewModel.rootNavigationScreenAlreadyHandled = true
                     _rootNavigationScreen.emit(rootNavigationScreen)
 
                     val clearNavigationScreenToRoot = it.second
@@ -137,6 +148,12 @@ class MainViewModel @Inject constructor(
                         _clearBackstackSignal.emit(rootNavigationScreen)
                     }
                 }
+        }
+    }
+
+    fun onRootNavigationScreenHandled(rootNavigationScreen: RootNavigationScreen) {
+        if (rootNavigationScreen == _rootNavigationScreen.value) {
+            this.rootNavigationScreenAlreadyHandled = false
         }
     }
 
