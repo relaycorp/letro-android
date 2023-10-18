@@ -40,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
@@ -156,20 +157,29 @@ fun LetroNavHost(
             return@LaunchedEffect
         }
         mainViewModel.pushAction.collect { pushAction ->
-            withContext(Dispatchers.IO) {
-                switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
-                when (pushAction) {
+            GlobalScope.launch(Dispatchers.IO) {
+                val isAccountSwitched = switchAccountViewModel.onSwitchAccountRequested(pushAction.pushAction.accountId)
+                // This delay is needed, because there are conditions, when there are different time needed to initialize navigation. Otherwise, there is a risk that RootNavigationScreen will clear the stack, and close the screen from notificatino.
+                delay(
+                    when {
+                        pushAction.isColdStart && isAccountSwitched -> 3_000L
+                        pushAction.isColdStart -> 2_500L
+                        isAccountSwitched -> 1_500L
+                        else -> 500L
+                    },
+                )
+                when (pushAction.pushAction) {
                     is PushAction.OpenConversation -> {
-                        GlobalScope.launch(Dispatchers.Main) {
+                        withContext(Dispatchers.Main) {
                             navController.navigate(
                                 Route.Conversation.getRouteName(
-                                    conversationId = pushAction.conversationId,
+                                    conversationId = pushAction.pushAction.conversationId,
                                 ),
                             )
                         }
                     }
                     is PushAction.OpenContacts -> {
-                        GlobalScope.launch(Dispatchers.Main) {
+                        withContext(Dispatchers.Main) {
                             homeViewModel.onTabClick(TAB_CONTACTS)
                         }
                     }
