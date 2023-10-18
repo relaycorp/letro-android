@@ -50,8 +50,8 @@ interface AccountRepository {
     )
 
     suspend fun deleteAccount(account: Account)
-    suspend fun switchAccount(newCurrentAccount: Account)
-    suspend fun switchAccount(accountId: String)
+    suspend fun switchAccount(newCurrentAccount: Account): Boolean
+    suspend fun switchAccount(accountId: String): Boolean
 }
 
 class AccountRepositoryImpl @Inject constructor(
@@ -87,15 +87,16 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun switchAccount(accountId: String) {
+    override suspend fun switchAccount(accountId: String): Boolean {
         _allAccounts.value.find { it.accountId == accountId }?.let {
-            switchAccount(it)
+            return switchAccount(it)
         }
+        return false
     }
 
-    override suspend fun switchAccount(newCurrentAccount: Account) {
+    override suspend fun switchAccount(newCurrentAccount: Account): Boolean {
         if (newCurrentAccount.accountId == _currentAccount.value?.accountId) {
-            return
+            return false
         }
         markAllExistingAccountsAsNonCurrent()
         accountDao.update(
@@ -103,6 +104,7 @@ class AccountRepositoryImpl @Inject constructor(
                 isCurrent = true,
             ),
         )
+        return true
     }
 
     override suspend fun createAccount(
