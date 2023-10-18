@@ -15,10 +15,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.main.ActionWithAppStartInfo
 import tech.relaycorp.letro.main.MainViewModel
-import tech.relaycorp.letro.main.PushActionAppLaunchInfo
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
-import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -30,6 +30,7 @@ import tech.relaycorp.letro.utils.intent.shareText
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
@@ -63,24 +64,38 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         intent ?: return
         setIntent(intent)
-        val pushAction = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(KEY_PUSH_ACTION, PushAction::class.java)
+        when (intent.action) {
+            KEY_PUSH_ACTION -> handlePushIntent(intent)
+            Intent.ACTION_VIEW -> handleAppLinkIntent(intent)
+        }
+    }
+
+    private fun handlePushIntent(intent: Intent) {
+        val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(KEY_PUSH_ACTION, Action::class.java)
         } else {
             intent.getParcelableExtra(KEY_PUSH_ACTION)
         }
-        pushAction?.let {
-            viewModel.onNewPushAction(
-                pushAction = PushActionAppLaunchInfo(
-                    pushAction = pushAction,
+        action?.let {
+            viewModel.onNewAction(
+                action = ActionWithAppStartInfo(
+                    action = action,
                     isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
                 ),
             )
         }
+    }
+
+    private fun handleAppLinkIntent(intent: Intent) {
+        val link = intent.data ?: return
+        viewModel.onLinkOpened(
+            link = link.toString(),
+            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+        )
     }
 
     private fun observeViewModel() {

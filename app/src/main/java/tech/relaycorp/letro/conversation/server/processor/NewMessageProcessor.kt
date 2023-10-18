@@ -13,8 +13,8 @@ import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.push.PushNewMessageTextFormatter
-import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.push.model.PushData
+import tech.relaycorp.letro.ui.navigation.Action
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -71,7 +71,7 @@ class NewMessageProcessorImpl @Inject constructor(
             PushData(
                 title = senderAlias ?: message.senderVeraId,
                 text = messageTextFormatter.getText(conversation.subject, message.text, messageWrapper.attachments.map { it.fileName }),
-                action = PushAction.OpenConversation(
+                action = Action.OpenConversation(
                     conversationId = messageWrapper.conversationId,
                     accountId = conversation.ownerVeraId,
                 ),

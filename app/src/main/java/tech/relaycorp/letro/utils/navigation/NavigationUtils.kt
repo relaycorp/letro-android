@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utils.compose.navigation
+package tech.relaycorp.letro.utils.navigation
 
 import androidx.navigation.NavController
 import tech.relaycorp.letro.ui.navigation.Route
@@ -11,8 +11,11 @@ fun NavController.navigateWithPoppingAllBackStack(route: Route) {
     }
 }
 
-fun NavController.navigateSingleTop(route: Route) {
-    navigate(route.name) {
+fun NavController.navigateSingleTop(route: Route) =
+    navigateSingleTop(route.name)
+
+fun NavController.navigateSingleTop(route: String) {
+    navigate(route) {
         launchSingleTop = true
     }
 }

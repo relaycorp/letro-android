@@ -50,7 +50,8 @@ class SwitchAccountViewModel @Inject constructor(
         setSwitchBottomSheetVisible(false)
     }
 
-    suspend fun onSwitchAccountRequested(accountId: String): Boolean {
+    suspend fun onSwitchAccountRequested(accountId: String?): Boolean {
+        accountId ?: return false
         setSwitchBottomSheetVisible(false)
         return accountRepository.switchAccount(accountId)
     }
