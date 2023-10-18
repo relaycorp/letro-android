@@ -5,14 +5,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -71,9 +70,9 @@ class MainViewModel @Inject constructor(
     val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
         get() = _clearBackstackSignal
 
-    private val _pushActions = Channel<PushAction>(UNLIMITED)
-    val pushAction: Flow<PushAction>
-        get() = _pushActions.consumeAsFlow()
+    private val _pushActions = Channel<PushActionAppLaunchInfo>()
+    val pushAction: Flow<PushActionAppLaunchInfo>
+        get() = _pushActions.receiveAsFlow()
 
     private var currentAccount: Account? = null
 
@@ -157,8 +156,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onNewPushAction(pushAction: PushAction?) {
-        pushAction ?: return
+    fun onNewPushAction(pushAction: PushActionAppLaunchInfo) {
         _pushActions.sendOn(pushAction, viewModelScope)
     }
 
@@ -201,4 +199,9 @@ data class MainUiState(
     val currentAccount: String? = null,
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
+)
+
+data class PushActionAppLaunchInfo(
+    val pushAction: PushAction,
+    val isColdStart: Boolean,
 )

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.MainViewModel
+import tech.relaycorp.letro.main.PushActionAppLaunchInfo
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
 import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
@@ -56,7 +57,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        onNewIntent(intent)
+        if (savedInstanceState == null) {
+            intent?.putExtra(IS_COLD_START, true)
+            onNewIntent(intent)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -69,7 +73,14 @@ class MainActivity : ComponentActivity() {
         } else {
             intent.getParcelableExtra(KEY_PUSH_ACTION)
         }
-        viewModel.onNewPushAction(pushAction)
+        pushAction?.let {
+            viewModel.onNewPushAction(
+                pushAction = PushActionAppLaunchInfo(
+                    pushAction = pushAction,
+                    isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+                ),
+            )
+        }
     }
 
     private fun observeViewModel() {
@@ -86,3 +97,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+private const val IS_COLD_START = "is_cold_start"
