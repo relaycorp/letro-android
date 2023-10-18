@@ -1,9 +1,10 @@
 package tech.relaycorp.letro.ui.actionTaking
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,13 +30,12 @@ fun ActionTakingScreen(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .padding(
                 horizontal = HorizontalScreenPadding,
-                vertical = 72.dp,
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Image(
             painter = painterResource(id = actionTakingScreenUIStateModel.image),
@@ -123,5 +123,13 @@ private fun WaitingScreenPreview() {
 private fun PairingRequestSentScreenPreview() {
     LetroTheme {
         ActionTakingScreen(ActionTakingScreenUIStateModel.PairingRequestSent {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AccountCreationFailedPreview() {
+    LetroTheme {
+        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountCreationFailed("domain"))
     }
 }

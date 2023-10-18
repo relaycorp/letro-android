@@ -48,6 +48,7 @@ import tech.relaycorp.letro.conversation.viewing.ConversationViewModel
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
+import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
@@ -427,7 +428,7 @@ private fun DeleteConversationDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.delete_conversation),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.TitleMediumProminent,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         },
