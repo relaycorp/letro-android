@@ -290,7 +290,7 @@ private fun DeleteAccountDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.delete_account),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.TitleMediumProminent,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         },
