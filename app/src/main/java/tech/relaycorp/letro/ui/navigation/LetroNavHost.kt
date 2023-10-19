@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.SwitchAccountViewModel
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
 import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
@@ -180,7 +181,7 @@ fun LetroNavHost(
                             homeViewModel.onTabClick(TAB_CONTACTS)
                         }
                         is Action.OpenPairRequest -> {
-                            if (uiState.currentAccount == null) {
+                            if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
                                 return@withContext
                             }
                             navController.navigate(
