@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.account.registration
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -10,16 +11,25 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
+import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
 @HiltViewModel
 class UseExistingAccountViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
+    savedStateHandle: SavedStateHandle,
 ) : BaseViewModel() {
 
-    private val _uiState = MutableStateFlow(UseExistingAccountUiState())
+    private val _uiState = MutableStateFlow(
+        UseExistingAccountUiState(
+            domain = (savedStateHandle.get(Route.UseExistingAccount.DOMAIN_ENCODED) as? String)?.decodeFromUTF() ?: "",
+            awalaEndpoint = (savedStateHandle.get(Route.UseExistingAccount.AWALA_ENDPOINT_ENCODED) as? String)?.decodeFromUTF() ?: "",
+            token = (savedStateHandle.get(Route.UseExistingAccount.TOKEN_ENCODED) as? String)?.decodeFromUTF() ?: "",
+        ),
+    )
     val uiState: StateFlow<UseExistingAccountUiState>
         get() = _uiState
 

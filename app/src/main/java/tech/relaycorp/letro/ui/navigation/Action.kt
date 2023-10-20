@@ -28,4 +28,12 @@ sealed interface Action : Parcelable {
         val contactAccountId: String,
         override val accountId: String? = null,
     ) : Action
+
+    @Parcelize
+    data class OpenAccountLinking(
+        val domain: String = "",
+        val awalaEndpoint: String = "",
+        val token: String = "",
+        override val accountId: String? = null,
+    ) : Action
 }

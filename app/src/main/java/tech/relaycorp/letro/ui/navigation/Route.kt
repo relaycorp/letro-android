@@ -39,7 +39,21 @@ sealed class Route(
         name = "use_existing_acccount_route",
         showTopBar = false,
         isStatusBarPrimaryColor = true,
-    )
+    ) {
+
+        const val DOMAIN_ENCODED = "domain"
+        const val AWALA_ENDPOINT_ENCODED = "awala_endpoint"
+        const val TOKEN_ENCODED = "token"
+
+        fun getRouteName(
+            domain: String = "",
+            awalaEndpoint: String = "",
+            token: String = "",
+        ) = "${UseExistingAccount.name}?" +
+            "$DOMAIN_ENCODED=${domain.encodeToUTF()}" +
+            "&$AWALA_ENDPOINT_ENCODED=${awalaEndpoint.encodeToUTF()}" +
+            "&$TOKEN_ENCODED=${token.encodeToUTF()}"
+    }
 
     object AccountCreationFailed : Route(
         name = "account_creation_failed",
