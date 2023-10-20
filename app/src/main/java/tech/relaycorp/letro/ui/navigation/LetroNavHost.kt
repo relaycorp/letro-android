@@ -191,6 +191,15 @@ fun LetroNavHost(
                                 ),
                             )
                         }
+                        is Action.OpenAccountLinking -> {
+                            navController.navigateSingleTop(
+                                route = Route.UseExistingAccount.getRouteName(
+                                    domain = action.action.domain,
+                                    awalaEndpoint = action.action.awalaEndpoint,
+                                    token = action.action.token,
+                                ),
+                            )
+                        }
                         is Action.OpenMainPage -> {}
                     }
                 }
@@ -360,7 +369,12 @@ fun LetroNavHost(
                                 actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountLinking,
                             )
                         }
-                        composable(Route.UseExistingAccount.name) {
+                        composable(
+                            route = Route.UseExistingAccount.name +
+                                "?${Route.UseExistingAccount.DOMAIN_ENCODED}={${Route.UseExistingAccount.DOMAIN_ENCODED}}" +
+                                "&${Route.UseExistingAccount.AWALA_ENDPOINT_ENCODED}={${Route.UseExistingAccount.AWALA_ENDPOINT_ENCODED}}" +
+                                "&${Route.UseExistingAccount.TOKEN_ENCODED}={${Route.UseExistingAccount.TOKEN_ENCODED}}",
+                        ) {
                             UseExistingAccountScreen(
                                 onBackClick = { navController.popBackStackSafe() },
                                 showSnackbar = {
