@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -121,16 +122,18 @@ fun ConversationScreen(
                     }
                 }
                 item {
-                    Text(
-                        text = conversation.subject ?: conversationsStringsProvider.noSubject,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 10.dp,
-                            ),
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = conversation.subject ?: conversationsStringsProvider.noSubject,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 16.dp,
+                                    vertical = 10.dp,
+                                ),
+                        )
+                    }
                 }
                 items(conversation.messages.size) { position ->
                     val message = conversation.messages[position]
@@ -231,17 +234,19 @@ private fun Message(
             }
             Spacer(modifier = Modifier.height(26.dp))
         }
-        Text(
-            text = message.text,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
-            modifier = Modifier
-                .padding(
-                    vertical = if (isCollapsed) 2.dp else 10.dp,
-                    horizontal = 16.dp,
-                ),
-        )
+        SelectionContainer {
+            Text(
+                text = message.text,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
+                modifier = Modifier
+                    .padding(
+                        vertical = if (isCollapsed) 2.dp else 10.dp,
+                        horizontal = 16.dp,
+                    ),
+            )
+        }
         if (!isCollapsed) {
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
