@@ -58,7 +58,7 @@ fun LetroTopBar(
                         ),
                     )
                     when (accountStatus) {
-                        AccountStatus.CREATION_WAITING -> {
+                        AccountStatus.CREATION_WAITING, AccountStatus.LINKING_WAITING -> {
                             Spacer(modifier = Modifier.width(6.dp))
                             CircularProgressIndicator(
                                 modifier = Modifier

@@ -3,7 +3,8 @@ package tech.relaycorp.letro.ui.navigation
 sealed interface RootNavigationScreen {
     object Splash : RootNavigationScreen
     object Registration : RootNavigationScreen
-    object RegistrationWaiting : RootNavigationScreen
+    object AccountCreationWaiting : RootNavigationScreen
+    object AccountLinkingWaiting : RootNavigationScreen
     object AccountCreationFailed : RootNavigationScreen
     object WelcomeToLetro : RootNavigationScreen
     object NoContactsScreen : RootNavigationScreen
@@ -38,8 +39,12 @@ sealed interface RootNavigationScreen {
             Route.WelcomeToLetro
         }
 
-        RegistrationWaiting -> {
-            Route.RegistrationProcessWaiting
+        AccountCreationWaiting -> {
+            Route.AccountCreationWaiting
+        }
+
+        AccountLinkingWaiting -> {
+            Route.AccountLinkingWaiting
         }
 
         AwalaNotInstalled -> {

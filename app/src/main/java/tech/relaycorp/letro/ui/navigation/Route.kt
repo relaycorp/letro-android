@@ -92,8 +92,14 @@ sealed class Route(
         }
     }
 
-    object RegistrationProcessWaiting : Route(
+    object AccountCreationWaiting : Route(
         name = "registration_waiting_route",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
+    object AccountLinkingWaiting : Route(
+        name = "account_linking_waiting_route",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     )
@@ -180,7 +186,8 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
             it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toInt())
             it.startsWith(Route.Registration.name) -> Route.Registration
-            it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
+            it.startsWith(Route.AccountCreationWaiting.name) -> Route.AccountCreationWaiting
+            it.startsWith(Route.AccountLinkingWaiting.name) -> Route.AccountLinkingWaiting
             it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed
             it.startsWith(Route.UseExistingAccount.name) -> Route.UseExistingAccount
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro

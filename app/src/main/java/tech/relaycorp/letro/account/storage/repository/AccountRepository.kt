@@ -126,6 +126,7 @@ class AccountRepositoryImpl @Inject constructor(
                 awalaEndpoint = awalaEndpoint,
                 isCurrent = true,
                 token = token,
+                status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
             ),
         )
     }
