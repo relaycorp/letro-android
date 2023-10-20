@@ -132,7 +132,7 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.RegistrationWaiting
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AccountCreationWaiting
     }
 
     @Test

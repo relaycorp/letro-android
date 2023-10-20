@@ -37,6 +37,8 @@
     <string name="onboarding_waiting_title">Hold tight!</string>
     <string name="onboarding_waiting_message">We are creating your account…</string>
 
+    <string name="account_linking_message">We are linking your account…</string>
+
     <string name="top_bar_change_account">Change account</string>
     <string name="settings">Settings</string>
 

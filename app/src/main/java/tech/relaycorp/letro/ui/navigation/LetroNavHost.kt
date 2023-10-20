@@ -350,9 +350,14 @@ fun LetroNavHost(
                                 ),
                             )
                         }
-                        composable(Route.RegistrationProcessWaiting.name) {
+                        composable(Route.AccountCreationWaiting.name) {
                             ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountCreation,
+                            )
+                        }
+                        composable(Route.AccountLinkingWaiting.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountLinking,
                             )
                         }
                         composable(Route.UseExistingAccount.name) {

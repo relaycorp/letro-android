@@ -114,7 +114,7 @@ fun ActionTakingScreen(
 @Composable
 private fun WaitingScreenPreview() {
     LetroTheme {
-        ActionTakingScreen(ActionTakingScreenUIStateModel.RegistrationWaiting)
+        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountCreation)
     }
 }
 

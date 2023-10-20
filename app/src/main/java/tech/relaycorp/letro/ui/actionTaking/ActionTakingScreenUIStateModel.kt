@@ -32,10 +32,16 @@ sealed class ActionTakingScreenUIStateModel(
         onButtonOutlinedClicked = onShareIdClick,
     )
 
-    object RegistrationWaiting : ActionTakingScreenUIStateModel(
+    object AccountCreation : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_waiting_title,
         image = R.drawable.waiting_for_account_creation,
         firstMessageStringRes = R.string.onboarding_waiting_message,
+    )
+
+    object AccountLinking : ActionTakingScreenUIStateModel(
+        titleStringRes = R.string.onboarding_waiting_title,
+        image = R.drawable.waiting_for_account_creation,
+        firstMessageStringRes = R.string.account_linking_message,
     )
 
     class PairingRequestSent(
