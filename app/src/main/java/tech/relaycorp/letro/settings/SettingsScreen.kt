@@ -66,7 +66,7 @@ fun SettingsScreen(
             title = stringResource(id = R.string.settings),
             onBackClick = { onBackClick() },
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         AccountsBlock(
             accounts = accounts,
             onAccountDeleteClick = {
