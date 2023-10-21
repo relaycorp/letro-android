@@ -33,7 +33,6 @@ import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 @Composable
 fun AwalaInitializationError(
     @Route.AwalaInitializationError.Type type: Int,
-    awalaInitializationTexts: Array<String>,
     onOpenAwalaClick: (() -> Unit)? = null,
     viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
@@ -47,9 +46,7 @@ fun AwalaInitializationError(
     val showAwalaInitialization by viewModel.isAwalaInitializingShown.collectAsState()
 
     if (showAwalaInitialization) {
-        AwalaInitializationInProgress(
-            texts = awalaInitializationTexts,
-        )
+        AwalaInitializationInProgress()
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             LetroTopTitle()
@@ -109,7 +106,6 @@ fun AwalaInitializationError(
 private fun AwalaInitializationFatalError_Preview() {
     AwalaInitializationError(
         type = Route.AwalaInitializationError.TYPE_FATAL_ERROR,
-        awalaInitializationTexts = arrayOf(),
     )
 }
 
@@ -118,7 +114,6 @@ private fun AwalaInitializationFatalError_Preview() {
 private fun AwalaInitializationNonFatalError_Preview() {
     AwalaInitializationError(
         type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR,
-        awalaInitializationTexts = arrayOf(),
     )
 }
 
@@ -127,6 +122,5 @@ private fun AwalaInitializationNonFatalError_Preview() {
 private fun AwalaInitializationNeedOpenAwalaError_Preview() {
     AwalaInitializationError(
         type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
-        awalaInitializationTexts = arrayOf(),
     )
 }

@@ -29,7 +29,6 @@ import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
 
 @Composable
 fun AwalaNotInstalledScreen(
-    awalaInitializationTexts: Array<String>,
     onInstallAwalaClick: () -> Unit,
     awalaNotInstalledViewModel: AwalaNotInstalledViewModel = hiltViewModel(),
 ) {
@@ -44,9 +43,7 @@ fun AwalaNotInstalledScreen(
     val showAwalaInitialization by awalaNotInstalledViewModel.isAwalaInitializingShown.collectAsState()
 
     if (showAwalaInitialization) {
-        AwalaInitializationInProgress(
-            texts = awalaInitializationTexts,
-        )
+        AwalaInitializationInProgress()
     } else {
         InstallAwalaScreen(
             onInstallAwalaClick = onInstallAwalaClick,

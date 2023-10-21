@@ -3,6 +3,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import android.util.Log
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -118,7 +119,9 @@ fun LetroNavHost(
             val isAlreadyInBackstack = navController.currentBackStack.value.any { it.destination.route == rootNavigationRoute.name }
             Log.d(TAG, "RootNavigationCollector: isAlreadyInBackstack: $isAlreadyInBackstack; needToNavigateWithClearingBackstack=${mainViewModel.rootNavigationScreenAlreadyHandled}")
             if (mainViewModel.rootNavigationScreenAlreadyHandled || !isAlreadyInBackstack) {
-                navController.navigateWithPoppingAllBackStack(firstNavigation.toRoute())
+                navController.navigateWithPoppingAllBackStack(
+                    route = firstNavigation.toRoute(),
+                )
                 mainViewModel.onRootNavigationScreenHandled(firstNavigation)
             }
             if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
@@ -262,21 +265,23 @@ fun LetroNavHost(
                     ) {
                         composable(Route.AwalaNotInstalled.name) {
                             AwalaNotInstalledScreen(
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                                 onInstallAwalaClick = {
                                     mainViewModel.onInstallAwalaClick()
                                 },
                             )
                         }
-                        composable(Route.AwalaInitializing.name) {
-                            AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
+                        composable(
+                            route = Route.AwalaInitializing.name,
+                            exitTransition = { fadeOut() },
+                            popExitTransition = { fadeOut() },
+                        ) {
+                            AwalaInitializationInProgress()
                         }
                         composable(
                             route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_FATAL_ERROR}",
                         ) {
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_FATAL_ERROR,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(
@@ -284,7 +289,6 @@ fun LetroNavHost(
                         ) {
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(
@@ -300,7 +304,6 @@ fun LetroNavHost(
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
                                 onOpenAwalaClick = onOpenAwalaClick,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(Route.Splash.name) {
