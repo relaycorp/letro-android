@@ -82,7 +82,7 @@ private fun PendingBadge() {
             .background(LetroColor.PendingBadgeColor, RoundedCornerShape(23.dp))
             .padding(
                 vertical = 2.dp,
-                horizontal = 7.dp,
+                horizontal = 8.dp,
             ),
     )
 }
