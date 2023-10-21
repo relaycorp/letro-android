@@ -23,6 +23,8 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
@@ -48,6 +50,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
+    private val shareAttachmentsRepository: ShareAttachmentsRepository,
 ) : BaseViewModel() {
 
     @ScreenType
@@ -99,6 +102,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
+        shareAttachmentsRepository.getAttachmentsToShareOnce().forEach(::addAttachmentFromIntent)
     }
 
     fun onFilePickerResult(uri: Uri?) {
@@ -283,6 +287,17 @@ class ComposeNewMessageViewModel @Inject constructor(
     fun onConfirmDiscardingClick() {
         _uiState.update { it.copy(isConfirmDiscardingDialogVisible = false) }
         _goBackSignal.emitOn(Unit, viewModelScope)
+    }
+
+    private fun addAttachmentFromIntent(attachmentToShare: AttachmentToShare) {
+        when (attachmentToShare) {
+            is AttachmentToShare.File -> onFilePickerResult(Uri.parse(attachmentToShare.uri))
+            is AttachmentToShare.String -> _uiState.update {
+                it.copy(
+                    messageText = it.messageText + if (it.messageText.isNotEmptyOrBlank()) "\n${attachmentToShare.value}" else attachmentToShare.value,
+                )
+            }
+        }
     }
 
     private fun updateRecipientIsNotYourContactError() {

@@ -2,6 +2,7 @@ package tech.relaycorp.letro.ui.navigation
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
 
 sealed interface Action : Parcelable {
 
@@ -34,6 +35,12 @@ sealed interface Action : Parcelable {
         val domain: String = "",
         val awalaEndpoint: String = "",
         val token: String = "",
+        override val accountId: String? = null,
+    ) : Action
+
+    @Parcelize
+    data class OpenComposeNewMessage(
+        val attachments: List<AttachmentToShare> = emptyList(),
         override val accountId: String? = null,
     ) : Action
 }

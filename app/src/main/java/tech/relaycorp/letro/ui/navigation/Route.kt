@@ -149,13 +149,16 @@ sealed class Route(
     ) {
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONVERSATION_ID = "conversation_id"
+        const val KEY_WITH_ATTACHED_FILES = "with_attached_files"
 
         fun getRouteName(
             @ComposeNewMessageViewModel.ScreenType screenType: Int,
+            withAttachedFiles: Boolean = false,
             conversationId: String? = null,
         ) =
             "${CreateNewMessage.name}?" +
                 "$KEY_SCREEN_TYPE=$screenType" +
+                "&$KEY_WITH_ATTACHED_FILES=$withAttachedFiles}" +
                 if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
     }
 

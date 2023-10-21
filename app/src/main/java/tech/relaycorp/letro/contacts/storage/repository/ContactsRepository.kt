@@ -5,7 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -31,7 +30,7 @@ interface ContactsRepository {
     suspend fun deleteContact(contact: Contact)
     suspend fun addNewContact(contact: Contact)
     suspend fun updateContact(contact: Contact)
-    fun saveRequestWasOnceSent()
+    suspend fun saveRequestWasOnceSent()
 }
 
 class ContactsRepositoryImpl @Inject constructor(
@@ -125,12 +124,10 @@ class ContactsRepositoryImpl @Inject constructor(
         contactsDao.update(contact)
     }
 
-    override fun saveRequestWasOnceSent() {
+    override suspend fun saveRequestWasOnceSent() {
         val currentAccount = currentAccount ?: return
-        scope.launch {
-            preferences.putBoolean(getContactRequestHasEverBeenSentKey(currentAccount.accountId), true)
-            updateContactsState(currentAccount)
-        }
+        preferences.putBoolean(getContactRequestHasEverBeenSentKey(currentAccount.accountId), true)
+        updateContactsState(currentAccount)
     }
 
     private fun startCollectAccountFlow() {

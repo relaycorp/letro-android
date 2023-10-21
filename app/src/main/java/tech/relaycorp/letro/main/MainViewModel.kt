@@ -23,6 +23,8 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
 import tech.relaycorp.letro.ui.navigation.Action
@@ -46,6 +48,7 @@ class MainViewModel @Inject constructor(
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
     private val logger: Logger,
     private val uriToActionConverter: UriToActionConverter,
+    private val shareAttachmentsRepository: ShareAttachmentsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -122,6 +125,11 @@ class MainViewModel @Inject constructor(
                 conversationsRepository.conversations,
             ) { currentAccount, contactsState, awalaInitializationState, conversations ->
                 logger.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
+                _uiState.update {
+                    it.copy(
+                        canSendMessages = contactsState.isPairedContactExist,
+                    )
+                }
                 val rootNavigationScreen = when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
@@ -160,14 +168,31 @@ class MainViewModel @Inject constructor(
     }
 
     fun onNewAction(action: ActionWithAppStartInfo) {
+        logger.i(TAG, "onNewAction ${action.action.javaClass}")
         _actions.sendOn(action, viewModelScope)
     }
 
     fun onLinkOpened(link: String, isColdStart: Boolean) {
-        val action = uriToActionConverter.convert(link) ?: kotlin.run {
+        val action = uriToActionConverter.convert(link) ?: return
+        onNewAction(ActionWithAppStartInfo(action, isColdStart))
+    }
+
+    fun onSendFilesRequested(
+        files: List<AttachmentToShare>,
+        isColdStart: Boolean,
+    ) {
+        if (files.isEmpty()) {
             return
         }
-        onNewAction(ActionWithAppStartInfo(action, isColdStart))
+        shareAttachmentsRepository.shareAttachmentsLater(files)
+        onNewAction(
+            ActionWithAppStartInfo(
+                action = Action.OpenComposeNewMessage(
+                    attachments = files,
+                ),
+                isColdStart = isColdStart,
+            ),
+        )
     }
 
     fun onInstallAwalaClick() {
@@ -209,6 +234,7 @@ data class MainUiState(
     val currentAccount: String? = null,
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
+    val canSendMessages: Boolean = false,
 )
 
 data class ActionWithAppStartInfo(
