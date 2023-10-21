@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.main.ActionWithAppStartInfo
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
@@ -22,6 +23,7 @@ import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.utils.StringsProvider
+import tech.relaycorp.letro.utils.files.toAttachmentsToShare
 import tech.relaycorp.letro.utils.intent.goToNotificationSettings
 import tech.relaycorp.letro.utils.intent.openAwala
 import tech.relaycorp.letro.utils.intent.openFile
@@ -37,6 +39,10 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var stringsProvider: StringsProvider
+
+    @Inject
+    // TODO: move this check to the caller, and remove dependency on repository here! (see LetroNavHost usage of this repository)
+    lateinit var shareAttachmentsRepository: ShareAttachmentsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Letro)
@@ -54,6 +60,7 @@ class MainActivity : ComponentActivity() {
                         onGoToNotificationsSettingsClick = { goToNotificationSettings() },
                         onOpenAwalaClick = { openAwala() },
                         mainViewModel = viewModel,
+                        shareAttachmentsRepository = shareAttachmentsRepository,
                     )
                 }
             }
@@ -71,6 +78,7 @@ class MainActivity : ComponentActivity() {
         when (intent.action) {
             KEY_PUSH_ACTION -> handlePushIntent(intent)
             Intent.ACTION_VIEW -> handleAppLinkIntent(intent)
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> handleSendFileIntent(intent)
         }
     }
 
@@ -94,6 +102,13 @@ class MainActivity : ComponentActivity() {
         val link = intent.data ?: return
         viewModel.onLinkOpened(
             link = link.toString(),
+            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+        )
+    }
+
+    private fun handleSendFileIntent(intent: Intent) {
+        viewModel.onSendFilesRequested(
+            files = intent.clipData?.toAttachmentsToShare() ?: emptyList(),
             isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
         )
     }
