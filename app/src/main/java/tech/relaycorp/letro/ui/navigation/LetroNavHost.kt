@@ -56,6 +56,7 @@ import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
 import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
@@ -84,6 +85,7 @@ fun LetroNavHost(
     onGoToNotificationsSettingsClick: () -> Unit,
     onOpenAwalaClick: () -> Unit,
     mainViewModel: MainViewModel,
+    shareAttachmentsRepository: ShareAttachmentsRepository,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
 ) {
@@ -169,6 +171,7 @@ fun LetroNavHost(
                     },
                 )
                 withContext(Dispatchers.Main) {
+                    Log.i(TAG, "Pushing new action $action")
                     when (action.action) {
                         is Action.OpenConversation -> {
                             navController.navigate(
@@ -197,6 +200,24 @@ fun LetroNavHost(
                                     domain = action.action.domain,
                                     awalaEndpoint = action.action.awalaEndpoint,
                                     token = action.action.token,
+                                ),
+                            )
+                        }
+                        is Action.OpenComposeNewMessage -> {
+                            if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
+                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
+                                Log.w(MainViewModel.TAG, "Account is not created, so files can't be shared")
+                                return@withContext
+                            }
+                            if (!uiState.canSendMessages) { // TODO: move this check to the caller, and remove dependency on repository here!
+                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
+                                Log.w(MainViewModel.TAG, "User cannot send messages, so files can't be shared")
+                                return@withContext
+                            }
+                            navController.navigate(
+                                Route.CreateNewMessage.getRouteName(
+                                    screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
+                                    withAttachedFiles = true,
                                 ),
                             )
                         }
@@ -475,6 +496,7 @@ fun LetroNavHost(
                         composable(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
+                                "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
                                 navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {

@@ -184,8 +184,8 @@ class ManageContactViewModel @Inject constructor(
     }
 
     fun onGotItClick() {
-        contactsRepository.saveRequestWasOnceSent()
         viewModelScope.launch {
+            contactsRepository.saveRequestWasOnceSent()
             _goBackSignal.emit(Unit)
         }
     }
