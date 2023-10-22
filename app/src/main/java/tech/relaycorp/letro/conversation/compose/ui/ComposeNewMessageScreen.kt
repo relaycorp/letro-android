@@ -274,6 +274,10 @@ fun ComposeNewMessageScreen(
                                     recipientTextFieldValueState = it
                                     viewModel.onRecipientTextChanged(it.text)
                                 },
+                                modifier = Modifier
+                                    .onFocusChanged {
+                                        viewModel.onRecipientTextFieldFocused(it.isFocused)
+                                    },
                             )
                         }
                     }

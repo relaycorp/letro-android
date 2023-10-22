@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.utils.models
 
+import android.net.Uri
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,7 +11,13 @@ import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
+import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
+import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
+import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.converter.ExtendedConversationConverterImpl
+import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatter
 import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatterImpl
 import tech.relaycorp.letro.conversation.storage.dao.ConversationsDao
 import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
@@ -18,6 +25,7 @@ import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepositoryImpl
+import tech.relaycorp.letro.utils.Logger
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -84,3 +92,42 @@ fun createConversationsRepository(
     logger = createLogger(),
     ioDispatcher = ioDispatcher,
 )
+
+fun createExtendedConversationConverter(
+    messageTimestampFormatter: MessageTimestampFormatter = MessageTimestampFormatterImpl(),
+    fileConverter: FileConverter = createDummyFileConverter(),
+    attachmentInfoConverter: AttachmentInfoConverter = createDummyAttachmentInfoConverter(),
+) = ExtendedConversationConverterImpl(messageTimestampFormatter, fileConverter, attachmentInfoConverter)
+
+fun createDummyFileConverter(
+    logger: Logger = createLogger(),
+): FileConverter = object : FileConverter {
+    override suspend fun getFile(attachment: Attachment): File.FileWithoutContent? {
+        logger.w("FileConverter", "Used dummy file converter")
+        return null
+    }
+
+    override suspend fun getFile(attachmentAwalaWrapper: AttachmentAwalaWrapper): File.FileWithContent? {
+        logger.w("FileConverter", "Used dummy file converter")
+        return null
+    }
+
+    override suspend fun getFile(uri: Uri): File.FileWithContent? {
+        logger.w("FileConverter", "Used dummy file converter")
+        return null
+    }
+}
+
+fun createDummyAttachmentInfoConverter(
+    logger: Logger = createLogger(),
+): AttachmentInfoConverter = object : AttachmentInfoConverter {
+    override fun convert(file: File): AttachmentInfo {
+        logger.w("AttachmentInfoConverter", "Used dummy attachment info converter")
+        return AttachmentInfo(
+            fileId = UUID.randomUUID(),
+            name = "mocked_file_name.file",
+            size = "mock",
+            icon = -1,
+        )
+    }
+}
