@@ -70,7 +70,7 @@ sealed class Route(
     object AwalaInitializing : Route(
         name = "awala_initializing_route",
         showTopBar = false,
-        isStatusBarPrimaryColor = true,
+        isStatusBarPrimaryColor = false,
     )
 
     data class AwalaInitializationError(
