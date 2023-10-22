@@ -18,6 +18,8 @@ import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingMatchProces
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
+import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
+import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManagerImpl
 import tech.relaycorp.letro.storage.LetroDatabase
 import javax.inject.Singleton
 
@@ -65,5 +67,10 @@ object ContactsModule {
         fun bindContactPairingSuccessNotificationManager(
             impl: ContactPairingNotificationManagerImpl,
         ): ContactPairingNotificationManager
+
+        @Binds
+        fun bindContactSuggestsManager(
+            impl: ContactSuggestsManagerImpl,
+        ): ContactSuggestsManager
     }
 }

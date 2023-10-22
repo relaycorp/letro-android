@@ -122,7 +122,10 @@ class ConversationsRepositoryImpl @Inject constructor(
         subject: String?,
         attachments: List<File.FileWithContent>,
     ) {
-        val recipientNodeId = recipient.contactEndpointId ?: return
+        val recipientNodeId = recipient.contactEndpointId ?: run {
+            logger.w(TAG, "Recipient endpoint id is null")
+            return
+        }
         val conversation = Conversation(
             ownerVeraId = ownerVeraId,
             contactVeraId = recipient.contactVeraId,
