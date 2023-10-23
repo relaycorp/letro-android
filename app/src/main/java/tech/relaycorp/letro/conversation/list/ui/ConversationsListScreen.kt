@@ -145,7 +145,9 @@ private fun Conversation(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .padding(end = 6.dp)
+                        .weight(1f),
                 ) {
                     Text(
                         text = conversation.contactDisplayName,
