@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,13 +21,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroTopTitle
 import tech.relaycorp.letro.ui.navigation.Route
-import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 
 @Composable
 fun AwalaInitializationError(
@@ -36,12 +34,10 @@ fun AwalaInitializationError(
     onOpenAwalaClick: (() -> Unit)? = null,
     viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
-    val lifecycleEvent = rememberLifecycleEvent()
-    LaunchedEffect(lifecycleEvent) {
-        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-            viewModel.onScreenResumed()
-        }
-    }
+    DoOnLifecycleEvent(
+        onResume = { viewModel.onScreenResumed() },
+        onDestroy = { viewModel.onScreenDestroyed() },
+    )
 
     val showAwalaInitialization by viewModel.isAwalaInitializingShown.collectAsState()
 
