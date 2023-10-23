@@ -24,6 +24,8 @@ class AwalaInitializationErrorViewModel @Inject constructor(
     val isAwalaInitializingShown: StateFlow<Boolean>
         get() = _isAwalaInitializingShown
 
+    private var isFirstResuming = true
+
     init {
         viewModelScope.launch {
             awalaManager.awalaUnsuccessfulConfigurations.collect {
@@ -34,13 +36,21 @@ class AwalaInitializationErrorViewModel @Inject constructor(
 
     fun onScreenResumed() {
         if (isConfigureEndpointsOnResume) {
-            viewModelScope.launch(Dispatchers.IO) {
-                _isAwalaInitializingShown.emit(true)
-                delay(8_000L)
-                _isAwalaInitializingShown.emit(false)
+            if (!isFirstResuming) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    _isAwalaInitializingShown.emit(true)
+                    delay(8_000L)
+                    _isAwalaInitializingShown.emit(false)
+                }
+                awalaManager.configureEndpointsAsync()
+            } else {
+                isFirstResuming = false
             }
-            awalaManager.configureEndpointsAsync()
         }
+    }
+
+    fun onScreenDestroyed() {
+        isFirstResuming = true
     }
 
     fun onTryAgainClick() {
