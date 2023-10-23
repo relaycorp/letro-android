@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,44 +21,43 @@ import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import tech.relaycorp.letro.R
 
 @Composable
 fun AwalaInitializationInProgress() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.letro_loading_animation))
+    val animationProgress = animateLottieCompositionAsState(composition = composition)
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
         ) {
-            AwalaLoadingAnimation()
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(id = R.string.we_setting_things_up),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth(),
-            )
+            if (animationProgress.progress > 0) {
+                LottieAnimation(
+                    modifier = Modifier,
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(id = R.string.we_setting_things_up),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                )
+            }
         }
     }
-}
-
-@Composable
-private fun AwalaLoadingAnimation(
-    modifier: Modifier = Modifier,
-) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.letro_loading_animation))
-
-    LottieAnimation(
-        modifier = modifier,
-        composition = composition,
-        iterations = LottieConstants.IterateForever,
-    )
 }
 
 @Preview(showBackground = true)
