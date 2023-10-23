@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,27 +24,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.notification.converter.NotificationDateInfo
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
-import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 import java.time.LocalDateTime
 
 @Composable
 fun NotificationsScreen(
     viewModel: NotificationsViewModel,
 ) {
-    val lifecycleEvent = rememberLifecycleEvent()
+    DoOnLifecycleEvent(
+        onResume = { viewModel.onScreenResumed() },
+    )
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(lifecycleEvent) {
-        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-            viewModel.onScreenResumed()
-        }
-    }
 
     LazyColumn(
         modifier = Modifier
