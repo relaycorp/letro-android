@@ -3,7 +3,7 @@ package tech.relaycorp.letro.account.registration.server
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.server.messages.AccountCreation
 import tech.relaycorp.letro.server.messages.InvalidAccountCreationException
 import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
@@ -11,7 +11,7 @@ import java.util.logging.Level
 import java.util.logging.Logger.getLogger
 import javax.inject.Inject
 
-interface AccountCreationProcessor : AwalaMessageProcessor
+interface AccountCreationProcessor : ServerMessageProcessor
 
 class AccountCreationProcessorImpl @Inject constructor(
     private val accountRepository: AccountRepository,

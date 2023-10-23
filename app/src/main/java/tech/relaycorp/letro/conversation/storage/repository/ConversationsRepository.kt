@@ -150,11 +150,11 @@ class ConversationsRepositoryImpl @Inject constructor(
                 ),
             ),
             recipient = if (recipient.isPrivateEndpoint) {
-                MessageRecipient.User(
+                MessageRecipient.PrivateEndpoint(
                     nodeId = recipientNodeId,
                 )
             } else {
-                MessageRecipient.Server(
+                MessageRecipient.PublicEndpoint(
                     nodeId = recipientNodeId,
                 )
             },
@@ -196,11 +196,11 @@ class ConversationsRepositoryImpl @Inject constructor(
                 ),
             ),
             recipient = if (recipient.isPrivateEndpoint) {
-                MessageRecipient.User(
+                MessageRecipient.PrivateEndpoint(
                     nodeId = recipientNodeId,
                 )
             } else {
-                MessageRecipient.Server(
+                MessageRecipient.PublicEndpoint(
                     nodeId = recipientNodeId,
                 )
             },

@@ -91,7 +91,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         type = MessageType.ContactPairingRequest,
                         content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
                     ),
-                    recipient = MessageRecipient.Server(),
+                    recipient = MessageRecipient.PublicEndpoint(),
                 )
             } else {
                 awalaManager.sendMessage(
@@ -99,7 +99,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         type = MessageType.ConnectionParamsRequest,
                         content = contact.contactVeraId.toByteArray(),
                     ),
-                    recipient = MessageRecipient.Server(),
+                    recipient = MessageRecipient.PublicEndpoint(),
                 )
             }
             if (existingContact == null) {
@@ -121,7 +121,7 @@ class ContactsRepositoryImpl @Inject constructor(
     override suspend fun deleteContact(contact: Contact) {
         contact.contactEndpointId?.let {
             awalaManager.revokeAuthorization(
-                if (contact.isPrivateEndpoint) MessageRecipient.User(contact.contactEndpointId) else MessageRecipient.Server(contact.contactEndpointId),
+                if (contact.isPrivateEndpoint) MessageRecipient.PrivateEndpoint(contact.contactEndpointId) else MessageRecipient.Server(contact.contactEndpointId),
             )
         }
         _contactDeleteEvents.emit(contact.id)

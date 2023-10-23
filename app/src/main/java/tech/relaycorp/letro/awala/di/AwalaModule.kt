@@ -26,6 +26,7 @@ import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingAuthorizati
 import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingMatchProcessor
 import tech.relaycorp.letro.conversation.server.processor.NewConversationProcessor
 import tech.relaycorp.letro.conversation.server.processor.NewMessageProcessor
+import tech.relaycorp.letro.utils.Logger
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -47,6 +48,7 @@ object AwalaModule {
         newConversationProcessor: NewConversationProcessor,
         newMessageProcessor: NewMessageProcessor,
         unknownMessageProcessor: UnknownMessageProcessor,
+        logger: Logger,
     ): AwalaMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreation to accountCreationProcessor,
@@ -59,7 +61,10 @@ object AwalaModule {
             MessageType.NewMessage to newMessageProcessor,
             MessageType.Unknown to unknownMessageProcessor,
         )
-        return AwalaMessageProcessorImpl(processors)
+        return AwalaMessageProcessorImpl(
+            processors = processors,
+            logger = logger,
+        )
     }
 
     @Provides

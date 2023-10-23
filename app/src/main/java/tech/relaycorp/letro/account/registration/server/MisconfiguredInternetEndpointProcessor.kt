@@ -4,13 +4,13 @@ import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import javax.inject.Inject
 
-interface MisconfiguredInternetEndpointProcessor : AwalaMessageProcessor
+interface MisconfiguredInternetEndpointProcessor : ServerMessageProcessor
 
 class MisconfiguredInternetEndpointProcessorImpl @Inject constructor(
     private val accountRepository: AccountRepository,

@@ -27,6 +27,7 @@ data class Account(
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
     val awalaEndpoint: String? = null,
+    val publicThirdPartyNodeId: String? = null,
     @AccountStatus val status: Int = CREATION_WAITING,
     val token: String? = null,
 ) {

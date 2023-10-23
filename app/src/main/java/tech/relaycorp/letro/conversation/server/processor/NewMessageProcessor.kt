@@ -80,4 +80,16 @@ class NewMessageProcessorImpl @Inject constructor(
             ),
         )
     }
+
+    override suspend fun isFromExpectedSender(
+        message: IncomingMessage,
+        awalaManager: AwalaManager,
+    ): Boolean {
+        val messageWrapper = (parser.parse(message.content) as NewMessageIncomingMessage).content
+        val contact = contactsDao.getContact(
+            ownerVeraId = messageWrapper.recipientVeraId,
+            contactVeraId = messageWrapper.senderVeraId,
+        )
+        return message.senderEndpoint.nodeId == contact?.contactEndpointId
+    }
 }

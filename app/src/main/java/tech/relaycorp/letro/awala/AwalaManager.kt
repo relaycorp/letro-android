@@ -68,6 +68,7 @@ interface AwalaManager {
     )
     suspend fun getFirstPartyPublicKey(): String
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
+    suspend fun getServerThirdPartyEndpoint(): ThirdPartyEndpoint?
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -160,7 +161,10 @@ class AwalaManagerImpl @Inject constructor(
     override suspend fun authorizePublicThirdPartyEndpoint(thirdPartyEndpoint: PublicThirdPartyEndpoint) {
         withContext(awalaThreadContext) {
             val firstPartyEndpoint = loadFirstPartyEndpoint()
-            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
+            awala.authorizeIndefinitely(
+                firstPartyEndpoint = firstPartyEndpoint,
+                thirdPartyEndpoint = thirdPartyEndpoint,
+            )
         }
     }
 
@@ -173,7 +177,7 @@ class AwalaManagerImpl @Inject constructor(
                     type = MessageType.ContactPairingAuthorization,
                     content = auth,
                 ),
-                recipient = MessageRecipient.Server(),
+                recipient = MessageRecipient.PublicEndpoint(),
             )
         }
     }
@@ -198,6 +202,19 @@ class AwalaManagerImpl @Inject constructor(
         return PrivateThirdPartyEndpoint.import(auth).nodeId
     }
 
+    override suspend fun getServerThirdPartyEndpoint(): ThirdPartyEndpoint? {
+        thirdPartyServerEndpoint?.let { thirdPartyServerEndpoint ->
+            return thirdPartyServerEndpoint
+        }
+        awalaRepository.getServerThirdPartyEndpointNodeId()?.let { serverNodeId ->
+            return awala.loadNonNullPublicThirdPartyEndpoint(serverNodeId)
+        }
+        importServerThirdPartyEndpointIfNeeded()?.let { serverThirdPartyEndpoint ->
+            return serverThirdPartyEndpoint
+        }
+        return null
+    }
+
     private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
         return withContext(awalaThreadContext) {
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
@@ -212,21 +229,15 @@ class AwalaManagerImpl @Inject constructor(
         recipient: MessageRecipient,
     ): ThirdPartyEndpoint {
         return withContext(awalaThreadContext) {
-            if (recipient is MessageRecipient.Server) {
-                thirdPartyServerEndpoint?.let {
-                    return@withContext it
-                }
+            if (recipient is MessageRecipient.PublicEndpoint && recipient.nodeId == null) {
+                return@withContext getServerThirdPartyEndpoint() ?: throw IllegalStateException("You should register third party endpoint first!")
             }
             when (recipient) {
-                is MessageRecipient.Server -> {
-                    val nodeId = recipient.nodeId
-                        ?: awalaRepository.getServerThirdPartyEndpointNodeId()
-                        ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
-                        ?: throw IllegalStateException("You should register third party endpoint first!")
-                    awala.loadNonNullPublicThirdPartyEndpoint(nodeId)
+                is MessageRecipient.PublicEndpoint -> {
+                    awala.loadNonNullPublicThirdPartyEndpoint(recipient.nodeId)
                 }
 
-                is MessageRecipient.User -> {
+                is MessageRecipient.PrivateEndpoint -> {
                     val senderNodeId = sender.nodeId
                     val recipientNodeId = recipient.nodeId
                     awala.loadNonNullPrivateThirdPartyEndpoint(
@@ -352,7 +363,10 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpoint = awala.loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
 
             // Create the Parcel Delivery Authorisation (PDA)
-            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
+            awala.authorizeIndefinitely(
+                firstPartyEndpoint = firstPartyEndpoint,
+                thirdPartyEndpoint = thirdPartyEndpoint,
+            )
             awalaRepository.saveServerThirdPartyEndpointNodeId(thirdPartyEndpoint.nodeId)
             thirdPartyEndpoint
         }

@@ -37,6 +37,18 @@ class NewConversationProcessorImpl @Inject constructor(
         createLocalConversation(content.conversation)
     }
 
+    override suspend fun isFromExpectedSender(
+        message: IncomingMessage,
+        awalaManager: AwalaManager,
+    ): Boolean {
+        val content = (newConversationMessageParser.parse(message.content) as NewConversationIncomingMessage).content
+        val contact = contactsDao.getContact(
+            ownerVeraId = content.conversation.recipientVeraId,
+            contactVeraId = content.conversation.senderVeraId,
+        )
+        return message.senderEndpoint.nodeId == contact?.contactEndpointId
+    }
+
     private suspend fun createLocalConversation(conversationWrapper: ConversationAwalaWrapper) {
         val conversationId = UUID.fromString(conversationWrapper.conversationId)
         val conversation = Conversation(

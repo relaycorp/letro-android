@@ -11,4 +11,11 @@ class UnknownMessageProcessor @Inject constructor() : AwalaMessageProcessor {
     override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
         Log.w(AwalaManagerImpl.TAG, "Unknown message processor for type: ${message.type}")
     }
+
+    override suspend fun isFromExpectedSender(
+        message: IncomingMessage,
+        awalaManager: AwalaManager,
+    ): Boolean {
+        return true
+    }
 }

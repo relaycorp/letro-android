@@ -3,7 +3,7 @@ package tech.relaycorp.letro.contacts.pairing.processor
 import android.util.Log
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.pairing.dto.ContactPairingAuthorizationIncomingMessage
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
@@ -11,7 +11,7 @@ import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationP
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import javax.inject.Inject
 
-interface ContactPairingAuthorizationProcessor : AwalaMessageProcessor
+interface ContactPairingAuthorizationProcessor : ServerMessageProcessor
 
 class ContactPairingAuthorizationProcessorImpl @Inject constructor(
     private val parser: ContactPairingAuthorizationParser,

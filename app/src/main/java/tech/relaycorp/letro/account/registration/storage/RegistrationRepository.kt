@@ -37,7 +37,7 @@ class RegistrationRepositoryImpl @Inject constructor(
                     type = MessageType.AccountCreationRequest,
                     content = creationRequest.serialise(keyPair.private),
                 ),
-                recipient = MessageRecipient.Server(),
+                recipient = MessageRecipient.PublicEndpoint(),
             )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
@@ -55,7 +55,7 @@ class RegistrationRepositoryImpl @Inject constructor(
                 type = MessageType.ConnectionParamsRequest,
                 content = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint.toByteArray() else domainName.toByteArray(),
             ),
-            recipient = MessageRecipient.Server(),
+            recipient = MessageRecipient.PublicEndpoint(),
         )
         accountRepository.createAccount(
             requestedUserName = "...",

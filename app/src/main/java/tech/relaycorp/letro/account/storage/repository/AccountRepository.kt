@@ -48,6 +48,10 @@ interface AccountRepository {
         account: Account,
         @AccountStatus status: Int,
     )
+    suspend fun updateAccount(
+        account: Account,
+        publicThirdPartyEndpointNodeId: String,
+    )
 
     suspend fun deleteAccount(account: Account)
     suspend fun switchAccount(newCurrentAccount: Account): Boolean
@@ -171,6 +175,15 @@ class AccountRepositoryImpl @Inject constructor(
         accountDao.update(
             account.copy(
                 status = status,
+            ),
+        )
+    }
+
+    override suspend fun updateAccount(account: Account, publicThirdPartyEndpointNodeId: String) {
+        accountDao.update(
+            account.copy(
+                publicThirdPartyNodeId = publicThirdPartyEndpointNodeId,
+                token = null,
             ),
         )
     }

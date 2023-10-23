@@ -13,7 +13,7 @@ import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
@@ -22,7 +22,7 @@ import tech.relaycorp.letro.utils.crypto.spkiEncode
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
-interface ConnectionParamsProcessor : AwalaMessageProcessor
+interface ConnectionParamsProcessor : ServerMessageProcessor
 
 class ConnectionParamsProcessorImpl @Inject constructor(
     private val accountsRepository: AccountRepository,
@@ -75,12 +75,16 @@ class ConnectionParamsProcessorImpl @Inject constructor(
                 ),
             )
             try {
+                accountsRepository.updateAccount(
+                    account = account,
+                    publicThirdPartyEndpointNodeId = publicThirdPartyEndpoint.nodeId,
+                )
                 awalaManager.sendMessage(
                     outgoingMessage = AwalaOutgoingMessage(
                         type = MessageType.MemberPublicKeyImport,
                         content = jsonContent.toByteArray(),
                     ),
-                    recipient = MessageRecipient.Server(
+                    recipient = MessageRecipient.PublicEndpoint(
                         nodeId = publicThirdPartyEndpoint.nodeId,
                     ),
                 )
