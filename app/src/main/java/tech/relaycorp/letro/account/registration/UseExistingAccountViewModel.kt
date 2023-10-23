@@ -33,6 +33,14 @@ class UseExistingAccountViewModel @Inject constructor(
     val uiState: StateFlow<UseExistingAccountUiState>
         get() = _uiState
 
+    init {
+        _uiState.update {
+            it.copy(
+                isProceedButtonEnabled = isProceedButtonEnabled(),
+            )
+        }
+    }
+
     fun onDomainInput(domain: String) {
         _uiState.update {
             it.copy(
@@ -96,9 +104,9 @@ class UseExistingAccountViewModel @Inject constructor(
     }
 
     private fun isProceedButtonEnabled(
-        domain: String,
-        endpoint: String,
-        token: String,
+        domain: String = _uiState.value.domain,
+        endpoint: String = _uiState.value.awalaEndpoint,
+        token: String = _uiState.value.token,
     ) = token.isNotEmptyOrBlank() && domain.isNotEmptyOrBlank() && domain.matches(CorrectDomainRegex) && (
         endpoint.isEmpty() || endpoint.isNotEmptyOrBlank() && endpoint.matches(CorrectDomainRegex)
         )
