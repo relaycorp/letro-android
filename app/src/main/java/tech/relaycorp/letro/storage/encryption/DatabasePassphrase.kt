@@ -25,7 +25,7 @@ class DatabasePassphraseImpl @Inject constructor(
             passphraseFile,
             masterKey,
             EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB,
-        ).build()
+        ).setKeysetPrefName(ENCRYPTED_FILE_PREF_NAME).build()
         return if (passphraseFile.exists()) {
             passphraseEncryptedFile.openFileInput().use {
                 it.readBytes()
@@ -47,6 +47,7 @@ class DatabasePassphraseImpl @Inject constructor(
 
     private companion object {
         private const val PASSPHRASE_LENGTH = 32
-        private val PASSPHRASE_FILE_PATH = "letro-db-passphrase"
+        private const val PASSPHRASE_FILE_PATH = "letro-db-passphrase"
+        private const val ENCRYPTED_FILE_PREF_NAME = "db-keyset"
     }
 }
