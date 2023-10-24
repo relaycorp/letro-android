@@ -2,17 +2,20 @@ package tech.relaycorp.letro.utils.crypto
 
 import android.content.Context
 import androidx.security.crypto.MasterKey
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-object MasterKeyProvider {
+interface MasterKeyProvider {
+    val masterKey: MasterKey
+}
 
-    lateinit var masterKey: MasterKey
-        private set
+class MasterKeyProviderImpl @Inject constructor(
+    @ApplicationContext context: Context,
+) : MasterKeyProvider {
 
-    fun init(context: Context) {
-        this.masterKey = MasterKey.Builder(context, MASTER_KEY_ALIAS)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-    }
+    override val masterKey = MasterKey.Builder(context, MASTER_KEY_ALIAS)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
 }
 
 private const val MASTER_KEY_ALIAS = "_letro_master_key_"

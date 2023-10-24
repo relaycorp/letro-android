@@ -16,8 +16,6 @@ open class LetroApplication : Application() {
     @Inject
     lateinit var accountRepository: AccountRepository
 
-    override fun onCreate() {
-        MasterKeyProvider.init(this)
-        super.onCreate()
-    }
+    @Inject
+    lateinit var masterKeyProvider: MasterKeyProvider
 }

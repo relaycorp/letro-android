@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.letro.storage.encryption.DatabasePassphrase
 import tech.relaycorp.letro.storage.encryption.DatabasePassphraseImpl
 import tech.relaycorp.letro.utils.crypto.MasterKeyProvider
+import tech.relaycorp.letro.utils.crypto.MasterKeyProviderImpl
 import javax.inject.Singleton
 
 @Module
@@ -17,8 +18,10 @@ object EncryptionModule {
 
     @Provides
     @Singleton
-    fun provideMasterKey(): MasterKey {
-        return MasterKeyProvider.masterKey
+    fun provideMasterKey(
+        masterKeyProvider: MasterKeyProvider,
+    ): MasterKey {
+        return masterKeyProvider.masterKey
     }
 
     @Module
@@ -29,5 +32,11 @@ object EncryptionModule {
         fun bindDatabasePassphrase(
             impl: DatabasePassphraseImpl,
         ): DatabasePassphrase
+
+        @Binds
+        @Singleton
+        fun bindMasterKeyProvider(
+            impl: MasterKeyProviderImpl,
+        ): MasterKeyProvider
     }
 }
