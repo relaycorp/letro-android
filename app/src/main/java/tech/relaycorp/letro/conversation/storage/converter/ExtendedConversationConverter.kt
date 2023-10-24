@@ -70,6 +70,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = message.text,
+                            sentAt = message.sentAt,
                             sentAtBriefFormatted = messageTimestampFormatter.formatBrief(message.sentAt),
                             sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(message.sentAt),
                             attachments = attachments.filter { it.messageId == message.id }.mapNotNull { fileConverter.getFile(it)?.let { attachmentInfoConverter.convert(it) } },

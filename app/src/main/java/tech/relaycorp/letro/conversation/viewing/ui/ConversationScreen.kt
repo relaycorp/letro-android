@@ -53,6 +53,7 @@ import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
+import java.time.LocalDateTime
 import java.util.UUID
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -489,6 +490,7 @@ private fun MessageInfo_Preview() {
                 text = "Hi!",
                 sentAtBriefFormatted = "15 Aug",
                 sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
+                sentAt = LocalDateTime.now(),
             ),
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -504,6 +506,7 @@ private fun MessageInfo_Preview() {
                 text = "Hi!",
                 sentAtBriefFormatted = "15 Aug",
                 sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
+                sentAt = LocalDateTime.now(),
             ),
         )
     }

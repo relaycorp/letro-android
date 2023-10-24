@@ -20,6 +20,8 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManagerImpl
+import tech.relaycorp.letro.contacts.suggest.shortcut.AndroidShortcutContactsSuggestManager
+import tech.relaycorp.letro.contacts.suggest.shortcut.AndroidShortcutContactsSuggestManagerImpl
 import tech.relaycorp.letro.storage.LetroDatabase
 import javax.inject.Singleton
 
@@ -72,5 +74,11 @@ object ContactsModule {
         fun bindContactSuggestsManager(
             impl: ContactSuggestsManagerImpl,
         ): ContactSuggestsManager
+
+        @Binds
+        @Singleton
+        fun shortcutContactsSuggestManager(
+            impl: AndroidShortcutContactsSuggestManagerImpl,
+        ): AndroidShortcutContactsSuggestManager
     }
 }
