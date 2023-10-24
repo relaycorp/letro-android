@@ -5,14 +5,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
@@ -24,14 +23,17 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
-import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.sendOn
+import tech.relaycorp.letro.utils.navigation.UriToActionConverter
 import java.util.UUID
 import javax.inject.Inject
 
@@ -45,6 +47,8 @@ class MainViewModel @Inject constructor(
     private val conversationsRepository: ConversationsRepository,
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
     private val logger: Logger,
+    private val uriToActionConverter: UriToActionConverter,
+    private val shareAttachmentsRepository: ShareAttachmentsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -71,14 +75,24 @@ class MainViewModel @Inject constructor(
     val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
         get() = _clearBackstackSignal
 
-    /**
-     * Replay = 1, in case that some action will be emitted, but no one handled this event
-     */
-    private val _pushActions = Channel<PushAction>(UNLIMITED)
-    val pushAction: Flow<PushAction>
-        get() = _pushActions.consumeAsFlow()
+    private val _actions = Channel<ActionWithAppStartInfo>()
+    val actions: Flow<ActionWithAppStartInfo>
+        get() = _actions.receiveAsFlow()
 
     private var currentAccount: Account? = null
+
+    /**
+     * TODO: refactor it
+     * Navigation of the app is based on Root screens, managed by this view model.
+     *
+     * This variable needed to fix the problem https://relaycorp.atlassian.net/browse/LTR-136:
+     * The problem happened when configuration was changed (screen rotation/switching between dark/light mode):
+     * in this case, view subscribed to the StateFlow of root navigation screen, and navigated to it with popping the backstack, which resulted to losing state.
+     *
+     * Now, a subscriber of the root navigation screen flow must check this variable, and update it by calling [onRootNavigationScreenHandled], to not handle the same root navigation twice.
+     */
+    var rootNavigationScreenAlreadyHandled: Boolean = true
+        private set
 
     /**
      * Used to figure out do we need to clear backstack after navigation event. We need to clear it, when account was changed
@@ -111,6 +125,11 @@ class MainViewModel @Inject constructor(
                 conversationsRepository.conversations,
             ) { currentAccount, contactsState, awalaInitializationState, conversations ->
                 logger.d(TAG, "$currentAccount; $contactsState; $awalaInitializationState; ${conversations.size}")
+                _uiState.update {
+                    it.copy(
+                        canSendMessages = contactsState.isPairedContactExist,
+                    )
+                }
                 val rootNavigationScreen = when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
@@ -118,7 +137,8 @@ class MainViewModel @Inject constructor(
                     awalaInitializationState == AwalaInitializationState.COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA)
                     awalaInitializationState < AwalaInitializationState.INITIALIZED -> RootNavigationScreen.AwalaInitializing
                     currentAccount == null -> RootNavigationScreen.Registration
-                    currentAccount.status == AccountStatus.CREATION_WAITING -> RootNavigationScreen.RegistrationWaiting
+                    currentAccount.status == AccountStatus.CREATION_WAITING -> RootNavigationScreen.AccountCreationWaiting
+                    currentAccount.status == AccountStatus.LINKING_WAITING -> RootNavigationScreen.AccountLinkingWaiting
                     currentAccount.status == AccountStatus.ERROR -> RootNavigationScreen.AccountCreationFailed
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro
                     !contactsState.isPairedContactExist && conversations.isEmpty() -> RootNavigationScreen.NoContactsScreen
@@ -129,6 +149,7 @@ class MainViewModel @Inject constructor(
                 .collect {
                     val rootNavigationScreen = it.first
                     val lastRootNavigationScreen = _rootNavigationScreen.value
+                    this@MainViewModel.rootNavigationScreenAlreadyHandled = true
                     _rootNavigationScreen.emit(rootNavigationScreen)
 
                     val clearNavigationScreenToRoot = it.second
@@ -140,9 +161,38 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onNewPushAction(pushAction: PushAction?) {
-        pushAction ?: return
-        _pushActions.sendOn(pushAction, viewModelScope)
+    fun onRootNavigationScreenHandled(rootNavigationScreen: RootNavigationScreen) {
+        if (rootNavigationScreen == _rootNavigationScreen.value) {
+            this.rootNavigationScreenAlreadyHandled = false
+        }
+    }
+
+    fun onNewAction(action: ActionWithAppStartInfo) {
+        logger.i(TAG, "onNewAction ${action.action.javaClass}")
+        _actions.sendOn(action, viewModelScope)
+    }
+
+    fun onLinkOpened(link: String, isColdStart: Boolean) {
+        val action = uriToActionConverter.convert(link) ?: return
+        onNewAction(ActionWithAppStartInfo(action, isColdStart))
+    }
+
+    fun onSendFilesRequested(
+        files: List<AttachmentToShare>,
+        isColdStart: Boolean,
+    ) {
+        if (files.isEmpty()) {
+            return
+        }
+        shareAttachmentsRepository.shareAttachmentsLater(files)
+        onNewAction(
+            ActionWithAppStartInfo(
+                action = Action.OpenComposeNewMessage(
+                    attachments = files,
+                ),
+                isColdStart = isColdStart,
+            ),
+        )
     }
 
     fun onInstallAwalaClick() {
@@ -184,4 +234,10 @@ data class MainUiState(
     val currentAccount: String? = null,
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
+    val canSendMessages: Boolean = false,
+)
+
+data class ActionWithAppStartInfo(
+    val action: Action,
+    val isColdStart: Boolean,
 )

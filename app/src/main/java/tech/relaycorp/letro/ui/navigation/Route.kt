@@ -3,6 +3,8 @@ package tech.relaycorp.letro.ui.navigation
 import androidx.annotation.IntDef
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
+import tech.relaycorp.letro.utils.ext.encodeToUTF
+import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 
 /**
  * Class which contains all possible routes
@@ -37,7 +39,21 @@ sealed class Route(
         name = "use_existing_acccount_route",
         showTopBar = false,
         isStatusBarPrimaryColor = true,
-    )
+    ) {
+
+        const val DOMAIN_ENCODED = "domain"
+        const val AWALA_ENDPOINT_ENCODED = "awala_endpoint"
+        const val TOKEN_ENCODED = "token"
+
+        fun getRouteName(
+            domain: String = "",
+            awalaEndpoint: String = "",
+            token: String = "",
+        ) = "${UseExistingAccount.name}?" +
+            "$DOMAIN_ENCODED=${domain.encodeToUTF()}" +
+            "&$AWALA_ENDPOINT_ENCODED=${awalaEndpoint.encodeToUTF()}" +
+            "&$TOKEN_ENCODED=${token.encodeToUTF()}"
+    }
 
     object AccountCreationFailed : Route(
         name = "account_creation_failed",
@@ -54,7 +70,7 @@ sealed class Route(
     object AwalaInitializing : Route(
         name = "awala_initializing_route",
         showTopBar = false,
-        isStatusBarPrimaryColor = true,
+        isStatusBarPrimaryColor = false,
     )
 
     data class AwalaInitializationError(
@@ -76,8 +92,14 @@ sealed class Route(
         }
     }
 
-    object RegistrationProcessWaiting : Route(
+    object AccountCreationWaiting : Route(
         name = "registration_waiting_route",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
+    object AccountLinkingWaiting : Route(
+        name = "account_linking_waiting_route",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     )
@@ -99,15 +121,19 @@ sealed class Route(
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     ) {
-        const val KEY_CURRENT_ACCOUNT_ID_ENCODED = "current_account_id_encoded"
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONTACT_ID_TO_EDIT = "contact_id"
+        const val KEY_PREFILLED_ACCOUNT_ID_ENCODED = "prefilled_account_id_encoded"
         const val NO_ID = -1L
 
         fun getRouteName(
             @ManageContactViewModel.Type screenType: Int,
             contactIdToEdit: Long = NO_ID,
-        ) = "${ManageContact.name}/$screenType&$contactIdToEdit"
+            prefilledContactAccountId: String = "",
+        ) = "${ManageContact.name}?" +
+            "$KEY_SCREEN_TYPE=$screenType" +
+            "&$KEY_CONTACT_ID_TO_EDIT=$contactIdToEdit" +
+            if (prefilledContactAccountId.isNotEmptyOrBlank()) "&$KEY_PREFILLED_ACCOUNT_ID_ENCODED=${prefilledContactAccountId.encodeToUTF()}" else ""
     }
 
     object Home : Route(
@@ -123,13 +149,16 @@ sealed class Route(
     ) {
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONVERSATION_ID = "conversation_id"
+        const val KEY_WITH_ATTACHED_FILES = "with_attached_files"
 
         fun getRouteName(
             @ComposeNewMessageViewModel.ScreenType screenType: Int,
+            withAttachedFiles: Boolean = false,
             conversationId: String? = null,
         ) =
             "${CreateNewMessage.name}?" +
                 "$KEY_SCREEN_TYPE=$screenType" +
+                "&$KEY_WITH_ATTACHED_FILES=$withAttachedFiles}" +
                 if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
     }
 
@@ -160,7 +189,8 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
             it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toInt())
             it.startsWith(Route.Registration.name) -> Route.Registration
-            it.startsWith(Route.RegistrationProcessWaiting.name) -> Route.RegistrationProcessWaiting
+            it.startsWith(Route.AccountCreationWaiting.name) -> Route.AccountCreationWaiting
+            it.startsWith(Route.AccountLinkingWaiting.name) -> Route.AccountLinkingWaiting
             it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed
             it.startsWith(Route.UseExistingAccount.name) -> Route.UseExistingAccount
             it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro

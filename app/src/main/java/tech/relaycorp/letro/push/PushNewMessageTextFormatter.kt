@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.push
 
+import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
@@ -18,8 +19,10 @@ class PushNewMessageTextFormatterImpl @Inject constructor() : PushNewMessageText
         messageText: String,
         attachments: List<String>,
     ): String {
-        return """
-            ${if (subject != null) "$subject - " else ""}${if (messageText.isNotEmptyOrBlank()) messageText else ""}${if (attachments.isNotEmpty()) " ${attachments.first()}" else ""}
-        """.trimIndent()
+        return "${if (subject != null) "$subject - " else ""}${if (messageText.isNotEmptyOrBlank()) messageText else ""}${if (attachments.isNotEmpty()) "${getSpaceBeforeAttachments(messageText)}${attachments.first()}" else ""}"
     }
+
+    private fun getSpaceBeforeAttachments(
+        messageText: String,
+    ) = if (messageText.isEmptyOrBlank()) "" else " "
 }

@@ -32,10 +32,16 @@ sealed class ActionTakingScreenUIStateModel(
         onButtonOutlinedClicked = onShareIdClick,
     )
 
-    object RegistrationWaiting : ActionTakingScreenUIStateModel(
+    object AccountCreation : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.onboarding_waiting_title,
         image = R.drawable.waiting_for_account_creation,
         firstMessageStringRes = R.string.onboarding_waiting_message,
+    )
+
+    object AccountLinking : ActionTakingScreenUIStateModel(
+        titleStringRes = R.string.onboarding_waiting_title,
+        image = R.drawable.waiting_for_account_creation,
+        firstMessageStringRes = R.string.account_linking_message,
     )
 
     class PairingRequestSent(
@@ -70,7 +76,7 @@ sealed class ActionTakingScreenUIStateModel(
         domain: String,
     ) : ActionTakingScreenUIStateModel(
         titleStringRes = R.string.we_could_not_claim_your_account,
-        image = R.drawable.account_creation_failed,
+        image = R.drawable.awala_initialization_error,
         firstMessageStringRes = R.string.you_need_to_contact_your_it_team_at,
         boldPartOfMessageInFirstMessage = domain,
     )

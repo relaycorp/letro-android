@@ -14,6 +14,8 @@ import tech.relaycorp.letro.storage.Preferences
 import tech.relaycorp.letro.storage.PreferencesImpl
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.LoggerImpl
+import tech.relaycorp.letro.utils.navigation.UriToActionConverter
+import tech.relaycorp.letro.utils.navigation.UriToActionConverterImpl
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -52,6 +54,12 @@ object AndroidModule {
         fun provideLogger(
             impl: LoggerImpl,
         ): Logger
+
+        @Singleton
+        @Binds
+        fun bindUriToActionConverter(
+            impl: UriToActionConverterImpl,
+        ): UriToActionConverter
     }
 }
 

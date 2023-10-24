@@ -8,9 +8,9 @@ import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
 import tech.relaycorp.letro.notification.storage.entity.Notification
 import tech.relaycorp.letro.notification.storage.entity.NotificationType
 import tech.relaycorp.letro.push.PushManager
-import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
+import tech.relaycorp.letro.ui.navigation.Action
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -38,7 +38,7 @@ class ContactPairingNotificationManagerImpl @Inject constructor(
             pushData = PushData(
                 title = context.getString(R.string.you_have_a_new_contact),
                 text = context.getString(R.string.you_re_now_connected_to_arg, contact.alias ?: contact.contactVeraId),
-                action = PushAction.OpenContacts(
+                action = Action.OpenContacts(
                     accountId = contact.ownerVeraId,
                 ),
                 notificationId = contact.contactVeraId.hashCode(),
@@ -61,7 +61,7 @@ class ContactPairingNotificationManagerImpl @Inject constructor(
             pushData = PushData(
                 title = context.getString(R.string.pairing_request_failed),
                 text = context.getString(R.string.we_couldnt_connect_with_arg, contact.contactVeraId),
-                action = PushAction.OpenContacts(
+                action = Action.OpenContacts(
                     accountId = contact.ownerVeraId,
                 ),
                 notificationId = contact.contactVeraId.hashCode(),

@@ -33,7 +33,7 @@ val NeutralVariant8 = Color(0xFFE6E8EE)
 object LetroColor {
 
     val FoggingBackgroundColor = Color(0x52000000)
-    val PendingBadgeColor = Color(0xFFFFEAD1)
+    val PendingBadgeColor = Color(0xFFFFE5C6)
 
     val SurfaceContainerHigh: Color
         @Composable

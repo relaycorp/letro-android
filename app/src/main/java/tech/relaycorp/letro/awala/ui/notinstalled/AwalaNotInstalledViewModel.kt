@@ -22,6 +22,8 @@ class AwalaNotInstalledViewModel @Inject constructor(
     val isAwalaInitializingShown: StateFlow<Boolean>
         get() = _isAwalaInitializingShown
 
+    private var isFirstResuming = true
+
     init {
         viewModelScope.launch {
             awalaManager.awalaUnsuccessfulBindings.collect {
@@ -40,11 +42,19 @@ class AwalaNotInstalledViewModel @Inject constructor(
      * NOTE: to display the same string while screens changing (step 4), the common strings flow is being used (see AwalaInitializationInProgressViewModel)
      */
     fun onScreenResumed() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isAwalaInitializingShown.emit(true)
-            delay(3_000L)
-            _isAwalaInitializingShown.emit(false)
+        if (!isFirstResuming) {
+            viewModelScope.launch(Dispatchers.IO) {
+                _isAwalaInitializingShown.emit(true)
+                delay(3_000L)
+                _isAwalaInitializingShown.emit(false)
+            }
+            awalaManager.initializeGatewayAsync()
+        } else {
+            isFirstResuming = false
         }
-        awalaManager.initializeGatewayAsync()
+    }
+
+    fun onScreenDestroyed() {
+        isFirstResuming = true
     }
 }

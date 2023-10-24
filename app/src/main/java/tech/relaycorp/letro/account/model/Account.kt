@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATED
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATION_WAITING
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.LINKING_WAITING
 
 const val TABLE_NAME_ACCOUNT = "account"
 
@@ -25,6 +26,7 @@ data class Account(
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
+    val awalaEndpoint: String? = null,
     @AccountStatus val status: Int = CREATION_WAITING,
     val token: String? = null,
 ) {
@@ -70,11 +72,12 @@ data class Account(
     }
 }
 
-@IntDef(ERROR, CREATION_WAITING, CREATED)
+@IntDef(ERROR, CREATION_WAITING, LINKING_WAITING, CREATED)
 annotation class AccountStatus {
     companion object {
         const val ERROR = -1
         const val CREATION_WAITING = 0
-        const val CREATED = 1
+        const val LINKING_WAITING = 1
+        const val CREATED = 2
     }
 }

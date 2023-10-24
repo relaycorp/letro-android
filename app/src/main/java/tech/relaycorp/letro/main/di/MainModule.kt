@@ -8,14 +8,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.MutableStateFlow
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManagerImpl
-import tech.relaycorp.letro.ui.utils.AwalaInitializationStringsProvider
-import tech.relaycorp.letro.ui.utils.AwalaInitializationStringsProviderImpl
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProviderImpl
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
@@ -46,15 +42,7 @@ object MainModule {
         fun bindConversationsStringsProvider(
             impl: ConversationsStringsProviderImpl,
         ): ConversationsStringsProvider
-
-        @Binds
-        fun bindAwalaInitializationStringsProvider(
-            impl: AwalaInitializationStringsProviderImpl,
-        ): AwalaInitializationStringsProvider
     }
-
-    @Qualifier
-    annotation class AwalaInitializationStringsIndexPointer
 }
 
 @Module
@@ -67,13 +55,6 @@ object MainActivityRetainedModule {
         @ApplicationContext context: Context,
     ): String {
         return context.getString(R.string.url_letro_terms_and_conditions)
-    }
-
-    @Provides
-    @ActivityRetainedScoped
-    @MainModule.AwalaInitializationStringsIndexPointer
-    fun bindAwalaInitializationStringsIndexPointer(): MutableStateFlow<Int> {
-        return MutableStateFlow(0)
     }
 }
 

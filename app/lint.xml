@@ -26,4 +26,6 @@
     <issue id="IconDuplicates">
         <ignore path="**/awala_initialization_error.webp" />
     </issue>
+    <!-- TODO: remove after uploading https://letro.app/.well-known/assetlinks.json -->
+    <issue id="AppLinksAutoVerify" severity="warning" />
 </lint>

@@ -58,10 +58,10 @@ fun LetroTabs(
             ) {
                 Box(
                     Modifier
+                        .background(color = LetroColor.OnSurfaceContainerHigh)
                         .tabIndicatorOffset(it[uiState.currentTab])
                         .fillMaxWidth()
-                        .height(TabIndicatorHeight)
-                        .background(color = LetroColor.OnSurfaceContainerHigh),
+                        .height(TabIndicatorHeight),
                 )
             }
         },

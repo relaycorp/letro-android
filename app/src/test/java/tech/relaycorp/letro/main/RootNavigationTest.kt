@@ -132,7 +132,7 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.RegistrationWaiting
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AccountCreationWaiting
     }
 
     @Test
@@ -255,6 +255,8 @@ class RootNavigationTest {
         ),
         termsAndConditionsLink = "https://terms_and_conditions",
         logger = mockk(relaxed = true),
+        uriToActionConverter = mockk(),
+        shareAttachmentsRepository = mockk(),
     )
     private companion object {
         private const val TAG = "RootNavigationTest"

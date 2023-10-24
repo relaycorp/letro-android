@@ -3,6 +3,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import android.util.Log
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,10 +41,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.SwitchAccountViewModel
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
 import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
@@ -54,6 +57,7 @@ import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
 import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
@@ -62,7 +66,6 @@ import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.main.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.home.ui.HomeScreen
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
-import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
@@ -71,11 +74,11 @@ import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
-import tech.relaycorp.letro.utils.compose.navigation.navigateSingleTop
-import tech.relaycorp.letro.utils.compose.navigation.navigateWithPoppingAllBackStack
-import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafe
-import tech.relaycorp.letro.utils.compose.navigation.popBackStackSafeUntil
 import tech.relaycorp.letro.utils.compose.showSnackbar
+import tech.relaycorp.letro.utils.navigation.navigateSingleTop
+import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
+import tech.relaycorp.letro.utils.navigation.popBackStackSafe
+import tech.relaycorp.letro.utils.navigation.popBackStackSafeUntil
 
 @Composable
 fun LetroNavHost(
@@ -83,6 +86,7 @@ fun LetroNavHost(
     onGoToNotificationsSettingsClick: () -> Unit,
     onOpenAwalaClick: () -> Unit,
     mainViewModel: MainViewModel,
+    shareAttachmentsRepository: ShareAttachmentsRepository,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
 ) {
@@ -111,7 +115,15 @@ fun LetroNavHost(
 
     LaunchedEffect(Unit) {
         mainViewModel.rootNavigationScreen.collect { firstNavigation ->
-            navController.navigateWithPoppingAllBackStack(firstNavigation.toRoute())
+            val rootNavigationRoute = firstNavigation.toRoute()
+            val isAlreadyInBackstack = navController.currentBackStack.value.any { it.destination.route == rootNavigationRoute.name }
+            Log.d(TAG, "RootNavigationCollector: isAlreadyInBackstack: $isAlreadyInBackstack; needToNavigateWithClearingBackstack=${mainViewModel.rootNavigationScreenAlreadyHandled}")
+            if (mainViewModel.rootNavigationScreenAlreadyHandled || !isAlreadyInBackstack) {
+                navController.navigateWithPoppingAllBackStack(
+                    route = firstNavigation.toRoute(),
+                )
+                mainViewModel.onRootNavigationScreenHandled(firstNavigation)
+            }
             if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
                 isAwalaInitialized = true
             }
@@ -149,25 +161,71 @@ fun LetroNavHost(
         if (!isAwalaInitialized) {
             return@LaunchedEffect
         }
-        mainViewModel.pushAction.collect { pushAction ->
-            withContext(Dispatchers.IO) {
-                switchAccountViewModel.onSwitchAccountRequested(pushAction.accountId)
-                when (pushAction) {
-                    is PushAction.OpenConversation -> {
-                        GlobalScope.launch(Dispatchers.Main) {
+        mainViewModel.actions.collect { action ->
+            GlobalScope.launch(Dispatchers.IO) {
+                val isAccountSwitched = switchAccountViewModel.onSwitchAccountRequested(action.action.accountId)
+                // This delay is needed, because there are conditions, when there are different time needed to initialize navigation. Otherwise, there is a risk that RootNavigationScreen will clear the stack, and close the screen from notificatino.
+                delay(
+                    when {
+                        action.isColdStart && isAccountSwitched -> 3_000L
+                        action.isColdStart -> 2_500L
+                        isAccountSwitched -> 1_500L
+                        else -> 500L
+                    },
+                )
+                withContext(Dispatchers.Main) {
+                    Log.i(TAG, "Pushing new action $action")
+                    when (action.action) {
+                        is Action.OpenConversation -> {
                             navController.navigate(
                                 Route.Conversation.getRouteName(
-                                    conversationId = pushAction.conversationId,
+                                    conversationId = action.action.conversationId,
                                 ),
                             )
                         }
-                    }
-                    is PushAction.OpenContacts -> {
-                        GlobalScope.launch(Dispatchers.Main) {
+                        is Action.OpenContacts -> {
                             homeViewModel.onTabClick(TAB_CONTACTS)
                         }
+                        is Action.OpenPairRequest -> {
+                            if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
+                                return@withContext
+                            }
+                            navController.navigate(
+                                Route.ManageContact.getRouteName(
+                                    screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                    prefilledContactAccountId = action.action.contactAccountId,
+                                ),
+                            )
+                        }
+                        is Action.OpenAccountLinking -> {
+                            navController.navigateSingleTop(
+                                route = Route.UseExistingAccount.getRouteName(
+                                    domain = action.action.domain,
+                                    awalaEndpoint = action.action.awalaEndpoint,
+                                    token = action.action.token,
+                                ),
+                            )
+                        }
+                        is Action.OpenComposeNewMessage -> {
+                            if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
+                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
+                                Log.w(MainViewModel.TAG, "Account is not created, so files can't be shared")
+                                return@withContext
+                            }
+                            if (!uiState.canSendMessages) { // TODO: move this check to the caller, and remove dependency on repository here!
+                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
+                                Log.w(MainViewModel.TAG, "User cannot send messages, so files can't be shared")
+                                return@withContext
+                            }
+                            navController.navigate(
+                                Route.CreateNewMessage.getRouteName(
+                                    screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
+                                    withAttachedFiles = true,
+                                ),
+                            )
+                        }
+                        is Action.OpenMainPage -> {}
                     }
-                    is PushAction.OpenMainPage -> {}
                 }
             }
         }
@@ -207,21 +265,23 @@ fun LetroNavHost(
                     ) {
                         composable(Route.AwalaNotInstalled.name) {
                             AwalaNotInstalledScreen(
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                                 onInstallAwalaClick = {
                                     mainViewModel.onInstallAwalaClick()
                                 },
                             )
                         }
-                        composable(Route.AwalaInitializing.name) {
-                            AwalaInitializationInProgress(texts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts)
+                        composable(
+                            route = Route.AwalaInitializing.name,
+                            exitTransition = { fadeOut() },
+                            popExitTransition = { fadeOut() },
+                        ) {
+                            AwalaInitializationInProgress()
                         }
                         composable(
                             route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_FATAL_ERROR}",
                         ) {
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_FATAL_ERROR,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(
@@ -229,7 +289,6 @@ fun LetroNavHost(
                         ) {
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(
@@ -245,7 +304,6 @@ fun LetroNavHost(
                             AwalaInitializationError(
                                 type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
                                 onOpenAwalaClick = onOpenAwalaClick,
-                                awalaInitializationTexts = stringsProvider.awalaInitializationStringsProvider.awalaInitializationAmusingTexts,
                             )
                         }
                         composable(Route.Splash.name) {
@@ -325,12 +383,22 @@ fun LetroNavHost(
                                 ),
                             )
                         }
-                        composable(Route.RegistrationProcessWaiting.name) {
+                        composable(Route.AccountCreationWaiting.name) {
                             ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.RegistrationWaiting,
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountCreation,
                             )
                         }
-                        composable(Route.UseExistingAccount.name) {
+                        composable(Route.AccountLinkingWaiting.name) {
+                            ActionTakingScreen(
+                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountLinking,
+                            )
+                        }
+                        composable(
+                            route = Route.UseExistingAccount.name +
+                                "?${Route.UseExistingAccount.DOMAIN_ENCODED}={${Route.UseExistingAccount.DOMAIN_ENCODED}}" +
+                                "&${Route.UseExistingAccount.AWALA_ENDPOINT_ENCODED}={${Route.UseExistingAccount.AWALA_ENDPOINT_ENCODED}}" +
+                                "&${Route.UseExistingAccount.TOKEN_ENCODED}={${Route.UseExistingAccount.TOKEN_ENCODED}}",
+                        ) {
                             UseExistingAccountScreen(
                                 onBackClick = { navController.popBackStackSafe() },
                                 showSnackbar = {
@@ -344,12 +412,11 @@ fun LetroNavHost(
                             )
                         }
                         composable(
-                            route = "${Route.ManageContact.name}/{${Route.ManageContact.KEY_SCREEN_TYPE}}&{${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}",
+                            route = Route.ManageContact.name +
+                                "?${Route.ManageContact.KEY_SCREEN_TYPE}={${Route.ManageContact.KEY_SCREEN_TYPE}}" +
+                                "&${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}={${Route.ManageContact.KEY_CONTACT_ID_TO_EDIT}}" +
+                                "&${Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED}={${Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED}}",
                             arguments = listOf(
-                                navArgument(Route.ManageContact.KEY_CURRENT_ACCOUNT_ID_ENCODED) {
-                                    type = NavType.StringType
-                                    nullable = true
-                                },
                                 navArgument(Route.ManageContact.KEY_SCREEN_TYPE) {
                                     type = NavType.IntType
                                     nullable = false
@@ -358,6 +425,10 @@ fun LetroNavHost(
                                     type = NavType.LongType
                                     nullable = false
                                     defaultValue = Route.ManageContact.NO_ID
+                                },
+                                navArgument(Route.ManageContact.KEY_PREFILLED_ACCOUNT_ID_ENCODED) {
+                                    type = NavType.StringType
+                                    nullable = true
                                 },
                             ),
                         ) { entry ->
@@ -428,6 +499,7 @@ fun LetroNavHost(
                         composable(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
+                                "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
                                 navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {

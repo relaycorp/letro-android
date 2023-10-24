@@ -15,12 +15,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
+import tech.relaycorp.letro.main.ActionWithAppStartInfo
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
-import tech.relaycorp.letro.push.model.PushAction
+import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.LetroNavHost
 import tech.relaycorp.letro.ui.theme.LetroTheme
 import tech.relaycorp.letro.ui.utils.StringsProvider
+import tech.relaycorp.letro.utils.files.toAttachmentsToShare
 import tech.relaycorp.letro.utils.intent.goToNotificationSettings
 import tech.relaycorp.letro.utils.intent.openAwala
 import tech.relaycorp.letro.utils.intent.openFile
@@ -29,12 +32,17 @@ import tech.relaycorp.letro.utils.intent.shareText
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
 
     @Inject
     lateinit var stringsProvider: StringsProvider
+
+    @Inject
+    // TODO: move this check to the caller, and remove dependency on repository here! (see LetroNavHost usage of this repository)
+    lateinit var shareAttachmentsRepository: ShareAttachmentsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Letro)
@@ -52,24 +60,57 @@ class MainActivity : ComponentActivity() {
                         onGoToNotificationsSettingsClick = { goToNotificationSettings() },
                         onOpenAwalaClick = { openAwala() },
                         mainViewModel = viewModel,
+                        shareAttachmentsRepository = shareAttachmentsRepository,
                     )
                 }
             }
         }
-        onNewIntent(intent)
+        if (savedInstanceState == null) {
+            intent?.putExtra(IS_COLD_START, true)
+            onNewIntent(intent)
+        }
     }
 
-    @Suppress("DEPRECATION")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         intent ?: return
         setIntent(intent)
-        val pushAction = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(KEY_PUSH_ACTION, PushAction::class.java)
+        when (intent.action) {
+            KEY_PUSH_ACTION -> handlePushIntent(intent)
+            Intent.ACTION_VIEW -> handleAppLinkIntent(intent)
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> handleSendFileIntent(intent)
+        }
+    }
+
+    private fun handlePushIntent(intent: Intent) {
+        val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(KEY_PUSH_ACTION, Action::class.java)
         } else {
             intent.getParcelableExtra(KEY_PUSH_ACTION)
         }
-        viewModel.onNewPushAction(pushAction)
+        action?.let {
+            viewModel.onNewAction(
+                action = ActionWithAppStartInfo(
+                    action = action,
+                    isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+                ),
+            )
+        }
+    }
+
+    private fun handleAppLinkIntent(intent: Intent) {
+        val link = intent.data ?: return
+        viewModel.onLinkOpened(
+            link = link.toString(),
+            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+        )
+    }
+
+    private fun handleSendFileIntent(intent: Intent) {
+        viewModel.onSendFilesRequested(
+            files = intent.clipData?.toAttachmentsToShare() ?: emptyList(),
+            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+        )
     }
 
     private fun observeViewModel() {
@@ -86,3 +127,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+private const val IS_COLD_START = "is_cold_start"

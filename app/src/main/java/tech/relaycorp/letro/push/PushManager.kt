@@ -13,9 +13,9 @@ import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.ui.MainActivity
-import tech.relaycorp.letro.push.model.PushAction
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
+import tech.relaycorp.letro.ui.navigation.Action
 import javax.inject.Inject
 
 interface PushManager {
@@ -41,12 +41,13 @@ class PushManagerImpl @Inject constructor(
     override fun showPush(pushData: PushData) {
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra(KEY_PUSH_ACTION, pushData.action)
+            action = KEY_PUSH_ACTION
         }
 
         val groupName = pushData.recipientAccountId
 
         val groupIntent = Intent(context, MainActivity::class.java).apply {
-            putExtra(KEY_PUSH_ACTION, PushAction.OpenMainPage(groupName))
+            putExtra(KEY_PUSH_ACTION, Action.OpenMainPage(groupName))
         }
 
         val notification = NotificationCompat.Builder(context, pushData.channelId)

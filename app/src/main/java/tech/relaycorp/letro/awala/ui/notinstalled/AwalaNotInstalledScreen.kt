@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,33 +19,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
-import tech.relaycorp.letro.utils.compose.rememberLifecycleEvent
+import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 
 @Composable
 fun AwalaNotInstalledScreen(
-    awalaInitializationTexts: Array<String>,
     onInstallAwalaClick: () -> Unit,
-    awalaNotInstalledViewModel: AwalaNotInstalledViewModel = hiltViewModel(),
+    viewModel: AwalaNotInstalledViewModel = hiltViewModel(),
 ) {
-    val lifecycleEvent = rememberLifecycleEvent()
+    DoOnLifecycleEvent(
+        onResume = { viewModel.onScreenResumed() },
+        onDestroy = { viewModel.onScreenDestroyed() },
+    )
 
-    LaunchedEffect(lifecycleEvent) {
-        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-            awalaNotInstalledViewModel.onScreenResumed()
-        }
-    }
-
-    val showAwalaInitialization by awalaNotInstalledViewModel.isAwalaInitializingShown.collectAsState()
+    val showAwalaInitialization by viewModel.isAwalaInitializingShown.collectAsState()
 
     if (showAwalaInitialization) {
-        AwalaInitializationInProgress(
-            texts = awalaInitializationTexts,
-        )
+        AwalaInitializationInProgress()
     } else {
         InstallAwalaScreen(
             onInstallAwalaClick = onInstallAwalaClick,

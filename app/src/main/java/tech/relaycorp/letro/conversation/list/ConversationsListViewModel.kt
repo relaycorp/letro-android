@@ -135,7 +135,7 @@ class ConversationsListViewModel @Inject constructor(
     private fun getEmptyConversationsStubInfo() = ConversationsListContent.Empty(
         image = when (_conversationSectionInfoState.value.currentSection) {
             is ConversationSectionInfo.Inbox -> R.drawable.empty_inbox_image
-            ConversationSectionInfo.Sent -> R.drawable.empty_inbox_image
+            ConversationSectionInfo.Sent -> R.drawable.empty_sent_image
             ConversationSectionInfo.Archived -> R.drawable.archive_stub
         },
         text = when (_conversationSectionInfoState.value.currentSection) {

@@ -66,7 +66,7 @@ fun SettingsScreen(
             title = stringResource(id = R.string.settings),
             onBackClick = { onBackClick() },
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         AccountsBlock(
             accounts = accounts,
             onAccountDeleteClick = {
@@ -290,7 +290,7 @@ private fun DeleteAccountDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.delete_account),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.TitleMediumProminent,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         },

@@ -37,6 +37,8 @@
     <string name="onboarding_waiting_title">Hold tight!</string>
     <string name="onboarding_waiting_message">We are creating your account…</string>
 
+    <string name="account_linking_message">We are linking your account…</string>
+
     <string name="top_bar_change_account">Change account</string>
     <string name="settings">Settings</string>
 
@@ -119,13 +121,6 @@
     <string name="no_subject">(No subject)</string>
 
     <string name="we_setting_things_up">We’re setting things up</string>
-    <string name="filling_the_kettle">Filling the kettle…</string>
-    <string name="starting_the_kettle">Starting the kettle…</string>
-    <string name="putting_the_tea_bag">Putting the tea bag in the mug…</string>
-    <string name="putting_the_hot_water">Pouring the hot water in the mug…</string>
-    <string name="letting_the_tea_brew">Letting the tea brew…</string>
-    <string name="removing_the_tea_bag">Removing the tea bag…</string>
-    <string name="drinking_the_tea">Drinking the tea…</string>
 
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>

@@ -21,8 +21,11 @@ import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
+import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
@@ -48,6 +51,8 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
+    private val shareAttachmentsRepository: ShareAttachmentsRepository,
+    private val contactSuggestsManager: ContactSuggestsManager,
 ) : BaseViewModel() {
 
     @ScreenType
@@ -72,6 +77,7 @@ class ComposeNewMessageViewModel @Inject constructor(
         get() = _uiState
 
     private val contacts = arrayListOf<Contact>()
+    private val contactsRelevantSuggestions = arrayListOf<Contact>()
 
     private val _messageSentSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
     val messageSentSignal: SharedFlow<Unit>
@@ -99,6 +105,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
+        shareAttachmentsRepository.getAttachmentsToShareOnce().forEach(::addAttachmentFromIntent)
     }
 
     fun onFilePickerResult(uri: Uri?) {
@@ -144,7 +151,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 it.copy(
                     recipientDisplayedText = text,
                     recipientAccountId = text,
-                    suggestedContacts = if (text.isEmptyOrBlank()) null else contacts.filter { it.contactVeraId.lowercase().contains(text.lowercase()) || it.alias?.lowercase()?.contains(text.lowercase()) == true },
+                    suggestedContacts = getSuggestedContacts(text),
                     showRecipientIsNotYourContactError = if (text.isEmptyOrBlank()) false else it.showRecipientIsNotYourContactError,
                     isSendButtonEnabled = isSendButtonEnabled(text, it.messageText),
                 )
@@ -210,6 +217,14 @@ class ComposeNewMessageViewModel @Inject constructor(
         }
     }
 
+    fun onRecipientTextFieldFocused(isFocused: Boolean) {
+        _uiState.update {
+            it.copy(
+                suggestedContacts = if (isFocused) getSuggestedContacts() else null,
+            )
+        }
+    }
+
     fun onSubjectTextFieldFocused(isFocused: Boolean) {
         if (isFocused) {
             updateRecipientIsNotYourContactError()
@@ -254,6 +269,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                         )
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
+                        Log.w(TAG, e)
                         _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
@@ -284,6 +300,17 @@ class ComposeNewMessageViewModel @Inject constructor(
         _goBackSignal.emitOn(Unit, viewModelScope)
     }
 
+    private fun addAttachmentFromIntent(attachmentToShare: AttachmentToShare) {
+        when (attachmentToShare) {
+            is AttachmentToShare.File -> onFilePickerResult(Uri.parse(attachmentToShare.uri))
+            is AttachmentToShare.String -> _uiState.update {
+                it.copy(
+                    messageText = it.messageText + if (it.messageText.isNotEmptyOrBlank()) "\n${attachmentToShare.value}" else attachmentToShare.value,
+                )
+            }
+        }
+    }
+
     private fun updateRecipientIsNotYourContactError() {
         viewModelScope.launch {
             _uiState.update {
@@ -303,9 +330,14 @@ class ComposeNewMessageViewModel @Inject constructor(
                         .filter { it.status == ContactPairingStatus.COMPLETED }
                         .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
                 )
+                contactsRelevantSuggestions.clear()
+                contactsRelevantSuggestions.addAll(contactSuggestsManager.orderByRelevance(contacts, conversationsRepository.conversations.value))
             }
         }
     }
+
+    private fun getSuggestedContacts(inputFieldText: String = _uiState.value.recipientDisplayedText) =
+        if (inputFieldText.isEmptyOrBlank()) contactsRelevantSuggestions else contacts.filter { it.contactVeraId.lowercase().contains(inputFieldText.lowercase()) || it.alias?.lowercase()?.contains(inputFieldText.lowercase()) == true }
 
     private fun isSendButtonEnabled(
         recipientAccountId: String,
