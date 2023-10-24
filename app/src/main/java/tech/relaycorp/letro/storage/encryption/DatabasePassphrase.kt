@@ -25,7 +25,11 @@ class DatabasePassphraseImpl @Inject constructor(
             passphraseFile,
             masterKey,
             EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB,
-        ).setKeysetPrefName(ENCRYPTED_FILE_PREF_NAME).build()
+        )
+            // Set a explicit preference name to avoid cryptic `AEADBadTagException`s when multiple
+            // `MasterKey`s are used by the app.
+            .setKeysetPrefName(ENCRYPTED_FILE_PREF_NAME)
+            .build()
         return if (passphraseFile.exists()) {
             passphraseEncryptedFile.openFileInput().use {
                 it.readBytes()
