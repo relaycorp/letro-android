@@ -106,4 +106,4 @@ class PushManagerImpl @Inject constructor(
     }
 }
 
-const val KEY_PUSH_ACTION = "push_action"
+const val KEY_PUSH_ACTION = "tech.relaycorp.letro.push_action"

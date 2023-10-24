@@ -41,6 +41,7 @@ sealed interface Action : Parcelable {
     @Parcelize
     data class OpenComposeNewMessage(
         val attachments: List<AttachmentToShare> = emptyList(),
+        val contactId: Long? = null,
         override val accountId: String? = null,
     ) : Action
 }

@@ -1,0 +1,6 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <share-target android:targetClass="tech.relaycorp.letro.main.ui.MainActivity">
+        <data android:mimeType="*/*" />
+        <category android:name="tech.relaycorp.letro.CATEGORY_SEND" />
+    </share-target>
+</shortcuts>

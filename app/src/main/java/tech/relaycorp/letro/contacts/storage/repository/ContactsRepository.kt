@@ -3,7 +3,9 @@ package tech.relaycorp.letro.contacts.storage.repository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -24,6 +26,7 @@ import javax.inject.Inject
 
 interface ContactsRepository {
     val contactsState: StateFlow<ContactsState>
+    val contactDeleteEvents: SharedFlow<Long>
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
     fun getContactById(id: Long): Contact?
 
@@ -49,6 +52,10 @@ class ContactsRepositoryImpl @Inject constructor(
     private val _contactsState: MutableStateFlow<ContactsState> = MutableStateFlow(ContactsState())
     override val contactsState: StateFlow<ContactsState>
         get() = _contactsState
+
+    private val _contactDeleteEvents: MutableSharedFlow<Long> = MutableSharedFlow()
+    override val contactDeleteEvents: SharedFlow<Long>
+        get() = _contactDeleteEvents
 
     init {
         scope.launch {
@@ -114,9 +121,10 @@ class ContactsRepositoryImpl @Inject constructor(
     override suspend fun deleteContact(contact: Contact) {
         contact.contactEndpointId?.let {
             awalaManager.revokeAuthorization(
-                MessageRecipient.User(contact.contactEndpointId),
+                if (contact.isPrivateEndpoint) MessageRecipient.User(contact.contactEndpointId) else MessageRecipient.Server(contact.contactEndpointId),
             )
         }
+        _contactDeleteEvents.emit(contact.id)
         contactsDao.deleteContact(contact)
     }
 
