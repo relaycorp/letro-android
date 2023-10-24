@@ -221,6 +221,7 @@ fun LetroNavHost(
                                 Route.CreateNewMessage.getRouteName(
                                     screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
                                     withAttachedFiles = true,
+                                    contactId = action.action.contactId ?: Route.CreateNewMessage.NO_ID,
                                 ),
                             )
                         }
@@ -500,6 +501,7 @@ fun LetroNavHost(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
                                 "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
+                                "&${Route.CreateNewMessage.KEY_CONTACT_ID}={${Route.CreateNewMessage.KEY_CONTACT_ID}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
                                 navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {
@@ -510,6 +512,11 @@ fun LetroNavHost(
                                     type = NavType.StringType
                                     nullable = true
                                     defaultValue = null
+                                },
+                                navArgument(Route.CreateNewMessage.KEY_CONTACT_ID) {
+                                    type = NavType.LongType
+                                    nullable = false
+                                    defaultValue = Route.CreateNewMessage.NO_ID
                                 },
                             ),
                         ) {

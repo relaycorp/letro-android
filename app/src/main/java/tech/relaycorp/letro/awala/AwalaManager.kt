@@ -64,7 +64,7 @@ interface AwalaManager {
         thirdPartyEndpoint: PublicThirdPartyEndpoint,
     )
     suspend fun revokeAuthorization(
-        user: MessageRecipient.User,
+        user: MessageRecipient,
     )
     suspend fun getFirstPartyPublicKey(): String
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
@@ -178,11 +178,11 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun revokeAuthorization(user: MessageRecipient.User) {
+    override suspend fun revokeAuthorization(user: MessageRecipient) {
         withContext(awalaThreadContext) {
             awala.revokeAuthorization(
                 firstPartyEndpoint = loadFirstPartyEndpoint(),
-                thirdPartyEndpointNodeId = user.nodeId,
+                thirdPartyEndpoint = user,
             )
         }
     }

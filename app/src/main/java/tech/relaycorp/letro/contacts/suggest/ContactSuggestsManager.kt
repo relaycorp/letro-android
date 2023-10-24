@@ -6,7 +6,10 @@ import tech.relaycorp.letro.utils.collections.toMap
 import javax.inject.Inject
 
 interface ContactSuggestsManager {
-    fun orderByRelevance(contacts: List<Contact>, conversations: List<ExtendedConversation>): List<Contact>
+    fun orderByRelevance(
+        contacts: List<Contact>,
+        conversations: List<ExtendedConversation>,
+    ): List<Contact>
 }
 
 class ContactSuggestsManagerImpl @Inject constructor() : ContactSuggestsManager {

@@ -92,6 +92,8 @@ class ComposeNewMessageViewModel @Inject constructor(
     val attachments: StateFlow<List<AttachmentInfo>>
         get() = _attachments
 
+    private var requestedContactId: Long? = (savedStateHandle.get(Route.CreateNewMessage.KEY_CONTACT_ID) as? Long)?.takeIf { it != Route.CreateNewMessage.NO_ID }
+
     init {
         viewModelScope.launch {
             accountRepository.currentAccount.collect {
@@ -330,6 +332,17 @@ class ComposeNewMessageViewModel @Inject constructor(
                         .filter { it.status == ContactPairingStatus.COMPLETED }
                         .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
                 )
+                contacts.find { it.id == requestedContactId }?.let { requestedContact ->
+                    requestedContactId = null
+                    _uiState.update {
+                        it.copy(
+                            recipientDisplayedText = requestedContact.alias ?: requestedContact.contactVeraId,
+                            recipientAccountId = requestedContact.contactVeraId,
+                            isSendButtonEnabled = isSendButtonEnabled(recipientAccountId = requestedContact.contactVeraId),
+                            showRecipientAsChip = true,
+                        )
+                    }
+                }
                 contactsRelevantSuggestions.clear()
                 contactsRelevantSuggestions.addAll(contactSuggestsManager.orderByRelevance(contacts, conversationsRepository.conversations.value))
             }
@@ -341,7 +354,7 @@ class ComposeNewMessageViewModel @Inject constructor(
 
     private fun isSendButtonEnabled(
         recipientAccountId: String,
-        messageText: String,
+        messageText: String = _uiState.value.messageText,
     ): Boolean {
         val isMessageSizeExceedsLimit = isMessageSizeExceedsLimit(messageText)
         return !isMessageSizeExceedsLimit && contacts.any { recipientAccountId == it.contactVeraId }

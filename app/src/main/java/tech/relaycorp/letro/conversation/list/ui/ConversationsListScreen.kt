@@ -47,6 +47,7 @@ import tech.relaycorp.letro.ui.theme.BodyMediumProminent
 import tech.relaycorp.letro.ui.theme.LabelSmallProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Composable
@@ -321,6 +322,7 @@ fun Conversation_Preview() {
         text = "Hello man!",
         sentAtBriefFormatted = "15 Aug",
         sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
+        sentAt = LocalDateTime.now(),
     )
     Column {
         Conversation(
