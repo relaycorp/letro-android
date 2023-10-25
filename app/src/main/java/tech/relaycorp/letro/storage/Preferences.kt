@@ -15,15 +15,14 @@ interface Preferences {
 
 class PreferencesImpl @Inject constructor(
     @ApplicationContext context: Context,
+    masterKey: MasterKey,
 ) : Preferences {
 
     private val preferences by lazy {
         EncryptedSharedPreferences.create(
             context,
             PREF_NAME,
-            MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build(),
+            masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
         )
