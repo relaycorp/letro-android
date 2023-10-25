@@ -51,6 +51,12 @@ object ConversationsModule {
         letroDatabase: LetroDatabase,
     ): AttachmentsDao = letroDatabase.attachmentsDao()
 
+    @Provides
+    @MessageSizeLimitBytes
+    fun provideMessageSizeLimit(): Int {
+        return MESSAGE_SIZE_LIMIT_BYTES
+    }
+
     @Module
     @InstallIn(SingletonComponent::class)
     interface Bindings {
@@ -116,3 +122,8 @@ annotation class NewConversationAwalaProcessor
 
 @Qualifier
 annotation class NewMessageAwalaProcessor
+
+@Qualifier
+annotation class MessageSizeLimitBytes
+
+private const val MESSAGE_SIZE_LIMIT_BYTES = 8_388_608 // 8MB

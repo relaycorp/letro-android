@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,6 +24,7 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
+import tech.relaycorp.letro.conversation.attachments.filepicker.FileSizeExceedsLimitException
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
 import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
@@ -30,6 +32,7 @@ import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.REPLY_TO_EXISTING_CONVERSATION
+import tech.relaycorp.letro.conversation.di.MessageSizeLimitBytes
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.ui.navigation.Route
@@ -41,6 +44,7 @@ import tech.relaycorp.letro.utils.files.bytesToKb
 import tech.relaycorp.letro.utils.files.bytesToMb
 import tech.relaycorp.letro.utils.files.isMoreThanKilobyte
 import tech.relaycorp.letro.utils.files.isMoreThanMegabyte
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,6 +57,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val shareAttachmentsRepository: ShareAttachmentsRepository,
     private val contactSuggestsManager: ContactSuggestsManager,
+    @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
 ) : BaseViewModel() {
 
     @ScreenType
@@ -84,10 +89,10 @@ class ComposeNewMessageViewModel @Inject constructor(
         get() = _messageSentSignal
 
     private val _goBackSignal: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val goBackSignal: SharedFlow<Unit>
+    val goBackSignal: Flow<Unit>
         get() = _goBackSignal
 
-    private val attachedFiles = arrayListOf<File.FileWithContent>()
+    private val attachedFiles = CopyOnWriteArrayList(arrayListOf<File.FileWithContent>())
     private val _attachments: MutableStateFlow<List<AttachmentInfo>> = MutableStateFlow(emptyList())
     val attachments: StateFlow<List<AttachmentInfo>>
         get() = _attachments
@@ -107,13 +112,21 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onScreenResumed() {
         shareAttachmentsRepository.getAttachmentsToShareOnce().forEach(::addAttachmentFromIntent)
     }
 
     fun onFilePickerResult(uri: Uri?) {
         uri ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            val file = fileConverter.getFile(uri) ?: return@launch
+            val file = try {
+                fileConverter.getFile(uri)
+            } catch (e: FileSizeExceedsLimitException) {
+                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.FILE_TOO_BIG_ERROR)
+                null
+            } ?: return@launch
             attachedFiles.add(file)
             _attachments.update {
                 ArrayList(it).apply {
@@ -256,7 +269,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
                         Log.w(TAG, e)
-                        _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                        showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
                     }
@@ -272,7 +285,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
                         Log.w(TAG, e)
-                        _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                        showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
                     }
@@ -361,10 +374,10 @@ class ComposeNewMessageViewModel @Inject constructor(
     }
 
     private fun isMessageSizeExceedsLimit(messageText: String): Boolean =
-        getMessageSize(messageText) > MESSAGE_SIZE_LIMIT_BYTES
+        getMessageSize(messageText) > messageSizeLimitBytes
 
     private fun getMessageExceedsLimitError(messageText: String): MessageExceedsLimitError? {
-        val messageExceedsLimitBy = (getMessageSize(messageText) - MESSAGE_SIZE_LIMIT_BYTES).toLong()
+        val messageExceedsLimitBy = (getMessageSize(messageText) - messageSizeLimitBytes).toLong()
         return when {
             !isMessageSizeExceedsLimit(messageText) -> null
             messageExceedsLimitBy <= 0 -> null
@@ -378,7 +391,6 @@ class ComposeNewMessageViewModel @Inject constructor(
         messageText.length * MESSAGE_TEXT_COMPRESSION_RATIO + attachedFiles.sumOf { it.size }
 
     private companion object {
-        private const val MESSAGE_SIZE_LIMIT_BYTES = 8_388_608 // 8MB
         private const val MESSAGE_TEXT_COMPRESSION_RATIO = 0.25
     }
 

@@ -61,7 +61,7 @@ class RegistrationViewModel @Inject constructor(
                 )
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
-                _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
             } finally {
                 _uiState.update {
                     it.copy(
