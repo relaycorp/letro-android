@@ -1,36 +1,36 @@
-package tech.relaycorp.letro.contacts.pairing.processor
+package tech.relaycorp.letro.contacts.pairing.server.match
 
 import tech.relaycorp.awaladroid.AwaladroidException
-import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.contacts.pairing.dto.ContactPairingMatchIncomingMessage
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingMatchParser
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
+import tech.relaycorp.letro.utils.Logger
 import javax.inject.Inject
 
-interface ContactPairingMatchProcessor : ServerMessageProcessor
-
-class ContactPairingMatchProcessorImpl @Inject constructor(
-    private val parser: ContactPairingMatchParser,
+class ContactPairingMatchProcessor @Inject constructor(
     private val contactsDao: ContactsDao,
     private val contactPairingNotificationManager: ContactPairingNotificationManager,
-) : ContactPairingMatchProcessor {
+    parser: ContactPairingMatchParser,
+    logger: Logger,
+) : ServerMessageProcessor<AwalaIncomingMessageContent.ContactPairingMatch>(parser, logger) {
 
-    override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
-        val response = (parser.parse(message.content) as ContactPairingMatchIncomingMessage).content
+    override suspend fun handleMessage(
+        content: AwalaIncomingMessageContent.ContactPairingMatch,
+        awalaManager: AwalaManager,
+    ) {
         val contact = contactsDao.getContact(
-            ownerVeraId = response.ownerVeraId,
-            contactVeraId = response.contactVeraId,
+            ownerVeraId = content.ownerVeraId,
+            contactVeraId = content.contactVeraId,
         )
         try {
-            awalaManager.authorizeUsers(response.contactEndpointPublicKey)
+            awalaManager.authorizeUsers(content.contactEndpointPublicKey)
             contact?.let {
                 contactsDao.update(
                     contact.copy(
-                        contactEndpointId = response.contactEndpointId,
+                        contactEndpointId = content.contactEndpointId,
                         status = ContactPairingStatus.MATCH,
                     ),
                 )

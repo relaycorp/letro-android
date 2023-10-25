@@ -127,7 +127,7 @@ class AccountRepositoryImpl @Inject constructor(
                 normalisedLocale = locale?.normaliseString(),
                 veraidPrivateKey = veraidPrivateKey.encoded,
                 domain = domainName,
-                awalaEndpoint = awalaEndpoint,
+                awalaEndpointId = awalaEndpoint,
                 isCurrent = true,
                 token = token,
                 status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
@@ -182,7 +182,7 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun updateAccount(account: Account, publicThirdPartyEndpointNodeId: String) {
         accountDao.update(
             account.copy(
-                publicThirdPartyNodeId = publicThirdPartyEndpointNodeId,
+                veraidAuthEndpointId = publicThirdPartyEndpointNodeId,
                 token = null,
             ),
         )

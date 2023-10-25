@@ -5,36 +5,40 @@ import android.util.Log
 import com.google.gson.Gson
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
-import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.server.dto.PublicKeyImportData
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
+import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
 import tech.relaycorp.letro.utils.crypto.spkiEncode
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
 
-interface ConnectionParamsProcessor : ServerMessageProcessor
-
-class ConnectionParamsProcessorImpl @Inject constructor(
+class ConnectionParamsProcessor @Inject constructor(
     private val accountsRepository: AccountRepository,
     private val contactsDao: ContactsDao,
     private val contactPairingNotificationManager: ContactPairingNotificationManager,
-) : ConnectionParamsProcessor {
+    parser: ConnectionParamsParser,
+    logger: Logger,
+) : ServerMessageProcessor<AwalaIncomingMessageContent.ConnectionParams>(parser, logger) {
 
-    override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
-        val publicThirdPartyEndpoint = PublicThirdPartyEndpoint.import(message.content)
+    override suspend fun handleMessage(
+        content: AwalaIncomingMessageContent.ConnectionParams,
+        awalaManager: AwalaManager,
+    ) {
+        val publicThirdPartyEndpoint = PublicThirdPartyEndpoint.import(content.connectionParams)
 
         val accountsToUpdate = accountsRepository.allAccounts.value
-            .filter { (it.domain == publicThirdPartyEndpoint.internetAddress || it.awalaEndpoint == publicThirdPartyEndpoint.internetAddress) && it.token?.isNotEmptyOrBlank() == true && it.status != AccountStatus.CREATED }
+            .filter { (it.domain == publicThirdPartyEndpoint.internetAddress || it.awalaEndpointId == publicThirdPartyEndpoint.internetAddress) && it.token?.isNotEmptyOrBlank() == true && it.status != AccountStatus.CREATED }
         val contactsToUpdate = contactsDao.getContactsWithNoEndpoint(
             contactVeraId = publicThirdPartyEndpoint.internetAddress,
             pairingStatus = ContactPairingStatus.REQUEST_SENT,

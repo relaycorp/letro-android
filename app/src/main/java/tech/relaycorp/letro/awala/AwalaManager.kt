@@ -37,7 +37,7 @@ import tech.relaycorp.letro.awala.di.AwalaThreadContext
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.AwalaCommonMessageProcessor
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.ext.emitOnDelayed
@@ -75,7 +75,7 @@ interface AwalaManager {
 class AwalaManagerImpl @Inject constructor(
     private val awala: AwalaWrapper,
     private val awalaRepository: AwalaRepository,
-    private val processor: AwalaMessageProcessor,
+    private val processor: AwalaCommonMessageProcessor,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     @AwalaThreadContext private val awalaThreadContext: CoroutineContext,

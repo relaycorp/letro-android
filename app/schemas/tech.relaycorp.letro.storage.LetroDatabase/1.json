@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "12ceef54e7eff4cf8f25d5f5852f350d",
+    "identityHash": "eab0fd84916a370f057a48648ad571e4",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpoint` TEXT, `publicThirdPartyNodeId` TEXT, `status` INTEGER NOT NULL, `token` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpointId` TEXT, `veraidAuthEndpointId` TEXT, `status` INTEGER NOT NULL, `token` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -57,14 +57,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "awalaEndpoint",
-            "columnName": "awalaEndpoint",
+            "fieldPath": "awalaEndpointId",
+            "columnName": "awalaEndpointId",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "publicThirdPartyNodeId",
-            "columnName": "publicThirdPartyNodeId",
+            "fieldPath": "veraidAuthEndpointId",
+            "columnName": "veraidAuthEndpointId",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -446,7 +446,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12ceef54e7eff4cf8f25d5f5852f350d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eab0fd84916a370f057a48648ad571e4')"
     ]
   }
 }

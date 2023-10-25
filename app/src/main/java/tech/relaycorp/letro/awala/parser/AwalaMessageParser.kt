@@ -1,7 +1,7 @@
 package tech.relaycorp.letro.awala.parser
 
-import tech.relaycorp.letro.awala.message.AwalaIncomingMessage
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 
-interface AwalaMessageParser {
-    fun parse(content: ByteArray): AwalaIncomingMessage<*>
+interface AwalaMessageParser<out T : AwalaIncomingMessageContent> {
+    suspend fun parse(content: ByteArray): T?
 }

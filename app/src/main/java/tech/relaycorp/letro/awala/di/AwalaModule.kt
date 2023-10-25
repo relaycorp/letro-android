@@ -8,24 +8,19 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
-import tech.relaycorp.letro.account.registration.server.AccountCreationProcessor
-import tech.relaycorp.letro.account.registration.server.ConnectionParamsProcessor
-import tech.relaycorp.letro.account.registration.server.MisconfiguredInternetEndpointProcessor
-import tech.relaycorp.letro.account.registration.server.VeraIdMemberBundleProcessor
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.AwalaManagerImpl
 import tech.relaycorp.letro.awala.AwalaRepository
 import tech.relaycorp.letro.awala.AwalaRepositoryImpl
 import tech.relaycorp.letro.awala.AwalaWrapper
 import tech.relaycorp.letro.awala.AwalaWrapperImpl
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.message.MessageType
+import tech.relaycorp.letro.awala.processor.AwalaCommonMessageProcessor
+import tech.relaycorp.letro.awala.processor.AwalaCommonMessageProcessorImpl
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessorImpl
-import tech.relaycorp.letro.awala.processor.UnknownMessageProcessor
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingAuthorizationProcessor
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingMatchProcessor
-import tech.relaycorp.letro.conversation.server.processor.NewConversationProcessor
-import tech.relaycorp.letro.conversation.server.processor.NewMessageProcessor
+import tech.relaycorp.letro.conversation.di.NewConversationAwalaProcessor
+import tech.relaycorp.letro.conversation.di.NewMessageAwalaProcessor
 import tech.relaycorp.letro.utils.Logger
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -39,17 +34,16 @@ object AwalaModule {
 
     @Provides
     fun provideMessageProcessor(
-        accountCreationProcessor: AccountCreationProcessor,
-        connectionParamsProcessor: ConnectionParamsProcessor,
-        misconfiguredInternetEndpointProcessor: MisconfiguredInternetEndpointProcessor,
-        veraIdMemberBundleProcessor: VeraIdMemberBundleProcessor,
-        contactPairingMatchProcessor: ContactPairingMatchProcessor,
-        contactPairingAuthorizationProcessor: ContactPairingAuthorizationProcessor,
-        newConversationProcessor: NewConversationProcessor,
-        newMessageProcessor: NewMessageProcessor,
-        unknownMessageProcessor: UnknownMessageProcessor,
+        accountCreationProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.AccountCreation>,
+        connectionParamsProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.ConnectionParams>,
+        misconfiguredInternetEndpointProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.MisconfiguredInternetEndpoint>,
+        veraIdMemberBundleProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.VeraIdMemberBundle>,
+        contactPairingMatchProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPairingMatch>,
+        contactPairingAuthorizationProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPairingAuthorization>,
+        @NewConversationAwalaProcessor newConversationProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>,
+        @NewMessageAwalaProcessor newMessageProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>,
         logger: Logger,
-    ): AwalaMessageProcessor {
+    ): AwalaCommonMessageProcessor {
         val processors = mapOf(
             MessageType.AccountCreation to accountCreationProcessor,
             MessageType.ConnectionParams to connectionParamsProcessor,
@@ -59,9 +53,8 @@ object AwalaModule {
             MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
             MessageType.NewConversation to newConversationProcessor,
             MessageType.NewMessage to newMessageProcessor,
-            MessageType.Unknown to unknownMessageProcessor,
         )
-        return AwalaMessageProcessorImpl(
+        return AwalaCommonMessageProcessorImpl(
             processors = processors,
             logger = logger,
         )
