@@ -5,10 +5,11 @@ import dagger.hilt.android.HiltAndroidApp
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.suggest.shortcut.AndroidShortcutContactsSuggestManager
+import tech.relaycorp.letro.utils.crypto.MasterKeyProvider
 import javax.inject.Inject
 
 @HiltAndroidApp
-open class App : Application() {
+open class LetroApplication : Application() {
 
     @Inject
     lateinit var awalaManager: AwalaManager
@@ -18,4 +19,7 @@ open class App : Application() {
 
     @Inject
     lateinit var shortcutContactsSuggestManager: AndroidShortcutContactsSuggestManager
+
+    @Inject
+    lateinit var masterKeyProvider: MasterKeyProvider
 }
