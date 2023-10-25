@@ -34,8 +34,8 @@ import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZAT
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
 import tech.relaycorp.letro.awala.di.AwalaThreadContext
-import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
+import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.utils.Logger

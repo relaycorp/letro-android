@@ -2,8 +2,8 @@ package tech.relaycorp.letro.account.registration.storage
 
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
+import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.server.messages.AccountRequest
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
