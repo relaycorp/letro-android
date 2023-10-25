@@ -1,15 +1,15 @@
 package tech.relaycorp.letro.awala.message
 
-sealed interface MessageRecipient {
+sealed interface AwalaEndpoint {
 
-    data class PrivateEndpoint(
+    data class Private(
         val nodeId: String,
-    ) : MessageRecipient
+    ) : AwalaEndpoint
 
     /**
      * Public endpoint. If nodeId is null, then the recipient is the Letro server
      */
-    data class PublicEndpoint(
+    data class Public(
         val nodeId: String? = null,
-    ) : MessageRecipient
+    ) : AwalaEndpoint
 }

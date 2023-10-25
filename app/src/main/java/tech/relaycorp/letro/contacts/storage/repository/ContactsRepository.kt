@@ -13,7 +13,7 @@ import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -91,7 +91,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         type = MessageType.ContactPairingRequest,
                         content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
                     ),
-                    recipient = MessageRecipient.PublicEndpoint(),
+                    recipient = AwalaEndpoint.Public(),
                 )
             } else {
                 awalaManager.sendMessage(
@@ -99,7 +99,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         type = MessageType.ConnectionParamsRequest,
                         content = contact.contactVeraId.toByteArray(),
                     ),
-                    recipient = MessageRecipient.PublicEndpoint(),
+                    recipient = AwalaEndpoint.Public(),
                 )
             }
             if (existingContact == null) {
@@ -121,7 +121,7 @@ class ContactsRepositoryImpl @Inject constructor(
     override suspend fun deleteContact(contact: Contact) {
         contact.contactEndpointId?.let {
             awalaManager.revokeAuthorization(
-                if (contact.isPrivateEndpoint) MessageRecipient.PrivateEndpoint(contact.contactEndpointId) else MessageRecipient.Server(contact.contactEndpointId),
+                if (contact.isPrivateEndpoint) AwalaEndpoint.Private(contact.contactEndpointId) else AwalaEndpoint.Public(contact.contactEndpointId),
             )
         }
         _contactDeleteEvents.emit(contact.id)

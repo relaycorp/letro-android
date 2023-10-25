@@ -35,7 +35,7 @@ import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
 import tech.relaycorp.letro.awala.di.AwalaThreadContext
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.utils.Logger
@@ -51,7 +51,7 @@ interface AwalaManager {
     val awalaUnsuccessfulConfigurations: SharedFlow<Unit>
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     )
     fun initializeGatewayAsync()
     fun configureEndpointsAsync()
@@ -64,7 +64,7 @@ interface AwalaManager {
         thirdPartyEndpoint: PublicThirdPartyEndpoint,
     )
     suspend fun revokeAuthorization(
-        user: MessageRecipient,
+        user: AwalaEndpoint,
     )
     suspend fun getFirstPartyPublicKey(): String
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
@@ -137,7 +137,7 @@ class AwalaManagerImpl @Inject constructor(
 
     override suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     ) {
         withContext(awalaThreadContext) {
             if (outgoingMessage.type != MessageType.AuthorizeReceivingFromServer && awalaSetupJob != null) {
@@ -177,12 +177,12 @@ class AwalaManagerImpl @Inject constructor(
                     type = MessageType.ContactPairingAuthorization,
                     content = auth,
                 ),
-                recipient = MessageRecipient.PublicEndpoint(),
+                recipient = AwalaEndpoint.Public(),
             )
         }
     }
 
-    override suspend fun revokeAuthorization(user: MessageRecipient) {
+    override suspend fun revokeAuthorization(user: AwalaEndpoint) {
         withContext(awalaThreadContext) {
             awala.revokeAuthorization(
                 firstPartyEndpoint = loadFirstPartyEndpoint(),
@@ -226,18 +226,18 @@ class AwalaManagerImpl @Inject constructor(
 
     private suspend fun loadThirdPartyEndpoint(
         sender: FirstPartyEndpoint,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     ): ThirdPartyEndpoint {
         return withContext(awalaThreadContext) {
-            if (recipient is MessageRecipient.PublicEndpoint && recipient.nodeId == null) {
+            if (recipient is AwalaEndpoint.Public && recipient.nodeId == null) {
                 return@withContext getServerThirdPartyEndpoint() ?: throw IllegalStateException("You should register third party endpoint first!")
             }
             when (recipient) {
-                is MessageRecipient.PublicEndpoint -> {
+                is AwalaEndpoint.Public -> {
                     awala.loadNonNullPublicThirdPartyEndpoint(recipient.nodeId)
                 }
 
-                is MessageRecipient.PrivateEndpoint -> {
+                is AwalaEndpoint.Private -> {
                     val senderNodeId = sender.nodeId
                     val recipientNodeId = recipient.nodeId
                     awala.loadNonNullPrivateThirdPartyEndpoint(

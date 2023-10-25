@@ -3,7 +3,7 @@ package tech.relaycorp.letro.account.registration.storage
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.server.messages.AccountRequest
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -37,7 +37,7 @@ class RegistrationRepositoryImpl @Inject constructor(
                     type = MessageType.AccountCreationRequest,
                     content = creationRequest.serialise(keyPair.private),
                 ),
-                recipient = MessageRecipient.PublicEndpoint(),
+                recipient = AwalaEndpoint.Public(),
             )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
@@ -55,7 +55,7 @@ class RegistrationRepositoryImpl @Inject constructor(
                 type = MessageType.ConnectionParamsRequest,
                 content = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint.toByteArray() else domainName.toByteArray(),
             ),
-            recipient = MessageRecipient.PublicEndpoint(),
+            recipient = AwalaEndpoint.Public(),
         )
         accountRepository.createAccount(
             requestedUserName = "...",

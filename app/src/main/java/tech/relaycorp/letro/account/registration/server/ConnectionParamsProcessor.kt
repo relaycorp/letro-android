@@ -11,7 +11,7 @@ import tech.relaycorp.letro.account.registration.server.dto.PublicKeyImportData
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -84,7 +84,7 @@ class ConnectionParamsProcessorImpl @Inject constructor(
                         type = MessageType.MemberPublicKeyImport,
                         content = jsonContent.toByteArray(),
                     ),
-                    recipient = MessageRecipient.PublicEndpoint(
+                    recipient = AwalaEndpoint.Public(
                         nodeId = publicThirdPartyEndpoint.nodeId,
                     ),
                 )
