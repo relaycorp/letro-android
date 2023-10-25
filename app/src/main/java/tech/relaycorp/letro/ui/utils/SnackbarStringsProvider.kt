@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.IntDef
 import dagger.hilt.android.qualifiers.ActivityContext
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.FILE_TOO_BIG_ERROR
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.SEND_MESSAGE_ERROR
 import javax.inject.Inject
 
@@ -23,10 +24,11 @@ interface SnackbarStringsProvider {
 
     fun get(@Type type: Int): String
 
-    @IntDef(SEND_MESSAGE_ERROR)
+    @IntDef(SEND_MESSAGE_ERROR, FILE_TOO_BIG_ERROR)
     annotation class Type {
         companion object {
             const val SEND_MESSAGE_ERROR = 0
+            const val FILE_TOO_BIG_ERROR = 1
         }
     }
 }
@@ -73,6 +75,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
     override fun get(type: Int): String {
         return when (type) {
             SEND_MESSAGE_ERROR -> activity.getString(R.string.we_failed_to_send_this_via_awala)
+            FILE_TOO_BIG_ERROR -> activity.getString(R.string.file_too_big_error_message)
             else -> throw IllegalStateException("Unknown type $type")
         }
     }

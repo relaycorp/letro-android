@@ -96,7 +96,7 @@ class UseExistingAccountViewModel @Inject constructor(
                     uiState.value.token,
                 )
             } catch (e: AwaladroidException) {
-                _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
             } finally {
                 _uiState.update { it.copy(isSendingMessage = false) }
             }
