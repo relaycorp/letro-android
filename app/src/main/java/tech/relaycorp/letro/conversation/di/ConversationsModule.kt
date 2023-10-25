@@ -29,6 +29,7 @@ import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepositoryImpl
 import tech.relaycorp.letro.storage.LetroDatabase
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -49,6 +50,12 @@ object ConversationsModule {
     fun provideAttachmentsDao(
         letroDatabase: LetroDatabase,
     ): AttachmentsDao = letroDatabase.attachmentsDao()
+
+    @Provides
+    @MessageSizeLimitBytes
+    fun provideMessageSizeLimit(): Int {
+        return MESSAGE_SIZE_LIMIT_BYTES
+    }
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -107,3 +114,8 @@ object ConversationsModule {
         ): AttachmentsRepository
     }
 }
+
+@Qualifier
+annotation class MessageSizeLimitBytes
+
+private const val MESSAGE_SIZE_LIMIT_BYTES = 8_388_608 // 8MB

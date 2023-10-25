@@ -7,12 +7,15 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.di.MessageSizeLimitBytes
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.jvm.Throws
 
 interface FileConverter {
+    @Throws(FileSizeExceedsLimitException::class)
     suspend fun getFile(uri: Uri): File.FileWithContent?
     suspend fun getFile(attachment: Attachment): File.FileWithoutContent?
     suspend fun getFile(attachmentAwalaWrapper: AttachmentAwalaWrapper): File.FileWithContent?
@@ -20,22 +23,36 @@ interface FileConverter {
 
 class FileConverterImpl @Inject constructor(
     private val contentResolver: ContentResolver,
+    @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
 ) : FileConverter {
 
+    @Throws(FileSizeExceedsLimitException::class)
     override suspend fun getFile(uri: Uri): File.FileWithContent? {
-        contentResolver.openInputStream(uri).use {
-            it ?: return null // TODO: log error?
-            val bytes = it.readBytes()
-            val extension = getFileExtension(uri)
-            val fileName = getFileName(uri) ?: UNKNOWN_FILE_NAME
-            return File.FileWithContent(
-                id = UUID.randomUUID(),
-                name = fileName,
-                extension = extension,
-                size = bytes.size.toLong(),
-                content = bytes,
-            )
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            cursor.moveToFirst()
+            val sizeColumnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (sizeColumnIndex > -1) {
+                val fileSize = cursor.getString(sizeColumnIndex)?.toLongOrNull() ?: return null
+                if (fileSize >= messageSizeLimitBytes) {
+                    throw FileSizeExceedsLimitException(fileSize, messageSizeLimitBytes)
+                }
+                contentResolver.openInputStream(uri).use {
+                    it ?: return null // TODO: log error?
+                    val bufferedStream = it.buffered(messageSizeLimitBytes)
+                    val bytes = bufferedStream.readBytes()
+                    val extension = getFileExtension(uri)
+                    val fileName = getFileName(uri) ?: UNKNOWN_FILE_NAME
+                    return File.FileWithContent(
+                        id = UUID.randomUUID(),
+                        name = fileName,
+                        extension = extension,
+                        size = bytes.size.toLong(),
+                        content = bytes,
+                    )
+                }
+            }
         }
+        return null
     }
 
     override suspend fun getFile(attachment: Attachment): File.FileWithoutContent? {
@@ -92,3 +109,5 @@ class FileConverterImpl @Inject constructor(
         private const val UNKNOWN_FILE_NAME = "Unknown"
     }
 }
+
+class FileSizeExceedsLimitException(fileSize: Long, limit: Int) : IllegalStateException("This file is exceed the limit of $limit bytes, but file size is $fileSize")
