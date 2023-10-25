@@ -4,6 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
+import tech.relaycorp.letro.contacts.suggest.shortcut.AndroidShortcutContactsSuggestManager
 import tech.relaycorp.letro.utils.crypto.MasterKeyProvider
 import javax.inject.Inject
 
@@ -15,6 +16,9 @@ open class LetroApplication : Application() {
 
     @Inject
     lateinit var accountRepository: AccountRepository
+
+    @Inject
+    lateinit var shortcutContactsSuggestManager: AndroidShortcutContactsSuggestManager
 
     @Inject
     lateinit var masterKeyProvider: MasterKeyProvider

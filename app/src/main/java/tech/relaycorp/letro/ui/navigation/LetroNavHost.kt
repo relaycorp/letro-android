@@ -3,6 +3,8 @@
 package tech.relaycorp.letro.ui.navigation
 
 import android.util.Log
+import androidx.compose.animation.core.Spring.StiffnessVeryLow
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -221,6 +223,7 @@ fun LetroNavHost(
                                 Route.CreateNewMessage.getRouteName(
                                     screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
                                     withAttachedFiles = true,
+                                    contactId = action.action.contactId ?: Route.CreateNewMessage.NO_ID,
                                 ),
                             )
                         }
@@ -272,8 +275,20 @@ fun LetroNavHost(
                         }
                         composable(
                             route = Route.AwalaInitializing.name,
-                            exitTransition = { fadeOut() },
-                            popExitTransition = { fadeOut() },
+                            exitTransition = {
+                                fadeOut(
+                                    animationSpec = spring(
+                                        stiffness = StiffnessVeryLow,
+                                    ),
+                                )
+                            },
+                            popExitTransition = {
+                                fadeOut(
+                                    animationSpec = spring(
+                                        stiffness = StiffnessVeryLow,
+                                    ),
+                                )
+                            },
                         ) {
                             AwalaInitializationInProgress()
                         }
@@ -500,6 +515,7 @@ fun LetroNavHost(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
                                 "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
+                                "&${Route.CreateNewMessage.KEY_CONTACT_ID}={${Route.CreateNewMessage.KEY_CONTACT_ID}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
                                 navArgument(Route.CreateNewMessage.KEY_SCREEN_TYPE) {
@@ -510,6 +526,11 @@ fun LetroNavHost(
                                     type = NavType.StringType
                                     nullable = true
                                     defaultValue = null
+                                },
+                                navArgument(Route.CreateNewMessage.KEY_CONTACT_ID) {
+                                    type = NavType.LongType
+                                    nullable = false
+                                    defaultValue = Route.CreateNewMessage.NO_ID
                                 },
                             ),
                         ) {

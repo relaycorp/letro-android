@@ -150,15 +150,19 @@ sealed class Route(
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONVERSATION_ID = "conversation_id"
         const val KEY_WITH_ATTACHED_FILES = "with_attached_files"
+        const val KEY_CONTACT_ID = "contact_id"
+        const val NO_ID = -1L
 
         fun getRouteName(
             @ComposeNewMessageViewModel.ScreenType screenType: Int,
             withAttachedFiles: Boolean = false,
+            contactId: Long = NO_ID,
             conversationId: String? = null,
         ) =
             "${CreateNewMessage.name}?" +
                 "$KEY_SCREEN_TYPE=$screenType" +
-                "&$KEY_WITH_ATTACHED_FILES=$withAttachedFiles}" +
+                "&$KEY_WITH_ATTACHED_FILES=$withAttachedFiles" +
+                "&$KEY_CONTACT_ID=$contactId" +
                 if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
     }
 

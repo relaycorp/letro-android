@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.contacts.suggest.shortcut.EXTRA_SHORTCUT_ID
 import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.main.ActionWithAppStartInfo
 import tech.relaycorp.letro.main.MainViewModel
@@ -74,11 +75,10 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         intent ?: return
-        setIntent(intent)
         when (intent.action) {
             KEY_PUSH_ACTION -> handlePushIntent(intent)
             Intent.ACTION_VIEW -> handleAppLinkIntent(intent)
-            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> handleSendFileIntent(intent)
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> handleSendIntent(intent)
         }
     }
 
@@ -106,10 +106,15 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private fun handleSendFileIntent(intent: Intent) {
+    private fun handleSendIntent(intent: Intent) {
         viewModel.onSendFilesRequested(
             files = intent.clipData?.toAttachmentsToShare() ?: emptyList(),
             isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
+            contactId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && intent.hasExtra(Intent.EXTRA_SHORTCUT_NAME)) {
+                intent.getStringExtra(Intent.EXTRA_SHORTCUT_ID)?.toLongOrNull()
+            } else {
+                intent.getStringExtra(EXTRA_SHORTCUT_ID)?.toLongOrNull()
+            },
         )
     }
 

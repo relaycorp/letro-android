@@ -180,15 +180,14 @@ class MainViewModel @Inject constructor(
     fun onSendFilesRequested(
         files: List<AttachmentToShare>,
         isColdStart: Boolean,
+        contactId: Long? = null,
     ) {
-        if (files.isEmpty()) {
-            return
-        }
         shareAttachmentsRepository.shareAttachmentsLater(files)
         onNewAction(
             ActionWithAppStartInfo(
                 action = Action.OpenComposeNewMessage(
                     attachments = files,
+                    contactId = contactId,
                 ),
                 isColdStart = isColdStart,
             ),
