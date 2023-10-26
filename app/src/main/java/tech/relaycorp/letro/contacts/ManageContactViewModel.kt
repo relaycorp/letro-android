@@ -21,8 +21,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
+import tech.relaycorp.letro.base.BaseViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.ManageContactScreenContent.Companion.REQUEST_SENT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.EDIT_CONTACT
 import tech.relaycorp.letro.contacts.ManageContactViewModel.Type.Companion.NEW_CONTACT
@@ -164,7 +165,9 @@ class ManageContactViewModel @Inject constructor(
                         }
                     } catch (e: AwaladroidException) {
                         Log.w(TAG, e)
-                        showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                        showSnackbarDebounced.emit(
+                            SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                        )
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
                     }

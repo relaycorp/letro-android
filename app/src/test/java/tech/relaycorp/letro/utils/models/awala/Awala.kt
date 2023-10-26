@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utils.models
+package tech.relaycorp.letro.utils.models.awala
 
 import io.mockk.ConstantAnswer
 import io.mockk.coEvery
@@ -15,6 +15,7 @@ import tech.relaycorp.awaladroid.SetupPendingException
 import tech.relaycorp.letro.awala.AwalaManagerImpl
 import tech.relaycorp.letro.awala.AwalaRepository
 import tech.relaycorp.letro.awala.AwalaWrapper
+import tech.relaycorp.letro.utils.models.utils.createLogger
 import kotlin.coroutines.EmptyCoroutineContext
 
 @ExperimentalCoroutinesApi

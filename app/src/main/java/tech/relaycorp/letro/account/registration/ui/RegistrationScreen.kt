@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.registration.RegistrationViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.common.ButtonType
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
@@ -44,7 +45,7 @@ import tech.relaycorp.letro.ui.theme.LetroTheme
 @Composable
 fun RegistrationScreen(
     onUseExistingAccountClick: () -> Unit,
-    showSnackbar: (Int) -> Unit,
+    showSnackbar: (SnackbarString) -> Unit,
     onBackClick: (() -> Unit)? = null,
     viewModel: RegistrationViewModel = hiltViewModel(),
 ) {

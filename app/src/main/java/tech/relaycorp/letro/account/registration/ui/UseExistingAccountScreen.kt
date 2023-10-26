@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.registration.UseExistingAccountViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.common.LetroActionBarWithBackAction
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroInfoView
@@ -29,7 +30,7 @@ import tech.relaycorp.letro.ui.common.LetroTopTitle
 @Composable
 fun UseExistingAccountScreen(
     onBackClick: () -> Unit,
-    showSnackbar: (Int) -> Unit,
+    showSnackbar: (SnackbarString) -> Unit,
     viewModel: UseExistingAccountViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()

@@ -17,6 +17,8 @@
     <string name="onboarding_create_account_terms_and_services_link_text">Terms and Conditions</string>
     <string name="onboarding_create_account_button">Create account</string>
     <string name="onboarding_create_account_or">OR</string>
+    <string name="you_already_have_account_with_this_id">You already have an account with this id.</string>
+    <string name="you_already_waiting_for_id">You&#8217;re already waiting for an id from %s</string>
 
     <string name="onboarding_install_awala_title">Awala doesn’t appear to&#160;be&#160;installed.</string>
     <string name="onbaording_install_awala_message">Install Awala so that you can use this app.</string>

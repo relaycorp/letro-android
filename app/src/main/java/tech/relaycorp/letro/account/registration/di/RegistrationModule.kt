@@ -16,6 +16,8 @@ import tech.relaycorp.letro.account.registration.server.VeraIdMemberBundleProces
 import tech.relaycorp.letro.account.registration.server.VeraIdMemberBundleProcessorImpl
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepositoryImpl
+import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
+import tech.relaycorp.letro.account.registration.utils.AccountIdBuilderImpl
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProviderImpl
 import javax.inject.Singleton
@@ -60,4 +62,9 @@ interface RegistrationModuleSingleton {
     fun bindMisconfiguredInternetEndpointProcessor(
         impl: MisconfiguredInternetEndpointProcessorImpl,
     ): MisconfiguredInternetEndpointProcessor
+
+    @Binds
+    fun bindAccountIdBuilder(
+        impl: AccountIdBuilderImpl,
+    ): AccountIdBuilder
 }
