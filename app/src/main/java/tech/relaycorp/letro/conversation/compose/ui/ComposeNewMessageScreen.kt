@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.ui.ContactView
 import tech.relaycorp.letro.conversation.attachments.ui.Attachment
@@ -72,7 +73,7 @@ fun ComposeNewMessageScreen(
     conversationsStringsProvider: ConversationsStringsProvider,
     goBack: () -> Unit,
     onMessageSent: () -> Unit,
-    showSnackbar: (Int) -> Unit,
+    showSnackbar: (SnackbarString) -> Unit,
     viewModel: ComposeNewMessageViewModel = hiltViewModel(),
 ) {
     DoOnLifecycleEvent(

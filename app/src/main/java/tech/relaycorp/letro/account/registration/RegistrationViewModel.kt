@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.account.BaseViewModel
+import tech.relaycorp.letro.account.registration.storage.DuplicateAccountIdException
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
+import tech.relaycorp.letro.base.BaseViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import javax.inject.Inject
 
@@ -33,12 +35,21 @@ class RegistrationViewModel @Inject constructor(
 
     fun onUsernameInput(username: String) {
         val isValidText = !username.contains(" ") && !username.contains("@") && username.length <= USER_NAME_MAX_LENGTH
+        val isAccountWithThisIdAlreadyExists = registrationRepository.isAccountWithThisIdAlreadyExists(username, uiState.value.domain)
         _uiState.update {
             it.copy(
                 username = username,
-                isError = !isValidText,
-                isCreateAccountButtonEnabled = isValidText && username.isNotEmpty(),
-                inputSuggestionText = if (isValidText) R.string.onboarding_create_account_username_unavailable_hint else R.string.onboarding_create_account_wrong_username_hint,
+                isError = !isValidText || isAccountWithThisIdAlreadyExists,
+                isCreateAccountButtonEnabled = isCreateAccountButtonEnabled(
+                    isValidText = isValidText,
+                    username = username,
+                    isAccountWithThisIdAlreadyExists = isAccountWithThisIdAlreadyExists,
+                ),
+                inputSuggestionText = when {
+                    !isValidText -> R.string.onboarding_create_account_wrong_username_hint
+                    isAccountWithThisIdAlreadyExists -> R.string.you_already_have_account_with_this_id
+                    else -> R.string.onboarding_create_account_username_unavailable_hint
+                },
             )
         }
     }
@@ -61,7 +72,14 @@ class RegistrationViewModel @Inject constructor(
                 )
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
-                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                )
+            } catch (e: DuplicateAccountIdException) {
+                Log.w(TAG, e)
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.ACCOUNT_LINKING_ID_ALREADY_EXISTS),
+                )
             } finally {
                 _uiState.update {
                     it.copy(
@@ -70,6 +88,14 @@ class RegistrationViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun isCreateAccountButtonEnabled(
+        isValidText: Boolean,
+        username: String,
+        isAccountWithThisIdAlreadyExists: Boolean,
+    ): Boolean {
+        return isValidText && username.isNotEmpty() && !isAccountWithThisIdAlreadyExists
     }
 
     private companion object {

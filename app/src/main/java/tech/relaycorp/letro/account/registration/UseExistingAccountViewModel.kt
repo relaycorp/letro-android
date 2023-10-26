@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
-import tech.relaycorp.letro.account.BaseViewModel
+import tech.relaycorp.letro.account.registration.storage.DuplicateAccountIdException
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
+import tech.relaycorp.letro.base.BaseViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.ext.decodeFromUTF
@@ -96,7 +98,13 @@ class UseExistingAccountViewModel @Inject constructor(
                     uiState.value.token,
                 )
             } catch (e: AwaladroidException) {
-                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                )
+            } catch (e: DuplicateAccountIdException) {
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.ACCOUNT_LINKING_ID_ALREADY_EXISTS, args = arrayOf(_uiState.value.domain)),
+                )
             } finally {
                 _uiState.update { it.copy(isSendingMessage = false) }
             }

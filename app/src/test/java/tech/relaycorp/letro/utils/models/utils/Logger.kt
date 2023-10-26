@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utils.models
+package tech.relaycorp.letro.utils.models.utils
 
 import tech.relaycorp.letro.utils.Logger
 import java.lang.Exception

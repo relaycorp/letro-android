@@ -56,6 +56,7 @@ import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
 import tech.relaycorp.letro.awala.ui.error.AwalaInitializationErrorViewModel.Companion.CONFIGURE_ENDPOINTS_ON_RESUME
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
@@ -341,7 +342,7 @@ fun LetroNavHost(
                                 onUseExistingAccountClick = { navController.navigateSingleTop(Route.UseExistingAccount) },
                                 showSnackbar = {
                                     showSnackbar(
-                                        type = it,
+                                        string = it,
                                         snackbarHostState = snackbarHostState,
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
@@ -418,7 +419,7 @@ fun LetroNavHost(
                                 onBackClick = { navController.popBackStackSafe() },
                                 showSnackbar = {
                                     showSnackbar(
-                                        type = it,
+                                        string = it,
                                         snackbarHostState = snackbarHostState,
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
@@ -474,7 +475,7 @@ fun LetroNavHost(
                                 },
                                 showSnackbar = {
                                     showSnackbar(
-                                        type = it,
+                                        string = it,
                                         snackbarHostState = snackbarHostState,
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
@@ -554,7 +555,7 @@ fun LetroNavHost(
                                 },
                                 showSnackbar = {
                                     showSnackbar(
-                                        type = it,
+                                        string = it,
                                         snackbarHostState = snackbarHostState,
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
@@ -696,7 +697,7 @@ private fun showSnackbar(
         val result = snackbarHostState.showSnackbar(
             message = message,
             actionLabel = actionLabel,
-            duration = SnackbarDuration.Short,
+            duration = SnackbarDuration.Indefinite,
         )
         if (result == SnackbarResult.ActionPerformed) {
             onActionPerformed()
@@ -705,12 +706,12 @@ private fun showSnackbar(
 }
 
 private fun showSnackbar(
-    @SnackbarStringsProvider.Type type: Int,
+    string: SnackbarString,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope,
     stringsProvider: SnackbarStringsProvider,
 ) {
-    snackbarHostState.showSnackbar(scope, stringsProvider.get(type))
+    snackbarHostState.showSnackbar(scope, stringsProvider.get(string))
 }
 
 private const val TAG = "LetroNavHost"

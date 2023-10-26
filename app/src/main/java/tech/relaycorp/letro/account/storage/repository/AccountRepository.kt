@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
+import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.PushManager
@@ -61,6 +62,7 @@ interface AccountRepository {
 class AccountRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
     private val pushManager: PushManager,
+    private val accountIdBuilder: AccountIdBuilder,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AccountRepository {
@@ -122,7 +124,7 @@ class AccountRepositoryImpl @Inject constructor(
         markAllExistingAccountsAsNonCurrent()
         accountDao.insert(
             Account(
-                accountId = "$requestedUserName@$domainName",
+                accountId = accountIdBuilder.build(requestedUserName, domainName),
                 requestedUserName = requestedUserName,
                 normalisedLocale = locale?.normaliseString(),
                 veraidPrivateKey = veraidPrivateKey.encoded,

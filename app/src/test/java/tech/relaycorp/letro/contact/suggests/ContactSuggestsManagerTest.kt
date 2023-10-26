@@ -5,10 +5,10 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManagerImpl
-import tech.relaycorp.letro.utils.models.createContact
-import tech.relaycorp.letro.utils.models.createConversation
-import tech.relaycorp.letro.utils.models.createExtendedConversationConverter
-import tech.relaycorp.letro.utils.models.createMessage
+import tech.relaycorp.letro.utils.models.contact.createContact
+import tech.relaycorp.letro.utils.models.conversation.createConversation
+import tech.relaycorp.letro.utils.models.conversation.createExtendedConversationConverter
+import tech.relaycorp.letro.utils.models.conversation.createMessage
 import java.time.LocalDateTime
 import java.util.UUID
 

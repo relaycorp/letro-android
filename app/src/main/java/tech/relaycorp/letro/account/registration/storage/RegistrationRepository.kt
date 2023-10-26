@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.account.registration.storage
 
+import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
@@ -11,19 +12,29 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.jvm.Throws
 
 interface RegistrationRepository {
+    @Throws(DuplicateAccountIdException::class)
     suspend fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale)
 
+    @Throws(DuplicateAccountIdException::class)
     suspend fun loginToExistingAccount(domainName: String, awalaEndpoint: String, token: String)
+
+    fun isAccountWithThisIdAlreadyExists(requestedUserName: String, domainName: String): Boolean
 }
 
 class RegistrationRepositoryImpl @Inject constructor(
     private val awalaManager: AwalaManager,
     private val accountRepository: AccountRepository,
+    private val accountIdBuilder: AccountIdBuilder,
 ) : RegistrationRepository {
 
+    @Throws(DuplicateAccountIdException::class)
     override suspend fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale) {
+        if (isAccountWithThisIdAlreadyExists(requestedUserName, domainName)) {
+            throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
+        }
         val keyPair = generateRSAKeyPair()
 
         val creationRequest = AccountRequest(
@@ -47,8 +58,13 @@ class RegistrationRepositoryImpl @Inject constructor(
         )
     }
 
+    @Throws(DuplicateAccountIdException::class)
     @Suppress("NAME_SHADOWING")
     override suspend fun loginToExistingAccount(domainName: String, awalaEndpoint: String, token: String) {
+        val requestedUserName = "..."
+        if (isAccountWithThisIdAlreadyExists(requestedUserName, domainName)) {
+            throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
+        }
         val keyPair = generateRSAKeyPair()
         awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
@@ -58,7 +74,7 @@ class RegistrationRepositoryImpl @Inject constructor(
             recipient = AwalaEndpoint.Public(),
         )
         accountRepository.createAccount(
-            requestedUserName = "...",
+            requestedUserName = requestedUserName,
             domainName = domainName,
             awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             veraidPrivateKey = keyPair.private,
@@ -74,4 +90,11 @@ class RegistrationRepositoryImpl @Inject constructor(
         keyGen.initialize(2048)
         return keyGen.generateKeyPair()
     }
+
+    override fun isAccountWithThisIdAlreadyExists(requestedUserName: String, domainName: String): Boolean {
+        val accountId = accountIdBuilder.build(requestedUserName = requestedUserName, domainName = domainName)
+        return accountRepository.allAccounts.value.any { it.accountId == accountId }
+    }
 }
+
+class DuplicateAccountIdException(requestedAccountId: String) : IllegalStateException("Account with id $requestedAccountId already exists")

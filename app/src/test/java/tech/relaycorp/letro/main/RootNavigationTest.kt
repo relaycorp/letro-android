@@ -19,16 +19,16 @@ import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
-import tech.relaycorp.letro.utils.models.AwalaInitializationResult
-import tech.relaycorp.letro.utils.models.createAccount
-import tech.relaycorp.letro.utils.models.createAccountRepository
-import tech.relaycorp.letro.utils.models.createAwalaManager
-import tech.relaycorp.letro.utils.models.createContact
-import tech.relaycorp.letro.utils.models.createContactsRepository
-import tech.relaycorp.letro.utils.models.createConversation
-import tech.relaycorp.letro.utils.models.createConversationsRepository
-import tech.relaycorp.letro.utils.models.createLogger
-import tech.relaycorp.letro.utils.models.createMessage
+import tech.relaycorp.letro.utils.models.account.createAccount
+import tech.relaycorp.letro.utils.models.account.createAccountRepository
+import tech.relaycorp.letro.utils.models.awala.AwalaInitializationResult
+import tech.relaycorp.letro.utils.models.awala.createAwalaManager
+import tech.relaycorp.letro.utils.models.contact.createContact
+import tech.relaycorp.letro.utils.models.contact.createContactsRepository
+import tech.relaycorp.letro.utils.models.conversation.createConversation
+import tech.relaycorp.letro.utils.models.conversation.createConversationsRepository
+import tech.relaycorp.letro.utils.models.conversation.createMessage
+import tech.relaycorp.letro.utils.models.utils.createLogger
 import java.util.UUID
 
 @ExperimentalCoroutinesApi
