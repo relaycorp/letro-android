@@ -18,9 +18,9 @@ class VeraIdMemberBundleParserImpl @Inject constructor(
     override suspend fun parse(content: ByteArray): AwalaIncomingMessageContent.VeraIdMemberBundle? {
         val memberIdInfo = deserialiseMessage(content) ?: return null
         return AwalaIncomingMessageContent.VeraIdMemberBundle(
-            memberIdBundle = memberIdInfo.first,
+            bundle = memberIdInfo.first,
             member = memberIdInfo.second,
-            veraIdBundle = content,
+            bundleSerialised = content,
         )
     }
 

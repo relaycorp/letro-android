@@ -5,7 +5,6 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
-import tech.relaycorp.letro.server.messages.AccountCreation
 import tech.relaycorp.veraid.Member
 import tech.relaycorp.veraid.pki.MemberIdBundle
 
@@ -43,9 +42,9 @@ sealed interface AwalaIncomingMessageContent {
     }
 
     data class VeraIdMemberBundle(
-        val memberIdBundle: MemberIdBundle,
+        val bundle: MemberIdBundle,
         val member: Member,
-        val veraIdBundle: ByteArray,
+        val bundleSerialised: ByteArray,
     ) : AwalaIncomingMessageContent {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -53,17 +52,17 @@ sealed interface AwalaIncomingMessageContent {
 
             other as VeraIdMemberBundle
 
-            if (memberIdBundle != other.memberIdBundle) return false
+            if (bundle != other.bundle) return false
             if (member != other.member) return false
-            if (!veraIdBundle.contentEquals(other.veraIdBundle)) return false
+            if (!bundleSerialised.contentEquals(other.bundleSerialised)) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            var result = memberIdBundle.hashCode()
+            var result = bundle.hashCode()
             result = 31 * result + member.hashCode()
-            result = 31 * result + veraIdBundle.contentHashCode()
+            result = 31 * result + bundleSerialised.contentHashCode()
             return result
         }
     }

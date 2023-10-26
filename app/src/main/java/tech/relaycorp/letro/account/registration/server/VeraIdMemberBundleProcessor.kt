@@ -21,14 +21,14 @@ class VeraIdMemberBundleProcessor @Inject constructor(
         content: AwalaIncomingMessageContent.VeraIdMemberBundle,
         awalaManager: AwalaManager,
     ) {
-        val memberIdBundle = content.memberIdBundle
+        val memberIdBundle = content.bundle
         val member = content.member
         getAccountsToUpdate(memberIdBundle, member)
             .forEach { account ->
                 accountRepository.updateAccount(
                     account = account,
                     accountId = if (member.userName.isNullOrEmpty()) member.orgName else "${member.userName}@${member.orgName}",
-                    veraidBundle = content.veraIdBundle,
+                    veraidBundle = content.bundleSerialised,
                 )
             }
     }
@@ -38,7 +38,7 @@ class VeraIdMemberBundleProcessor @Inject constructor(
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {
-        val memberIdBundle = content.memberIdBundle
+        val memberIdBundle = content.bundle
         val member = content.member
         return getAccountsToUpdate(memberIdBundle, member)
             .all { it.veraidAuthEndpointId == senderNodeId }
