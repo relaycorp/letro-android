@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utils.models
+package tech.relaycorp.letro.utils.models.conversation
 
 import android.net.Uri
 import io.mockk.every
@@ -26,6 +26,10 @@ import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepositoryImpl
 import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.models.account.createAccountRepository
+import tech.relaycorp.letro.utils.models.awala.createAwalaManager
+import tech.relaycorp.letro.utils.models.contact.createContactsRepository
+import tech.relaycorp.letro.utils.models.utils.createLogger
 import java.time.LocalDateTime
 import java.util.UUID
 

@@ -17,8 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.account.BaseViewModel
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
+import tech.relaycorp.letro.base.BaseViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
@@ -124,7 +125,9 @@ class ComposeNewMessageViewModel @Inject constructor(
             val file = try {
                 fileConverter.getFile(uri)
             } catch (e: FileSizeExceedsLimitException) {
-                showSnackbarDebounced.emit(SnackbarStringsProvider.Type.FILE_TOO_BIG_ERROR)
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.FILE_TOO_BIG_ERROR),
+                )
                 null
             } ?: return@launch
             attachedFiles.add(file)
@@ -269,7 +272,9 @@ class ComposeNewMessageViewModel @Inject constructor(
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
                         Log.w(TAG, e)
-                        showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                        showSnackbarDebounced.emit(
+                            SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                        )
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
                     }
@@ -285,7 +290,9 @@ class ComposeNewMessageViewModel @Inject constructor(
                         _messageSentSignal.emitOn(Unit, viewModelScope)
                     } catch (e: AwaladroidException) {
                         Log.w(TAG, e)
-                        showSnackbarDebounced.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                        showSnackbarDebounced.emit(
+                            SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                        )
                     } finally {
                         _uiState.update { it.copy(isSendingMessage = false) }
                     }

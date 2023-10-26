@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.utils.models
+package tech.relaycorp.letro.utils.models.contact
 
 import io.mockk.every
 import io.mockk.mockk
@@ -13,6 +13,9 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
 import tech.relaycorp.letro.storage.Preferences
+import tech.relaycorp.letro.utils.models.account.createAccountRepository
+import tech.relaycorp.letro.utils.models.awala.createAwalaManager
+import tech.relaycorp.letro.utils.models.utils.createLogger
 
 fun createContact(
     ownerVeraId: String = "account@test.id",

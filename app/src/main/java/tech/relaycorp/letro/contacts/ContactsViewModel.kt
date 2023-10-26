@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.contacts
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +14,8 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
+import tech.relaycorp.letro.base.BaseViewModel
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
@@ -24,7 +25,7 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _contacts: MutableStateFlow<List<Contact>> = MutableStateFlow(emptyList())
     val contacts: StateFlow<List<Contact>>
@@ -41,10 +42,6 @@ class ContactsViewModel @Inject constructor(
     private val _showContactDeletedSnackbarSignal = MutableSharedFlow<Unit>()
     val showContactDeletedSnackbarSignal: SharedFlow<Unit>
         get() = _showContactDeletedSnackbarSignal
-
-    private val _showSnackbar = MutableSharedFlow<Int>()
-    val showSnackbar: SharedFlow<Int>
-        get() = _showSnackbar
 
     private var contactsCollectionJob: Job? = null
 
@@ -99,7 +96,9 @@ class ContactsViewModel @Inject constructor(
                 _showContactDeletedSnackbarSignal.emit(Unit)
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
-                _showSnackbar.emit(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR)
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                )
             }
         }
     }

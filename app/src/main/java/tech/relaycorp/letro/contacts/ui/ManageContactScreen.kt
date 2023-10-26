@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.ManageContactScreenContent
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.PairWithOthersUiState
@@ -37,7 +38,7 @@ fun ManageContactScreen(
     onBackClick: () -> Unit,
     onEditContactCompleted: (String) -> Unit,
     showGoToSettingsPermissionSnackbar: () -> Unit,
-    showSnackbar: (Int) -> Unit,
+    showSnackbar: (SnackbarString) -> Unit,
     viewModel: ManageContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
