@@ -22,100 +22,28 @@ sealed interface AwalaIncomingMessageContent {
         val accountCreation: tech.relaycorp.letro.server.messages.AccountCreation,
     ) : AwalaIncomingMessageContent
 
-    data class ConnectionParams(
+    class ConnectionParams(
         val connectionParams: ByteArray,
-    ) : AwalaIncomingMessageContent {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
+    ) : AwalaIncomingMessageContent
 
-            other as ConnectionParams
-
-            if (!connectionParams.contentEquals(other.connectionParams)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return connectionParams.contentHashCode()
-        }
-    }
-
-    data class VeraIdMemberBundle(
+    class VeraIdMemberBundle(
         val bundle: MemberIdBundle,
         val member: Member,
         val bundleSerialised: ByteArray,
-    ) : AwalaIncomingMessageContent {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as VeraIdMemberBundle
-
-            if (bundle != other.bundle) return false
-            if (member != other.member) return false
-            if (!bundleSerialised.contentEquals(other.bundleSerialised)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = bundle.hashCode()
-            result = 31 * result + member.hashCode()
-            result = 31 * result + bundleSerialised.contentHashCode()
-            return result
-        }
-    }
+    ) : AwalaIncomingMessageContent
 
     data class MisconfiguredInternetEndpoint(
         val domain: String,
     ) : AwalaIncomingMessageContent
 
-    data class ContactPairingMatch(
+    class ContactPairingMatch(
         val ownerVeraId: String,
         val contactVeraId: String,
         val contactEndpointId: String,
         val contactEndpointPublicKey: ByteArray,
-    ) : AwalaIncomingMessageContent {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
+    ) : AwalaIncomingMessageContent
 
-            other as ContactPairingMatch
-
-            if (ownerVeraId != other.ownerVeraId) return false
-            if (contactVeraId != other.contactVeraId) return false
-            if (contactEndpointId != other.contactEndpointId) return false
-            if (!contactEndpointPublicKey.contentEquals(other.contactEndpointPublicKey)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = ownerVeraId.hashCode()
-            result = 31 * result + contactVeraId.hashCode()
-            result = 31 * result + contactEndpointId.hashCode()
-            result = 31 * result + contactEndpointPublicKey.contentHashCode()
-            return result
-        }
-    }
-
-    data class ContactPairingAuthorization(
+    class ContactPairingAuthorization(
         val authData: ByteArray,
-    ) : AwalaIncomingMessageContent {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as ContactPairingAuthorization
-
-            if (!authData.contentEquals(other.authData)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return authData.contentHashCode()
-        }
-    }
+    ) : AwalaIncomingMessageContent
 }
