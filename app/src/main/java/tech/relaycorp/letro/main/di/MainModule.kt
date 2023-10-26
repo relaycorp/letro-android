@@ -1,3 +1,5 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package tech.relaycorp.letro.main.di
 
 import android.content.Context
@@ -7,8 +9,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.newSingleThreadContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManagerImpl
@@ -20,6 +26,7 @@ import tech.relaycorp.letro.ui.utils.StringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProviderImpl
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Module
 @InstallIn(ActivityComponent::class)
@@ -68,5 +75,29 @@ interface MainSingletonModule {
     ): UnreadBadgesManager
 }
 
+@Module
+@InstallIn(ViewModelComponent::class)
+@OptIn(ExperimentalCoroutinesApi::class)
+object MainViewModelModule {
+
+    @Provides
+    @RootNavigationDebounceMs
+    fun provideRootNavigationDebounceMs(): Long {
+        return 300L
+    }
+
+    @Provides
+    @MainViewModelActionProcessorThread
+    fun provideMainViewModelActionProcessorThread(): CoroutineContext {
+        return newSingleThreadContext("MainActionProcessorThread")
+    }
+}
+
 @Qualifier
 annotation class TermsAndConditionsLink
+
+@Qualifier
+annotation class RootNavigationDebounceMs
+
+@Qualifier
+annotation class MainViewModelActionProcessorThread

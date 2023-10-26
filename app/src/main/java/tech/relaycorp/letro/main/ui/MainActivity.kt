@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.suggest.shortcut.EXTRA_SHORTCUT_ID
 import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
-import tech.relaycorp.letro.main.ActionWithAppStartInfo
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
 import tech.relaycorp.letro.ui.navigation.Action
@@ -67,7 +66,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (savedInstanceState == null) {
-            intent?.putExtra(IS_COLD_START, true)
             onNewIntent(intent)
         }
     }
@@ -90,10 +88,7 @@ class MainActivity : ComponentActivity() {
         }
         action?.let {
             viewModel.onNewAction(
-                action = ActionWithAppStartInfo(
-                    action = action,
-                    isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
-                ),
+                action = action,
             )
         }
     }
@@ -102,14 +97,12 @@ class MainActivity : ComponentActivity() {
         val link = intent.data ?: return
         viewModel.onLinkOpened(
             link = link.toString(),
-            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
         )
     }
 
     private fun handleSendIntent(intent: Intent) {
         viewModel.onSendFilesRequested(
             files = intent.clipData?.toAttachmentsToShare() ?: emptyList(),
-            isColdStart = intent.getBooleanExtra(IS_COLD_START, false),
             contactId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && intent.hasExtra(Intent.EXTRA_SHORTCUT_NAME)) {
                 intent.getStringExtra(Intent.EXTRA_SHORTCUT_ID)?.toLongOrNull()
             } else {
@@ -132,5 +125,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-private const val IS_COLD_START = "is_cold_start"
