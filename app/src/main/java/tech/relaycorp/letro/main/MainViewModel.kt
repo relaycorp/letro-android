@@ -156,7 +156,7 @@ class MainViewModel @Inject constructor(
                     currentAccount.status == AccountStatus.ERROR -> RootNavigationScreen.AccountCreationFailed
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro(
                         withAnimation = navigationHandledWithLastAccount == currentAccount.id &&
-                            (_rootNavigationScreen.value == RootNavigationScreen.AccountCreationWaiting || _rootNavigationScreen.value == RootNavigationScreen.AccountLinkingWaiting),
+                            (_rootNavigationScreen.value == RootNavigationScreen.AccountCreationWaiting || _rootNavigationScreen.value == RootNavigationScreen.AccountLinkingWaiting || _rootNavigationScreen.value is RootNavigationScreen.WelcomeToLetro),
                     )
                     !contactsState.isPairedContactExist && conversations.isEmpty() -> RootNavigationScreen.NoContactsScreen
                     else -> RootNavigationScreen.Home
