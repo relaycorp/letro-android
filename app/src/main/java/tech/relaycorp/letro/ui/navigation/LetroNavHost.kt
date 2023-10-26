@@ -42,8 +42,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.R
@@ -83,6 +83,7 @@ import tech.relaycorp.letro.utils.navigation.navigateWithPoppingAllBackStack
 import tech.relaycorp.letro.utils.navigation.popBackStackSafe
 import tech.relaycorp.letro.utils.navigation.popBackStackSafeUntil
 
+@OptIn(FlowPreview::class)
 @Composable
 fun LetroNavHost(
     stringsProvider: StringsProvider,
@@ -166,23 +167,13 @@ fun LetroNavHost(
         }
         mainViewModel.actions.collect { action ->
             GlobalScope.launch(Dispatchers.IO) {
-                val isAccountSwitched = switchAccountViewModel.onSwitchAccountRequested(action.action.accountId)
-                // This delay is needed, because there are conditions, when there are different time needed to initialize navigation. Otherwise, there is a risk that RootNavigationScreen will clear the stack, and close the screen from notificatino.
-                delay(
-                    when {
-                        action.isColdStart && isAccountSwitched -> 3_000L
-                        action.isColdStart -> 2_500L
-                        isAccountSwitched -> 1_500L
-                        else -> 500L
-                    },
-                )
                 withContext(Dispatchers.Main) {
-                    Log.i(TAG, "Pushing new action $action")
-                    when (action.action) {
+                    Log.i(TAG, "New action to process: $action")
+                    when (action) {
                         is Action.OpenConversation -> {
                             navController.navigate(
                                 Route.Conversation.getRouteName(
-                                    conversationId = action.action.conversationId,
+                                    conversationId = action.conversationId,
                                 ),
                             )
                         }
@@ -191,40 +182,41 @@ fun LetroNavHost(
                         }
                         is Action.OpenPairRequest -> {
                             if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
+                                Log.w(TAG, "Account is not created, so pair request screen can't be opened")
                                 return@withContext
                             }
                             navController.navigate(
                                 Route.ManageContact.getRouteName(
                                     screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                    prefilledContactAccountId = action.action.contactAccountId,
+                                    prefilledContactAccountId = action.contactAccountId,
                                 ),
                             )
                         }
                         is Action.OpenAccountLinking -> {
                             navController.navigateSingleTop(
                                 route = Route.UseExistingAccount.getRouteName(
-                                    domain = action.action.domain,
-                                    awalaEndpoint = action.action.awalaEndpoint,
-                                    token = action.action.token,
+                                    domain = action.domain,
+                                    awalaEndpoint = action.awalaEndpoint,
+                                    token = action.token,
                                 ),
                             )
                         }
                         is Action.OpenComposeNewMessage -> {
                             if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
                                 shareAttachmentsRepository.shareAttachmentsLater(emptyList())
-                                Log.w(MainViewModel.TAG, "Account is not created, so files can't be shared")
+                                Log.w(TAG, "Account is not created, so files can't be shared")
                                 return@withContext
                             }
                             if (!uiState.canSendMessages) { // TODO: move this check to the caller, and remove dependency on repository here!
                                 shareAttachmentsRepository.shareAttachmentsLater(emptyList())
-                                Log.w(MainViewModel.TAG, "User cannot send messages, so files can't be shared")
+                                Log.w(TAG, "User cannot send messages, so files can't be shared")
                                 return@withContext
                             }
                             navController.navigate(
                                 Route.CreateNewMessage.getRouteName(
                                     screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
                                     withAttachedFiles = true,
-                                    contactId = action.action.contactId ?: Route.CreateNewMessage.NO_ID,
+                                    contactId = action.contactId ?: Route.CreateNewMessage.NO_ID,
                                 ),
                             )
                         }
