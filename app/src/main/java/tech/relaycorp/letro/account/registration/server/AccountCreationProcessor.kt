@@ -1,53 +1,29 @@
 package tech.relaycorp.letro.account.registration.server
 
-import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
-import tech.relaycorp.letro.server.messages.AccountCreation
-import tech.relaycorp.letro.server.messages.InvalidAccountCreationException
-import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
-import java.util.logging.Level
-import java.util.logging.Logger.getLogger
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
+import tech.relaycorp.letro.utils.Logger
 import javax.inject.Inject
 
-interface AccountCreationProcessor : AwalaMessageProcessor
-
-class AccountCreationProcessorImpl @Inject constructor(
+class AccountCreationProcessor @Inject constructor(
     private val accountRepository: AccountRepository,
-) : AccountCreationProcessor {
-    private val logger = getLogger(javaClass.name)
+    parser: AccountCreationParser,
+    logger: Logger,
+) : ServerMessageProcessor<AwalaIncomingMessageContent.AccountCreation>(parser, logger) {
 
-    override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
-        val accountCreation = try {
-            AccountCreation.deserialise(message.content)
-        } catch (exc: InvalidAccountCreationException) {
-            logger.log(Level.WARNING, "Malformed account creation message", exc)
-            return
-        }
-
-        val account = accountRepository.getByRequest(
-            accountCreation.requestedUserName,
-            accountCreation.locale,
-        )
-        if (account == null) {
-            logger.warning("No account found for creation message ($accountCreation)")
-            return
-        }
-
-        val veraidKeyPair = account.veraidPrivateKey.deserialiseKeyPair()
-        try {
-            accountCreation.validate(veraidKeyPair.public)
-        } catch (exc: InvalidAccountCreationException) {
-            logger.log(Level.WARNING, "Invalid account creation ($accountCreation)", exc)
-            return
-        }
-
+    override suspend fun handleMessage(
+        content: AwalaIncomingMessageContent.AccountCreation,
+        awalaManager: AwalaManager,
+    ) {
         accountRepository.updateAccount(
-            account,
-            accountCreation.assignedUserId,
-            accountCreation.veraidBundle,
+            content.account,
+            content.accountCreation.assignedUserId,
+            content.accountCreation.veraidBundle,
         )
-        logger.info("Completed account creation ($accountCreation)")
+        logger.i(TAG, "Completed account creation (${content.accountCreation})")
     }
 }
+
+private const val TAG = "AccountCreationProcessor"

@@ -16,8 +16,8 @@ import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.ThirdPartyEndpoint
 import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.awaladroid.messaging.OutgoingMessage
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.utils.Logger
 import java.lang.Exception
@@ -51,7 +51,7 @@ interface AwalaWrapper {
 
     suspend fun revokeAuthorization(
         firstPartyEndpoint: FirstPartyEndpoint,
-        thirdPartyEndpoint: MessageRecipient,
+        thirdPartyEndpoint: AwalaEndpoint,
     )
 }
 
@@ -121,14 +121,14 @@ class AwalaWrapperImpl @Inject constructor(
 
     override suspend fun revokeAuthorization(
         firstPartyEndpoint: FirstPartyEndpoint,
-        thirdPartyEndpoint: MessageRecipient,
+        thirdPartyEndpoint: AwalaEndpoint,
     ) {
         val thirdPartyEndpoint = when (thirdPartyEndpoint) {
-            is MessageRecipient.User -> loadNonNullPrivateThirdPartyEndpoint(
+            is AwalaEndpoint.Private -> loadNonNullPrivateThirdPartyEndpoint(
                 firstPartyNodeId = firstPartyEndpoint.nodeId,
                 thirdPartyNodeId = thirdPartyEndpoint.nodeId,
             )
-            is MessageRecipient.Server -> loadNonNullPublicThirdPartyEndpoint(thirdPartyEndpoint.nodeId)
+            is AwalaEndpoint.Public -> loadNonNullPublicThirdPartyEndpoint(thirdPartyEndpoint.nodeId)
         }
         thirdPartyEndpoint.delete()
     }

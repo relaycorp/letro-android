@@ -5,16 +5,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
+import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManagerImpl
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationParser
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationParserImpl
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingMatchParser
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingMatchParserImpl
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingAuthorizationProcessor
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingAuthorizationProcessorImpl
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingMatchProcessor
-import tech.relaycorp.letro.contacts.pairing.processor.ContactPairingMatchProcessorImpl
+import tech.relaycorp.letro.contacts.pairing.server.auth.ContactPairingAuthorizationParser
+import tech.relaycorp.letro.contacts.pairing.server.auth.ContactPairingAuthorizationParserImpl
+import tech.relaycorp.letro.contacts.pairing.server.auth.ContactPairingAuthorizationProcessor
+import tech.relaycorp.letro.contacts.pairing.server.match.ContactPairingMatchParser
+import tech.relaycorp.letro.contacts.pairing.server.match.ContactPairingMatchParserImpl
+import tech.relaycorp.letro.contacts.pairing.server.match.ContactPairingMatchProcessor
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
@@ -51,8 +51,8 @@ object ContactsModule {
         @Binds
         @Singleton
         fun bindContactPairingMatchProcessor(
-            impl: ContactPairingMatchProcessorImpl,
-        ): ContactPairingMatchProcessor
+            impl: ContactPairingMatchProcessor,
+        ): AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPairingMatch>
 
         @Binds
         fun bindContactPairingAuthParser(
@@ -62,8 +62,8 @@ object ContactsModule {
         @Binds
         @Singleton
         fun bindContactPairingAuthProcessor(
-            impl: ContactPairingAuthorizationProcessorImpl,
-        ): ContactPairingAuthorizationProcessor
+            impl: ContactPairingAuthorizationProcessor,
+        ): AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPairingAuthorization>
 
         @Binds
         fun bindContactPairingSuccessNotificationManager(

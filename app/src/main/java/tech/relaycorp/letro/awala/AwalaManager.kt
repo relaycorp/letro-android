@@ -34,10 +34,10 @@ import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZAT
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.INITIALIZED
 import tech.relaycorp.letro.awala.AwalaInitializationState.Companion.NOT_INITIALIZED
 import tech.relaycorp.letro.awala.di.AwalaThreadContext
+import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
-import tech.relaycorp.letro.awala.message.MessageRecipient
 import tech.relaycorp.letro.awala.message.MessageType
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.processor.AwalaCommonMessageProcessor
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.ext.emitOnDelayed
@@ -51,7 +51,7 @@ interface AwalaManager {
     val awalaUnsuccessfulConfigurations: SharedFlow<Unit>
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     )
     fun initializeGatewayAsync()
     fun configureEndpointsAsync()
@@ -64,17 +64,18 @@ interface AwalaManager {
         thirdPartyEndpoint: PublicThirdPartyEndpoint,
     )
     suspend fun revokeAuthorization(
-        user: MessageRecipient,
+        user: AwalaEndpoint,
     )
     suspend fun getFirstPartyPublicKey(): String
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
+    suspend fun getServerThirdPartyEndpoint(): ThirdPartyEndpoint?
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AwalaManagerImpl @Inject constructor(
     private val awala: AwalaWrapper,
     private val awalaRepository: AwalaRepository,
-    private val processor: AwalaMessageProcessor,
+    private val processor: AwalaCommonMessageProcessor,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     @AwalaThreadContext private val awalaThreadContext: CoroutineContext,
@@ -136,7 +137,7 @@ class AwalaManagerImpl @Inject constructor(
 
     override suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     ) {
         withContext(awalaThreadContext) {
             if (outgoingMessage.type != MessageType.AuthorizeReceivingFromServer && awalaSetupJob != null) {
@@ -160,7 +161,10 @@ class AwalaManagerImpl @Inject constructor(
     override suspend fun authorizePublicThirdPartyEndpoint(thirdPartyEndpoint: PublicThirdPartyEndpoint) {
         withContext(awalaThreadContext) {
             val firstPartyEndpoint = loadFirstPartyEndpoint()
-            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
+            awala.authorizeIndefinitely(
+                firstPartyEndpoint = firstPartyEndpoint,
+                thirdPartyEndpoint = thirdPartyEndpoint,
+            )
         }
     }
 
@@ -173,12 +177,12 @@ class AwalaManagerImpl @Inject constructor(
                     type = MessageType.ContactPairingAuthorization,
                     content = auth,
                 ),
-                recipient = MessageRecipient.Server(),
+                recipient = AwalaEndpoint.Public(),
             )
         }
     }
 
-    override suspend fun revokeAuthorization(user: MessageRecipient) {
+    override suspend fun revokeAuthorization(user: AwalaEndpoint) {
         withContext(awalaThreadContext) {
             awala.revokeAuthorization(
                 firstPartyEndpoint = loadFirstPartyEndpoint(),
@@ -198,6 +202,19 @@ class AwalaManagerImpl @Inject constructor(
         return PrivateThirdPartyEndpoint.import(auth).nodeId
     }
 
+    override suspend fun getServerThirdPartyEndpoint(): ThirdPartyEndpoint? {
+        thirdPartyServerEndpoint?.let { thirdPartyServerEndpoint ->
+            return thirdPartyServerEndpoint
+        }
+        awalaRepository.getServerThirdPartyEndpointNodeId()?.let { serverNodeId ->
+            return awala.loadNonNullPublicThirdPartyEndpoint(serverNodeId)
+        }
+        importServerThirdPartyEndpointIfNeeded()?.let { serverThirdPartyEndpoint ->
+            return serverThirdPartyEndpoint
+        }
+        return null
+    }
+
     private suspend fun loadFirstPartyEndpoint(): FirstPartyEndpoint {
         return withContext(awalaThreadContext) {
             val firstPartyEndpointNodeId = awalaRepository.getServerFirstPartyEndpointNodeId()
@@ -209,24 +226,18 @@ class AwalaManagerImpl @Inject constructor(
 
     private suspend fun loadThirdPartyEndpoint(
         sender: FirstPartyEndpoint,
-        recipient: MessageRecipient,
+        recipient: AwalaEndpoint,
     ): ThirdPartyEndpoint {
         return withContext(awalaThreadContext) {
-            if (recipient is MessageRecipient.Server) {
-                thirdPartyServerEndpoint?.let {
-                    return@withContext it
-                }
+            if (recipient is AwalaEndpoint.Public && recipient.nodeId == null) {
+                return@withContext getServerThirdPartyEndpoint() ?: throw IllegalStateException("You should register third party endpoint first!")
             }
             when (recipient) {
-                is MessageRecipient.Server -> {
-                    val nodeId = recipient.nodeId
-                        ?: awalaRepository.getServerThirdPartyEndpointNodeId()
-                        ?: importServerThirdPartyEndpointIfNeeded()?.nodeId
-                        ?: throw IllegalStateException("You should register third party endpoint first!")
-                    awala.loadNonNullPublicThirdPartyEndpoint(nodeId)
+                is AwalaEndpoint.Public -> {
+                    awala.loadNonNullPublicThirdPartyEndpoint(recipient.nodeId)
                 }
 
-                is MessageRecipient.User -> {
+                is AwalaEndpoint.Private -> {
                     val senderNodeId = sender.nodeId
                     val recipientNodeId = recipient.nodeId
                     awala.loadNonNullPrivateThirdPartyEndpoint(
@@ -352,7 +363,10 @@ class AwalaManagerImpl @Inject constructor(
             val firstPartyEndpoint = awala.loadNonNullPublicFirstPartyEndpoint(firstPartyEndpointNodeId)
 
             // Create the Parcel Delivery Authorisation (PDA)
-            awala.authorizeIndefinitely(firstPartyEndpoint, thirdPartyEndpoint)
+            awala.authorizeIndefinitely(
+                firstPartyEndpoint = firstPartyEndpoint,
+                thirdPartyEndpoint = thirdPartyEndpoint,
+            )
             awalaRepository.saveServerThirdPartyEndpointNodeId(thirdPartyEndpoint.nodeId)
             thirdPartyEndpoint
         }

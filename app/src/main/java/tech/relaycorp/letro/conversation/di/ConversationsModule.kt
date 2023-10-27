@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
+import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepositoryImpl
 import tech.relaycorp.letro.conversation.list.onboarding.ConversationsOnboardingManager
@@ -16,9 +18,7 @@ import tech.relaycorp.letro.conversation.server.parser.NewMessageMessageParserIm
 import tech.relaycorp.letro.conversation.server.parser.OutgoingMessageMessageEncoder
 import tech.relaycorp.letro.conversation.server.parser.OutgoingMessageMessageEncoderImpl
 import tech.relaycorp.letro.conversation.server.processor.NewConversationProcessor
-import tech.relaycorp.letro.conversation.server.processor.NewConversationProcessorImpl
 import tech.relaycorp.letro.conversation.server.processor.NewMessageProcessor
-import tech.relaycorp.letro.conversation.server.processor.NewMessageProcessorImpl
 import tech.relaycorp.letro.conversation.storage.converter.ExtendedConversationConverter
 import tech.relaycorp.letro.conversation.storage.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatter
@@ -83,9 +83,10 @@ object ConversationsModule {
         ): OutgoingMessageMessageEncoder
 
         @Binds
+        @NewConversationAwalaProcessor
         fun bindNewConversationProcessor(
-            impl: NewConversationProcessorImpl,
-        ): NewConversationProcessor
+            impl: NewConversationProcessor,
+        ): AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>
 
         @Binds
         fun bindNewConversationParser(
@@ -93,9 +94,10 @@ object ConversationsModule {
         ): NewConversationMessageParser
 
         @Binds
+        @NewMessageAwalaProcessor
         fun bindNewMessageProcessor(
-            impl: NewMessageProcessorImpl,
-        ): NewMessageProcessor
+            impl: NewMessageProcessor,
+        ): AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>
 
         @Binds
         fun bindNewMessageParser(
@@ -114,6 +116,12 @@ object ConversationsModule {
         ): AttachmentsRepository
     }
 }
+
+@Qualifier
+annotation class NewConversationAwalaProcessor
+
+@Qualifier
+annotation class NewMessageAwalaProcessor
 
 @Qualifier
 annotation class MessageSizeLimitBytes

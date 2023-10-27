@@ -26,7 +26,8 @@ data class Account(
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
-    val awalaEndpoint: String? = null,
+    val awalaEndpointId: String? = null,
+    val veraidAuthEndpointId: String? = null,
     @AccountStatus val status: Int = CREATION_WAITING,
     val token: String? = null,
 ) {
@@ -41,6 +42,8 @@ data class Account(
         if (requestedUserName != other.requestedUserName) return false
         if (normalisedLocale != other.normalisedLocale) return false
         if (isCurrent != other.isCurrent) return false
+        if (awalaEndpointId != other.awalaEndpointId) return false
+        if (veraidAuthEndpointId != other.veraidAuthEndpointId) return false
         if (!veraidPrivateKey.contentEquals(other.veraidPrivateKey)) return false
         if (veraidMemberBundle != null) {
             if (other.veraidMemberBundle == null) return false
@@ -59,6 +62,8 @@ data class Account(
         result = 31 * result + requestedUserName.hashCode()
         result = 31 * result + normalisedLocale.hashCode()
         result = 31 * result + isCurrent.hashCode()
+        result = 31 * result + awalaEndpointId.hashCode()
+        result = 31 * result + veraidAuthEndpointId.hashCode()
         result = 31 * result + veraidPrivateKey.contentHashCode()
         result = 31 * result + (veraidMemberBundle?.contentHashCode() ?: 0)
         result = 31 * result + status.hashCode()

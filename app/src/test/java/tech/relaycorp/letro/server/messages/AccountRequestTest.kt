@@ -28,7 +28,7 @@ class AccountRequestTest {
         @Nested
         inner class RequestSerialisation {
             @Nested
-            inner class UserName {
+            inner class PrivateEndpointName {
                 @Test
                 fun `Should serialise the user name as UTF8String`() {
                     val request = AccountRequest(

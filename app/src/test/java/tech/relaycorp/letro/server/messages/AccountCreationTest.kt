@@ -210,7 +210,7 @@ class AccountCreationTest {
         }
 
         @Nested
-        inner class RequestedUserName {
+        inner class RequestedPrivateEndpointName {
             @Test
             fun `Should be a DER-encoded UTF8String`() {
                 val malformedSerialisation = DERSequence(
@@ -282,7 +282,7 @@ class AccountCreationTest {
         }
 
         @Nested
-        inner class AssignedUserId {
+        inner class AssignedPrivateEndpointId {
             @Test
             fun `Should be a DER-encoded UTF8String`() {
                 val malformedSerialisation = DERSequence(

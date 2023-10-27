@@ -1,27 +1,27 @@
-package tech.relaycorp.letro.contacts.pairing.processor
+package tech.relaycorp.letro.contacts.pairing.server.auth
 
 import android.util.Log
-import tech.relaycorp.awaladroid.messaging.IncomingMessage
 import tech.relaycorp.letro.awala.AwalaManager
-import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
+import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
+import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.contacts.pairing.dto.ContactPairingAuthorizationIncomingMessage
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
-import tech.relaycorp.letro.contacts.pairing.parser.ContactPairingAuthorizationParser
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
+import tech.relaycorp.letro.utils.Logger
 import javax.inject.Inject
 
-interface ContactPairingAuthorizationProcessor : AwalaMessageProcessor
-
-class ContactPairingAuthorizationProcessorImpl @Inject constructor(
-    private val parser: ContactPairingAuthorizationParser,
+class ContactPairingAuthorizationProcessor @Inject constructor(
     private val contactsDao: ContactsDao,
     private val contactPairingNotificationManager: ContactPairingNotificationManager,
-) : ContactPairingAuthorizationProcessor {
+    parser: ContactPairingAuthorizationParser,
+    logger: Logger,
+) : ServerMessageProcessor<AwalaIncomingMessageContent.ContactPairingAuthorization>(parser, logger) {
 
-    override suspend fun process(message: IncomingMessage, awalaManager: AwalaManager) {
-        val response = (parser.parse(message.content) as ContactPairingAuthorizationIncomingMessage).content
-        val nodeId = awalaManager.importPrivateThirdPartyAuth(response.authData)
+    override suspend fun handleMessage(
+        content: AwalaIncomingMessageContent.ContactPairingAuthorization,
+        awalaManager: AwalaManager,
+    ) {
+        val nodeId = awalaManager.importPrivateThirdPartyAuth(content.authData)
 
         Log.d(TAG, "Contact auth received.")
         contactsDao.getContactsByContactEndpointId(

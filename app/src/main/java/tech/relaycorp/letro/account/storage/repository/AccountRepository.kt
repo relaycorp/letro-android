@@ -49,6 +49,10 @@ interface AccountRepository {
         account: Account,
         @AccountStatus status: Int,
     )
+    suspend fun updateAccount(
+        account: Account,
+        publicThirdPartyEndpointNodeId: String,
+    )
 
     suspend fun deleteAccount(account: Account)
     suspend fun switchAccount(newCurrentAccount: Account): Boolean
@@ -125,7 +129,7 @@ class AccountRepositoryImpl @Inject constructor(
                 normalisedLocale = locale?.normaliseString(),
                 veraidPrivateKey = veraidPrivateKey.encoded,
                 domain = domainName,
-                awalaEndpoint = awalaEndpoint,
+                awalaEndpointId = awalaEndpoint,
                 isCurrent = true,
                 token = token,
                 status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
@@ -173,6 +177,15 @@ class AccountRepositoryImpl @Inject constructor(
         accountDao.update(
             account.copy(
                 status = status,
+            ),
+        )
+    }
+
+    override suspend fun updateAccount(account: Account, publicThirdPartyEndpointNodeId: String) {
+        accountDao.update(
+            account.copy(
+                veraidAuthEndpointId = publicThirdPartyEndpointNodeId,
+                token = null,
             ),
         )
     }
