@@ -2,6 +2,7 @@
 
 package tech.relaycorp.letro.account.registration.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -101,10 +102,15 @@ fun RegistrationScreen(
             Spacer(
                 modifier = Modifier.height(6.dp),
             )
+
+            val inputSuggestionColor by animateColorAsState(
+                targetValue = if (uiState.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                label = "InputSuggestionColor",
+            )
             Text(
                 text = stringResource(id = uiState.inputSuggestionText),
                 style = MaterialTheme.typography.bodySmall,
-                color = if (uiState.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                color = inputSuggestionColor,
             )
             Spacer(
                 modifier = Modifier.height(16.dp),

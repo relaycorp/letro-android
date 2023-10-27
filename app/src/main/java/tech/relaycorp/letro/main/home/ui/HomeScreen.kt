@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.main.home.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import tech.relaycorp.letro.main.home.ui.tabs.LetroTabs
 import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.notification.ui.NotificationsScreen
+import tech.relaycorp.letro.ui.common.animation.swipeAnimation
 import tech.relaycorp.letro.ui.utils.StringsProvider
 
 @Composable
@@ -57,27 +59,33 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
-                when (uiState.currentTab) {
-                    TAB_CHATS -> Column {
-                        ConversationsListScreen(
-                            conversationsStringsProvider = stringsProvider.conversations,
-                            onConversationClick = onConversationClick,
-                            viewModel = conversationsListViewModel,
+                AnimatedContent(
+                    targetState = uiState.currentTab,
+                    transitionSpec = { swipeAnimation() },
+                    label = "HomeScreenContent",
+                ) { currentTab ->
+                    when (currentTab) {
+                        TAB_CHATS -> Column {
+                            ConversationsListScreen(
+                                conversationsStringsProvider = stringsProvider.conversations,
+                                onConversationClick = onConversationClick,
+                                viewModel = conversationsListViewModel,
+                            )
+                        }
+                        TAB_CONTACTS -> ContactsScreen(
+                            viewModel = contactsViewModel,
+                            snackbarHostState = snackbarHostState,
+                            snackbarStringsProvider = stringsProvider.snackbar,
+                            onEditContactClick = onEditContactClick,
+                            onStartConversationClick = onStartConversationClick,
+                            onPairWithOthersClick = onPairWithOthersClick,
+                            onShareIdClick = onShareIdClick,
                         )
+                        TAB_NOTIFICATIONS -> NotificationsScreen(
+                            viewModel = notificationsViewModel,
+                        )
+                        else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
                     }
-                    TAB_CONTACTS -> ContactsScreen(
-                        viewModel = contactsViewModel,
-                        snackbarHostState = snackbarHostState,
-                        snackbarStringsProvider = stringsProvider.snackbar,
-                        onEditContactClick = onEditContactClick,
-                        onStartConversationClick = onStartConversationClick,
-                        onPairWithOthersClick = onPairWithOthersClick,
-                        onShareIdClick = onShareIdClick,
-                    )
-                    TAB_NOTIFICATIONS -> NotificationsScreen(
-                        viewModel = notificationsViewModel,
-                    )
-                    else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
                 }
             }
         }

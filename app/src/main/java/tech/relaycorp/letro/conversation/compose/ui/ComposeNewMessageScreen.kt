@@ -3,6 +3,10 @@ package tech.relaycorp.letro.conversation.compose.ui
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -149,8 +153,9 @@ fun ComposeNewMessageScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
+            val shadowElevation by animateDpAsState(targetValue = if (scrollState.canScrollBackward) Elevation2 else 0.dp)
             Surface(
-                shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
+                shadowElevation = shadowElevation,
                 modifier = Modifier
                     .fillMaxWidth(),
             ) {
@@ -391,16 +396,25 @@ fun ComposeNewMessageScreen(
                     }
                 }
             }
-            if (messageExceedsLimitError != null && suggestedContacts.isNullOrEmpty()) {
-                Text(
-                    text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.errorContainer)
-                        .padding(vertical = 18.dp, horizontal = 16.dp),
-                )
+            AnimatedVisibility(
+                visible = messageExceedsLimitError != null && suggestedContacts.isNullOrEmpty(),
+                enter = slideInVertically(initialOffsetY = { it / 2 }),
+                exit = slideOutVertically(targetOffsetY = { it / 2 }),
+            ) {
+                if (messageExceedsLimitError != null) {
+                    Text(
+                        text = stringResource(
+                            id = messageExceedsLimitError.stringRes,
+                            messageExceedsLimitError.value,
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.errorContainer)
+                            .padding(vertical = 18.dp, horizontal = 16.dp),
+                    )
+                }
             }
         }
     }

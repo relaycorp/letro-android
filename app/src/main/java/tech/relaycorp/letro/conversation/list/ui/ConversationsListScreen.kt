@@ -2,6 +2,7 @@
 
 package tech.relaycorp.letro.conversation.list.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -85,7 +86,7 @@ fun ConversationsListScreen(
                 )
             }
             Column {
-                if (isOnboardingVisible) {
+                AnimatedVisibility(visible = isOnboardingVisible) {
                     ConversationsOnboardingView(
                         onCloseClick = { viewModel.onCloseOnboardingButtonClick() },
                     )

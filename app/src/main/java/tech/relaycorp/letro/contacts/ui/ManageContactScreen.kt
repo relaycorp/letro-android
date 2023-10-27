@@ -1,5 +1,9 @@
+@file:Suppress("NAME_SHADOWING")
+
 package tech.relaycorp.letro.contacts.ui
 
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -73,36 +77,38 @@ fun ManageContactScreen(
         }
     }
 
-    when (uiState.content) {
-        ManageContactScreenContent.MANAGE_CONTACT -> {
-            ManageContactView(
-                onBackClick,
-                uiState,
-                viewModel,
-            )
-        }
-        ManageContactScreenContent.REQUEST_SENT -> {
-            if (!notificationsPermissionState.status.isGranted && uiState.showNotificationPermissionRequestIfNoPermission) {
-                ActionTakingScreen(
-                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSentWithPermissionRequest(
-                        onRequestPermissionClick = {
-                            notificationsPermissionState.launchPermissionRequest()
-                        },
-                        onSkipClicked = {
-                            viewModel.onGotItClick()
-                        },
-                        boldPartOfMessage = uiState.accountId,
-                    ),
+    AnimatedContent(targetState = uiState.content, label = "ManageContactScreen") { content ->
+        when (content) {
+            ManageContactScreenContent.MANAGE_CONTACT -> {
+                ManageContactView(
+                    onBackClick,
+                    uiState,
+                    viewModel,
                 )
-            } else {
-                ActionTakingScreen(
-                    actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
-                        boldPartOfMessage = uiState.accountId,
-                        onGotItClicked = {
-                            viewModel.onGotItClick()
-                        },
-                    ),
-                )
+            }
+            ManageContactScreenContent.REQUEST_SENT -> {
+                if (!notificationsPermissionState.status.isGranted && uiState.showNotificationPermissionRequestIfNoPermission) {
+                    ActionTakingScreen(
+                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSentWithPermissionRequest(
+                            onRequestPermissionClick = {
+                                notificationsPermissionState.launchPermissionRequest()
+                            },
+                            onSkipClicked = {
+                                viewModel.onGotItClick()
+                            },
+                            boldPartOfMessage = uiState.accountId,
+                        ),
+                    )
+                } else {
+                    ActionTakingScreen(
+                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
+                            boldPartOfMessage = uiState.accountId,
+                            onGotItClicked = {
+                                viewModel.onGotItClick()
+                            },
+                        ),
+                    )
+                }
             }
         }
     }
@@ -139,18 +145,29 @@ private fun ManageContactView(
             isEnabled = uiState.isVeraIdInputEnabled,
         ) {
             Spacer(modifier = Modifier.height(6.dp))
-            if (errorCaption != null) {
-                Text(
-                    text = stringResource(id = errorCaption.message),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            } else if (!uiState.isActionButtonEnabled) {
-                Text(
-                    text = stringResource(id = R.string.pair_request_invalid_id),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+            val caption = when {
+                errorCaption != null -> CaptionType.Error(errorCaption.message)
+                !uiState.isActionButtonEnabled -> CaptionType.Hint
+                else -> CaptionType.None
+            }
+            AnimatedContent(targetState = caption, label = "ManageContactScreenHint") { caption ->
+                when (caption) {
+                    is CaptionType.Error -> {
+                        Text(
+                            text = stringResource(id = caption.text),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    is CaptionType.Hint -> {
+                        Text(
+                            text = stringResource(id = R.string.pair_request_invalid_id),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    else -> {}
+                }
             }
         }
         if (uiState.isSentRequestAgainHintVisible) {
@@ -192,3 +209,9 @@ private fun ManageContactView(
 }
 
 private val SubmitButtonHeight = 48.dp
+
+private sealed interface CaptionType {
+    data class Error(@StringRes val text: Int) : CaptionType
+    data object Hint : CaptionType
+    data object None : CaptionType
+}
