@@ -153,16 +153,17 @@ class ContactsRepositoryImpl @Inject constructor(
             _contactsState.emit(ContactsState())
             return
         }
-        val isPairedContactExist = contacts
-            .value
-            .any {
-                it.ownerVeraId == account.accountId && it.status == ContactPairingStatus.COMPLETED
-            }
+        val contactsOfThisAccount = contacts.value
+            .filter { it.ownerVeraId == account.accountId }
+        val isPairedContactExist = contactsOfThisAccount.any {
+            it.status == ContactPairingStatus.COMPLETED
+        }
         val isPairRequestWasEverSent = preferences.getBoolean(getContactRequestHasEverBeenSentKey(account.accountId), false)
         _contactsState.emit(
             ContactsState(
                 isPairedContactExist = isPairedContactExist,
                 isPairRequestWasEverSent = isPairRequestWasEverSent,
+                totalCount = contactsOfThisAccount.size,
             ),
         )
     }
@@ -180,4 +181,5 @@ class ContactsRepositoryImpl @Inject constructor(
 data class ContactsState(
     val isPairedContactExist: Boolean = false,
     val isPairRequestWasEverSent: Boolean = false,
+    val totalCount: Int = 0,
 )

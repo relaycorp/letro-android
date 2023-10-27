@@ -2,9 +2,6 @@
 
 package tech.relaycorp.letro.conversation.list.ui
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,6 +37,7 @@ import tech.relaycorp.letro.conversation.list.ConversationsListViewModel
 import tech.relaycorp.letro.conversation.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.model.ExtendedMessage
+import tech.relaycorp.letro.ui.common.LetroEmptyListStub
 import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
 import tech.relaycorp.letro.ui.common.bottomsheet.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.theme.BodyLargeProminent
@@ -81,7 +79,7 @@ fun ConversationsListScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             if (conversations is ConversationsListContent.Empty) {
-                EmptyConversationsView(
+                LetroEmptyListStub(
                     image = conversations.image,
                     text = conversations.text,
                 )
@@ -246,31 +244,6 @@ private fun ConversationsSectionSelector(
                 painter = painterResource(id = R.drawable.arrow_down),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyConversationsView(
-    @DrawableRes image: Int,
-    @StringRes text: Int,
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 48.dp),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(painter = painterResource(id = image), contentDescription = null)
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(id = text),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
