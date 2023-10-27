@@ -1,19 +1,28 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
+
 package tech.relaycorp.letro.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
@@ -26,17 +35,21 @@ import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
 import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
+import tech.relaycorp.letro.main.di.MainViewModelActionProcessorThread
+import tech.relaycorp.letro.main.di.RootNavigationDebounceMs
 import tech.relaycorp.letro.main.di.TermsAndConditionsLink
 import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.di.MainDispatcher
 import tech.relaycorp.letro.utils.ext.emitOn
-import tech.relaycorp.letro.utils.ext.sendOn
 import tech.relaycorp.letro.utils.navigation.UriToActionConverter
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val awalaManager: AwalaManager,
@@ -45,10 +58,13 @@ class MainViewModel @Inject constructor(
     private val attachmentsRepository: AttachmentsRepository,
     private val fileConverter: FileConverter,
     private val conversationsRepository: ConversationsRepository,
-    @TermsAndConditionsLink private val termsAndConditionsLink: String,
-    private val logger: Logger,
     private val uriToActionConverter: UriToActionConverter,
     private val shareAttachmentsRepository: ShareAttachmentsRepository,
+    private val logger: Logger,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @MainViewModelActionProcessorThread private val actionProcessorThread: CoroutineContext,
+    @TermsAndConditionsLink private val termsAndConditionsLink: String,
+    @RootNavigationDebounceMs private val rootNavigationDebounceMs: Long,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -71,12 +87,15 @@ class MainViewModel @Inject constructor(
         MutableStateFlow(RootNavigationScreen.Splash)
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
+    private val isAwalaInitialised = MutableStateFlow(false)
+    private val accountIsReadyToProcessActions = MutableStateFlow<Boolean>(false)
+
     private val _clearBackstackSignal = MutableSharedFlow<RootNavigationScreen>()
     val clearBackstackSignal: MutableSharedFlow<RootNavigationScreen>
         get() = _clearBackstackSignal
 
-    private val _actions = Channel<ActionWithAppStartInfo>()
-    val actions: Flow<ActionWithAppStartInfo>
+    private val _actions = Channel<Action>()
+    val actions: Flow<Action>
         get() = _actions.receiveAsFlow()
 
     private var currentAccount: Account? = null
@@ -117,7 +136,7 @@ class MainViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             combine(
                 accountRepository.currentAccount,
                 contactsRepository.contactsState,
@@ -146,16 +165,28 @@ class MainViewModel @Inject constructor(
                 }
                 Pair(rootNavigationScreen, navigationHandledWithLastAccount != currentAccount?.id).also { navigationHandledWithLastAccount = currentAccount?.id }
             }
+                .debounce(rootNavigationDebounceMs)
                 .collect {
+                    logger.i(TAG, "New root navigation ${it.first}")
                     val rootNavigationScreen = it.first
                     val lastRootNavigationScreen = _rootNavigationScreen.value
                     this@MainViewModel.rootNavigationScreenAlreadyHandled = true
+
+                    if (rootNavigationScreen != RootNavigationScreen.Splash && rootNavigationScreen != RootNavigationScreen.AwalaNotInstalled && rootNavigationScreen != RootNavigationScreen.AwalaInitializing && rootNavigationScreen !is RootNavigationScreen.AwalaInitializationError) {
+                        isAwalaInitialised.emit(true)
+                    }
+
                     _rootNavigationScreen.emit(rootNavigationScreen)
 
                     val clearNavigationScreenToRoot = it.second
                     if (clearNavigationScreenToRoot && rootNavigationScreen == lastRootNavigationScreen) {
                         logger.d(TAG, "Send event to clear nav stack")
                         _clearBackstackSignal.emit(rootNavigationScreen)
+                    }
+
+                    if (isAwalaInitialised.value) {
+                        accountIsReadyToProcessActions.emit(true)
+                        logger.i(TAG, "Root changed, account is ready to process action")
                     }
                 }
         }
@@ -167,29 +198,59 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onNewAction(action: ActionWithAppStartInfo) {
-        logger.i(TAG, "onNewAction ${action.action.javaClass}")
-        _actions.sendOn(action, viewModelScope)
+    fun onNewAction(action: Action) {
+        logger.i(TAG, "ActionHandler: onNewAction ${action.javaClass}")
+
+        viewModelScope.launch(actionProcessorThread) {
+            // Do not emit actions while Awala is not initialised, because it cannot be handled
+            while (!isAwalaInitialised.value) {
+                logger.i(TAG, "ActionHandler: Awala is not initialised yet")
+                delay(1_000L)
+            }
+
+            logger.i(TAG, "ActionHandler: processing")
+            accountIsReadyToProcessActions.emit(false)
+            val accountId = action.accountId
+
+            if (accountId != null) {
+                val isSwitched = accountRepository.switchAccount(accountId)
+                if (!isSwitched) {
+                    accountIsReadyToProcessActions.emit(true)
+                    logger.i(TAG, "ActionHandler: The same account has to be used to process the action")
+                }
+            } else {
+                accountIsReadyToProcessActions.emit(true)
+                logger.i(TAG, "ActionHandler: Account ID is null. Try to process action...")
+            }
+
+            // Do not emit action if account was changed. Wait until root screen will be changed (= account was changed)
+            while (!accountIsReadyToProcessActions.value) {
+                logger.i(TAG, "ActionHandler: Account is not ready to handle actions. Waiting...")
+                delay(1_000L)
+            }
+
+            logger.i(TAG, "ActionHandler: Sending action ${action.javaClass}")
+
+            withContext(Dispatchers.Main) {
+                _actions.send(action)
+            }
+        }
     }
 
-    fun onLinkOpened(link: String, isColdStart: Boolean) {
+    fun onLinkOpened(link: String) {
         val action = uriToActionConverter.convert(link) ?: return
-        onNewAction(ActionWithAppStartInfo(action, isColdStart))
+        onNewAction(action)
     }
 
     fun onSendFilesRequested(
         files: List<AttachmentToShare>,
-        isColdStart: Boolean,
         contactId: Long? = null,
     ) {
         shareAttachmentsRepository.shareAttachmentsLater(files)
         onNewAction(
-            ActionWithAppStartInfo(
-                action = Action.OpenComposeNewMessage(
-                    attachments = files,
-                    contactId = contactId,
-                ),
-                isColdStart = isColdStart,
+            action = Action.OpenComposeNewMessage(
+                attachments = files,
+                contactId = contactId,
             ),
         )
     }
@@ -234,9 +295,4 @@ data class MainUiState(
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
     val canSendMessages: Boolean = false,
-)
-
-data class ActionWithAppStartInfo(
-    val action: Action,
-    val isColdStart: Boolean,
 )

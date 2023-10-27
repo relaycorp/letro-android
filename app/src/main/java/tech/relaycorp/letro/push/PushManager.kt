@@ -48,6 +48,7 @@ class PushManagerImpl @Inject constructor(
 
         val groupIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(KEY_PUSH_ACTION, Action.OpenMainPage(groupName))
+            action = KEY_PUSH_ACTION
         }
 
         val notification = NotificationCompat.Builder(context, pushData.channelId)

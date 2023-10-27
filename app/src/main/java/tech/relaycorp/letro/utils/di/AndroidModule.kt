@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import tech.relaycorp.letro.BuildConfig
 import tech.relaycorp.letro.storage.Preferences
@@ -38,7 +39,11 @@ object AndroidModule {
 
     @Provides
     @IODispatcher
-    fun provideIODispatcher() = Dispatchers.IO
+    fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @MainDispatcher
+    fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -62,6 +67,9 @@ object AndroidModule {
         ): UriToActionConverter
     }
 }
+
+@Qualifier
+annotation class MainDispatcher
 
 @Qualifier
 annotation class IODispatcher

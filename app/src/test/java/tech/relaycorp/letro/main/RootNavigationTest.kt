@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.main
 
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -11,12 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import tech.relaycorp.letro.account.model.AccountStatus
-import tech.relaycorp.letro.account.storage.repository.AccountRepository
-import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
-import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
-import tech.relaycorp.letro.conversation.storage.entity.Conversation
-import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.models.account.createAccount
@@ -26,8 +20,8 @@ import tech.relaycorp.letro.utils.models.awala.createAwalaManager
 import tech.relaycorp.letro.utils.models.contact.createContact
 import tech.relaycorp.letro.utils.models.contact.createContactsRepository
 import tech.relaycorp.letro.utils.models.conversation.createConversation
-import tech.relaycorp.letro.utils.models.conversation.createConversationsRepository
 import tech.relaycorp.letro.utils.models.conversation.createMessage
+import tech.relaycorp.letro.utils.models.main.createMainViewModel
 import tech.relaycorp.letro.utils.models.utils.createLogger
 import java.util.UUID
 
@@ -53,10 +47,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
@@ -71,10 +66,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
@@ -89,10 +85,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro
     }
@@ -107,10 +104,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
@@ -127,10 +125,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AccountCreationWaiting
     }
@@ -147,12 +146,13 @@ class RootNavigationTest {
             ioDispatcher = dispatcher,
         )
         val conversationId = UUID.randomUUID()
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
             conversations = listOf(createConversation(conversationId)),
             messages = listOf(createMessage(conversationId)),
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
@@ -168,10 +168,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaNotInstalled
     }
@@ -187,10 +188,11 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
@@ -207,10 +209,11 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             ioDispatcher = dispatcher,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
@@ -226,38 +229,15 @@ class RootNavigationTest {
             accountRepository = accountRepository,
             awalaManager = awalaManager,
         )
-        val viewModel = createViewModel(
+        val viewModel = createMainViewModel(
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
+            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_FATAL_ERROR)
     }
 
-    private fun createViewModel(
-        awalaManager: AwalaManager,
-        accountRepository: AccountRepository,
-        contactsRepository: ContactsRepository,
-        conversations: List<Conversation> = emptyList(),
-        messages: List<Message> = emptyList(),
-    ) = MainViewModel(
-        awalaManager = awalaManager,
-        accountRepository = accountRepository,
-        contactsRepository = contactsRepository,
-        attachmentsRepository = mockk(),
-        fileConverter = mockk(),
-        conversationsRepository = createConversationsRepository(
-            awalaManager = awalaManager,
-            contactsRepository = contactsRepository,
-            accountRepository = accountRepository,
-            conversations = conversations,
-            messages = messages,
-        ),
-        termsAndConditionsLink = "https://terms_and_conditions",
-        logger = mockk(relaxed = true),
-        uriToActionConverter = mockk(),
-        shareAttachmentsRepository = mockk(),
-    )
     private companion object {
         private const val TAG = "RootNavigationTest"
 
