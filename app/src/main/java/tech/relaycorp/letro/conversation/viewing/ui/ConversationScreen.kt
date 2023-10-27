@@ -179,7 +179,7 @@ private fun Message(
                 clickable { isCollapsed = !isCollapsed }
             }
             .padding(
-                vertical = 10.dp,
+                vertical = 8.dp,
             ),
     ) {
         Row(
@@ -237,10 +237,11 @@ private fun Message(
         }
         SelectionContainer {
             Text(
-                text = message.text,
+                text = if (isCollapsed) message.text.replace("[\\r\\n]+".toRegex(), " ") else message.text,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .padding(
                         vertical = if (isCollapsed) 2.dp else 10.dp,
