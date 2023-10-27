@@ -34,6 +34,8 @@ fun HomeScreen(
     onEditContactClick: (Contact) -> Unit,
     onNotificationsAction: (NotificationClickAction) -> Unit,
     snackbarHostState: SnackbarHostState,
+    onPairWithOthersClick: () -> Unit,
+    onShareIdClick: () -> Unit,
     conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
     contactsViewModel: ContactsViewModel = hiltViewModel(),
     notificationsViewModel: NotificationsViewModel = hiltViewModel(),
@@ -67,6 +69,8 @@ fun HomeScreen(
                         snackbarHostState = snackbarHostState,
                         snackbarStringsProvider = stringsProvider.snackbar,
                         onEditContactClick = { onEditContactClick(it) },
+                        onPairWithOthersClick = onPairWithOthersClick,
+                        onShareIdClick = onShareIdClick,
                     )
                     TAB_NOTIFICATIONS -> NotificationsScreen(
                         viewModel = notificationsViewModel,

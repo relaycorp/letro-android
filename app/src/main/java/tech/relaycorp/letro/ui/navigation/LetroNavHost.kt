@@ -60,6 +60,7 @@ import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
+import tech.relaycorp.letro.contacts.ui.NoContactsScreen
 import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
@@ -373,22 +374,17 @@ fun LetroNavHost(
                             )
                         }
                         composable(Route.NoContacts.name) {
-                            ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
-                                    title = null,
-                                    message = R.string.no_contacts_text,
-                                    image = R.drawable.no_contacts_image,
-                                    onPairWithOthersClick = {
-                                        navController.navigate(
-                                            Route.ManageContact.getRouteName(
-                                                screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                            ),
-                                        )
-                                    },
-                                    onShareIdClick = {
-                                        mainViewModel.onShareIdClick()
-                                    },
-                                ),
+                            NoContactsScreen(
+                                onPairWithOthersClick = {
+                                    navController.navigate(
+                                        Route.ManageContact.getRouteName(
+                                            screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                        ),
+                                    )
+                                },
+                                onShareIdClick = {
+                                    mainViewModel.onShareIdClick()
+                                },
                             )
                         }
                         composable(Route.AccountCreationWaiting.name) {
@@ -501,6 +497,16 @@ fun LetroNavHost(
                                             homeViewModel.onTabClick(TAB_CONTACTS)
                                         }
                                     }
+                                },
+                                onPairWithOthersClick = {
+                                    navController.navigate(
+                                        Route.ManageContact.getRouteName(
+                                            screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                        ),
+                                    )
+                                },
+                                onShareIdClick = {
+                                    mainViewModel.onShareIdClick()
                                 },
                             )
                         }
