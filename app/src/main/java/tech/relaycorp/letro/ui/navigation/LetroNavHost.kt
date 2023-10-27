@@ -498,6 +498,14 @@ fun LetroNavHost(
                                         }
                                     }
                                 },
+                                onStartConversationClick = {
+                                    navController.navigate(
+                                        Route.CreateNewMessage.getRouteName(
+                                            screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
+                                            contactId = it.id,
+                                        ),
+                                    )
+                                },
                                 onPairWithOthersClick = {
                                     navController.navigate(
                                         Route.ManageContact.getRouteName(

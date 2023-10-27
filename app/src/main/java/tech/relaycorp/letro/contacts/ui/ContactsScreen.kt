@@ -15,9 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.contacts.ContactActionsBottomSheet
 import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
-import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
 import tech.relaycorp.letro.ui.common.bottomsheet.LetroActionsBottomSheet
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
@@ -34,10 +34,11 @@ fun ContactsScreen(
     onEditContactClick: (Contact) -> Unit,
     onPairWithOthersClick: () -> Unit,
     onShareIdClick: () -> Unit,
+    onStartConversationClick: (Contact) -> Unit,
 ) {
     val contactsState by viewModel.contacts.collectAsState()
     val contacts = contactsState
-    val editContactBottomSheetState by viewModel.editContactBottomSheetState.collectAsState()
+    val contactActionsBottomSheetState by viewModel.contactActionsBottomSheetState.collectAsState()
     val deleteContactDialogState by viewModel.deleteContactDialogState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -52,23 +53,28 @@ fun ContactsScreen(
         }
     }
 
-    val editBottomSheet = editContactBottomSheetState
+    LaunchedEffect(Unit) {
+        viewModel.openConversationSignal.collect {
+            onStartConversationClick(it)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.editContactSignal.collect {
+            onEditContactClick(it)
+        }
+    }
+
+    val actionsBottomSheet = contactActionsBottomSheetState
     val deleteContactDialog = deleteContactDialogState
     when (contacts) {
         is ContactsListContent.Contacts -> {
             Box {
                 when {
-                    editBottomSheet.isShown && editBottomSheet.contact != null -> {
-                        EditContactDialog(
-                            contact = editBottomSheet.contact,
-                            onDismissed = { viewModel.onEditBottomSheetDismissed() },
-                            onEditClick = {
-                                viewModel.onEditContactClick()
-                                onEditContactClick(editBottomSheet.contact)
-                            },
-                            onDeleteClick = {
-                                viewModel.onDeleteContactClick(editBottomSheet.contact)
-                            },
+                    actionsBottomSheet.isShown && actionsBottomSheet.data != null -> {
+                        ContactActionsDialog(
+                            data = actionsBottomSheet.data,
+                            onDismissed = { viewModel.onActionsBottomSheetDismissed() },
                         )
                     }
                     deleteContactDialog.isShown && deleteContactDialog.contact != null -> {
@@ -103,27 +109,14 @@ fun ContactsScreen(
 }
 
 @Composable
-private fun EditContactDialog(
-    contact: Contact,
+private fun ContactActionsDialog(
+    data: ContactActionsBottomSheet,
     onDismissed: () -> Unit,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
 ) {
     LetroActionsBottomSheet(
-        title = contact.alias ?: contact.contactVeraId,
+        title = data.title,
+        actions = data.actions,
         onDismissRequest = onDismissed,
-        actions = listOf(
-            BottomSheetAction(
-                icon = R.drawable.edit,
-                title = R.string.edit,
-                action = onEditClick,
-            ),
-            BottomSheetAction(
-                icon = R.drawable.ic_delete,
-                title = R.string.delete,
-                action = onDeleteClick,
-            ),
-        ),
     )
 }
 
