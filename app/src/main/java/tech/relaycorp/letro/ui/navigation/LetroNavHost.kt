@@ -3,6 +3,7 @@
 package tech.relaycorp.letro.ui.navigation
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring.StiffnessVeryLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
@@ -248,13 +249,15 @@ fun LetroNavHost(
                     )
                 }
                 Column {
-                    if (currentRoute.showTopBar && currentAccount != null) {
-                        LetroTopBar(
-                            accountVeraId = currentAccount,
-                            accountStatus = uiState.accountStatus,
-                            onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
-                            onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
-                        )
+                    AnimatedVisibility(visible = currentRoute.showTopBar && currentAccount != null) {
+                        if (currentAccount != null) {
+                            LetroTopBar(
+                                accountVeraId = currentAccount,
+                                accountStatus = uiState.accountStatus,
+                                onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
+                                onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
+                            )
+                        }
                     }
                     NavHost(
                         navController = navController,

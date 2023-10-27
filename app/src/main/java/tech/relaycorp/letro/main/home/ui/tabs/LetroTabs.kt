@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.main.home.ui.tabs
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -67,7 +68,7 @@ fun LetroTabs(
         },
     ) {
         tabTitles.forEachIndexed { index, title ->
-            BadgedTab(
+            CounterTab(
                 selected = uiState.currentTab == index,
                 onClick = {
                     viewModel.onTabClick(index)
@@ -83,7 +84,7 @@ fun LetroTabs(
 }
 
 @Composable
-private fun BadgedTab(
+private fun CounterTab(
     modifier: Modifier = Modifier,
     selected: Boolean,
     onClick: () -> Unit,
@@ -103,9 +104,11 @@ private fun BadgedTab(
                     color = LetroColor.OnSurfaceContainerHigh,
                     maxLines = 1,
                 )
-                if (badge != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    TabBadge(text = badge)
+                Spacer(modifier = Modifier.width(4.dp))
+                AnimatedContent(targetState = badge != null, label = "LetroTabsBadgeVisibility") { isBadgeVisible ->
+                    if (isBadgeVisible && badge != null) {
+                        TabBadge(text = badge)
+                    }
                 }
             }
         },

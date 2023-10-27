@@ -1,5 +1,7 @@
 package tech.relaycorp.letro.conversation.viewing.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -103,8 +105,9 @@ fun ConversationScreen(
                 state = scrollState,
             ) {
                 stickyHeader {
+                    val shadowElevation by animateDpAsState(targetValue = if (scrollState.canScrollBackward) Elevation2 else 0.dp)
                     Surface(
-                        shadowElevation = if (scrollState.canScrollBackward) Elevation2 else 0.dp,
+                        shadowElevation = shadowElevation,
                     ) {
                         ConversationToolbar(
                             isArchived = conversation.isArchived,
@@ -209,31 +212,35 @@ private fun Message(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        if (!isCollapsed) {
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 2.dp,
-                    )
-                    .clickable { isDetailsCollapsed = !isDetailsCollapsed },
-            )
-            if (!isDetailsCollapsed) {
-                Spacer(modifier = Modifier.height(12.dp))
-                MessageInfoView(
-                    message = message,
+        AnimatedVisibility(visible = !isCollapsed) {
+            Column {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .padding(
                             horizontal = 16.dp,
+                            vertical = 2.dp,
                         )
-                        .fillMaxWidth(),
+                        .clickable { isDetailsCollapsed = !isDetailsCollapsed },
                 )
+                AnimatedVisibility(visible = !isDetailsCollapsed) {
+                    Column {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        MessageInfoView(
+                            message = message,
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 16.dp,
+                                )
+                                .fillMaxWidth(),
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(26.dp))
             }
-            Spacer(modifier = Modifier.height(26.dp))
         }
         SelectionContainer {
             Text(

@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.awala.ui.notinstalled
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.theme.HorizontalScreenPadding
 import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 
+@Suppress("NAME_SHADOWING")
 @Composable
 fun AwalaNotInstalledScreen(
     onInstallAwalaClick: () -> Unit,
@@ -37,12 +39,14 @@ fun AwalaNotInstalledScreen(
 
     val showAwalaInitialization by viewModel.isAwalaInitializingShown.collectAsState()
 
-    if (showAwalaInitialization) {
-        AwalaInitializationInProgress()
-    } else {
-        InstallAwalaScreen(
-            onInstallAwalaClick = onInstallAwalaClick,
-        )
+    Crossfade(targetState = showAwalaInitialization, label = "AwalaNotInstalledScreen") { showAwalaInitialization ->
+        if (showAwalaInitialization) {
+            AwalaInitializationInProgress()
+        } else {
+            InstallAwalaScreen(
+                onInstallAwalaClick = onInstallAwalaClick,
+            )
+        }
     }
 }
 
