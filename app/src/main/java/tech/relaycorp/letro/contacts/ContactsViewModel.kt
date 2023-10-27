@@ -18,6 +18,7 @@ import tech.relaycorp.letro.base.BaseViewModel
 import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
+import tech.relaycorp.letro.contacts.ui.ContactsListContent
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import javax.inject.Inject
 
@@ -27,8 +28,8 @@ class ContactsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
 ) : BaseViewModel() {
 
-    private val _contacts: MutableStateFlow<List<Contact>> = MutableStateFlow(emptyList())
-    val contacts: StateFlow<List<Contact>>
+    private val _contacts: MutableStateFlow<ContactsListContent> = MutableStateFlow(ContactsListContent.Empty)
+    val contacts: StateFlow<ContactsListContent>
         get() = _contacts
 
     private val _editContactBottomSheetStateState = MutableStateFlow(EditContactBottomSheetState())
@@ -131,7 +132,11 @@ class ContactsViewModel @Inject constructor(
         if (account != null) {
             contactsCollectionJob = viewModelScope.launch {
                 contactsRepository.getContacts(account.accountId).collect {
-                    _contacts.emit(it)
+                    if (it.isEmpty()) {
+                        _contacts.emit(ContactsListContent.Empty)
+                    } else {
+                        _contacts.emit(ContactsListContent.Contacts(it))
+                    }
                 }
             }
         }

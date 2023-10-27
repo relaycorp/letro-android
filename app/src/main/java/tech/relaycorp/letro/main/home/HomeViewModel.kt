@@ -48,6 +48,15 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+        viewModelScope.launch {
+            contactsRepository.contactsState.collect {
+                _uiState.update {
+                    it.copy(
+                        floatingActionButtonConfig = getFloatingActionButtonConfig(),
+                    )
+                }
+            }
+        }
     }
 
     fun onTabClick(index: Int) {
@@ -127,9 +136,17 @@ class HomeViewModel @Inject constructor(
         else -> null
     }
 
-    private fun getFloatingActionButtonConfig(tabIndex: Int) = when (tabIndex) {
+    private fun getFloatingActionButtonConfig(
+        tabIndex: Int = _uiState.value.currentTab,
+    ) = when (tabIndex) {
         TAB_CHATS -> HomeFloatingActionButtonConfig.ChatListFloatingActionButtonConfig
-        TAB_CONTACTS -> HomeFloatingActionButtonConfig.ContactsFloatingActionButtonConfig
+        TAB_CONTACTS -> {
+            if (contactsRepository.contactsState.value.totalCount > 0) {
+                HomeFloatingActionButtonConfig.ContactsFloatingActionButtonConfig
+            } else {
+                null
+            }
+        }
         TAB_NOTIFICATIONS -> null
         else -> throw IllegalStateException("Unsupported tab with index $tabIndex")
     }

@@ -32,8 +32,11 @@ fun ContactsScreen(
     snackbarHostState: SnackbarHostState,
     snackbarStringsProvider: SnackbarStringsProvider,
     onEditContactClick: (Contact) -> Unit,
+    onPairWithOthersClick: () -> Unit,
+    onShareIdClick: () -> Unit,
 ) {
-    val contacts by viewModel.contacts.collectAsState()
+    val contactsState by viewModel.contacts.collectAsState()
+    val contacts = contactsState
     val editContactBottomSheetState by viewModel.editContactBottomSheetState.collectAsState()
     val deleteContactDialogState by viewModel.deleteContactDialogState.collectAsState()
 
@@ -51,40 +54,50 @@ fun ContactsScreen(
 
     val editBottomSheet = editContactBottomSheetState
     val deleteContactDialog = deleteContactDialogState
-    Box {
-        when {
-            editBottomSheet.isShown && editBottomSheet.contact != null -> {
-                EditContactDialog(
-                    contact = editBottomSheet.contact,
-                    onDismissed = { viewModel.onEditBottomSheetDismissed() },
-                    onEditClick = {
-                        viewModel.onEditContactClick()
-                        onEditContactClick(editBottomSheet.contact)
-                    },
-                    onDeleteClick = {
-                        viewModel.onDeleteContactClick(editBottomSheet.contact)
-                    },
-                )
-            }
-            deleteContactDialog.isShown && deleteContactDialog.contact != null -> {
-                DeleteContactDialog(
-                    contact = deleteContactDialog.contact,
-                    onDismissed = { viewModel.onDeleteContactDialogDismissed() },
-                    onConfirm = { viewModel.onConfirmDeletingContactClick(deleteContactDialog.contact) },
-                )
+    when (contacts) {
+        is ContactsListContent.Contacts -> {
+            Box {
+                when {
+                    editBottomSheet.isShown && editBottomSheet.contact != null -> {
+                        EditContactDialog(
+                            contact = editBottomSheet.contact,
+                            onDismissed = { viewModel.onEditBottomSheetDismissed() },
+                            onEditClick = {
+                                viewModel.onEditContactClick()
+                                onEditContactClick(editBottomSheet.contact)
+                            },
+                            onDeleteClick = {
+                                viewModel.onDeleteContactClick(editBottomSheet.contact)
+                            },
+                        )
+                    }
+                    deleteContactDialog.isShown && deleteContactDialog.contact != null -> {
+                        DeleteContactDialog(
+                            contact = deleteContactDialog.contact,
+                            onDismissed = { viewModel.onDeleteContactDialogDismissed() },
+                            onConfirm = { viewModel.onConfirmDeletingContactClick(deleteContactDialog.contact) },
+                        )
+                    }
+                }
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        top = 8.dp,
+                    ),
+                ) {
+                    items(contacts.contacts.size) { index ->
+                        ContactView(
+                            contact = contacts.contacts[index],
+                            onClick = { viewModel.onActionsButtonClick(contacts.contacts[index]) },
+                        )
+                    }
+                }
             }
         }
-        LazyColumn(
-            contentPadding = PaddingValues(
-                top = 8.dp,
-            ),
-        ) {
-            items(contacts.size) { index ->
-                ContactView(
-                    contact = contacts[index],
-                    onClick = { viewModel.onActionsButtonClick(contacts[index]) },
-                )
-            }
+        is ContactsListContent.Empty -> {
+            NoContactsScreen(
+                onPairWithOthersClick = onPairWithOthersClick,
+                onShareIdClick = onShareIdClick,
+            )
         }
     }
 }
