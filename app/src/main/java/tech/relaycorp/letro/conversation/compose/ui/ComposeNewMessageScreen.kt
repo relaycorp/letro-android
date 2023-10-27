@@ -80,6 +80,8 @@ fun ComposeNewMessageScreen(
         onResume = { viewModel.onScreenResumed() },
     )
     val uiState by viewModel.uiState.collectAsState()
+    val messageExceedsLimitError = uiState.messageExceedsLimitTextError
+    val suggestedContacts = uiState.suggestedContacts
     val attachments by viewModel.attachments.collectAsState()
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
@@ -289,7 +291,6 @@ fun ComposeNewMessageScreen(
                     Divider()
                 }
 
-                val suggestedContacts = uiState.suggestedContacts
                 when {
                     !suggestedContacts.isNullOrEmpty() -> {
                         suggestContactsList(
@@ -371,9 +372,6 @@ fun ComposeNewMessageScreen(
                                     ),
                                     modifier = Modifier
                                         .then(Modifier)
-                                        .applyIf(uiState.messageExceedsLimitTextError != null) {
-                                            background(MaterialTheme.colorScheme.errorContainer)
-                                        }
                                         .applyIf(attachments.isEmpty()) {
                                             defaultMinSize(
                                                 minHeight = 500.dp,
@@ -383,29 +381,26 @@ fun ComposeNewMessageScreen(
                                 )
                             }
                         }
-                        val messageExceedsLimitError = uiState.messageExceedsLimitTextError
                         if (attachments.isNotEmpty()) {
                             attachments(
                                 lazyListScope = this@LazyColumn,
                                 attachments = attachments,
-                                isError = messageExceedsLimitError != null,
                                 onAttachmentDeleteClick = { viewModel.onAttachmentDeleteClick(it) },
                             )
                         }
-                        if (messageExceedsLimitError != null) {
-                            item {
-                                Text(
-                                    text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 18.dp, horizontal = 16.dp),
-                                )
-                            }
-                        }
                     }
                 }
+            }
+            if (messageExceedsLimitError != null && suggestedContacts.isNullOrEmpty()) {
+                Text(
+                    text = stringResource(id = messageExceedsLimitError.stringRes, messageExceedsLimitError.value),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .padding(vertical = 18.dp, horizontal = 16.dp),
+                )
             }
         }
     }
@@ -482,7 +477,6 @@ private fun RecipientChipView(
 private fun attachments(
     lazyListScope: LazyListScope,
     attachments: List<AttachmentInfo>,
-    isError: Boolean,
     onAttachmentDeleteClick: (AttachmentInfo) -> Unit,
 ) {
     with(lazyListScope) {
@@ -492,10 +486,7 @@ private fun attachments(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .applyIf(isError) {
-                        background(MaterialTheme.colorScheme.errorContainer)
-                    },
+                    .fillMaxWidth(),
             ) {
                 if (it != 0) {
                     Spacer(modifier = Modifier.height(8.dp))
