@@ -68,6 +68,8 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
 
+    <string name="start_a_conversation">Start a conversation</string>
+
     <string name="read">Read</string>
     <string name="unread">Unread</string>
 
