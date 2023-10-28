@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import tech.relaycorp.awaladroid.messaging.Message
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
@@ -54,7 +55,7 @@ object ConversationsModule {
     @Provides
     @MessageSizeLimitBytes
     fun provideMessageSizeLimit(): Int {
-        return MESSAGE_SIZE_LIMIT_BYTES
+        return Message.MAX_CONTENT_SIZE
     }
 
     @Module
@@ -125,5 +126,3 @@ annotation class NewMessageAwalaProcessor
 
 @Qualifier
 annotation class MessageSizeLimitBytes
-
-private const val MESSAGE_SIZE_LIMIT_BYTES = 8_388_608 // 8MB
