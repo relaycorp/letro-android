@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.bouncycastle.asn1.DERUTF8String
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -14,7 +15,6 @@ import tech.relaycorp.letro.testing.awala.AWALA_ID_KEY_PAIR
 import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_ID
 import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_KEY_PAIR
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
-import tech.relaycorp.letro.utils.crypto.spkiEncode
 import tech.relaycorp.letro.utils.veraid.VeraidSignature
 import tech.relaycorp.veraid.pki.MemberIdBundle
 
@@ -52,8 +52,10 @@ class ContactPairingRequestTest {
 
             request.serialise(mockMemberIdBundle, VERAID_MEMBER_KEY_PAIR.private)
 
+            val awalaIdKeyEncoded =
+                SubjectPublicKeyInfo.getInstance(AWALA_ID_KEY_PAIR.public.encoded)
             val expectedRequestSerialisation = ASN1Utils.serializeSequence(
-                listOf(AWALA_ID_KEY_PAIR.public.spkiEncode(), DERUTF8String(contactVeraidId)),
+                listOf(awalaIdKeyEncoded, DERUTF8String(contactVeraidId)),
                 false,
             )
             verify {

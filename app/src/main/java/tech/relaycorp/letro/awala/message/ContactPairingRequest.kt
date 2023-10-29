@@ -1,8 +1,8 @@
 package tech.relaycorp.letro.awala.message
 
 import org.bouncycastle.asn1.DERUTF8String
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
-import tech.relaycorp.letro.utils.crypto.spkiEncode
 import tech.relaycorp.letro.utils.veraid.VeraidSignature
 import tech.relaycorp.letro.utils.veraid.VeraidSignatureException
 import tech.relaycorp.veraid.pki.MemberIdBundle
@@ -16,7 +16,10 @@ class ContactPairingRequest(
     @Throws(VeraidSignatureException::class)
     fun serialise(veraidBundle: MemberIdBundle, veraidPrivateKey: PrivateKey): ByteArray {
         val requestSerialised = ASN1Utils.serializeSequence(
-            listOf(requesterAwalaEndpointPublicKey.spkiEncode(), DERUTF8String(contactVeraidId)),
+            listOf(
+                SubjectPublicKeyInfo.getInstance(requesterAwalaEndpointPublicKey.encoded),
+                DERUTF8String(contactVeraidId)
+            ),
             false,
         )
         return VeraidSignature.produce(requestSerialised, veraidBundle, veraidPrivateKey)
