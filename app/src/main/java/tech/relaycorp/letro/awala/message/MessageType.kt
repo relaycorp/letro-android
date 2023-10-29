@@ -12,7 +12,7 @@ sealed class MessageType(val value: String) {
     object VeraIdMemberBundle : MessageType("application/vnd.veraid.member-bundle")
     object AccountCreation : MessageType("application/vnd.relaycorp.letro.account-creation")
     object AuthorizeReceivingFromServer : MessageType("application/vnd+relaycorp.awala.pda-path")
-    object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.pairing-request-tmp")
+    object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.contact-pairing.request")
     object ContactPairingMatch : MessageType("application/vnd.relaycorp.letro.pairing-match-tmp")
     object ContactPairingAuthorization : MessageType("application/vnd.relaycorp.letro.pairing-auth")
     object NewConversation : MessageType("application/vnd.letro.conversation")

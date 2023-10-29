@@ -1,6 +1,5 @@
 package tech.relaycorp.letro.awala
 
-import android.util.Base64
 import androidx.annotation.IntDef
 import androidx.annotation.RawRes
 import kotlinx.coroutines.CoroutineDispatcher
@@ -42,6 +41,7 @@ import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.ext.emitOnDelayed
 import java.lang.Thread.UncaughtExceptionHandler
+import java.security.PublicKey
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -66,7 +66,7 @@ interface AwalaManager {
     suspend fun revokeAuthorization(
         user: AwalaEndpoint,
     )
-    suspend fun getFirstPartyPublicKey(): String
+    suspend fun getFirstPartyPublicKey(): PublicKey
     suspend fun importPrivateThirdPartyAuth(auth: ByteArray): String
     suspend fun getServerThirdPartyEndpoint(): ThirdPartyEndpoint?
 }
@@ -191,10 +191,10 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFirstPartyPublicKey(): String {
+    override suspend fun getFirstPartyPublicKey(): PublicKey {
         return withContext(awalaThreadContext) {
             val firstPartyEndpoint = loadFirstPartyEndpoint()
-            Base64.encodeToString(firstPartyEndpoint.publicKey.encoded, Base64.NO_WRAP)
+            firstPartyEndpoint.publicKey
         }
     }
 

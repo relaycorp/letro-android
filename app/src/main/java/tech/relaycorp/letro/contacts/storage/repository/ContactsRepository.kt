@@ -14,6 +14,7 @@ import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
+import tech.relaycorp.letro.awala.message.ContactPairingRequest
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
@@ -21,7 +22,9 @@ import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.storage.Preferences
 import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
 import tech.relaycorp.letro.utils.di.IODispatcher
+import tech.relaycorp.veraid.pki.MemberIdBundle
 import javax.inject.Inject
 
 interface ContactsRepository {
@@ -86,10 +89,18 @@ class ContactsRepositoryImpl @Inject constructor(
 
         if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
             if (contact.isPrivateEndpoint) {
+                val account = accountRepository.getByVeraidId(contact.ownerVeraId)!!
+                val memberIdBundle = MemberIdBundle.deserialise(account.veraidMemberBundle!!)
+                val request = ContactPairingRequest(
+                    awalaManager.getFirstPartyPublicKey(),
+                    contact.contactVeraId,
+                )
+                val veraidKeyPair = account.veraidPrivateKey.deserialiseKeyPair()
+                val requestSerialised = request.serialise(memberIdBundle, veraidKeyPair.private)
                 awalaManager.sendMessage(
                     outgoingMessage = AwalaOutgoingMessage(
                         type = MessageType.ContactPairingRequest,
-                        content = "${contact.ownerVeraId},${contact.contactVeraId},${awalaManager.getFirstPartyPublicKey()}".toByteArray(),
+                        content = requestSerialised,
                     ),
                     recipient = AwalaEndpoint.Public(),
                 )
