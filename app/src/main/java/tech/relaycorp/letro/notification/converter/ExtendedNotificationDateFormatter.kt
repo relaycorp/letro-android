@@ -2,39 +2,39 @@ package tech.relaycorp.letro.notification.converter
 
 import androidx.annotation.StringRes
 import tech.relaycorp.letro.R
-import tech.relaycorp.letro.utils.ext.isLessThanDayAgo
-import tech.relaycorp.letro.utils.ext.isLessThanHourAgo
-import tech.relaycorp.letro.utils.ext.isLessThanWeeksAgo
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.isLessThanDayAgo
+import tech.relaycorp.letro.utils.time.isLessThanHourAgo
+import tech.relaycorp.letro.utils.time.isLessThanWeeksAgo
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 interface ExtendedNotificationDateFormatter {
 
-    fun format(timestamp: LocalDateTime): NotificationDateInfo
+    fun format(timestamp: ZonedDateTime): NotificationDateInfo
 }
 
 class ExtendedNotificationDateFormatterImpl @Inject constructor() : ExtendedNotificationDateFormatter {
 
-    override fun format(timestamp: LocalDateTime): NotificationDateInfo {
+    override fun format(timestamp: ZonedDateTime): NotificationDateInfo {
         return when {
             timestamp.isLessThanHourAgo() -> NotificationDateInfo(
-                value = ChronoUnit.MINUTES.between(timestamp, LocalDateTime.now()),
+                value = ChronoUnit.MINUTES.between(timestamp, ZonedDateTime.now()),
                 stringRes = R.string.notification_time_minutes,
                 timestamp = timestamp,
             )
             timestamp.isLessThanDayAgo() -> NotificationDateInfo(
-                value = ChronoUnit.HOURS.between(timestamp, LocalDateTime.now()),
+                value = ChronoUnit.HOURS.between(timestamp, ZonedDateTime.now()),
                 stringRes = R.string.notification_time_hours,
                 timestamp = timestamp,
             )
             timestamp.isLessThanWeeksAgo(1L) -> NotificationDateInfo(
-                value = ChronoUnit.DAYS.between(timestamp, LocalDateTime.now()),
+                value = ChronoUnit.DAYS.between(timestamp, ZonedDateTime.now()),
                 stringRes = R.string.notification_time_days,
                 timestamp = timestamp,
             )
             else -> NotificationDateInfo(
-                value = ChronoUnit.WEEKS.between(timestamp, LocalDateTime.now()),
+                value = ChronoUnit.WEEKS.between(timestamp, ZonedDateTime.now()),
                 stringRes = R.string.notification_time_weeks,
                 timestamp = timestamp,
             )
@@ -45,5 +45,5 @@ class ExtendedNotificationDateFormatterImpl @Inject constructor() : ExtendedNoti
 data class NotificationDateInfo(
     val value: Long,
     @StringRes val stringRes: Int,
-    val timestamp: LocalDateTime,
+    val timestamp: ZonedDateTime,
 )

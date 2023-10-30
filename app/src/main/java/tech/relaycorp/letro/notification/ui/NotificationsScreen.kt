@@ -30,7 +30,7 @@ import tech.relaycorp.letro.notification.converter.NotificationDateInfo
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
 
 @Composable
 fun NotificationsScreen(
@@ -146,14 +146,14 @@ private fun Notifications_Preview() {
         notificationsBlock(
             title = R.string.unread,
             notifications = listOf(
-                ExtendedNotification(id = 0L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, LocalDateTime.now()), ownerId = "", isRead = false),
+                ExtendedNotification(id = 0L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, nowUTC()), ownerId = "", isRead = false),
             ),
             onClick = {},
         )
         notificationsBlock(
             title = R.string.read,
             notifications = listOf(
-                ExtendedNotification(id = 2L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, LocalDateTime.now()), ownerId = "", isRead = true),
+                ExtendedNotification(id = 2L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, nowUTC()), ownerId = "", isRead = true),
             ),
             onClick = {},
         )

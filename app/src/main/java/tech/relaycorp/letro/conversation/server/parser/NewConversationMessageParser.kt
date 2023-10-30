@@ -7,7 +7,7 @@ import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.conversation.server.dto.ConversationAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
 import java.util.UUID
 import javax.inject.Inject
 
@@ -33,7 +33,7 @@ class NewConversationMessageParserImpl @Inject constructor(
             ownerVeraId = conversation.ownerVeraId,
             recipientVeraId = conversation.ownerVeraId,
             senderVeraId = conversation.contactVeraId,
-            sentAt = LocalDateTime.now(),
+            sentAtUtc = nowUTC(),
         )
         val contact = contactsDao.getContact(
             ownerVeraId = conversation.ownerVeraId,

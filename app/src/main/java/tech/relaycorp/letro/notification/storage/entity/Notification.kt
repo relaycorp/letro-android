@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.notification.storage.entity.NotificationType.Companion.PAIRING_COMPLETED
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 const val TABLE_NAME_NOTIFICATIONS = "notifications"
 
@@ -27,7 +27,7 @@ data class Notification(
     val ownerId: String,
     @NotificationType val type: Int,
     val contactVeraId: String,
-    val timestamp: LocalDateTime,
+    val timestampUtc: ZonedDateTime,
     val isRead: Boolean = false,
     val infoSpecificForNotificationType: String? = null,
 )
