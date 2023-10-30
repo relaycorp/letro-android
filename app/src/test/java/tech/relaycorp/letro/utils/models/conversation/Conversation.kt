@@ -30,7 +30,8 @@ import tech.relaycorp.letro.utils.models.account.createAccountRepository
 import tech.relaycorp.letro.utils.models.awala.createAwalaManager
 import tech.relaycorp.letro.utils.models.contact.createContactsRepository
 import tech.relaycorp.letro.utils.models.utils.createLogger
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
+import java.time.ZonedDateTime
 import java.util.UUID
 
 fun createConversation(
@@ -55,14 +56,14 @@ fun createMessage(
     ownerVeraId: String = "account@test.id",
     senderVeraId: String = "account@test.id",
     recipientVeraId: String = "contact@test.id",
-    sentAt: LocalDateTime = LocalDateTime.now(),
+    sentAtUtc: ZonedDateTime = nowUTC(),
 ) = Message(
     conversationId = conversationId,
     text = text,
     ownerVeraId = ownerVeraId,
     senderVeraId = senderVeraId,
     recipientVeraId = recipientVeraId,
-    sentAt = sentAt,
+    sentAtUtc = sentAtUtc,
 )
 
 @ExperimentalCoroutinesApi
@@ -94,6 +95,7 @@ fun createConversationsRepository(
     awalaManager = awalaManager,
     outgoingMessageMessageEncoder = mockk(relaxed = true),
     logger = createLogger(),
+    timeChangedProvider = mockk(relaxed = true),
     ioDispatcher = ioDispatcher,
 )
 

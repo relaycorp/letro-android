@@ -23,8 +23,8 @@ import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.ui.MainActivity
 import tech.relaycorp.letro.utils.di.IODispatcher
-import tech.relaycorp.letro.utils.ext.isLessThanWeeksAgo
 import tech.relaycorp.letro.utils.shortcut.toShortcutInfo
+import tech.relaycorp.letro.utils.time.isLessThanWeeksAgo
 import javax.inject.Inject
 
 interface AndroidShortcutContactsSuggestManager
@@ -77,7 +77,7 @@ class AndroidShortcutContactsSuggestManagerImpl @Inject constructor(
                         conversations
                             .filter { it.contactVeraId == contact.contactVeraId }
                             .any { conversation ->
-                                conversation.lastMessage.sentAt.isLessThanWeeksAgo(4L)
+                                conversation.lastMessageSentAtUtc.isLessThanWeeksAgo(4L)
                             }
                     }
             Log.i(TAG, "Push ${sortedPairedContacts.size} shortcuts")

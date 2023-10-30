@@ -8,8 +8,7 @@ import tech.relaycorp.letro.conversation.model.ExtendedMessage
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
-import java.sql.Timestamp
-import java.time.ZoneOffset
+import tech.relaycorp.letro.utils.time.toSystemTimeZone
 import java.util.UUID
 import javax.inject.Inject
 
@@ -20,6 +19,10 @@ interface ExtendedConversationConverter {
         contacts: List<Contact>,
         attachments: List<Attachment>,
         ownerVeraId: String,
+    ): List<ExtendedConversation>
+
+    suspend fun updateTimestamps(
+        conversations: List<ExtendedConversation>,
     ): List<ExtendedConversation>
 }
 
@@ -39,7 +42,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
         val conversationsMap = hashMapOf<UUID, Conversation>()
         conversations.forEach { conversationsMap[it.conversationId] = it }
 
-        val sortedMessages = messages.sortedBy { it.sentAt }
+        val sortedMessages = messages.sortedBy { it.sentAtUtc }
 
         val messagesToConversation = hashMapOf<UUID, ArrayList<Message>>()
         sortedMessages.forEach { message ->
@@ -70,9 +73,9 @@ class ExtendedConversationConverterImpl @Inject constructor(
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = message.text,
-                            sentAt = message.sentAt,
-                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(message.sentAt),
-                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(message.sentAt),
+                            sentAtUtc = message.sentAtUtc,
+                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(message.sentAtUtc.toSystemTimeZone()),
+                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(message.sentAtUtc.toSystemTimeZone()),
                             attachments = attachments.filter { it.messageId == message.id }.mapNotNull { fileConverter.getFile(it)?.let { attachmentInfoConverter.convert(it) } },
                         )
                     }
@@ -82,8 +85,8 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     contactVeraId = conversation.contactVeraId,
                     contactDisplayName = contactDisplayName,
                     subject = conversation.subject,
-                    lastMessageTimestamp = Timestamp.from(lastMessage.sentAt.toInstant(ZoneOffset.UTC)).time,
-                    lastMessageFormattedTimestamp = messageTimestampFormatter.formatBrief(lastMessage.sentAt),
+                    lastMessageSentAtUtc = lastMessage.sentAtUtc,
+                    lastMessageFormattedTimestamp = messageTimestampFormatter.formatBrief(lastMessage.sentAtUtc.toSystemTimeZone()),
                     messages = extendedMessagesList,
                     lastMessage = extendedMessagesList.last(),
                     isRead = conversation.isRead,
@@ -93,6 +96,21 @@ class ExtendedConversationConverterImpl @Inject constructor(
             }
             .forEach { extendedConversations.add(it) }
         return extendedConversations
-            .sortedByDescending { it.lastMessageTimestamp }
+            .sortedByDescending { it.lastMessageSentAtUtc }
+    }
+
+    override suspend fun updateTimestamps(conversations: List<ExtendedConversation>): List<ExtendedConversation> {
+        return conversations
+            .map {
+                it.copy(
+                    lastMessageFormattedTimestamp = messageTimestampFormatter.formatBrief(it.lastMessageSentAtUtc.toSystemTimeZone()),
+                    messages = it.messages.map {
+                        it.copy(
+                            sentAtBriefFormatted = messageTimestampFormatter.formatBrief(it.sentAtUtc.toSystemTimeZone()),
+                            sentAtDetailedFormatted = messageTimestampFormatter.formatDetailed(it.sentAtUtc.toSystemTimeZone()),
+                        )
+                    },
+                )
+            }
     }
 }

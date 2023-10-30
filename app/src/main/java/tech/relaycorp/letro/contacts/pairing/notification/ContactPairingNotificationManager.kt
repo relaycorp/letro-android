@@ -11,7 +11,7 @@ import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
 import tech.relaycorp.letro.ui.navigation.Action
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
 import javax.inject.Inject
 
 interface ContactPairingNotificationManager {
@@ -31,7 +31,7 @@ class ContactPairingNotificationManagerImpl @Inject constructor(
                 type = NotificationType.PAIRING_COMPLETED,
                 ownerId = contact.ownerVeraId,
                 contactVeraId = contact.contactVeraId,
-                timestamp = LocalDateTime.now(),
+                timestampUtc = nowUTC(),
             ),
         )
         pushManager.showPush(
@@ -54,7 +54,7 @@ class ContactPairingNotificationManagerImpl @Inject constructor(
                 ownerId = contact.ownerVeraId,
                 type = NotificationType.UNSUCCESSFUL_PAIRING,
                 contactVeraId = contact.contactVeraId,
-                timestamp = LocalDateTime.now(),
+                timestampUtc = nowUTC(),
             ),
         )
         pushManager.showPush(
