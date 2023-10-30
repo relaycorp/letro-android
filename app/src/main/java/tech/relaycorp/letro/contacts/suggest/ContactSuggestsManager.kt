@@ -21,7 +21,7 @@ class ContactSuggestsManagerImpl @Inject constructor() : ContactSuggestsManager 
         val contactsMap = contacts.toMap(key = { it.contactVeraId })
         val result = arrayListOf<Contact>()
         val conversationsSortedByLastMessageDate = conversations
-            .sortedByDescending { it.lastMessageTimestamp }
+            .sortedByDescending { it.lastMessageSentAtUtc }
 
         // First - add to the result contacts from latest conversations
         conversationsSortedByLastMessageDate.forEach { conversation ->

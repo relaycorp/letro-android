@@ -2,6 +2,7 @@ package tech.relaycorp.letro.conversation.storage.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,7 +31,9 @@ import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.DeviceTimeChangedProvider
+import tech.relaycorp.letro.utils.time.OnDeviceTimeChangedListener
+import tech.relaycorp.letro.utils.time.nowUTC
 import java.util.UUID
 import javax.inject.Inject
 
@@ -67,6 +70,7 @@ class ConversationsRepositoryImpl @Inject constructor(
     private val conversationsConverter: ExtendedConversationConverter,
     private val awalaManager: AwalaManager,
     private val outgoingMessageMessageEncoder: OutgoingMessageMessageEncoder,
+    private val timeChangedProvider: DeviceTimeChangedProvider,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ConversationsRepository {
@@ -83,7 +87,18 @@ class ConversationsRepositoryImpl @Inject constructor(
     private var conversationsCollectionJob: Job? = null
     private var contactsCollectionJob: Job? = null
 
+    private val timeChangedListener = object : OnDeviceTimeChangedListener {
+        override fun onChanged() {
+            scope.launch(Dispatchers.IO) {
+                _extendedConversations.emit(
+                    conversationsConverter.updateTimestamps(_extendedConversations.value),
+                )
+            }
+        }
+    }
+
     init {
+        timeChangedProvider.addListener(timeChangedListener)
         scope.launch {
             accountRepository.allAccounts.collect {
                 val currentAccount = it.firstOrNull { it.isCurrent }
@@ -138,7 +153,7 @@ class ConversationsRepositoryImpl @Inject constructor(
             ownerVeraId = ownerVeraId,
             senderVeraId = ownerVeraId,
             recipientVeraId = recipient.contactVeraId,
-            sentAt = LocalDateTime.now(),
+            sentAtUtc = nowUTC(),
         )
         awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
@@ -184,7 +199,7 @@ class ConversationsRepositoryImpl @Inject constructor(
             ownerVeraId = conversation.ownerVeraId,
             senderVeraId = conversation.ownerVeraId,
             recipientVeraId = conversation.contactVeraId,
-            sentAt = LocalDateTime.now(),
+            sentAtUtc = nowUTC(),
         )
 
         awalaManager.sendMessage(
