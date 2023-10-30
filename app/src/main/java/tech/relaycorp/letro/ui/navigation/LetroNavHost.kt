@@ -75,7 +75,6 @@ import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
-import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -99,7 +98,7 @@ fun LetroNavHost(
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val systemUiController: SystemUiController = rememberSystemUiController()
-    var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
+    var currentRoute: Route by remember { mutableStateOf(Route.AwalaInitializing) }
 
     val uiState by mainViewModel.uiState.collectAsState()
 
@@ -130,7 +129,7 @@ fun LetroNavHost(
                 )
                 mainViewModel.onRootNavigationScreenHandled(firstNavigation)
             }
-            if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
+            if (firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
                 isAwalaInitialized = true
             }
         }
@@ -261,7 +260,7 @@ fun LetroNavHost(
                     }
                     NavHost(
                         navController = navController,
-                        startDestination = Route.Splash.name,
+                        startDestination = Route.AwalaInitializing.name,
                     ) {
                         composable(Route.AwalaNotInstalled.name) {
                             AwalaNotInstalledScreen(
@@ -317,9 +316,6 @@ fun LetroNavHost(
                                 type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
                                 onOpenAwalaClick = onOpenAwalaClick,
                             )
-                        }
-                        composable(Route.Splash.name) {
-                            SplashScreen()
                         }
                         composable(
                             route = Route.Registration.name +
