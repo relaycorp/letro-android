@@ -56,10 +56,9 @@ interface AwalaManager {
     fun initializeGatewayAsync()
     fun configureEndpointsAsync()
 
-    suspend fun authorizeUsers(
-        // TODO: after MVP handle several first party endpoints
+    suspend fun authorizeContact(
         thirdPartyPublicKey: ByteArray,
-    )
+    ): String
     suspend fun authorizePublicThirdPartyEndpoint(
         thirdPartyEndpoint: PublicThirdPartyEndpoint,
     )
@@ -168,17 +167,18 @@ class AwalaManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun authorizeUsers(thirdPartyPublicKey: ByteArray) {
-        withContext(awalaThreadContext) {
+    override suspend fun authorizeContact(thirdPartyPublicKey: ByteArray): String {
+        return withContext(awalaThreadContext) {
             val firstPartyEndpoint = loadFirstPartyEndpoint()
             val auth = firstPartyEndpoint.authorizeIndefinitely(thirdPartyPublicKey)
             sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.ContactPairingAuthorization,
-                    content = auth,
+                    content = auth.auth,
                 ),
                 recipient = AwalaEndpoint.Public(),
             )
+            return@withContext auth.endpointId
         }
     }
 

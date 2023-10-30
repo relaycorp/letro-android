@@ -26,11 +26,11 @@ class ContactPairingMatchProcessor @Inject constructor(
             contactVeraId = content.contactVeraId,
         )
         try {
-            awalaManager.authorizeUsers(content.contactEndpointPublicKey)
+            val contactEndpointId = awalaManager.authorizeContact(content.contactEndpointPublicKey)
             contact?.let {
                 contactsDao.update(
                     contact.copy(
-                        contactEndpointId = content.contactEndpointId,
+                        contactEndpointId = contactEndpointId,
                         status = ContactPairingStatus.MATCH,
                     ),
                 )

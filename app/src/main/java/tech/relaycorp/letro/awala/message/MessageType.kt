@@ -13,7 +13,6 @@ sealed class MessageType(val value: String) {
     object AccountCreation : MessageType("application/vnd.relaycorp.letro.account-creation")
     object AuthorizeReceivingFromServer : MessageType("application/vnd+relaycorp.awala.pda-path")
     object ContactPairingRequest : MessageType("application/vnd.relaycorp.letro.contact-pairing.request")
-    object ContactPairingMatch : MessageType("application/vnd.relaycorp.letro.pairing-match-tmp")
     object ContactPairingAuthorization : MessageType("application/vnd.relaycorp.letro.pairing-auth")
     object NewConversation : MessageType("application/vnd.letro.conversation")
     object NewMessage : MessageType("application/vnd.letro.message")
@@ -31,7 +30,6 @@ sealed class MessageType(val value: String) {
                 MemberPublicKeyImport.value -> MemberPublicKeyImport
                 VeraIdMemberBundle.value -> VeraIdMemberBundle
                 ContactPairingRequest.value -> ContactPairingRequest
-                ContactPairingMatch.value -> ContactPairingMatch
                 ContactPairingAuthorization.value -> ContactPairingAuthorization
                 NewMessage.value -> NewMessage
                 NewConversation.value -> NewConversation

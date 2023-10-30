@@ -92,7 +92,7 @@ class ContactsRepositoryImpl @Inject constructor(
                 val account = accountRepository.getByVeraidId(contact.ownerVeraId)!!
                 val memberIdBundle = MemberIdBundle.deserialise(account.veraidMemberBundle!!)
                 val request = ContactPairingRequest(
-                    awalaManager.getFirstPartyPublicKey(),
+                    awalaManager.getFirstPartyPublicKey().encoded,
                     contact.contactVeraId,
                 )
                 val veraidKeyPair = account.veraidPrivateKey.deserialiseKeyPair()
