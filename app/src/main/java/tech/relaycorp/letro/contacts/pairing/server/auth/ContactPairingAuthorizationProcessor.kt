@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.contacts.pairing.server.auth
 
 import android.util.Log
+import tech.relaycorp.awaladroid.endpoint.InvalidAuthorizationException
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
@@ -21,7 +22,12 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
         content: AwalaIncomingMessageContent.ContactPairingAuthorization,
         awalaManager: AwalaManager,
     ) {
-        val nodeId = awalaManager.importPrivateThirdPartyAuth(content.authData)
+        val nodeId = try {
+            awalaManager.importPrivateThirdPartyAuth(content.authData)
+        } catch (e: InvalidAuthorizationException) {
+            Log.w(TAG, e)
+            return
+        }
 
         Log.d(TAG, "Contact auth received ($nodeId).")
         contactsDao.getContactsByContactEndpointId(
