@@ -18,11 +18,6 @@ sealed class Route(
     val isStatusBarPrimaryColor: Boolean = false,
 ) {
 
-    object Splash : Route(
-        name = "splash_route",
-        showTopBar = false,
-    )
-
     object Registration : Route(
         name = "registration_route",
         showTopBar = false,
@@ -188,7 +183,6 @@ sealed class Route(
 fun String?.toRoute(): Route {
     this?.let {
         return when {
-            it.startsWith(Route.Splash.name) -> Route.Splash
             it.startsWith(Route.AwalaNotInstalled.name) -> Route.AwalaNotInstalled
             it.startsWith(Route.AwalaInitializing.name) -> Route.AwalaInitializing
             it.startsWith(Route.AwalaInitializationError.NAME_PREFIX) -> Route.AwalaInitializationError(this.removePrefix(Route.AwalaInitializationError.NAME_PREFIX).toInt())
