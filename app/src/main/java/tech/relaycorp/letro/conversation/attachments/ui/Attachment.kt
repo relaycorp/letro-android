@@ -44,7 +44,7 @@ fun Attachment(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .height(50.dp)
+            .height(52.dp)
             .background(LetroColor.SurfaceContainer, RoundedCornerShape(6.dp))
             .applyIf(onAttachmentClick != null) {
                 clickable { onAttachmentClick?.invoke() }
