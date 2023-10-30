@@ -49,7 +49,7 @@ object AwalaModule {
             MessageType.ConnectionParams to connectionParamsProcessor,
             MessageType.MisconfiguredInternetEndpoint to misconfiguredInternetEndpointProcessor,
             MessageType.VeraIdMemberBundle to veraIdMemberBundleProcessor,
-            MessageType.ContactPairingMatch to contactPairingMatchProcessor,
+            MessageType.ContactPairingRequest to contactPairingMatchProcessor,
             MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
             MessageType.NewConversation to newConversationProcessor,
             MessageType.NewMessage to newMessageProcessor,

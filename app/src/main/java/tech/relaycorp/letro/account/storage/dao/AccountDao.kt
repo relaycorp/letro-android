@@ -27,6 +27,9 @@ interface AccountDao {
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE id=:id")
     suspend fun getById(id: Long): Account?
 
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE accountId=:id")
+    suspend fun getByVeraidId(id: String): Account?
+
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE requestedUserName=:requestedUserName AND normalisedLocale=:locale")
     suspend fun getByRequestParams(requestedUserName: String, locale: String): Account?
 

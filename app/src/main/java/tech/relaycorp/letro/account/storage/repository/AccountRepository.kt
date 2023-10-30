@@ -36,6 +36,9 @@ interface AccountRepository {
         locale: Locale,
     ): Account?
 
+    suspend fun getByVeraidId(
+        id: String,
+    ): Account?
     suspend fun getByDomain(
         domain: String,
     ): List<Account>
@@ -190,6 +193,9 @@ class AccountRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getByVeraidId(id: String): Account? {
+        return accountDao.getByVeraidId(id)
+    }
     override suspend fun getByDomain(domain: String): List<Account> {
         return accountDao.getByDomain(domain)
     }
