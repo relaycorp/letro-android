@@ -8,7 +8,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.bouncycastle.asn1.DERUTF8String
@@ -16,6 +15,7 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.Isolated
 import tech.relaycorp.letro.awala.message.ContactPairingRequest
 import tech.relaycorp.letro.awala.message.InvalidPairingRequestException
 import tech.relaycorp.letro.testing.awala.AWALA_ID_KEY_PAIR
@@ -24,12 +24,13 @@ import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_KEY_PAIR
 import tech.relaycorp.letro.testing.veraid.VERAID_ORG_NAME
 import tech.relaycorp.letro.testing.veraid.VERAID_USER_NAME
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
-import tech.relaycorp.letro.utils.veraid.VeraidSignature
 import tech.relaycorp.letro.utils.veraid.VeraidSignatureException
+import tech.relaycorp.letro.utils.veraid.VeraidSignatureProcessor
 import tech.relaycorp.veraid.Member
 import tech.relaycorp.veraid.SignatureBundleVerification
 import tech.relaycorp.veraid.pki.MemberIdBundle
 
+@Isolated
 class ContactPairingRequestTest {
     private val contactVeraidId = "not-$VERAID_MEMBER_ID"
 
@@ -42,7 +43,7 @@ class ContactPairingRequestTest {
 
     @AfterEach
     fun clearMocks() {
-        mockkObject(VeraidSignature)
+        ContactPairingRequest.veraidSignatureProcessor = VeraidSignatureProcessor()
     }
 
     @Nested
@@ -61,7 +62,7 @@ class ContactPairingRequestTest {
 
         @Test
         fun `Requester Awala id key and contact VeraId id should be encapsulated`() {
-            mockSignatureProducer(stubSignatureBundleSerialised)
+            val mockProcessor = mockSignatureProducer(stubSignatureBundleSerialised)
 
             request.serialise(mockMemberIdBundle, VERAID_MEMBER_KEY_PAIR.private)
 
@@ -72,7 +73,7 @@ class ContactPairingRequestTest {
                 false,
             )
             verify {
-                VeraidSignature.produce(
+                mockProcessor.produce(
                     expectedRequestSerialisation,
                     any(),
                     any(),
@@ -82,12 +83,12 @@ class ContactPairingRequestTest {
 
         @Test
         fun `Specified member id bundle should be used`() {
-            mockSignatureProducer(stubSignatureBundleSerialised)
+            val mockProcessor = mockSignatureProducer(stubSignatureBundleSerialised)
 
             request.serialise(mockMemberIdBundle, VERAID_MEMBER_KEY_PAIR.private)
 
             verify {
-                VeraidSignature.produce(
+                mockProcessor.produce(
                     any(),
                     mockMemberIdBundle,
                     any(),
@@ -97,12 +98,12 @@ class ContactPairingRequestTest {
 
         @Test
         fun `Specified private key should be used`() {
-            mockSignatureProducer(stubSignatureBundleSerialised)
+            val mockProcessor = mockSignatureProducer(stubSignatureBundleSerialised)
 
             request.serialise(mockMemberIdBundle, VERAID_MEMBER_KEY_PAIR.private)
 
             verify {
-                VeraidSignature.produce(
+                mockProcessor.produce(
                     any(),
                     any(),
                     VERAID_MEMBER_KEY_PAIR.private,
@@ -110,15 +111,17 @@ class ContactPairingRequestTest {
             }
         }
 
-        private fun mockSignatureProducer(signatureBundleSerialised: ByteArray) {
-            mockkObject(VeraidSignature)
+        private fun mockSignatureProducer(signatureBundleSerialised: ByteArray): VeraidSignatureProcessor {
+            val processor = mockk<VeraidSignatureProcessor>()
             every {
-                VeraidSignature.produce(
+                processor.produce(
                     any(),
                     any(),
                     any(),
                 )
             } returns signatureBundleSerialised
+            ContactPairingRequest.veraidSignatureProcessor = processor
+            return processor
         }
     }
 
@@ -137,12 +140,12 @@ class ContactPairingRequestTest {
 
         @Test
         fun `Specified serialisation should be verified`() = runTest {
-            mockSignatureVerifier(Result.success(stubVerification))
+            val mockProcessor = mockSignatureVerifier(Result.success(stubVerification))
 
             ContactPairingRequest.deserialise(stubSignatureBundleSerialised)
 
             coVerify {
-                VeraidSignature.verify(stubSignatureBundleSerialised)
+                mockProcessor.verify(stubSignatureBundleSerialised)
             }
         }
 
@@ -254,17 +257,19 @@ class ContactPairingRequestTest {
             }
         }
 
-        private fun mockSignatureVerifier(result: Result<SignatureBundleVerification>) {
-            mockkObject(VeraidSignature)
+        private fun mockSignatureVerifier(result: Result<SignatureBundleVerification>): VeraidSignatureProcessor {
+            val processor = mockk<VeraidSignatureProcessor>()
             if (result.isSuccess) {
                 coEvery {
-                    VeraidSignature.verify(any())
+                    processor.verify(any())
                 } returns result.getOrThrow()
             } else {
                 coEvery {
-                    VeraidSignature.verify(any())
+                    processor.verify(any())
                 } throws result.exceptionOrNull()!!
             }
+            ContactPairingRequest.veraidSignatureProcessor = processor
+            return processor
         }
     }
 }

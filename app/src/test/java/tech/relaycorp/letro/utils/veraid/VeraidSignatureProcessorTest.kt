@@ -8,7 +8,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.testing.veraid.VERAID_MEMBER_KEY_PAIR
@@ -25,42 +24,43 @@ import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 
-class VeraidSignatureTest {
+class VeraidSignatureProcessorTest {
     private val stubPlaintext = "plaintext".toByteArray()
 
     val ninetyDays = 90.days.toJavaDuration()
 
-
     @Nested
     inner class Produce {
-        private val stubSignatureBundleSerialised = "signature bundle".toByteArray()
+        private val stubSignatureBundle = "signature bundle".toByteArray()
         private val mockMemberIdBundle = mockk<MemberIdBundle>()
 
         @Test
         fun `Output should be a VeraId signature bundle`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
 
-            val bundleSerialised = VeraidSignature.produce(
+            val bundleSerialised = processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
             )
 
-            bundleSerialised shouldBe stubSignatureBundleSerialised
+            bundleSerialised shouldBe stubSignatureBundle
         }
 
         @Test
         fun `Plaintext should be encapsulated`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
 
-            VeraidSignature.produce(
+            processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
             )
 
             verify {
-                VeraidSignature.signatureBundleGenerator(
+                generator(
                     stubPlaintext,
                     any(),
                     any(),
@@ -74,16 +74,17 @@ class VeraidSignatureTest {
 
         @Test
         fun `Signature should be bound to the Letro VeraId service`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
 
-            VeraidSignature.produce(
+            processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
             )
 
             verify {
-                VeraidSignature.signatureBundleGenerator(
+                generator(
                     any(),
                     LetroOids.LETRO_VERAID_OID,
                     any(),
@@ -97,10 +98,11 @@ class VeraidSignatureTest {
 
         @Test
         fun `Signature should expire in 90 days`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
             val timeBefore = ZonedDateTime.now()
 
-            VeraidSignature.produce(
+            processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
@@ -108,7 +110,7 @@ class VeraidSignatureTest {
 
             val timeAfter = ZonedDateTime.now()
             verify {
-                VeraidSignature.signatureBundleGenerator(
+                generator(
                     any(),
                     any(),
                     any(),
@@ -124,16 +126,17 @@ class VeraidSignatureTest {
 
         @Test
         fun `Signature should be bound to the specified member bundle`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
 
-            VeraidSignature.produce(
+            processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
             )
 
             verify {
-                VeraidSignature.signatureBundleGenerator(
+                generator(
                     any(),
                     any(),
                     mockMemberIdBundle,
@@ -147,16 +150,17 @@ class VeraidSignatureTest {
 
         @Test
         fun `Signature should be produced with specified private key`() {
-            mockSignatureBundleGenerator(Result.success(stubSignatureBundleSerialised))
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
 
-            VeraidSignature.produce(
+            processor.produce(
                 stubPlaintext,
                 mockMemberIdBundle,
                 VERAID_MEMBER_KEY_PAIR.private,
             )
 
             verify {
-                VeraidSignature.signatureBundleGenerator(
+                generator(
                     any(),
                     any(),
                     any(),
@@ -171,10 +175,11 @@ class VeraidSignatureTest {
         @Test
         fun `Signature generation exceptions should be wrapped`() {
             val exc = SignatureException("test exception")
-            mockSignatureBundleGenerator(Result.failure(exc))
+            val generator = mockSignatureBundleGenerator(Result.failure(exc))
+            val processor = VeraidSignatureProcessor(generator)
 
             val exception = shouldThrow<VeraidSignatureException> {
-                VeraidSignature.produce(
+                processor.produce(
                     stubPlaintext,
                     mockMemberIdBundle,
                     VERAID_MEMBER_KEY_PAIR.private,
@@ -185,15 +190,15 @@ class VeraidSignatureTest {
             exception.cause shouldBe exc
         }
 
-        private fun mockSignatureBundleGenerator(result: Result<ByteArray>) {
-            VeraidSignature.signatureBundleGenerator = mockk()
+        private fun mockSignatureBundleGenerator(result: Result<ByteArray>): BundleGenerator {
+            val mockGenerator = mockk<BundleGenerator>()
             if (result.isSuccess) {
                 val mockSignatureBundle = mockk<SignatureBundle>()
                 every {
                     mockSignatureBundle.serialise()
                 } returns result.getOrThrow()
                 every {
-                    VeraidSignature.signatureBundleGenerator.invoke(
+                    mockGenerator(
                         any(),
                         any(),
                         any(),
@@ -205,7 +210,7 @@ class VeraidSignatureTest {
                 } returns mockSignatureBundle
             } else {
                 every {
-                    VeraidSignature.signatureBundleGenerator.invoke(
+                    mockGenerator(
                         any(),
                         any(),
                         any(),
@@ -216,6 +221,7 @@ class VeraidSignatureTest {
                     )
                 } throws result.exceptionOrNull()!!
             }
+            return mockGenerator
         }
     }
 
@@ -230,10 +236,11 @@ class VeraidSignatureTest {
         @Test
         fun `Malformed SignatureBundle should be refused`() = runTest {
             val exc = SignatureException("Malformed")
-            mockSignatureBundleDeserialiser(Result.failure(exc))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.failure(exc))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
 
             val exception = shouldThrow<VeraidSignatureException> {
-                VeraidSignature.verify(stubSignatureBundleSerialised)
+                processor.verify(stubSignatureBundleSerialised)
             }
 
             exception.message shouldBe "Failed to deserialise VeraId signature"
@@ -244,10 +251,11 @@ class VeraidSignatureTest {
         fun `Invalid SignatureBundle should be refused`() = runTest {
             val originalException = SignatureException("Invalid")
             val mockSignatureBundle = mockBundleVerifier(Result.failure(originalException))
-            mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
 
             val exception = shouldThrow<VeraidSignatureException> {
-                VeraidSignature.verify(stubSignatureBundleSerialised)
+                processor.verify(stubSignatureBundleSerialised)
             }
 
             exception.message shouldBe "Invalid VeraId signature"
@@ -257,9 +265,10 @@ class VeraidSignatureTest {
         @Test
         fun `Signature should be bound to the Letro VeraId service`() = runTest {
             val mockSignatureBundle = mockBundleVerifier(Result.success(stubVerification))
-            mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
 
-            VeraidSignature.verify(stubSignatureBundleSerialised)
+            processor.verify(stubSignatureBundleSerialised)
 
             coVerify {
                 mockSignatureBundle.verify(
@@ -273,10 +282,11 @@ class VeraidSignatureTest {
         @Test
         fun `Signature should have been valid in the past 90 days`() = runTest {
             val mockSignatureBundle = mockBundleVerifier(Result.success(stubVerification))
-            mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
             val timeBefore = ZonedDateTime.now()
 
-            VeraidSignature.verify(stubSignatureBundleSerialised)
+            processor.verify(stubSignatureBundleSerialised)
 
             val timeAfter = ZonedDateTime.now()
             coVerify {
@@ -285,9 +295,9 @@ class VeraidSignatureTest {
                     any(),
                     match<DatePeriod> {
                         timeBefore.minus(ninetyDays) <= it.start &&
-                                it.start <= timeAfter.minus(ninetyDays) &&
-                                it.endInclusive <= timeAfter &&
-                                timeBefore <= it.endInclusive
+                            it.start <= timeAfter.minus(ninetyDays) &&
+                            it.endInclusive <= timeAfter &&
+                            timeBefore <= it.endInclusive
                     },
                 )
             }
@@ -296,9 +306,10 @@ class VeraidSignatureTest {
         @Test
         fun `Encapsulated plaintext should be output`() = runTest {
             val mockSignatureBundle = mockBundleVerifier(Result.success(stubVerification))
-            mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
 
-            val verification = VeraidSignature.verify(stubSignatureBundleSerialised)
+            val verification = processor.verify(stubSignatureBundleSerialised)
 
             verification.plaintext shouldBe stubVerification.plaintext
         }
@@ -306,24 +317,26 @@ class VeraidSignatureTest {
         @Test
         fun `Signer should be output`() = runTest {
             val mockSignatureBundle = mockBundleVerifier(Result.success(stubVerification))
-            mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val deserialiser = mockSignatureBundleDeserialiser(Result.success(mockSignatureBundle))
+            val processor = VeraidSignatureProcessor(bundleDeserialiser = deserialiser)
 
-            val verification = VeraidSignature.verify(stubSignatureBundleSerialised)
+            val verification = processor.verify(stubSignatureBundleSerialised)
 
             verification.member shouldBe stubVerification.member
         }
 
-        private fun mockSignatureBundleDeserialiser(result: Result<SignatureBundle>) {
-            VeraidSignature.signatureBundleDeserialiser = mockk()
+        private fun mockSignatureBundleDeserialiser(result: Result<SignatureBundle>): BundleDeserialiser {
+            val deserialiser = mockk<BundleDeserialiser>()
             if (result.isSuccess) {
                 every {
-                    VeraidSignature.signatureBundleDeserialiser(any())
+                    deserialiser(any())
                 } returns result.getOrThrow()
             } else {
                 every {
-                    VeraidSignature.signatureBundleDeserialiser(any())
+                    deserialiser(any())
                 } throws result.exceptionOrNull()!!
             }
+            return deserialiser
         }
 
         private fun mockBundleVerifier(result: Result<SignatureBundleVerification>): SignatureBundle {
@@ -338,18 +351,6 @@ class VeraidSignatureTest {
                 } throws result.exceptionOrNull()!!
             }
             return mockSignatureBundle
-        }
-    }
-
-    companion object {
-        private val originalBundleGenerator = VeraidSignature.signatureBundleGenerator
-        private val originalBundleDeserialiser = VeraidSignature.signatureBundleDeserialiser
-
-        @JvmStatic
-        @AfterAll
-        fun restoreOriginalBundleFunction() {
-            VeraidSignature.signatureBundleGenerator = originalBundleGenerator
-            VeraidSignature.signatureBundleDeserialiser = originalBundleDeserialiser
         }
     }
 }

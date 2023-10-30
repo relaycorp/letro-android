@@ -5,8 +5,8 @@ import org.bouncycastle.asn1.ASN1UTF8String
 import org.bouncycastle.asn1.DERUTF8String
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import tech.relaycorp.letro.utils.asn1.ASN1Utils
-import tech.relaycorp.letro.utils.veraid.VeraidSignature
 import tech.relaycorp.letro.utils.veraid.VeraidSignatureException
+import tech.relaycorp.letro.utils.veraid.VeraidSignatureProcessor
 import tech.relaycorp.veraid.pki.MemberIdBundle
 import java.security.PrivateKey
 
@@ -23,14 +23,16 @@ class ContactPairingRequest(
             ),
             false,
         )
-        return VeraidSignature.produce(requestSerialised, veraidBundle, veraidPrivateKey)
+        return veraidSignatureProcessor.produce(requestSerialised, veraidBundle, veraidPrivateKey)
     }
 
     companion object {
+        var veraidSignatureProcessor = VeraidSignatureProcessor()
+
         @Throws(InvalidPairingRequestException::class)
         suspend fun deserialise(signatureBundleSerialised: ByteArray): Pair<String, ContactPairingRequest> {
             val (requestSerialised, member) = try {
-                VeraidSignature.verify(signatureBundleSerialised)
+                veraidSignatureProcessor.verify(signatureBundleSerialised)
             } catch (exc: VeraidSignatureException) {
                 throw InvalidPairingRequestException("Invalid VeraId signature", exc)
             }

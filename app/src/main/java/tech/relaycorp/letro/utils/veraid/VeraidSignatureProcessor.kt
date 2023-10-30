@@ -22,11 +22,11 @@ typealias BundleGenerator = (
 
 typealias BundleDeserialiser = (serialised: ByteArray) -> SignatureBundle
 
-object VeraidSignature {
-    private val SIGNATURE_BUNDLE_TTL = 90.days
-
-    var signatureBundleGenerator: BundleGenerator = SignatureBundle.Companion::generate
-    var signatureBundleDeserialiser: BundleDeserialiser = SignatureBundle.Companion::deserialise
+class VeraidSignatureProcessor(
+    private val bundleGenerator: BundleGenerator = SignatureBundle.Companion::generate,
+    private val bundleDeserialiser: BundleDeserialiser = SignatureBundle.Companion::deserialise,
+) {
+    private val bundleTtl = 90.days.toJavaDuration()
 
     @Throws(VeraidSignatureException::class)
     fun produce(
@@ -36,12 +36,12 @@ object VeraidSignature {
     ): ByteArray {
         val creationDate = ZonedDateTime.now()
         val signatureBundle = try {
-            signatureBundleGenerator(
+            bundleGenerator(
                 plaintext,
                 LetroOids.LETRO_VERAID_OID,
                 memberIdBundle,
                 memberPrivateKey,
-                creationDate.plus(SIGNATURE_BUNDLE_TTL.toJavaDuration()),
+                creationDate.plus(bundleTtl),
                 creationDate,
                 true,
             )
@@ -54,7 +54,7 @@ object VeraidSignature {
     @Throws(VeraidSignatureException::class)
     suspend fun verify(signatureBundleSerialised: ByteArray): SignatureBundleVerification {
         val signatureBundle = try {
-            signatureBundleDeserialiser(signatureBundleSerialised)
+            bundleDeserialiser(signatureBundleSerialised)
         } catch (exc: SignatureException) {
             throw VeraidSignatureException("Failed to deserialise VeraId signature", exc)
         }
@@ -63,7 +63,7 @@ object VeraidSignature {
             signatureBundle.verify(
                 null,
                 LetroOids.LETRO_VERAID_OID,
-                now.minus(SIGNATURE_BUNDLE_TTL.toJavaDuration())..now,
+                now.minus(bundleTtl)..now,
             )
         } catch (exc: SignatureException) {
             throw VeraidSignatureException("Invalid VeraId signature", exc)
