@@ -25,21 +25,29 @@ class ContactPairingMatchProcessor @Inject constructor(
             ownerVeraId = content.ownerVeraId,
             contactVeraId = content.contactVeraId,
         )
-        try {
-            val contactEndpointId = awalaManager.authorizeContact(content.contactEndpointPublicKey)
-            contact?.let {
-                contactsDao.update(
-                    contact.copy(
-                        contactEndpointId = contactEndpointId,
-                        status = ContactPairingStatus.MATCH,
-                    ),
-                )
-            }
-        } catch (e: AwaladroidException) {
-            contact?.let {
-                contactsDao.deleteContact(contact)
-                contactPairingNotificationManager.showFailedPairingNotification(contact)
-            }
+        if (contact == null) {
+            logger.w(TAG, "Contact ${content.contactVeraId} not found (account: ${content.ownerVeraId})")
+            return
         }
+        val contactEndpointId = try {
+            awalaManager.authorizeContact(content.contactEndpointPublicKey)
+        } catch (exc: AwaladroidException) {
+            contactsDao.deleteContact(contact)
+            contactPairingNotificationManager.showFailedPairingNotification(contact)
+            logger.e(TAG, "Failed to authorize contact", exc)
+            return
+        }
+
+        contactsDao.update(
+            contact.copy(
+                contactEndpointId = contactEndpointId,
+                status = ContactPairingStatus.MATCH,
+            ),
+        )
+        logger.i("ContactPairingMatchProcessor", "Contact authorized ($contact)")
+    }
+
+    companion object {
+        private const val TAG = "ContactPairingMatchProcessor"
     }
 }

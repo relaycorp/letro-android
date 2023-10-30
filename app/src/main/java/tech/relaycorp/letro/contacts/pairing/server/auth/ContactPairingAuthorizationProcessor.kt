@@ -23,7 +23,7 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
     ) {
         val nodeId = awalaManager.importPrivateThirdPartyAuth(content.authData)
 
-        Log.d(TAG, "Contact auth received.")
+        Log.d(TAG, "Contact auth received ($nodeId).")
         contactsDao.getContactsByContactEndpointId(
             contactEndpointId = nodeId,
         ).forEach { contact ->
