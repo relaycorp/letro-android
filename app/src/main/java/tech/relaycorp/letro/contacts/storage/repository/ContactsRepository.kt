@@ -89,8 +89,15 @@ class ContactsRepositoryImpl @Inject constructor(
 
         if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
             if (contact.isPrivateEndpoint) {
-                val account = accountRepository.getByVeraidId(contact.ownerVeraId)!!
-                val memberIdBundle = MemberIdBundle.deserialise(account.veraidMemberBundle!!)
+                val account = accountRepository.getByVeraidId(contact.ownerVeraId) ?: run {
+                    logger.w(TAG, "Account not found for VeraId ${contact.ownerVeraId}")
+                    return
+                }
+                val veraidMemberBundle = account.veraidMemberBundle ?: run {
+                    logger.w(TAG, "Account ${contact.ownerVeraId} has no member bundle")
+                    return
+                }
+                val memberIdBundle = MemberIdBundle.deserialise(veraidMemberBundle)
                 val request = ContactPairingRequest(
                     awalaManager.getFirstPartyPublicKey().encoded,
                     contact.contactVeraId,
