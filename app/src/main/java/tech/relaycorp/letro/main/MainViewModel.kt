@@ -84,7 +84,7 @@ class MainViewModel @Inject constructor(
         get() = _openFileSignal
 
     private val _rootNavigationScreen: MutableStateFlow<RootNavigationScreen> =
-        MutableStateFlow(RootNavigationScreen.Splash)
+        MutableStateFlow(RootNavigationScreen.AwalaInitializing)
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
     private val isAwalaInitialised = MutableStateFlow(false)
@@ -172,7 +172,7 @@ class MainViewModel @Inject constructor(
                     val lastRootNavigationScreen = _rootNavigationScreen.value
                     this@MainViewModel.rootNavigationScreenAlreadyHandled = true
 
-                    if (rootNavigationScreen != RootNavigationScreen.Splash && rootNavigationScreen != RootNavigationScreen.AwalaNotInstalled && rootNavigationScreen != RootNavigationScreen.AwalaInitializing && rootNavigationScreen !is RootNavigationScreen.AwalaInitializationError) {
+                    if (rootNavigationScreen != RootNavigationScreen.AwalaNotInstalled && rootNavigationScreen != RootNavigationScreen.AwalaInitializing && rootNavigationScreen !is RootNavigationScreen.AwalaInitializationError) {
                         isAwalaInitialised.emit(true)
                     }
 
