@@ -69,7 +69,6 @@ import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
-import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 import tech.relaycorp.letro.utils.ext.applyIf
 
 @Composable
@@ -80,9 +79,6 @@ fun ComposeNewMessageScreen(
     showSnackbar: (SnackbarString) -> Unit,
     viewModel: ComposeNewMessageViewModel = hiltViewModel(),
 ) {
-    DoOnLifecycleEvent(
-        onResume = { viewModel.onScreenResumed() },
-    )
     val uiState by viewModel.uiState.collectAsState()
     val messageExceedsLimitError = uiState.messageExceedsLimitTextError
     val suggestedContacts = uiState.suggestedContacts
