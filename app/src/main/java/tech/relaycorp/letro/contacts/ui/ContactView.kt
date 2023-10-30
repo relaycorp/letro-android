@@ -35,7 +35,7 @@ fun ContactView(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (contact.alias != null) 64.dp else 56.dp)
+            .height(if (contact.alias != null) 67.dp else 56.dp)
             .clickable {
                 onClick()
             }
