@@ -706,7 +706,7 @@ private fun showSnackbar(
         val result = snackbarHostState.showSnackbar(
             message = message,
             actionLabel = actionLabel,
-            duration = SnackbarDuration.Indefinite,
+            duration = SnackbarDuration.Short,
         )
         if (result == SnackbarResult.ActionPerformed) {
             onActionPerformed()
