@@ -9,7 +9,7 @@ import tech.relaycorp.letro.utils.models.contact.createContact
 import tech.relaycorp.letro.utils.models.conversation.createConversation
 import tech.relaycorp.letro.utils.models.conversation.createExtendedConversationConverter
 import tech.relaycorp.letro.utils.models.conversation.createMessage
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
 import java.util.UUID
 
 class ContactSuggestsManagerTest {
@@ -54,17 +54,17 @@ class ContactSuggestsManagerTest {
         val messageFromLatest = createMessage(
             conversationId = latestConversation.conversationId,
             recipientVeraId = latestConversation.contactVeraId,
-            sentAt = LocalDateTime.now(),
+            sentAtUtc = nowUTC(),
         )
         val messageFromSecond = createMessage(
             conversationId = conversationSecond.conversationId,
             recipientVeraId = conversationSecond.contactVeraId,
-            sentAt = LocalDateTime.now().minusDays(1L),
+            sentAtUtc = nowUTC().minusDays(1L),
         )
         val messageFromThird = createMessage(
             conversationId = conversationThird.conversationId,
             recipientVeraId = conversationThird.contactVeraId,
-            sentAt = LocalDateTime.now().minusDays(3L),
+            sentAtUtc = nowUTC().minusDays(3L),
         )
         val messages = listOf(messageFromLatest, messageFromSecond, messageFromThird)
 

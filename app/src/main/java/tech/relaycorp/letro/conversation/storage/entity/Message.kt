@@ -3,7 +3,7 @@ package tech.relaycorp.letro.conversation.storage.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 const val TABLE_NAME_MESSAGES = "messages"
@@ -26,7 +26,7 @@ const val TABLE_NAME_MESSAGES = "messages"
  * @param ownerVeraId - ID of the account, which this conversation belongs to (for display this message only for a particular account)
  * @param recipientVeraId - the ID of the recipient of the message
  * @param senderVeraId - the ID of the sender of the message
- * @param sentAt - timestamp where this message was sent (or received)
+ * @param sentAtUtc - timestamp where this message was sent (or received)
  */
 data class Message(
     @PrimaryKey(autoGenerate = true)
@@ -36,5 +36,5 @@ data class Message(
     val ownerVeraId: String,
     val recipientVeraId: String,
     val senderVeraId: String,
-    val sentAt: LocalDateTime,
+    val sentAtUtc: ZonedDateTime,
 )

@@ -5,6 +5,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.storage.entity.Notification
 import tech.relaycorp.letro.notification.storage.entity.NotificationType
+import tech.relaycorp.letro.utils.time.toSystemTimeZone
 import javax.inject.Inject
 
 interface ExtendedNotificationConverter {
@@ -22,7 +23,7 @@ class ExtendedNotificationConverterImpl @Inject constructor(
             ownerId = notification.ownerId,
             upperText = getUpperText(notification.type),
             bottomText = notification.contactVeraId,
-            date = dateFormatter.format(notification.timestamp),
+            date = dateFormatter.format(notification.timestampUtc.toSystemTimeZone()),
             isRead = notification.isRead,
         )
     }
