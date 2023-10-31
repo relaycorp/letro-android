@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.AccountStatus
+import tech.relaycorp.letro.ui.common.shimmer.Shimmer
 import tech.relaycorp.letro.ui.theme.LetroColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +34,8 @@ import tech.relaycorp.letro.ui.theme.LetroColor
 fun LetroTopBar(
     accountVeraId: String,
     @AccountStatus accountStatus: Int,
+    domain: String,
+    showAccountIdAsShimmer: Boolean,
     modifier: Modifier = Modifier,
     onChangeAccountClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
@@ -46,17 +51,41 @@ fun LetroTopBar(
                         .clickable { onChangeAccountClicked() },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = accountVeraId,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = LetroColor.OnSurfaceContainerHigh,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        modifier = Modifier.weight(
-                            weight = 1f,
-                            fill = false,
-                        ),
-                    )
+                    if (showAccountIdAsShimmer) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Shimmer(
+                                shape = RoundedCornerShape(2.dp),
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .size(72.dp, 20.dp),
+                            )
+                            Text(
+                                text = "@$domain",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = LetroColor.OnSurfaceContainerHigh,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                modifier = Modifier.weight(
+                                    weight = 1f,
+                                    fill = false,
+                                ),
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = accountVeraId,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = LetroColor.OnSurfaceContainerHigh,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier.weight(
+                                weight = 1f,
+                                fill = false,
+                            ),
+                        )
+                    }
                     when (accountStatus) {
                         AccountStatus.CREATION_WAITING, AccountStatus.LINKING_WAITING -> {
                             Spacer(modifier = Modifier.width(6.dp))
