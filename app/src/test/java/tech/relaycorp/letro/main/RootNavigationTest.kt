@@ -91,7 +91,7 @@ class RootNavigationTest {
             contactsRepository = contactsRepository,
             mainDispatcher = dispatcher,
         )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro(withAnimation = false)
     }
 
     @Test
