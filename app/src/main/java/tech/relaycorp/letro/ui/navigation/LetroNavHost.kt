@@ -62,7 +62,7 @@ import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
 import tech.relaycorp.letro.contacts.ui.NoContactsScreen
-import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
+import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
 import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
@@ -91,13 +91,13 @@ fun LetroNavHost(
     onGoToNotificationsSettingsClick: () -> Unit,
     onOpenAwalaClick: () -> Unit,
     mainViewModel: MainViewModel,
-    shareAttachmentsRepository: ShareAttachmentsRepository,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val systemUiController: SystemUiController = rememberSystemUiController()
+
     var currentRoute: Route by remember { mutableStateOf(Route.AwalaInitializing) }
 
     val uiState by mainViewModel.uiState.collectAsState()
@@ -204,19 +204,17 @@ fun LetroNavHost(
                         }
                         is Action.OpenComposeNewMessage -> {
                             if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
-                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
                                 Log.w(TAG, "Account is not created, so files can't be shared")
                                 return@withContext
                             }
                             if (!uiState.canSendMessages) { // TODO: move this check to the caller, and remove dependency on repository here!
-                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
                                 Log.w(TAG, "User cannot send messages, so files can't be shared")
                                 return@withContext
                             }
                             navController.navigate(
                                 Route.CreateNewMessage.getRouteName(
                                     screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
-                                    withAttachedFiles = true,
+                                    attachments = action.attachments,
                                     contactId = action.contactId ?: Route.CreateNewMessage.NO_ID,
                                 ),
                             )
@@ -520,7 +518,7 @@ fun LetroNavHost(
                         composable(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
-                                "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
+                                "&${Route.CreateNewMessage.KEY_ATTACHMENTS}={${Route.CreateNewMessage.KEY_ATTACHMENTS}}" +
                                 "&${Route.CreateNewMessage.KEY_CONTACT_ID}={${Route.CreateNewMessage.KEY_CONTACT_ID}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
@@ -537,6 +535,11 @@ fun LetroNavHost(
                                     type = NavType.LongType
                                     nullable = false
                                     defaultValue = Route.CreateNewMessage.NO_ID
+                                },
+                                navArgument(Route.CreateNewMessage.KEY_ATTACHMENTS) {
+                                    type = GsonAttachments.NavType
+                                    nullable = false
+                                    defaultValue = GsonAttachments(emptyList())
                                 },
                             ),
                         ) {

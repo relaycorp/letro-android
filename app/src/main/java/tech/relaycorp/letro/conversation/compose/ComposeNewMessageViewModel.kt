@@ -24,11 +24,10 @@ import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
+import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileSizeExceedsLimitException
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
-import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
@@ -56,7 +55,6 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
-    private val shareAttachmentsRepository: ShareAttachmentsRepository,
     private val contactSuggestsManager: ContactSuggestsManager,
     @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
 ) : BaseViewModel() {
@@ -66,6 +64,9 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val conversation: ExtendedConversation? =
         (savedStateHandle.get(Route.CreateNewMessage.KEY_CONVERSATION_ID) as? String)
             ?.let { conversationsRepository.getConversation(it) }
+    private val attachmentsFromArgs by lazy {
+        savedStateHandle.get<GsonAttachments>(Route.CreateNewMessage.KEY_ATTACHMENTS)
+    }
 
     private val _uiState = MutableStateFlow(
         NewMessageUiState(
@@ -77,6 +78,7 @@ class ComposeNewMessageViewModel @Inject constructor(
             showRecipientAsChip = conversation != null,
             isOnlyTextEditale = conversation != null,
             isSendButtonEnabled = conversation?.contactVeraId != null,
+            messageText = attachmentsFromArgs?.strings?.map { it.value }?.joinToString("\n") ?: "",
         ),
     )
     val uiState: StateFlow<NewMessageUiState>
@@ -113,10 +115,11 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun onScreenResumed() {
-        shareAttachmentsRepository.getAttachmentsToShareOnce().forEach(::addAttachmentFromIntent)
+        viewModelScope.launch(Dispatchers.IO) {
+            savedStateHandle.get<GsonAttachments>(Route.CreateNewMessage.KEY_ATTACHMENTS)?.let {
+                it.files.forEach { onFilePickerResult(Uri.parse(it.uri)) }
+            }
+        }
     }
 
     fun onFilePickerResult(uri: Uri?) {
@@ -320,17 +323,6 @@ class ComposeNewMessageViewModel @Inject constructor(
     fun onConfirmDiscardingClick() {
         _uiState.update { it.copy(isConfirmDiscardingDialogVisible = false) }
         _goBackSignal.emitOn(Unit, viewModelScope)
-    }
-
-    private fun addAttachmentFromIntent(attachmentToShare: AttachmentToShare) {
-        when (attachmentToShare) {
-            is AttachmentToShare.File -> onFilePickerResult(Uri.parse(attachmentToShare.uri))
-            is AttachmentToShare.String -> _uiState.update {
-                it.copy(
-                    messageText = it.messageText + if (it.messageText.isNotEmptyOrBlank()) "\n${attachmentToShare.value}" else attachmentToShare.value,
-                )
-            }
-        }
     }
 
     private fun updateRecipientIsNotYourContactError() {

@@ -2,6 +2,8 @@ package tech.relaycorp.letro.ui.navigation
 
 import androidx.annotation.IntDef
 import tech.relaycorp.letro.contacts.ManageContactViewModel
+import tech.relaycorp.letro.conversation.attachments.dto.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.utils.ext.encodeToUTF
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -144,19 +146,19 @@ sealed class Route(
     ) {
         const val KEY_SCREEN_TYPE = "screen_type"
         const val KEY_CONVERSATION_ID = "conversation_id"
-        const val KEY_WITH_ATTACHED_FILES = "with_attached_files"
+        const val KEY_ATTACHMENTS = "attachments"
         const val KEY_CONTACT_ID = "contact_id"
         const val NO_ID = -1L
 
         fun getRouteName(
             @ComposeNewMessageViewModel.ScreenType screenType: Int,
-            withAttachedFiles: Boolean = false,
+            attachments: List<AttachmentToShare> = emptyList(),
             contactId: Long = NO_ID,
             conversationId: String? = null,
         ) =
             "${CreateNewMessage.name}?" +
                 "$KEY_SCREEN_TYPE=$screenType" +
-                "&$KEY_WITH_ATTACHED_FILES=$withAttachedFiles" +
+                "&$KEY_ATTACHMENTS=${GsonAttachments.from(attachments)}" +
                 "&$KEY_CONTACT_ID=$contactId" +
                 if (conversationId != null) "&$KEY_CONVERSATION_ID=$conversationId" else ""
     }

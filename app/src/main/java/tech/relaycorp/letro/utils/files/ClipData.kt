@@ -2,7 +2,7 @@ package tech.relaycorp.letro.utils.files
 
 import android.content.ClipData
 import android.util.Log
-import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.dto.AttachmentToShare
 
 fun ClipData.toAttachmentsToShare(): List<AttachmentToShare> {
     val result = arrayListOf<AttachmentToShare>()
