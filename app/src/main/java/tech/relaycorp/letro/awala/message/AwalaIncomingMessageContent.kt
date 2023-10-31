@@ -39,7 +39,6 @@ sealed interface AwalaIncomingMessageContent {
     class ContactPairingMatch(
         val ownerVeraId: String,
         val contactVeraId: String,
-        val contactEndpointId: String,
         val contactEndpointPublicKey: ByteArray,
     ) : AwalaIncomingMessageContent
 

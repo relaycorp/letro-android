@@ -62,7 +62,7 @@ import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
 import tech.relaycorp.letro.contacts.ui.NoContactsScreen
-import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
+import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
 import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
@@ -75,7 +75,6 @@ import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
-import tech.relaycorp.letro.ui.common.SplashScreen
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -92,14 +91,14 @@ fun LetroNavHost(
     onGoToNotificationsSettingsClick: () -> Unit,
     onOpenAwalaClick: () -> Unit,
     mainViewModel: MainViewModel,
-    shareAttachmentsRepository: ShareAttachmentsRepository,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val systemUiController: SystemUiController = rememberSystemUiController()
-    var currentRoute: Route by remember { mutableStateOf(Route.Splash) }
+
+    var currentRoute: Route by remember { mutableStateOf(Route.AwalaInitializing) }
 
     val uiState by mainViewModel.uiState.collectAsState()
 
@@ -130,7 +129,7 @@ fun LetroNavHost(
                 )
                 mainViewModel.onRootNavigationScreenHandled(firstNavigation)
             }
-            if (firstNavigation != RootNavigationScreen.Splash && firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
+            if (firstNavigation != RootNavigationScreen.AwalaNotInstalled && firstNavigation != RootNavigationScreen.AwalaInitializing && firstNavigation !is RootNavigationScreen.AwalaInitializationError) {
                 isAwalaInitialized = true
             }
         }
@@ -205,19 +204,17 @@ fun LetroNavHost(
                         }
                         is Action.OpenComposeNewMessage -> {
                             if (uiState.currentAccount == null || uiState.accountStatus != AccountStatus.CREATED) {
-                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
                                 Log.w(TAG, "Account is not created, so files can't be shared")
                                 return@withContext
                             }
                             if (!uiState.canSendMessages) { // TODO: move this check to the caller, and remove dependency on repository here!
-                                shareAttachmentsRepository.shareAttachmentsLater(emptyList())
                                 Log.w(TAG, "User cannot send messages, so files can't be shared")
                                 return@withContext
                             }
                             navController.navigate(
                                 Route.CreateNewMessage.getRouteName(
                                     screenType = ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
-                                    withAttachedFiles = true,
+                                    attachments = action.attachments,
                                     contactId = action.contactId ?: Route.CreateNewMessage.NO_ID,
                                 ),
                             )
@@ -261,7 +258,7 @@ fun LetroNavHost(
                     }
                     NavHost(
                         navController = navController,
-                        startDestination = Route.Splash.name,
+                        startDestination = Route.AwalaInitializing.name,
                     ) {
                         composable(Route.AwalaNotInstalled.name) {
                             AwalaNotInstalledScreen(
@@ -317,9 +314,6 @@ fun LetroNavHost(
                                 type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
                                 onOpenAwalaClick = onOpenAwalaClick,
                             )
-                        }
-                        composable(Route.Splash.name) {
-                            SplashScreen()
                         }
                         composable(
                             route = Route.Registration.name +
@@ -524,7 +518,7 @@ fun LetroNavHost(
                         composable(
                             route = Route.CreateNewMessage.name +
                                 "?${Route.CreateNewMessage.KEY_SCREEN_TYPE}={${Route.CreateNewMessage.KEY_SCREEN_TYPE}}" +
-                                "&${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}={${Route.CreateNewMessage.KEY_WITH_ATTACHED_FILES}}" +
+                                "&${Route.CreateNewMessage.KEY_ATTACHMENTS}={${Route.CreateNewMessage.KEY_ATTACHMENTS}}" +
                                 "&${Route.CreateNewMessage.KEY_CONTACT_ID}={${Route.CreateNewMessage.KEY_CONTACT_ID}}" +
                                 "&${Route.CreateNewMessage.KEY_CONVERSATION_ID}={${Route.CreateNewMessage.KEY_CONVERSATION_ID}}",
                             arguments = listOf(
@@ -541,6 +535,11 @@ fun LetroNavHost(
                                     type = NavType.LongType
                                     nullable = false
                                     defaultValue = Route.CreateNewMessage.NO_ID
+                                },
+                                navArgument(Route.CreateNewMessage.KEY_ATTACHMENTS) {
+                                    type = GsonAttachments.NavType
+                                    nullable = false
+                                    defaultValue = GsonAttachments(emptyList())
                                 },
                             ),
                         ) {
@@ -706,7 +705,7 @@ private fun showSnackbar(
         val result = snackbarHostState.showSnackbar(
             message = message,
             actionLabel = actionLabel,
-            duration = SnackbarDuration.Indefinite,
+            duration = SnackbarDuration.Short,
         )
         if (result == SnackbarResult.ActionPerformed) {
             onActionPerformed()

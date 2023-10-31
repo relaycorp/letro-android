@@ -17,6 +17,8 @@ import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.LoggerImpl
 import tech.relaycorp.letro.utils.navigation.UriToActionConverter
 import tech.relaycorp.letro.utils.navigation.UriToActionConverterImpl
+import tech.relaycorp.letro.utils.time.DeviceTimeChangedProvider
+import tech.relaycorp.letro.utils.time.DeviceTimeChangedProviderImpl
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -65,6 +67,12 @@ object AndroidModule {
         fun bindUriToActionConverter(
             impl: UriToActionConverterImpl,
         ): UriToActionConverter
+
+        @Binds
+        @Singleton
+        fun bindDeviceTimeChangedProvider(
+            impl: DeviceTimeChangedProviderImpl,
+        ): DeviceTimeChangedProvider
     }
 }
 

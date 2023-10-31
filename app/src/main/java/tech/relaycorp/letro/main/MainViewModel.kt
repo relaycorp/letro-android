@@ -1,14 +1,10 @@
-@file:OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
-
 package tech.relaycorp.letro.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -30,10 +26,9 @@ import tech.relaycorp.letro.awala.AwalaInitializationState
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
+import tech.relaycorp.letro.conversation.attachments.dto.AttachmentToShare
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
-import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.MainViewModelActionProcessorThread
 import tech.relaycorp.letro.main.di.RootNavigationDebounceMs
@@ -59,7 +54,6 @@ class MainViewModel @Inject constructor(
     private val fileConverter: FileConverter,
     private val conversationsRepository: ConversationsRepository,
     private val uriToActionConverter: UriToActionConverter,
-    private val shareAttachmentsRepository: ShareAttachmentsRepository,
     private val logger: Logger,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @MainViewModelActionProcessorThread private val actionProcessorThread: CoroutineContext,
@@ -84,7 +78,7 @@ class MainViewModel @Inject constructor(
         get() = _openFileSignal
 
     private val _rootNavigationScreen: MutableStateFlow<RootNavigationScreen> =
-        MutableStateFlow(RootNavigationScreen.Splash)
+        MutableStateFlow(RootNavigationScreen.AwalaInitializing)
     val rootNavigationScreen: StateFlow<RootNavigationScreen> get() = _rootNavigationScreen
 
     private val isAwalaInitialised = MutableStateFlow(false)
@@ -172,7 +166,7 @@ class MainViewModel @Inject constructor(
                     val lastRootNavigationScreen = _rootNavigationScreen.value
                     this@MainViewModel.rootNavigationScreenAlreadyHandled = true
 
-                    if (rootNavigationScreen != RootNavigationScreen.Splash && rootNavigationScreen != RootNavigationScreen.AwalaNotInstalled && rootNavigationScreen != RootNavigationScreen.AwalaInitializing && rootNavigationScreen !is RootNavigationScreen.AwalaInitializationError) {
+                    if (rootNavigationScreen != RootNavigationScreen.AwalaNotInstalled && rootNavigationScreen != RootNavigationScreen.AwalaInitializing && rootNavigationScreen !is RootNavigationScreen.AwalaInitializationError) {
                         isAwalaInitialised.emit(true)
                     }
 
@@ -246,7 +240,6 @@ class MainViewModel @Inject constructor(
         files: List<AttachmentToShare>,
         contactId: Long? = null,
     ) {
-        shareAttachmentsRepository.shareAttachmentsLater(files)
         onNewAction(
             action = Action.OpenComposeNewMessage(
                 attachments = files,

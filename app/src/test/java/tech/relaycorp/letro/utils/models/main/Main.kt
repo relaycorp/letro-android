@@ -40,7 +40,6 @@ fun createMainViewModel(
     termsAndConditionsLink = "https://terms_and_conditions",
     logger = createLogger(),
     uriToActionConverter = mockk(),
-    shareAttachmentsRepository = mockk(),
     rootNavigationDebounceMs = 0L,
     mainDispatcher = mainDispatcher,
     actionProcessorThread = UnconfinedTestDispatcher(),

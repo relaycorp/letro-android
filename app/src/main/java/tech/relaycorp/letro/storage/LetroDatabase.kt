@@ -15,7 +15,7 @@ import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
 import tech.relaycorp.letro.notification.storage.entity.Notification
-import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
+import tech.relaycorp.letro.storage.converter.ZonedDateTimeConverter
 
 @Database(
     entities = [
@@ -30,7 +30,7 @@ import tech.relaycorp.letro.storage.converter.LocalDateTimeConverter
     exportSchema = true,
 )
 @TypeConverters(
-    LocalDateTimeConverter::class,
+    ZonedDateTimeConverter::class,
 )
 abstract class LetroDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao

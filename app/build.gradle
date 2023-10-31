@@ -76,13 +76,13 @@ dependencies {
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
 
     // Awala-powered messaging
-    implementation 'com.github.relaycorp:awala-endpoint-android:1.14.3'
+    implementation 'com.github.relaycorp:awala-endpoint-android:1.15.0'
     def bouncy_castle_version = "1.70"
     implementation "org.bouncycastle:bcprov-jdk15on:$bouncy_castle_version"
     implementation "org.bouncycastle:bcpkix-jdk15on:$bouncy_castle_version"
 
     // VeraId
-    implementation 'tech.relaycorp:veraid:1.10.4'
+    implementation 'tech.relaycorp:veraid:1.11.2'
 
     // Compose
     implementation platform('androidx.compose:compose-bom:2023.10.00')
@@ -119,7 +119,7 @@ dependencies {
     def accompanist_permissions_version = "0.32.0"
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_permissions_version"
 
-    implementation "com.airbnb.android:lottie-compose:6.0.1"
+    implementation "com.airbnb.android:lottie-compose:6.1.0"
 
     // Firebase:
     implementation(platform("com.google.firebase:firebase-bom:32.4.1"))

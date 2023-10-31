@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.ui.navigation
 
 sealed interface RootNavigationScreen {
-    object Splash : RootNavigationScreen
     object Registration : RootNavigationScreen
     object AccountCreationWaiting : RootNavigationScreen
     object AccountLinkingWaiting : RootNavigationScreen
@@ -16,9 +15,6 @@ sealed interface RootNavigationScreen {
     object AwalaInitializing : RootNavigationScreen
 
     fun toRoute() = when (this) {
-        Splash -> {
-            Route.Splash
-        }
         Registration -> {
             Route.Registration
         }

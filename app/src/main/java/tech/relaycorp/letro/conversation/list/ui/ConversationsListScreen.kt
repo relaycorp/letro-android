@@ -46,7 +46,7 @@ import tech.relaycorp.letro.ui.theme.BodyMediumProminent
 import tech.relaycorp.letro.ui.theme.LabelSmallProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
-import java.time.LocalDateTime
+import tech.relaycorp.letro.utils.time.nowUTC
 import java.util.UUID
 
 @Composable
@@ -296,7 +296,7 @@ fun Conversation_Preview() {
         text = "Hello man!",
         sentAtBriefFormatted = "15 Aug",
         sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
-        sentAt = LocalDateTime.now(),
+        sentAtUtc = nowUTC(),
     )
     Column {
         Conversation(
@@ -306,7 +306,7 @@ fun Conversation_Preview() {
                 contactVeraId = "contact@vera.id",
                 contactDisplayName = "Alias",
                 subject = "Subject Preview",
-                lastMessageTimestamp = System.currentTimeMillis(),
+                lastMessageSentAtUtc = message.sentAtUtc,
                 isRead = false,
                 lastMessageFormattedTimestamp = "01:03 PM",
                 lastMessage = message,
@@ -329,7 +329,7 @@ fun Conversation_Preview() {
                 contactVeraId = "contact@vera.id",
                 contactDisplayName = "Alias",
                 subject = "Subject Preview",
-                lastMessageTimestamp = System.currentTimeMillis(),
+                lastMessageSentAtUtc = message.sentAtUtc,
                 isRead = true,
                 lastMessageFormattedTimestamp = "01:03 PM",
                 lastMessage = message,
@@ -354,7 +354,7 @@ fun Conversation_Preview() {
                 contactVeraId = "contact@vera.id",
                 contactDisplayName = "Alias",
                 subject = "Very long subject. So long, that it doesn't fit on the screen at all",
-                lastMessageTimestamp = System.currentTimeMillis(),
+                lastMessageSentAtUtc = message.sentAtUtc,
                 isRead = true,
                 lastMessageFormattedTimestamp = "01:03 PM",
                 lastMessage = message,

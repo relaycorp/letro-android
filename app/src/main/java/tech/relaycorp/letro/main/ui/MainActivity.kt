@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.contacts.suggest.shortcut.EXTRA_SHORTCUT_ID
-import tech.relaycorp.letro.conversation.attachments.sharing.ShareAttachmentsRepository
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.push.KEY_PUSH_ACTION
 import tech.relaycorp.letro.ui.navigation.Action
@@ -40,10 +39,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var stringsProvider: StringsProvider
 
-    @Inject
-    // TODO: move this check to the caller, and remove dependency on repository here! (see LetroNavHost usage of this repository)
-    lateinit var shareAttachmentsRepository: ShareAttachmentsRepository
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Letro)
         super.onCreate(savedInstanceState)
@@ -60,7 +55,6 @@ class MainActivity : ComponentActivity() {
                         onGoToNotificationsSettingsClick = { goToNotificationSettings() },
                         onOpenAwalaClick = { openAwala() },
                         mainViewModel = viewModel,
-                        shareAttachmentsRepository = shareAttachmentsRepository,
                     )
                 }
             }

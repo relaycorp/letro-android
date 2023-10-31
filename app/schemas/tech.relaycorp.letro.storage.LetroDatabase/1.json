@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "eab0fd84916a370f057a48648ad571e4",
+    "identityHash": "efc86cc0ec24823ddb07af8352156daf",
     "entities": [
       {
         "tableName": "account",
@@ -258,7 +258,7 @@
       },
       {
         "tableName": "messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAt` TEXT NOT NULL, FOREIGN KEY(`conversationId`) REFERENCES `conversations`(`conversationId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `conversationId` BLOB NOT NULL, `text` TEXT NOT NULL, `ownerVeraId` TEXT NOT NULL, `recipientVeraId` TEXT NOT NULL, `senderVeraId` TEXT NOT NULL, `sentAtUtc` TEXT NOT NULL, FOREIGN KEY(`conversationId`) REFERENCES `conversations`(`conversationId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -297,8 +297,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "sentAt",
-            "columnName": "sentAt",
+            "fieldPath": "sentAtUtc",
+            "columnName": "sentAtUtc",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -326,7 +326,7 @@
       },
       {
         "tableName": "notifications",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` TEXT NOT NULL, `type` INTEGER NOT NULL, `contactVeraId` TEXT NOT NULL, `timestamp` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `infoSpecificForNotificationType` TEXT, FOREIGN KEY(`ownerId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` TEXT NOT NULL, `type` INTEGER NOT NULL, `contactVeraId` TEXT NOT NULL, `timestampUtc` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `infoSpecificForNotificationType` TEXT, FOREIGN KEY(`ownerId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -353,8 +353,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
+            "fieldPath": "timestampUtc",
+            "columnName": "timestampUtc",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -446,7 +446,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eab0fd84916a370f057a48648ad571e4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'efc86cc0ec24823ddb07af8352156daf')"
     ]
   }
 }

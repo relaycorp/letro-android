@@ -2,7 +2,7 @@ package tech.relaycorp.letro.ui.navigation
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import tech.relaycorp.letro.conversation.attachments.sharing.AttachmentToShare
+import tech.relaycorp.letro.conversation.attachments.dto.AttachmentToShare
 
 sealed interface Action : Parcelable {
 

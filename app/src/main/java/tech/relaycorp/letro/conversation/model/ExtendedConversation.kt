@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.conversation.model
 
+import java.time.ZonedDateTime
 import java.util.UUID
 
 data class ExtendedConversation(
@@ -8,7 +9,7 @@ data class ExtendedConversation(
     val contactVeraId: String,
     val contactDisplayName: String,
     val subject: String?,
-    val lastMessageTimestamp: Long,
+    val lastMessageSentAtUtc: ZonedDateTime,
     val lastMessageFormattedTimestamp: String,
     val lastMessage: ExtendedMessage,
     val isRead: Boolean,
