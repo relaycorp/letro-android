@@ -89,7 +89,7 @@ fun ManageContactScreen(
             ManageContactScreenContent.REQUEST_SENT -> {
                 if (!notificationsPermissionState.status.isGranted && uiState.showNotificationPermissionRequestIfNoPermission) {
                     ActionTakingScreen(
-                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSentWithPermissionRequest(
+                        model = ActionTakingScreenUIStateModel.PairingRequestSentWithPermissionRequest(
                             onRequestPermissionClick = {
                                 notificationsPermissionState.launchPermissionRequest()
                             },
@@ -101,7 +101,7 @@ fun ManageContactScreen(
                     )
                 } else {
                     ActionTakingScreen(
-                        actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.PairingRequestSent(
+                        model = ActionTakingScreenUIStateModel.PairingRequestSent(
                             boldPartOfMessage = uiState.accountId,
                             onGotItClicked = {
                                 viewModel.onGotItClick()

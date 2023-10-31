@@ -5,7 +5,9 @@ sealed interface RootNavigationScreen {
     object AccountCreationWaiting : RootNavigationScreen
     object AccountLinkingWaiting : RootNavigationScreen
     object AccountCreationFailed : RootNavigationScreen
-    object WelcomeToLetro : RootNavigationScreen
+    data class WelcomeToLetro(
+        val withAnimation: Boolean = false,
+    ) : RootNavigationScreen
     object NoContactsScreen : RootNavigationScreen
     object Home : RootNavigationScreen
     object AwalaNotInstalled : RootNavigationScreen
@@ -31,8 +33,8 @@ sealed interface RootNavigationScreen {
             Route.NoContacts
         }
 
-        WelcomeToLetro -> {
-            Route.WelcomeToLetro
+        is WelcomeToLetro -> {
+            Route.WelcomeToLetro(withAnimation = this.withAnimation)
         }
 
         AccountCreationWaiting -> {

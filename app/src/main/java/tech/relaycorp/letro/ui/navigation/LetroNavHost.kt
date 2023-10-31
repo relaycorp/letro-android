@@ -47,7 +47,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.SwitchAccountViewModel
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
@@ -62,6 +61,7 @@ import tech.relaycorp.letro.contacts.ManageContactViewModel
 import tech.relaycorp.letro.contacts.ui.ContactsScreenOverlayFloatingMenu
 import tech.relaycorp.letro.contacts.ui.ManageContactScreen
 import tech.relaycorp.letro.contacts.ui.NoContactsScreen
+import tech.relaycorp.letro.contacts.ui.WelcomeToLetroScreen
 import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
@@ -347,27 +347,39 @@ fun LetroNavHost(
                         }
                         composable(Route.AccountCreationFailed.name) {
                             ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountCreationFailed(
+                                model = ActionTakingScreenUIStateModel.AccountCreationFailed(
                                     domain = uiState.domain ?: "",
                                 ),
                             )
                         }
-                        composable(Route.WelcomeToLetro.name) {
-                            ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.NoContacts(
-                                    title = R.string.onboarding_account_confirmation,
-                                    image = R.drawable.account_created,
-                                    onPairWithOthersClick = {
-                                        navController.navigate(
-                                            Route.ManageContact.getRouteName(
-                                                screenType = ManageContactViewModel.Type.NEW_CONTACT,
-                                            ),
-                                        )
-                                    },
-                                    onShareIdClick = {
-                                        mainViewModel.onShareIdClick()
-                                    },
-                                ),
+                        composable("${Route.WelcomeToLetro.ROUTE_NAME_PREFIX}${true}") {
+                            WelcomeToLetroScreen(
+                                withConfettiAnimation = true,
+                                onPairWithOthersClick = {
+                                    navController.navigate(
+                                        Route.ManageContact.getRouteName(
+                                            screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                        ),
+                                    )
+                                },
+                                onShareIdClick = {
+                                    mainViewModel.onShareIdClick()
+                                },
+                            )
+                        }
+                        composable("${Route.WelcomeToLetro.ROUTE_NAME_PREFIX}${false}") {
+                            WelcomeToLetroScreen(
+                                withConfettiAnimation = false,
+                                onPairWithOthersClick = {
+                                    navController.navigate(
+                                        Route.ManageContact.getRouteName(
+                                            screenType = ManageContactViewModel.Type.NEW_CONTACT,
+                                        ),
+                                    )
+                                },
+                                onShareIdClick = {
+                                    mainViewModel.onShareIdClick()
+                                },
                             )
                         }
                         composable(Route.NoContacts.name) {
@@ -386,12 +398,12 @@ fun LetroNavHost(
                         }
                         composable(Route.AccountCreationWaiting.name) {
                             ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountCreation,
+                                model = ActionTakingScreenUIStateModel.AccountCreation,
                             )
                         }
                         composable(Route.AccountLinkingWaiting.name) {
                             ActionTakingScreen(
-                                actionTakingScreenUIStateModel = ActionTakingScreenUIStateModel.AccountLinking,
+                                model = ActionTakingScreenUIStateModel.AccountLinking,
                             )
                         }
                         composable(
