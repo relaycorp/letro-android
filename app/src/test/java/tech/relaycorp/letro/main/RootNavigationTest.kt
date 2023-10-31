@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.main
 
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -92,7 +91,7 @@ class RootNavigationTest {
             contactsRepository = contactsRepository,
             mainDispatcher = dispatcher,
         )
-        viewModel.rootNavigationScreen.value shouldBeSameInstanceAs RootNavigationScreen.WelcomeToLetro()
+        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro(withAnimation = false)
     }
 
     @Test
