@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "816086045998",
+    "project_id": "letro-android",
+    "storage_bucket": "letro-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816086045998:android:ef24b5c8acf815b1bed6bf",
+        "android_client_info": {
+          "package_name": "tech.relaycorp.letro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816086045998-m0fcv11a1hgj8q6lbl83r2e4gvgisgsh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs0n7pJJvk9qIBX8xNvtFKW5eDXOb2834"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816086045998-m0fcv11a1hgj8q6lbl83r2e4gvgisgsh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

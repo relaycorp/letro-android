@@ -6,6 +6,8 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'org.jlleitschuh.gradle.ktlint' version '11.6.1'
     id 'kotlin-parcelize'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -118,6 +120,11 @@ dependencies {
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_permissions_version"
 
     implementation "com.airbnb.android:lottie-compose:6.1.0"
+
+    // Firebase:
+    implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Testing
     def junitVersion = "5.10.0"
