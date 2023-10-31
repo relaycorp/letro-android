@@ -130,8 +130,8 @@ private fun TabBadge(
                 shape = CircleShape,
             )
             .size(
-                height = 16.dp,
-                width = if (text.length == 1) 16.dp else 21.dp,
+                height = 18.dp,
+                width = if (text.length == 1) 18.dp else 22.dp,
             ),
     ) {
         Text(
