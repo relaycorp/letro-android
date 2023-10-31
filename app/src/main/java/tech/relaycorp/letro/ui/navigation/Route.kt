@@ -107,11 +107,17 @@ sealed class Route(
         isStatusBarPrimaryColor = true,
     )
 
-    object WelcomeToLetro : Route(
-        name = "welcome_to_letro_route",
+    data class WelcomeToLetro(
+        val withAnimation: Boolean = false,
+    ) : Route(
+        name = "$ROUTE_NAME_PREFIX$withAnimation",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
-    )
+    ) {
+        companion object {
+            internal const val ROUTE_NAME_PREFIX = "welcome_to_letro_route_"
+        }
+    }
 
     object ManageContact : Route(
         name = "manage_contact_route",
@@ -193,7 +199,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.AccountLinkingWaiting.name) -> Route.AccountLinkingWaiting
             it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed
             it.startsWith(Route.UseExistingAccount.name) -> Route.UseExistingAccount
-            it.startsWith(Route.WelcomeToLetro.name) -> Route.WelcomeToLetro
+            it.startsWith(Route.WelcomeToLetro.ROUTE_NAME_PREFIX) -> Route.WelcomeToLetro(this.removePrefix(Route.WelcomeToLetro.ROUTE_NAME_PREFIX).toBoolean())
             it.startsWith(Route.NoContacts.name) -> Route.NoContacts
             it.startsWith(Route.ManageContact.name) -> Route.ManageContact
             it.startsWith(Route.Home.name) -> Route.Home

@@ -6,17 +6,19 @@ import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 
 @Composable
-fun NoContactsScreen(
+fun WelcomeToLetroScreen(
+    withConfettiAnimation: Boolean,
     onPairWithOthersClick: () -> Unit,
     onShareIdClick: () -> Unit,
 ) {
     ActionTakingScreen(
         model = ActionTakingScreenUIStateModel.NoContacts(
-            title = null,
-            message = R.string.no_contacts_text,
-            image = R.drawable.no_contacts_image,
+            title = R.string.onboarding_account_confirmation,
+            image = R.drawable.account_created,
             onPairWithOthersClick = onPairWithOthersClick,
             onShareIdClick = onShareIdClick,
+            isCenteredVertically = false,
+            fullScreenAnimation = if (withConfettiAnimation) R.raw.confetti else null,
         ),
     )
 }
