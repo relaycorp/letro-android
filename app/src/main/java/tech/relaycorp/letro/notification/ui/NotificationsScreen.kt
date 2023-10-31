@@ -106,7 +106,7 @@ private fun Notification(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(66.dp)
             .clickable { onClick() }
             .background(if (isRead) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant)
             .padding(

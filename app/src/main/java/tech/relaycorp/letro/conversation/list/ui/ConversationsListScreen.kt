@@ -134,7 +134,7 @@ private fun Conversation(
         contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(67.dp)
             .clickable { onConversationClick() }
             .padding(
                 horizontal = 16.dp,
