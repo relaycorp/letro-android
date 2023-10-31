@@ -251,6 +251,8 @@ fun LetroNavHost(
                             LetroTopBar(
                                 accountVeraId = currentAccount,
                                 accountStatus = uiState.accountStatus,
+                                domain = uiState.domain ?: "",
+                                showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
                                 onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
                                 onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
                             )

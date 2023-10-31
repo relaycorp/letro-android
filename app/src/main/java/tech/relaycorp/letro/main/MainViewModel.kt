@@ -141,6 +141,7 @@ class MainViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         canSendMessages = contactsState.isPairedContactExist,
+                        showTopBarAccountIdAsShimmer = currentAccount?.status == AccountStatus.LINKING_WAITING || currentAccount?.status == AccountStatus.ERROR && !currentAccount.token.isNullOrEmpty(),
                     )
                 }
                 val rootNavigationScreen = when {
@@ -290,5 +291,6 @@ data class MainUiState(
     val currentAccount: String? = null,
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
+    val showTopBarAccountIdAsShimmer: Boolean = false,
     val canSendMessages: Boolean = false,
 )
