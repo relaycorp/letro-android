@@ -127,7 +127,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Testing
-    def junitVersion = "5.10.0"
+    def junitVersion = "5.10.1"
     def kotlinCoroutinesVersion = "1.7.3"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
