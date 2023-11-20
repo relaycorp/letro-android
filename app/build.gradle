@@ -119,7 +119,7 @@ dependencies {
     def accompanist_permissions_version = "0.32.0"
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_permissions_version"
 
-    implementation "com.airbnb.android:lottie-compose:6.1.0"
+    implementation "com.airbnb.android:lottie-compose:6.2.0"
 
     // Firebase:
     implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
