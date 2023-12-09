@@ -60,7 +60,7 @@ class ContactsViewModel @Inject constructor(
     private var contactsCollectionJob: Job? = null
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             accountRepository.currentAccount.collect {
                 observeContacts(it)
             }
@@ -68,7 +68,7 @@ class ContactsViewModel @Inject constructor(
     }
 
     fun onActionsButtonClick(contact: Contact) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             val actions = getContactBottomSheetActions(contact)
             _contactActionsBottomSheetStateState.update {
                 it.copy(
@@ -112,7 +112,7 @@ class ContactsViewModel @Inject constructor(
 
     private fun onDeleteContactClick(contact: Contact) {
         closeActionsBottomSheet()
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             _deleteContactDialogStateState.update {
                 it.copy(
                     isShown = true,
@@ -123,7 +123,7 @@ class ContactsViewModel @Inject constructor(
     }
 
     private fun closeDeleteContactDialog() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             _deleteContactDialogStateState.update {
                 it.copy(
                     isShown = false,
@@ -134,7 +134,7 @@ class ContactsViewModel @Inject constructor(
     }
 
     private fun closeActionsBottomSheet() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             _contactActionsBottomSheetStateState.update {
                 it.copy(
                     isShown = false,
