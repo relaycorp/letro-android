@@ -3,7 +3,6 @@ package tech.relaycorp.letro.contacts
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +22,7 @@ import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.ui.ContactsListContent
 import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.emitOn
 import javax.inject.Inject
 
@@ -30,7 +30,8 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     private val _contacts: MutableStateFlow<ContactsListContent> = MutableStateFlow(ContactsListContent.Empty)
     val contacts: StateFlow<ContactsListContent>
@@ -90,7 +91,7 @@ class ContactsViewModel @Inject constructor(
     }
 
     fun onConfirmDeletingContactClick(contact: Contact) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             closeDeleteContactDialog()
             try {
                 contactsRepository.deleteContact(contact)

@@ -40,12 +40,17 @@ object AndroidModule {
     }
 
     @Provides
-    @IODispatcher
-    fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
+    @Singleton
+    fun provideDispatchers(): tech.relaycorp.letro.utils.coroutines.Dispatchers = tech.relaycorp.letro.utils.coroutines.Dispatchers(
+        Main = Dispatchers.Main,
+        IO = Dispatchers.IO,
+    )
 
     @Provides
-    @MainDispatcher
-    fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+    @IODispatcher
+    fun provideIODispatcher(
+        dispatchers: tech.relaycorp.letro.utils.coroutines.Dispatchers,
+    ): CoroutineDispatcher = dispatchers.IO
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -75,9 +80,6 @@ object AndroidModule {
         ): DeviceTimeChangedProvider
     }
 }
-
-@Qualifier
-annotation class MainDispatcher
 
 @Qualifier
 annotation class IODispatcher

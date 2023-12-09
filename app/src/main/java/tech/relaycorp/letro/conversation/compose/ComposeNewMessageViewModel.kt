@@ -7,7 +7,6 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +36,7 @@ import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -57,7 +57,8 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val contactSuggestsManager: ContactSuggestsManager,
     @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     @ScreenType
     private val screenType: Int = savedStateHandle[Route.CreateNewMessage.KEY_SCREEN_TYPE]!!
@@ -115,7 +116,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             savedStateHandle.get<GsonAttachments>(Route.CreateNewMessage.KEY_ATTACHMENTS)?.let {
                 it.files.forEach { onFilePickerResult(Uri.parse(it.uri)) }
             }
@@ -124,7 +125,7 @@ class ComposeNewMessageViewModel @Inject constructor(
 
     fun onFilePickerResult(uri: Uri?) {
         uri ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             val file = try {
                 fileConverter.getFile(uri)
             } catch (e: FileSizeExceedsLimitException) {
@@ -260,7 +261,7 @@ class ComposeNewMessageViewModel @Inject constructor(
 
     fun onSendMessageClick() {
         val contact = contacts.find { it.contactVeraId == uiState.value.recipientAccountId } ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             _uiState.update { it.copy(isSendingMessage = true) }
             when (screenType) {
                 NEW_CONVERSATION -> {

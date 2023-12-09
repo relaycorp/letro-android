@@ -51,7 +51,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
@@ -70,7 +69,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
@@ -89,7 +87,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.WelcomeToLetro(withAnimation = false)
     }
@@ -108,7 +105,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.NoContactsScreen
     }
@@ -129,7 +125,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AccountCreationWaiting
     }
@@ -152,7 +147,6 @@ class RootNavigationTest {
             contactsRepository = contactsRepository,
             conversations = listOf(createConversation(conversationId)),
             messages = listOf(createMessage(conversationId)),
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.Home
     }
@@ -172,7 +166,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaNotInstalled
     }
@@ -192,7 +185,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
@@ -213,7 +205,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
     }
@@ -233,7 +224,6 @@ class RootNavigationTest {
             awalaManager = awalaManager,
             accountRepository = accountRepository,
             contactsRepository = contactsRepository,
-            mainDispatcher = dispatcher,
         )
         viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_FATAL_ERROR)
     }
