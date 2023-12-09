@@ -70,6 +70,7 @@ import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.main.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.home.ui.HomeScreen
+import tech.relaycorp.letro.main.home.ui.tabs.LetroTabs
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
@@ -248,14 +249,21 @@ fun LetroNavHost(
                 Column {
                     AnimatedVisibility(visible = currentRoute.showTopBar && currentAccount != null) {
                         if (currentAccount != null) {
-                            LetroTopBar(
-                                accountVeraId = currentAccount,
-                                accountStatus = uiState.accountStatus,
-                                domain = uiState.domain ?: "",
-                                showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
-                                onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
-                                onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
-                            )
+                            Column {
+                                LetroTopBar(
+                                    accountVeraId = currentAccount,
+                                    accountStatus = uiState.accountStatus,
+                                    domain = uiState.domain ?: "",
+                                    showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
+                                    onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
+                                    onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
+                                )
+                                if (currentRoute.showHomeTabs) {
+                                    LetroTabs(
+                                        viewModel = homeViewModel,
+                                    )
+                                }
+                            }
                         }
                     }
                     NavHost(
