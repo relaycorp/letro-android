@@ -87,7 +87,7 @@ fun ComposeNewMessageScreen(
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
-            viewModel.onFilePickerResult(it)
+            viewModel.onFilePickerResult(it?.toString())
         },
     )
 

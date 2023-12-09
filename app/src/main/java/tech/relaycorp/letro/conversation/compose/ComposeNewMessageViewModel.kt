@@ -1,6 +1,5 @@
 package tech.relaycorp.letro.conversation.compose
 
-import android.net.Uri
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
@@ -104,7 +103,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private var requestedContactId: Long? = (savedStateHandle.get(Route.CreateNewMessage.KEY_CONTACT_ID) as? Long)?.takeIf { it != Route.CreateNewMessage.NO_ID }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             accountRepository.currentAccount.collect {
                 it?.let { account ->
                     _uiState.update { state ->
@@ -118,12 +117,12 @@ class ComposeNewMessageViewModel @Inject constructor(
         }
         viewModelScope.launch(dispatchers.IO) {
             savedStateHandle.get<GsonAttachments>(Route.CreateNewMessage.KEY_ATTACHMENTS)?.let {
-                it.files.forEach { onFilePickerResult(Uri.parse(it.uri)) }
+                it.files.forEach { onFilePickerResult(it.uri) }
             }
         }
     }
 
-    fun onFilePickerResult(uri: Uri?) {
+    fun onFilePickerResult(uri: String?) {
         uri ?: return
         viewModelScope.launch(dispatchers.IO) {
             val file = try {
@@ -168,7 +167,7 @@ class ComposeNewMessageViewModel @Inject constructor(
         if (text == _uiState.value.recipientDisplayedText) {
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             _uiState.update {
                 it.copy(
                     recipientDisplayedText = text,
@@ -337,12 +336,11 @@ class ComposeNewMessageViewModel @Inject constructor(
     }
 
     private fun startCollectingConnectedContacts(ownerVeraId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.IO) {
             contactsRepository.getContacts(ownerVeraId).collect {
                 contacts.clear()
                 contacts.addAll(
                     it.filter { it.status == ContactPairingStatus.COMPLETED }
-                        .filter { it.status == ContactPairingStatus.COMPLETED }
                         .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
                 )
                 contacts.find { it.id == requestedContactId }?.let { requestedContact ->
