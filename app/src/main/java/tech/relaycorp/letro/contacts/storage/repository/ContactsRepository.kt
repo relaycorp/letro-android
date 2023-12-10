@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
@@ -81,6 +82,7 @@ class ContactsRepositoryImpl @Inject constructor(
         return contacts.value.find { it.id == id }
     }
 
+    @Throws(AwaladroidException::class)
     override suspend fun addNewContact(contact: Contact) {
         val existingContact = contactsDao.getContact(
             ownerVeraId = contact.ownerVeraId,
@@ -136,6 +138,7 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
+    @Throws(AwaladroidException::class)
     override suspend fun deleteContact(contact: Contact) {
         contact.contactEndpointId?.let {
             awalaManager.revokeAuthorization(

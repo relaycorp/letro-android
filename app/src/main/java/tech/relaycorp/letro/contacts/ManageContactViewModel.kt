@@ -225,6 +225,7 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
+    @Throws(AwaladroidException::class)
     private suspend fun sendNewContactRequest() {
         currentAccountId?.let { currentAccountId ->
             contactsRepository.addNewContact(
