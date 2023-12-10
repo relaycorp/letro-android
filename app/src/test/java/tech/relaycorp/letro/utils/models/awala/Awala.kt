@@ -76,7 +76,7 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
         }
     }
     coEvery { sendMessage(any(), any(), any()) } returns Unit
-    coEvery { receiveMessages() } returns emptyFlow()
+    every { receiveMessages() } returns emptyFlow()
     coEvery { loadNonNullPublicFirstPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPublicThirdPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPrivateThirdPartyEndpoint(any(), any()) } answers { callOriginal() }

@@ -30,7 +30,7 @@ interface AwalaWrapper {
     suspend fun importServerThirdPartyEndpoint(
         @RawRes connectionParams: Int,
     ): PublicThirdPartyEndpoint
-    suspend fun receiveMessages(): Flow<IncomingMessage>
+    fun receiveMessages(): Flow<IncomingMessage>
 
     suspend fun sendMessage(
         outgoingMessage: AwalaOutgoingMessage,
@@ -72,7 +72,7 @@ class AwalaWrapperImpl @Inject constructor(
         return FirstPartyEndpoint.register()
     }
 
-    override suspend fun receiveMessages(): Flow<IncomingMessage> {
+    override fun receiveMessages(): Flow<IncomingMessage> {
         return GatewayClient.receiveMessages()
     }
 
