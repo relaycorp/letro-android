@@ -48,7 +48,7 @@ fun CustomViewsPreview() {
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                 hyperLinks = mapOf(
                     stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
-                        to "https://letro.app/en/terms",
+                        to stringResource(id = R.string.url_letro_terms_and_conditions),
                 ),
             )
             Spacer(modifier = Modifier.height(ItemPadding))
