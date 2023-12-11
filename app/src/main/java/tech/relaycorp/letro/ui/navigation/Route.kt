@@ -11,11 +11,12 @@ import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 /**
  * Class which contains all possible routes
  *
- * NOTE: the route name must end with _route suffix
+ * NOTE: for singletons the route name must end with _route suffix to prevent conflicts
  */
 sealed class Route(
     val name: String,
     val showTopBar: Boolean = true,
+    val showHomeTabs: Boolean = false,
     val isStatusBarVisible: Boolean = true,
     val isStatusBarPrimaryColor: Boolean = false,
 ) {
@@ -53,7 +54,7 @@ sealed class Route(
     }
 
     object AccountCreationFailed : Route(
-        name = "account_creation_failed",
+        name = "account_creation_failed_route",
         showTopBar = true,
         isStatusBarPrimaryColor = true,
     )
@@ -142,6 +143,7 @@ sealed class Route(
     object Home : Route(
         name = "home_route",
         showTopBar = true,
+        showHomeTabs = true,
         isStatusBarPrimaryColor = true,
     )
 

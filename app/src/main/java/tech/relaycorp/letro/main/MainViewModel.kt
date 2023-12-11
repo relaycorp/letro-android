@@ -3,8 +3,6 @@ package tech.relaycorp.letro.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -37,7 +35,7 @@ import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.ui.navigation.RootNavigationScreen
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.Logger
-import tech.relaycorp.letro.utils.di.MainDispatcher
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.navigation.UriToActionConverter
 import java.util.UUID
@@ -55,7 +53,7 @@ class MainViewModel @Inject constructor(
     private val conversationsRepository: ConversationsRepository,
     private val uriToActionConverter: UriToActionConverter,
     private val logger: Logger,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    private val dispatchers: Dispatchers,
     @MainViewModelActionProcessorThread private val actionProcessorThread: CoroutineContext,
     @TermsAndConditionsLink private val termsAndConditionsLink: String,
     @RootNavigationDebounceMs private val rootNavigationDebounceMs: Long,
@@ -130,7 +128,7 @@ class MainViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(dispatchers.Main) {
             combine(
                 accountRepository.currentAccount,
                 contactsRepository.contactsState,
@@ -229,7 +227,7 @@ class MainViewModel @Inject constructor(
 
             logger.i(TAG, "ActionHandler: Sending action ${action.javaClass}")
 
-            withContext(Dispatchers.Main) {
+            withContext(dispatchers.Main) {
                 _actions.send(action)
             }
         }
@@ -267,7 +265,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onAttachmentClick(fileId: UUID) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             attachmentsRepository.getById(fileId)?.let { attachment ->
                 fileConverter.getFile(attachment)?.let { file ->
                     if (file.exists()) {

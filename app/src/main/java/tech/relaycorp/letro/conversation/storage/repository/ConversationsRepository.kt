@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
@@ -130,6 +131,7 @@ class ConversationsRepositoryImpl @Inject constructor(
             .stateIn(scope, SharingStarted.Eagerly, getConversation(id))
     }
 
+    @Throws(AwaladroidException::class)
     override suspend fun createNewConversation(
         ownerVeraId: String,
         recipient: Contact,
@@ -182,6 +184,7 @@ class ConversationsRepositoryImpl @Inject constructor(
         }
     }
 
+    @Throws(AwaladroidException::class)
     override suspend fun reply(
         conversationId: UUID,
         messageText: String,

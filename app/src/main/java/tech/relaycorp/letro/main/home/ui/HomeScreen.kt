@@ -1,7 +1,6 @@
 package tech.relaycorp.letro.main.home.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
@@ -21,7 +20,6 @@ import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.main.home.TAB_CHATS
 import tech.relaycorp.letro.main.home.TAB_CONTACTS
 import tech.relaycorp.letro.main.home.TAB_NOTIFICATIONS
-import tech.relaycorp.letro.main.home.ui.tabs.LetroTabs
 import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.notification.ui.NotificationsScreen
@@ -51,43 +49,33 @@ fun HomeScreen(
         }
     }
 
-    Box {
-        Column {
-            LetroTabs(
-                viewModel = homeViewModel,
-            )
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                AnimatedContent(
-                    targetState = uiState.currentTab,
-                    transitionSpec = { swipeAnimation() },
-                    label = "HomeScreenContent",
-                ) { currentTab ->
-                    when (currentTab) {
-                        TAB_CHATS -> Column {
-                            ConversationsListScreen(
-                                conversationsStringsProvider = stringsProvider.conversations,
-                                onConversationClick = onConversationClick,
-                                viewModel = conversationsListViewModel,
-                            )
-                        }
-                        TAB_CONTACTS -> ContactsScreen(
-                            viewModel = contactsViewModel,
-                            snackbarHostState = snackbarHostState,
-                            snackbarStringsProvider = stringsProvider.snackbar,
-                            onEditContactClick = onEditContactClick,
-                            onStartConversationClick = onStartConversationClick,
-                            onPairWithOthersClick = onPairWithOthersClick,
-                            onShareIdClick = onShareIdClick,
-                        )
-                        TAB_NOTIFICATIONS -> NotificationsScreen(
-                            viewModel = notificationsViewModel,
-                        )
-                        else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
-                    }
-                }
+    AnimatedContent(
+        targetState = uiState.currentTab,
+        transitionSpec = { swipeAnimation() },
+        label = "HomeScreenContent",
+        modifier = Modifier.fillMaxSize(),
+    ) { currentTab ->
+        when (currentTab) {
+            TAB_CHATS -> Column {
+                ConversationsListScreen(
+                    conversationsStringsProvider = stringsProvider.conversations,
+                    onConversationClick = onConversationClick,
+                    viewModel = conversationsListViewModel,
+                )
             }
+            TAB_CONTACTS -> ContactsScreen(
+                viewModel = contactsViewModel,
+                snackbarHostState = snackbarHostState,
+                snackbarStringsProvider = stringsProvider.snackbar,
+                onEditContactClick = onEditContactClick,
+                onStartConversationClick = onStartConversationClick,
+                onPairWithOthersClick = onPairWithOthersClick,
+                onShareIdClick = onShareIdClick,
+            )
+            TAB_NOTIFICATIONS -> NotificationsScreen(
+                viewModel = notificationsViewModel,
+            )
+            else -> throw IllegalStateException("Unsupported tab with index ${uiState.currentTab}")
         }
     }
 }

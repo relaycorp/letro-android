@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.account.registration.storage
 
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
@@ -30,7 +31,7 @@ class RegistrationRepositoryImpl @Inject constructor(
     private val accountIdBuilder: AccountIdBuilder,
 ) : RegistrationRepository {
 
-    @Throws(DuplicateAccountIdException::class)
+    @Throws(DuplicateAccountIdException::class, AwaladroidException::class)
     override suspend fun createNewAccount(requestedUserName: String, domainName: String, locale: Locale) {
         if (isAccountWithThisIdAlreadyExists(requestedUserName, domainName)) {
             throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
@@ -58,7 +59,7 @@ class RegistrationRepositoryImpl @Inject constructor(
         )
     }
 
-    @Throws(DuplicateAccountIdException::class)
+    @Throws(DuplicateAccountIdException::class, AwaladroidException::class)
     @Suppress("NAME_SHADOWING")
     override suspend fun loginToExistingAccount(domainName: String, awalaEndpoint: String, token: String) {
         val requestedUserName = "..."

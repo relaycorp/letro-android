@@ -23,8 +23,6 @@ import java.util.UUID
 @OptIn(ExperimentalCoroutinesApi::class)
 class ActionHandlingTest {
 
-    private val dispatcher = UnconfinedTestDispatcher()
-
     @Test
     fun `Test that if there are 2 accounts, and there is an action came to inactive account, this action is started processing only after account and root navigation screen were changed`() = runTest(UnconfinedTestDispatcher()) {
         val activeAccountOnStart = createAccount(
@@ -58,7 +56,6 @@ class ActionHandlingTest {
                 ),
             ),
             conversations = listOf(conversation),
-            mainDispatcher = dispatcher,
         )
 
         // Test initial state:
