@@ -20,7 +20,6 @@ import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatter
-import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatterImpl
 import tech.relaycorp.letro.conversation.storage.dao.ConversationsDao
 import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
@@ -93,7 +92,7 @@ fun createConversationsRepository(
     contactsRepository = contactsRepository,
     accountRepository = accountRepository,
     conversationsConverter = ExtendedConversationConverterImpl(
-        messageTimestampFormatter = MessageTimestampFormatterImpl(),
+        mockk(relaxed = true),
         mockk(relaxed = true),
         mockk(relaxed = true),
     ),
@@ -105,7 +104,7 @@ fun createConversationsRepository(
 )
 
 fun createExtendedConversationConverter(
-    messageTimestampFormatter: MessageTimestampFormatter = MessageTimestampFormatterImpl(),
+    messageTimestampFormatter: MessageTimestampFormatter = mockk(relaxed = true),
     fileConverter: FileConverter = createDummyFileConverter(),
     attachmentInfoConverter: AttachmentInfoConverter = createDummyAttachmentInfoConverter(),
 ) = ExtendedConversationConverterImpl(messageTimestampFormatter, fileConverter, attachmentInfoConverter)
