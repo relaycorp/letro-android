@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.awala.processor
 
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.parser.AwalaMessageParser
@@ -15,6 +16,11 @@ abstract class ServerMessageProcessor<T : AwalaIncomingMessageContent>(
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {
-        return senderNodeId == awalaManager.getServerThirdPartyEndpoint()?.nodeId
+        val thirdPartyEndpointNodeId = try {
+            awalaManager.getServerThirdPartyEndpoint()?.nodeId
+        } catch (e: AwaladroidException) {
+            null
+        }
+        return senderNodeId == thirdPartyEndpointNodeId
     }
 }
