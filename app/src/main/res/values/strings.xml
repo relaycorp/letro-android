@@ -191,6 +191,6 @@
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>
-    <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/terms</string>
+    <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/legal/tos/</string>
 
 </resources>

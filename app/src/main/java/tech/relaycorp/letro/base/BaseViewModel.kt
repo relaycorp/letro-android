@@ -9,9 +9,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.base.utils.SnackbarString
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 
 @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel(
+    protected val dispatchers: Dispatchers,
+) : ViewModel() {
     protected val showSnackbarDebounced: MutableSharedFlow<SnackbarString> = MutableSharedFlow()
 
     private val _showSnackbarMutable: MutableSharedFlow<SnackbarString> = MutableSharedFlow()
@@ -19,7 +22,7 @@ abstract class BaseViewModel : ViewModel() {
         get() = _showSnackbarMutable
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             showSnackbarDebounced
                 .debounce(500L)
                 .collect {

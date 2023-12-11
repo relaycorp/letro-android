@@ -1,4 +1,4 @@
-package tech.relaycorp.letro.conversation
+package tech.relaycorp.letro.conversation.time
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

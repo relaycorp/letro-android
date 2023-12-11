@@ -50,7 +50,7 @@ fun createAccountRepository(
 
 fun createAccountIdBuilder() = AccountIdBuilderImpl()
 
-private fun createAccountDao(
+fun createAccountDao(
     initialAccounts: List<Account>,
     coroutineScope: CoroutineScope,
 ) = mockk<AccountDao>().also {
@@ -85,6 +85,16 @@ private fun createAccountDao(
                 }
             }
             accountsFlow.emit(replacedAccounts)
+        }
+    }
+
+    coEvery { it.insert(any<Account>()) } answers {
+        coroutineScope.launch {
+            val account = args.first() as Account
+            val newAccounts = ArrayList(accountsFlow.value).apply {
+                add(account)
+            }
+            accountsFlow.emit(newAccounts)
         }
     }
 }

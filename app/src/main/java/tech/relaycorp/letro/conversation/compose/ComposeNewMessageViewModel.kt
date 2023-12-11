@@ -1,13 +1,11 @@
 package tech.relaycorp.letro.conversation.compose
 
-import android.net.Uri
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +35,7 @@ import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.isEmptyOrBlank
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
@@ -57,7 +56,8 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val contactSuggestsManager: ContactSuggestsManager,
     @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     @ScreenType
     private val screenType: Int = savedStateHandle[Route.CreateNewMessage.KEY_SCREEN_TYPE]!!
@@ -103,7 +103,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private var requestedContactId: Long? = (savedStateHandle.get(Route.CreateNewMessage.KEY_CONTACT_ID) as? Long)?.takeIf { it != Route.CreateNewMessage.NO_ID }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             accountRepository.currentAccount.collect {
                 it?.let { account ->
                     _uiState.update { state ->
@@ -115,16 +115,16 @@ class ComposeNewMessageViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             savedStateHandle.get<GsonAttachments>(Route.CreateNewMessage.KEY_ATTACHMENTS)?.let {
-                it.files.forEach { onFilePickerResult(Uri.parse(it.uri)) }
+                it.files.forEach { onFilePickerResult(it.uri) }
             }
         }
     }
 
-    fun onFilePickerResult(uri: Uri?) {
+    fun onFilePickerResult(uri: String?) {
         uri ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             val file = try {
                 fileConverter.getFile(uri)
             } catch (e: FileSizeExceedsLimitException) {
@@ -167,7 +167,7 @@ class ComposeNewMessageViewModel @Inject constructor(
         if (text == _uiState.value.recipientDisplayedText) {
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.Main) {
             _uiState.update {
                 it.copy(
                     recipientDisplayedText = text,
@@ -260,7 +260,7 @@ class ComposeNewMessageViewModel @Inject constructor(
 
     fun onSendMessageClick() {
         val contact = contacts.find { it.contactVeraId == uiState.value.recipientAccountId } ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             _uiState.update { it.copy(isSendingMessage = true) }
             when (screenType) {
                 NEW_CONVERSATION -> {
@@ -336,12 +336,11 @@ class ComposeNewMessageViewModel @Inject constructor(
     }
 
     private fun startCollectingConnectedContacts(ownerVeraId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.IO) {
             contactsRepository.getContacts(ownerVeraId).collect {
                 contacts.clear()
                 contacts.addAll(
                     it.filter { it.status == ContactPairingStatus.COMPLETED }
-                        .filter { it.status == ContactPairingStatus.COMPLETED }
                         .sortedBy { it.alias?.lowercase() ?: it.contactVeraId.lowercase() },
                 )
                 contacts.find { it.id == requestedContactId }?.let { requestedContact ->

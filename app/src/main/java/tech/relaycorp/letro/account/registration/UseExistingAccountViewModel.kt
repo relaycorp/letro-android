@@ -3,7 +3,6 @@ package tech.relaycorp.letro.account.registration
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -15,6 +14,7 @@ import tech.relaycorp.letro.base.BaseViewModel
 import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.isNotEmptyOrBlank
 import javax.inject.Inject
@@ -23,7 +23,8 @@ import javax.inject.Inject
 class UseExistingAccountViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
     savedStateHandle: SavedStateHandle,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     private val _uiState = MutableStateFlow(
         UseExistingAccountUiState(
@@ -89,7 +90,7 @@ class UseExistingAccountViewModel @Inject constructor(
         if (_uiState.value.isSendingMessage) {
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             try {
                 _uiState.update { it.copy(isSendingMessage = true) }
                 registrationRepository.loginToExistingAccount(
