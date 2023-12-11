@@ -1,6 +1,6 @@
 package tech.relaycorp.letro.utils.models.conversation
 
-import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,11 +10,13 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
+import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManager
 import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
+import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.converter.ExtendedConversationConverterImpl
 import tech.relaycorp.letro.conversation.storage.converter.MessageTimestampFormatter
@@ -24,12 +26,15 @@ import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
+import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepositoryImpl
+import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.models.account.createAccountRepository
 import tech.relaycorp.letro.utils.models.awala.createAwalaManager
 import tech.relaycorp.letro.utils.models.contact.createContactsRepository
 import tech.relaycorp.letro.utils.models.utils.createLogger
+import tech.relaycorp.letro.utils.models.utils.dispatchers
 import tech.relaycorp.letro.utils.time.nowUTC
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -118,7 +123,7 @@ fun createDummyFileConverter(
         return null
     }
 
-    override suspend fun getFile(uri: Uri): File.FileWithContent? {
+    override suspend fun getFile(uri: String): File.FileWithContent? {
         logger.w("FileConverter", "Used dummy file converter")
         return null
     }
@@ -137,3 +142,29 @@ fun createDummyAttachmentInfoConverter(
         )
     }
 }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun createComposeNewMessageViewModel(
+    accountRepository: AccountRepository = createAccountRepository(),
+    contactsRepository: ContactsRepository = createContactsRepository(),
+    conversationsRepository: ConversationsRepository = createConversationsRepository(),
+    fileConverter: FileConverter = createDummyFileConverter(),
+    attachmentInfoConverter: AttachmentInfoConverter = createDummyAttachmentInfoConverter(),
+    savedStateHandle: SavedStateHandle = SavedStateHandle(
+        mapOf(
+            Route.CreateNewMessage.KEY_SCREEN_TYPE to ComposeNewMessageViewModel.ScreenType.NEW_CONVERSATION,
+        ),
+    ),
+    contactsSuggestManager: ContactSuggestsManager = mockk(relaxed = true),
+    messageSizeLimitSize: Int = 8_000_000,
+) = ComposeNewMessageViewModel(
+    accountRepository = accountRepository,
+    contactsRepository = contactsRepository,
+    conversationsRepository = conversationsRepository,
+    fileConverter = fileConverter,
+    attachmentInfoConverter = attachmentInfoConverter,
+    savedStateHandle = savedStateHandle,
+    contactSuggestsManager = contactsSuggestManager,
+    messageSizeLimitBytes = messageSizeLimitSize,
+    dispatchers = dispatchers(),
+)

@@ -21,9 +21,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 @ExperimentalCoroutinesApi
 internal fun createAwalaManager(
     awalaInitializationResult: AwalaInitializationResult = AwalaInitializationResult.SUCCESS,
-    ioDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
-) = AwalaManagerImpl(
-    awalaRepository = mockk<AwalaRepository>().also {
+    awalaRepository: AwalaRepository = mockk<AwalaRepository>().also {
         every { it.getServerFirstPartyEndpointNodeId() } answers {
             if (awalaInitializationResult != AwalaInitializationResult.CRASH_ON_FIRST_PARTY_ENDPOINT_REGISTRATION) "" else null
         }
@@ -33,9 +31,13 @@ internal fun createAwalaManager(
         every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
         every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
     },
+    awala: AwalaWrapper = createAwalaWrapper(awalaInitializationResult),
+    ioDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
+) = AwalaManagerImpl(
+    awalaRepository = awalaRepository,
     processor = mockk(),
     logger = createLogger(),
-    awala = createAwalaWrapper(awalaInitializationResult),
+    awala = awala,
     ioDispatcher = ioDispatcher,
     awalaThreadContext = EmptyCoroutineContext,
 )
@@ -74,7 +76,7 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
         }
     }
     coEvery { sendMessage(any(), any(), any()) } returns Unit
-    coEvery { receiveMessages() } returns emptyFlow()
+    every { receiveMessages() } returns emptyFlow()
     coEvery { loadNonNullPublicFirstPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPublicThirdPartyEndpoint(any()) } answers { callOriginal() }
     coEvery { loadNonNullPrivateThirdPartyEndpoint(any(), any()) } answers { callOriginal() }

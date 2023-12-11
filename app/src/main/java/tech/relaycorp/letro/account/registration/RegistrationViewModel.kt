@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -17,13 +16,15 @@ import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvide
 import tech.relaycorp.letro.base.BaseViewModel
 import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
     private val domainProvider: RegistrationDomainProvider,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     private val _uiState = MutableStateFlow(
         RegistrationScreenUiState(
@@ -58,7 +59,7 @@ class RegistrationViewModel @Inject constructor(
         if (uiState.value.isSendingMessage) {
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             _uiState.update {
                 it.copy(
                     isSendingMessage = true,
