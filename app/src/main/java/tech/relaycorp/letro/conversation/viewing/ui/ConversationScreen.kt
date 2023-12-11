@@ -299,7 +299,7 @@ private fun MessageInfoView(
                 Spacer(modifier = Modifier.height(8.dp))
                 if (message.senderDisplayName != message.senderVeraId) {
                     Spacer(
-                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().minus(2.dp)),
+                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().plus(2.dp)),
                     )
                 }
                 Text(
@@ -310,7 +310,7 @@ private fun MessageInfoView(
                 Spacer(modifier = Modifier.height(8.dp))
                 if (message.recipientDisplayName != message.recipientVeraId) {
                     Spacer(
-                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().minus(2.dp)),
+                        modifier = Modifier.height(MaterialTheme.typography.bodyMedium.lineHeight.toDp().plus(2.dp)),
                     )
                 }
                 Text(
@@ -482,7 +482,7 @@ private fun DeleteConversationDialog(
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun MessageInfo_Preview() {
     Column {
@@ -491,7 +491,7 @@ private fun MessageInfo_Preview() {
                 conversationId = UUID.randomUUID(),
                 senderVeraId = "sender@vera.id",
                 recipientVeraId = "recipient@vera.id",
-                senderDisplayName = "Sender",
+                senderDisplayName = "sender@vera.id",
                 recipientDisplayName = "Recipient",
                 isOutgoing = true,
                 contactDisplayName = "Alias of contact",
@@ -508,7 +508,7 @@ private fun MessageInfo_Preview() {
                 senderVeraId = "sender@vera.id",
                 recipientVeraId = "recipient@vera.id",
                 senderDisplayName = "Sender",
-                recipientDisplayName = "Recipient",
+                recipientDisplayName = "recipient@vera.id",
                 isOutgoing = false,
                 contactDisplayName = "sender@vera.id",
                 text = "Hi!",
