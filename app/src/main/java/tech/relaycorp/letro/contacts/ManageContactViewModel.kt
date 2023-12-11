@@ -7,7 +7,6 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +31,7 @@ import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.decodeFromUTF
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
@@ -42,7 +42,8 @@ class ManageContactViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val accountRepository: AccountRepository,
     savedStateHandle: SavedStateHandle,
-) : BaseViewModel() {
+    dispatchers: Dispatchers,
+) : BaseViewModel(dispatchers) {
 
     @Type
     private val screenType: Int = savedStateHandle[Route.ManageContact.KEY_SCREEN_TYPE]!!
@@ -152,7 +153,7 @@ class ManageContactViewModel @Inject constructor(
         if (_uiState.value.isSendingMessage) {
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.IO) {
             _uiState.update { it.copy(isSendingMessage = true) }
             when (screenType) {
                 NEW_CONTACT -> {
@@ -225,6 +226,7 @@ class ManageContactViewModel @Inject constructor(
         }
     }
 
+    @Throws(AwaladroidException::class)
     private suspend fun sendNewContactRequest() {
         currentAccountId?.let { currentAccountId ->
             contactsRepository.addNewContact(

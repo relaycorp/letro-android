@@ -8,14 +8,17 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
+import tech.relaycorp.letro.contacts.ContactsViewModel
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
+import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
 import tech.relaycorp.letro.storage.Preferences
 import tech.relaycorp.letro.utils.models.account.createAccountRepository
 import tech.relaycorp.letro.utils.models.awala.createAwalaManager
 import tech.relaycorp.letro.utils.models.utils.createLogger
+import tech.relaycorp.letro.utils.models.utils.dispatchers
 
 fun createContact(
     ownerVeraId: String = "account@test.id",
@@ -30,6 +33,16 @@ fun createContact(
     contactEndpointId = "",
     status = status,
     isPrivateEndpoint = isPrivateEndpoint,
+)
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun createContactsViewModel(
+    contactsRepository: ContactsRepository = createContactsRepository(),
+    accountRepository: AccountRepository = createAccountRepository(),
+) = ContactsViewModel(
+    contactsRepository = contactsRepository,
+    accountRepository = accountRepository,
+    dispatchers = dispatchers(),
 )
 
 @ExperimentalCoroutinesApi

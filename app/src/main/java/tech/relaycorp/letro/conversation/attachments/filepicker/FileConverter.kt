@@ -16,18 +16,20 @@ import kotlin.jvm.Throws
 
 interface FileConverter {
     @Throws(FileSizeExceedsLimitException::class)
-    suspend fun getFile(uri: Uri): File.FileWithContent?
+    suspend fun getFile(uri: String): File.FileWithContent?
     suspend fun getFile(attachment: Attachment): File.FileWithoutContent?
     suspend fun getFile(attachmentAwalaWrapper: AttachmentAwalaWrapper): File.FileWithContent?
 }
 
+@Suppress("NAME_SHADOWING")
 class FileConverterImpl @Inject constructor(
     private val contentResolver: ContentResolver,
     @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
 ) : FileConverter {
 
     @Throws(FileSizeExceedsLimitException::class)
-    override suspend fun getFile(uri: Uri): File.FileWithContent? {
+    override suspend fun getFile(uri: String): File.FileWithContent? {
+        val uri = Uri.parse(uri)
         contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             cursor.moveToFirst()
             val sizeColumnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
