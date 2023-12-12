@@ -63,14 +63,14 @@ fun LetroButton(
         onClick = onClick,
     ) {
         val contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary else LetroColor.disabledButtonTextColor()
-        if (leadingIconResId != null) {
+        if (isProgressIndicatorVisible || leadingIconResId != null) {
             if (isProgressIndicatorVisible) {
                 CircularProgressIndicator(
                     modifier = progressIndicatorModifier,
                     color = contentColor,
                     strokeWidth = 2.dp,
                 )
-            } else {
+            } else if (leadingIconResId != null) {
                 Icon(
                     painter = painterResource(id = leadingIconResId),
                     tint = contentColor,
@@ -85,16 +85,6 @@ fun LetroButton(
             text = text,
             style = MaterialTheme.typography.LabelLargeProminent,
         )
-        if (isProgressIndicatorVisible && leadingIconResId == null) {
-            Spacer(
-                modifier = Modifier.width(8.dp),
-            )
-            CircularProgressIndicator(
-                modifier = progressIndicatorModifier,
-                color = contentColor,
-                strokeWidth = 2.dp,
-            )
-        }
     }
 }
 
