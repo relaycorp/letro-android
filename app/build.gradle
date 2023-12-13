@@ -123,7 +123,7 @@ dependencies {
 
     // Firebase:
     implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    releaseImplementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Testing
