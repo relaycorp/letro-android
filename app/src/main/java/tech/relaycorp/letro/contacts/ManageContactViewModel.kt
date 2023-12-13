@@ -33,6 +33,7 @@ import tech.relaycorp.letro.ui.navigation.Route
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.ext.decodeFromUTF
+import tech.relaycorp.letro.utils.ext.emitOn
 import tech.relaycorp.letro.utils.ext.nullIfBlankOrEmpty
 import javax.inject.Inject
 
@@ -184,6 +185,13 @@ class ManageContactViewModel @Inject constructor(
                 }
                 else -> throw IllegalStateException("Unknown screen type: $screenType")
             }
+        }
+    }
+
+    fun onBackPressed() {
+        when (uiState.value.content) {
+            REQUEST_SENT -> onGotItClick()
+            else -> _goBackSignal.emitOn(Unit, viewModelScope)
         }
     }
 
