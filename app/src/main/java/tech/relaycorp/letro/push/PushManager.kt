@@ -8,14 +8,17 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.main.ui.MainActivity
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
 import tech.relaycorp.letro.ui.navigation.Action
+import tech.relaycorp.letro.utils.android.LifecycleObserver
 import javax.inject.Inject
 
 interface PushManager {
@@ -36,9 +39,28 @@ class PushManagerImpl @Inject constructor(
 ) : PushManager {
 
     private val notificationManager by lazy { NotificationManagerCompat.from(context) }
+    private var isAppInForeground = false
+
+    private val lifecycleObserver = LifecycleObserver(
+        onStart = {
+            isAppInForeground = true
+            notificationManager.cancelAll()
+        },
+        onStop = {
+            isAppInForeground = false
+        },
+    )
+
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
+    }
 
     @SuppressLint("MissingPermission")
     override fun showPush(pushData: PushData) {
+        if (isAppInForeground) {
+            Log.i(TAG, "Don't show push, because app is in foreground")
+            return
+        }
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra(KEY_PUSH_ACTION, pushData.action)
             action = KEY_PUSH_ACTION
@@ -107,4 +129,5 @@ class PushManagerImpl @Inject constructor(
     }
 }
 
+private const val TAG = "PushManager"
 const val KEY_PUSH_ACTION = "tech.relaycorp.letro.push_action"
