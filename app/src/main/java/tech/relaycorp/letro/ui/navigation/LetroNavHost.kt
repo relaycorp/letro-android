@@ -355,12 +355,15 @@ fun LetroNavHost(
                                 },
                             )
                         }
-                        composable(Route.AccountCreationFailed.name) {
+                        composable(Route.AccountLinkingFailed.name) {
                             ActionTakingScreen(
-                                model = ActionTakingScreenUIStateModel.AccountCreationFailed(
+                                model = ActionTakingScreenUIStateModel.AccountLinkingFailed(
                                     domain = uiState.domain ?: "",
                                 ),
                             )
+                        }
+                        composable(Route.AccountCreationFailed.name) {
+                            ActionTakingScreen(model = ActionTakingScreenUIStateModel.AccountCreationFailed)
                         }
                         composable("${Route.WelcomeToLetro.ROUTE_NAME_PREFIX}${true}") {
                             WelcomeToLetroScreen(

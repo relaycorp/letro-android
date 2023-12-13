@@ -225,6 +225,6 @@ private fun PairingRequestSentScreenPreview() {
 @Composable
 private fun AccountCreationFailedPreview() {
     LetroTheme {
-        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountCreationFailed("domain"))
+        ActionTakingScreen(ActionTakingScreenUIStateModel.AccountLinkingFailed("domain"))
     }
 }

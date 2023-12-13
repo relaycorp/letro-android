@@ -6,7 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATED
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATION_WAITING
-import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR_CREATION
+import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR_LINKING
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.LINKING_WAITING
 import tech.relaycorp.letro.account.model.AccountType.Companion.CREATED_FROM_SCRATCH
 import tech.relaycorp.letro.account.model.AccountType.Companion.LINKED_EXISTING
@@ -82,10 +83,11 @@ data class Account(
     }
 }
 
-@IntDef(ERROR, CREATION_WAITING, LINKING_WAITING, CREATED)
+@IntDef(ERROR_LINKING, ERROR_CREATION, CREATION_WAITING, LINKING_WAITING, CREATED)
 annotation class AccountStatus {
     companion object {
-        const val ERROR = -1
+        const val ERROR_CREATION = -2
+        const val ERROR_LINKING = -1
         const val CREATION_WAITING = 0
         const val LINKING_WAITING = 1
         const val CREATED = 2

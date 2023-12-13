@@ -96,11 +96,11 @@ fun LetroTopBar(
                                 strokeWidth = 2.dp,
                             )
                         }
-                        AccountStatus.ERROR -> {
+                        AccountStatus.ERROR_LINKING, AccountStatus.ERROR_CREATION -> {
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_error_24),
-                                contentDescription = stringResource(id = R.string.account_linking_failed),
+                                contentDescription = stringResource(id = if (accountStatus == AccountStatus.ERROR_LINKING) R.string.account_linking_failed else R.string.account_creation_failed),
                                 tint = LetroColor.OnSurfaceContainerHigh,
                             )
                         }
