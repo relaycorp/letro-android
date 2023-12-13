@@ -5,6 +5,7 @@
     <issue id="GradleDependency" severity="ignore" />
     <issue id="MonochromeLauncherIcon" severity="ignore" />
     <issue id="RestrictedApi" severity="ignore" />
+    <issue id="PluralsCandidate" severity="warning" />
     <issue id="LogConditional">
         <ignore path="**"/>
     </issue>

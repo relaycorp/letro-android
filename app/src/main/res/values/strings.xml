@@ -188,6 +188,10 @@
     <string name="you_need_to_contact_your_it_team_at">You need to contact your IT team at %s</string>
     <string name="file_too_big_error_message">This file exceeds the 8 MB limit</string>
 
+    <string name="you_using_x_of_y_free_accounts">You are using %d of %d free accounts</string>
+    <string name="you_hit_the_limit_of_accounts">You’ve hit the limit of %d free accounts</string>
+    <string name="until_you_delete_a_free_account">Until you delete a free account, you’ll only be able to add one with your own domain.</string>
+
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>
