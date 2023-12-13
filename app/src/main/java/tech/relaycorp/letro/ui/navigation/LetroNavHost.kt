@@ -642,7 +642,12 @@ fun LetroNavHost(
                         }
                         composable(Route.Settings.name) {
                             SettingsScreen(
-                                onAddAccountClick = { navController.navigate(Route.Registration.getRouteName(withBackButton = true)) },
+                                openRegistrationScreen = {
+                                    navController.navigate(Route.Registration.getRouteName(withBackButton = true))
+                                },
+                                openAccountLinkingScreen = {
+                                    navController.navigate(Route.UseExistingAccount.getRouteName())
+                                },
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
                                 onBackClick = { navController.popBackStackSafe() },

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
@@ -106,6 +107,7 @@ private fun ManageContactsButton(
                 horizontal = 16.dp,
                 vertical = 14.dp,
             ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_settings_18),
@@ -119,4 +121,10 @@ private fun ManageContactsButton(
             color = MaterialTheme.colorScheme.primary,
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ManageContactsButton_Preview() {
+    ManageContactsButton {}
 }

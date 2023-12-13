@@ -8,6 +8,8 @@ import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATED
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.CREATION_WAITING
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.ERROR
 import tech.relaycorp.letro.account.model.AccountStatus.Companion.LINKING_WAITING
+import tech.relaycorp.letro.account.model.AccountType.Companion.CREATED_FROM_SCRATCH
+import tech.relaycorp.letro.account.model.AccountType.Companion.LINKED_EXISTING
 
 const val TABLE_NAME_ACCOUNT = "account"
 
@@ -23,6 +25,7 @@ data class Account(
     val normalisedLocale: String?,
     val domain: String,
     val isCurrent: Boolean,
+    @AccountType val accountType: Int,
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,
@@ -43,6 +46,7 @@ data class Account(
         if (normalisedLocale != other.normalisedLocale) return false
         if (isCurrent != other.isCurrent) return false
         if (awalaEndpointId != other.awalaEndpointId) return false
+        if (accountType != other.accountType) return false
         if (veraidAuthEndpointId != other.veraidAuthEndpointId) return false
         if (!veraidPrivateKey.contentEquals(other.veraidPrivateKey)) return false
         if (veraidMemberBundle != null) {
@@ -64,6 +68,7 @@ data class Account(
         result = 31 * result + isCurrent.hashCode()
         result = 31 * result + awalaEndpointId.hashCode()
         result = 31 * result + veraidAuthEndpointId.hashCode()
+        result = 31 * result + accountType.hashCode()
         result = 31 * result + veraidPrivateKey.contentHashCode()
         result = 31 * result + (veraidMemberBundle?.contentHashCode() ?: 0)
         result = 31 * result + status.hashCode()
@@ -73,7 +78,7 @@ data class Account(
     }
 
     override fun toString(): String {
-        return "Account(accountId = $accountId, requestedUserName = $requestedUserName, normalisedLocale = $normalisedLocale, isCurrent = $isCurrent, isCreated = $status)"
+        return "Account(accountId = $accountId, requestedUserName = $requestedUserName, normalisedLocale = $normalisedLocale, isCurrent = $isCurrent, isCreated = $status; accountType = $accountType)"
     }
 }
 
@@ -84,5 +89,13 @@ annotation class AccountStatus {
         const val CREATION_WAITING = 0
         const val LINKING_WAITING = 1
         const val CREATED = 2
+    }
+}
+
+@IntDef(CREATED_FROM_SCRATCH, LINKED_EXISTING)
+annotation class AccountType {
+    companion object {
+        const val CREATED_FROM_SCRATCH = 1
+        const val LINKED_EXISTING = 2
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.ui.common.LetroActionBarWithBackAction
+import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
 import tech.relaycorp.letro.ui.theme.LetroColor
@@ -44,11 +46,12 @@ fun SettingsScreen(
     onNotificationsClick: () -> Unit,
     onTermsAndConditionsClick: () -> Unit,
     onBackClick: () -> Unit,
-    onAddAccountClick: () -> Unit,
+    openRegistrationScreen: () -> Unit,
+    openAccountLinkingScreen: () -> Unit,
     onAccountDeleted: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val accounts by viewModel.accounts.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val confirmAccountDeleteDialogState by viewModel.deleteAccountConfirmationDialog.collectAsState()
 
     val confirmAccountDeleteDialog = confirmAccountDeleteDialogState
@@ -68,13 +71,18 @@ fun SettingsScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         AccountsBlock(
-            accounts = accounts,
+            accounts = uiState.accounts,
             onAccountDeleteClick = {
                 viewModel.onAccountDeleteClick(it)
             },
-            onAddAccountClick = {
-                onAddAccountClick()
+            onAddAccountClick = { isFreeAccountsLimitReached ->
+                if (isFreeAccountsLimitReached) {
+                    openAccountLinkingScreen()
+                } else {
+                    openRegistrationScreen()
+                }
             },
+            accountsInfoView = uiState.infoViewType,
         )
         Spacer(modifier = Modifier.height(24.dp))
         NotificationsBlock(
@@ -101,9 +109,11 @@ fun SettingsScreen(
 @Composable
 private fun AccountsBlock(
     accounts: List<Account>,
-    onAddAccountClick: () -> Unit,
+    accountsInfoView: SettingsAccountsInfoViewType,
+    onAddAccountClick: (Boolean) -> Unit,
     onAccountDeleteClick: (Account) -> Unit,
 ) {
+    val isFreeAccountsLimitReached = accountsInfoView is SettingsAccountsInfoViewType.Warning
     SettingsBlock(
         title = stringResource(id = R.string.manage_accounts),
     ) {
@@ -114,14 +124,43 @@ private fun AccountsBlock(
                 onDeleteClick = { onAccountDeleteClick(accounts[i]) },
             )
         }
+        LetroInfoView(
+            backgroundColor = if (accountsInfoView is SettingsAccountsInfoViewType.Warning) LetroColor.WarningContainer else LetroColor.SurfaceContainer,
+            infoIconColor = if (accountsInfoView is SettingsAccountsInfoViewType.Warning) LetroColor.Warning else MaterialTheme.colorScheme.onSurfaceVariant,
+            iconModifier = Modifier.size(20.dp),
+            modifier = Modifier
+                .padding(
+                    horizontal = ELEMENT_HORIZONTAL_PADDING,
+                    vertical = 8.dp,
+                ),
+        ) {
+            Column {
+                if (accountsInfoView is SettingsAccountsInfoViewType.Warning) {
+                    Text(
+                        text = stringResource(id = R.string.you_hit_the_limit_of_accounts, accountsInfoView.maxFreeAccounts),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Text(
+                    text = when (accountsInfoView) {
+                        is SettingsAccountsInfoViewType.Warning -> stringResource(id = R.string.until_you_delete_a_free_account)
+                        is SettingsAccountsInfoViewType.Info -> stringResource(id = R.string.you_using_x_of_y_free_accounts, accountsInfoView.createdAccounts, accountsInfoView.maxFreeAccounts)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onAddAccountClick() }
+                .clickable { onAddAccountClick(isFreeAccountsLimitReached) }
                 .padding(
                     horizontal = ELEMENT_HORIZONTAL_PADDING,
                     vertical = ELEMENT_VERTICAL_PADDING,
                 ),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_plus_18),
@@ -130,7 +169,7 @@ private fun AccountsBlock(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = stringResource(id = R.string.add_another_account),
+                text = stringResource(id = if (isFreeAccountsLimitReached) R.string.general_use_existing_account else R.string.add_another_account),
                 style = MaterialTheme.typography.LabelLargeProminent,
                 color = MaterialTheme.colorScheme.primary,
             )

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
+import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
@@ -37,6 +38,7 @@ class ComposeNewMessageViewModelTest {
                         isCurrent = true,
                         veraidPrivateKey = ByteArray(0),
                         status = AccountStatus.CREATED,
+                        accountType = AccountType.CREATED_FROM_SCRATCH,
                     ),
                 ),
             ),

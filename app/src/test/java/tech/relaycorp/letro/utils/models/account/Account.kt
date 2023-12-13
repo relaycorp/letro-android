@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
+import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.account.registration.utils.AccountIdBuilderImpl
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.account.storage.repository.AccountRepositoryImpl
@@ -32,6 +33,7 @@ fun createAccount(
     isCurrent = isCurrent,
     veraidPrivateKey = ByteArray(0),
     status = status,
+    accountType = AccountType.CREATED_FROM_SCRATCH,
 )
 
 @ExperimentalCoroutinesApi

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
+import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.main.MainViewModel
@@ -136,6 +137,7 @@ class AccountRepositoryImpl @Inject constructor(
                 isCurrent = true,
                 token = token,
                 status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
+                accountType = if (token != null) AccountType.LINKED_EXISTING else AccountType.CREATED_FROM_SCRATCH,
             ),
         )
     }
