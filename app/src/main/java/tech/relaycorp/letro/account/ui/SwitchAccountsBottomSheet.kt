@@ -78,10 +78,10 @@ private fun Account(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (account.status == AccountStatus.ERROR) {
+            if (account.status == AccountStatus.ERROR_LINKING || account.status == AccountStatus.ERROR_CREATION) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(id = R.string.account_linking_failed),
+                    text = stringResource(id = if (account.status == AccountStatus.ERROR_LINKING) R.string.account_linking_failed else R.string.account_creation_failed),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

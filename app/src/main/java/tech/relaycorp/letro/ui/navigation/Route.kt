@@ -53,6 +53,12 @@ sealed class Route(
             "&$TOKEN_ENCODED=${token.encodeToUTF()}"
     }
 
+    object AccountLinkingFailed : Route(
+        name = "account_linking_failed_route",
+        showTopBar = true,
+        isStatusBarPrimaryColor = true,
+    )
+
     object AccountCreationFailed : Route(
         name = "account_creation_failed_route",
         showTopBar = true,
@@ -199,6 +205,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.Registration.name) -> Route.Registration
             it.startsWith(Route.AccountCreationWaiting.name) -> Route.AccountCreationWaiting
             it.startsWith(Route.AccountLinkingWaiting.name) -> Route.AccountLinkingWaiting
+            it.startsWith(Route.AccountLinkingFailed.name) -> Route.AccountLinkingFailed
             it.startsWith(Route.AccountCreationFailed.name) -> Route.AccountCreationFailed
             it.startsWith(Route.UseExistingAccount.name) -> Route.UseExistingAccount
             it.startsWith(Route.WelcomeToLetro.ROUTE_NAME_PREFIX) -> Route.WelcomeToLetro(this.removePrefix(Route.WelcomeToLetro.ROUTE_NAME_PREFIX).toBoolean())

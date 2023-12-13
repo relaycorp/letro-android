@@ -139,7 +139,7 @@ class MainViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         canSendMessages = contactsState.isPairedContactExist,
-                        showTopBarAccountIdAsShimmer = currentAccount?.status == AccountStatus.LINKING_WAITING || currentAccount?.status == AccountStatus.ERROR && !currentAccount.token.isNullOrEmpty(),
+                        showTopBarAccountIdAsShimmer = currentAccount?.status == AccountStatus.LINKING_WAITING || currentAccount?.status == AccountStatus.ERROR_LINKING && !currentAccount.token.isNullOrEmpty(),
                     )
                 }
                 val rootNavigationScreen = when {
@@ -151,7 +151,8 @@ class MainViewModel @Inject constructor(
                     currentAccount == null -> RootNavigationScreen.Registration
                     currentAccount.status == AccountStatus.CREATION_WAITING -> RootNavigationScreen.AccountCreationWaiting
                     currentAccount.status == AccountStatus.LINKING_WAITING -> RootNavigationScreen.AccountLinkingWaiting
-                    currentAccount.status == AccountStatus.ERROR -> RootNavigationScreen.AccountCreationFailed
+                    currentAccount.status == AccountStatus.ERROR_LINKING -> RootNavigationScreen.AccountLinkingFailed
+                    currentAccount.status == AccountStatus.ERROR_CREATION -> RootNavigationScreen.AccountCreationFailed
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro(
                         withAnimation = navigationHandledWithLastAccount == currentAccount.id &&
                             (_rootNavigationScreen.value == RootNavigationScreen.AccountCreationWaiting || _rootNavigationScreen.value == RootNavigationScreen.AccountLinkingWaiting || _rootNavigationScreen.value is RootNavigationScreen.WelcomeToLetro),

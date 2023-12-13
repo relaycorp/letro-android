@@ -127,7 +127,7 @@ private fun AccountsBlock(
         for (i in accounts.indices) {
             Account(
                 accountId = accounts[i].accountId,
-                isCreationError = accounts[i].status == AccountStatus.ERROR,
+                accountStatus = accounts[i].status,
                 onDeleteClick = { onAccountDeleteClick(accounts[i]) },
             )
         }
@@ -187,7 +187,7 @@ private fun AccountsBlock(
 @Composable
 private fun Account(
     accountId: String,
-    isCreationError: Boolean,
+    @AccountStatus accountStatus: Int,
     onDeleteClick: () -> Unit,
 ) {
     Row(
@@ -210,10 +210,10 @@ private fun Account(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (isCreationError) {
+            if (accountStatus == AccountStatus.ERROR_CREATION || accountStatus == AccountStatus.ERROR_LINKING) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(id = R.string.account_linking_failed),
+                    text = stringResource(id = if (accountStatus == AccountStatus.ERROR_LINKING) R.string.account_linking_failed else R.string.account_creation_failed),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

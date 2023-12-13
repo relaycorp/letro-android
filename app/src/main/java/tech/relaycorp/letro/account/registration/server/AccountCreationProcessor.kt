@@ -1,10 +1,13 @@
 package tech.relaycorp.letro.account.registration.server
 
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
+import tech.relaycorp.letro.server.messages.InvalidAccountCreationException
 import tech.relaycorp.letro.utils.Logger
+import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
 import javax.inject.Inject
 
 class AccountCreationProcessor @Inject constructor(
@@ -17,6 +20,18 @@ class AccountCreationProcessor @Inject constructor(
         content: AwalaIncomingMessageContent.AccountCreation,
         awalaManager: AwalaManager,
     ) {
+        val veraidKeyPair = content.account.veraidPrivateKey.deserialiseKeyPair()
+        try {
+            content.accountCreation.validate(veraidKeyPair.public)
+        } catch (exc: InvalidAccountCreationException) {
+            logger.w(TAG, "Invalid account creation (${content.accountCreation})", exc)
+            accountRepository.updateAccount(
+                account = content.account,
+                status = AccountStatus.ERROR_CREATION,
+            )
+            return
+        }
+
         accountRepository.updateAccount(
             content.account,
             content.accountCreation.assignedUserId,

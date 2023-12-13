@@ -28,13 +28,13 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
         accountRepository.getByDomain(domain).forEach {
             accountRepository.updateAccount(
                 account = it,
-                status = AccountStatus.ERROR,
+                status = AccountStatus.ERROR_LINKING,
             )
         }
         accountRepository.getByAwalaEndpoint(domain).forEach {
             accountRepository.updateAccount(
                 account = it,
-                status = AccountStatus.ERROR,
+                status = AccountStatus.ERROR_LINKING,
             )
         }
         contactsDao.getContactsWithNoEndpoint(
