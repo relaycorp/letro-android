@@ -4,6 +4,7 @@ sealed interface RootNavigationScreen {
     object Registration : RootNavigationScreen
     object AccountCreationWaiting : RootNavigationScreen
     object AccountLinkingWaiting : RootNavigationScreen
+    object AccountLinkingFailed : RootNavigationScreen
     object AccountCreationFailed : RootNavigationScreen
     data class WelcomeToLetro(
         val withAnimation: Boolean = false,
@@ -19,6 +20,10 @@ sealed interface RootNavigationScreen {
     fun toRoute() = when (this) {
         Registration -> {
             Route.Registration
+        }
+
+        AccountLinkingFailed -> {
+            Route.AccountLinkingFailed
         }
 
         AccountCreationFailed -> {

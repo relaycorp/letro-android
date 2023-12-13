@@ -53,7 +53,7 @@ class ConnectionParamsProcessor @Inject constructor(
                 contactPairingNotificationManager.showFailedPairingNotification(it)
             }
             accountsToUpdate.forEach {
-                accountsRepository.updateAccount(it, AccountStatus.ERROR)
+                accountsRepository.updateAccount(it, AccountStatus.ERROR_LINKING)
             }
             return
         }
@@ -94,7 +94,7 @@ class ConnectionParamsProcessor @Inject constructor(
                 )
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
-                accountsRepository.updateAccount(account, AccountStatus.ERROR)
+                accountsRepository.updateAccount(account, AccountStatus.ERROR_LINKING)
             }
         }
     }

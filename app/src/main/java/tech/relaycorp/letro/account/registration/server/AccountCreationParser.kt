@@ -6,7 +6,6 @@ import tech.relaycorp.letro.awala.parser.AwalaMessageParser
 import tech.relaycorp.letro.server.messages.AccountCreation
 import tech.relaycorp.letro.server.messages.InvalidAccountCreationException
 import tech.relaycorp.letro.utils.Logger
-import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
 import javax.inject.Inject
 
 interface AccountCreationParser : AwalaMessageParser<AwalaIncomingMessageContent.AccountCreation>
@@ -30,14 +29,6 @@ class AccountCreationParserImpl @Inject constructor(
         )
         if (account == null) {
             logger.w(TAG, "No account found for creation message ($accountCreation)")
-            return null
-        }
-
-        val veraidKeyPair = account.veraidPrivateKey.deserialiseKeyPair()
-        try {
-            accountCreation.validate(veraidKeyPair.public)
-        } catch (exc: InvalidAccountCreationException) {
-            logger.w(TAG, "Invalid account creation ($accountCreation)", exc)
             return null
         }
         return AwalaIncomingMessageContent.AccountCreation(
