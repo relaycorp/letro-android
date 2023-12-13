@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -103,6 +104,12 @@ fun SettingsScreen(
                 },
             )
         }
+        Spacer(modifier = Modifier.height(32.dp))
+        Image(
+            painter = painterResource(id = R.drawable.powered_by_awala),
+            contentDescription = stringResource(id = R.string.powered_by_awala),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        )
     }
 }
 
