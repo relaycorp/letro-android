@@ -192,6 +192,7 @@
     <string name="you_hit_the_limit_of_accounts">You’ve hit the limit of %d free accounts</string>
     <string name="until_you_delete_a_free_account">Until you delete a free account, you’ll only be able to add one with your own domain.</string>
 
+    <string name="powered_by_awala">Powered by Awala</string>
     <string name="file_size_megabytes" translatable="false">%s MB</string>
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>
