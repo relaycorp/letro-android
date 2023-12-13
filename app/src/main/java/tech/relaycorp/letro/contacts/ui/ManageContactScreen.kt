@@ -2,6 +2,7 @@
 
 package tech.relaycorp.letro.contacts.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,10 @@ fun ManageContactScreen(
             viewModel.onNotificationPermissionResult(it)
         },
     )
+
+    BackHandler {
+        viewModel.onBackPressed()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.showSnackbar.collect {
