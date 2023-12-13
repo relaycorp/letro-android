@@ -139,10 +139,10 @@ class ConversationsRepositoryImpl @Inject constructor(
         subject: String?,
         attachments: List<File.FileWithContent>,
     ) {
-        val recipientNodeId = recipient.contactEndpointId ?: run {
-            logger.w(TAG, "Recipient endpoint id is null")
-            return
-        }
+//        val recipientNodeId = recipient.contactEndpointId ?: run {
+//            logger.w(TAG, "Recipient endpoint id is null")
+//            return
+//        }
         val conversation = Conversation(
             ownerVeraId = ownerVeraId,
             contactVeraId = recipient.contactVeraId,
@@ -157,25 +157,25 @@ class ConversationsRepositoryImpl @Inject constructor(
             recipientVeraId = recipient.contactVeraId,
             sentAtUtc = nowUTC(),
         )
-        awalaManager.sendMessage(
-            outgoingMessage = AwalaOutgoingMessage(
-                type = MessageType.NewConversation,
-                content = outgoingMessageMessageEncoder.encodeNewConversationContent(
-                    conversation = conversation,
-                    messageText = message.text,
-                    attachments = attachments,
-                ),
-            ),
-            recipient = if (recipient.isPrivateEndpoint) {
-                AwalaEndpoint.Private(
-                    nodeId = recipientNodeId,
-                )
-            } else {
-                AwalaEndpoint.Public(
-                    nodeId = recipientNodeId,
-                )
-            },
-        )
+//        awalaManager.sendMessage(
+//            outgoingMessage = AwalaOutgoingMessage(
+//                type = MessageType.NewConversation,
+//                content = outgoingMessageMessageEncoder.encodeNewConversationContent(
+//                    conversation = conversation,
+//                    messageText = message.text,
+//                    attachments = attachments,
+//                ),
+//            ),
+//            recipient = if (recipient.isPrivateEndpoint) {
+//                AwalaEndpoint.Private(
+//                    nodeId = recipientNodeId,
+//                )
+//            } else {
+//                AwalaEndpoint.Public(
+//                    nodeId = recipientNodeId,
+//                )
+//            },
+//        )
         conversationsDao.createNewConversation(conversation)
         val messageId = messagesDao.insert(message)
 

@@ -1,5 +1,8 @@
 package tech.relaycorp.letro.conversation.viewing.ui
 
+import android.graphics.Color
+import android.graphics.Typeface
+import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -42,6 +45,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.conversation.attachments.ui.Attachment
@@ -57,6 +63,7 @@ import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
 import tech.relaycorp.letro.utils.time.nowUTC
 import java.util.UUID
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -169,7 +176,8 @@ private fun Message(
     isLastMessage: Boolean,
     onAttachmentClick: (AttachmentInfo) -> Unit,
 ) {
-    var isCollapsed: Boolean by remember { mutableStateOf(!isLastMessage) }
+    isLastMessage
+    var isCollapsed: Boolean = false
     var isDetailsCollapsed: Boolean by remember { mutableStateOf(true) }
 
     Column(
@@ -243,18 +251,33 @@ private fun Message(
             }
         }
         SelectionContainer {
-            Text(
-                text = if (isCollapsed) message.text.replace("[\\r\\n]+".toRegex(), " ") else message.text,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
-                overflow = TextOverflow.Ellipsis,
+            val spannedText = HtmlCompat.fromHtml(message.text, 0)
+            AndroidView(
                 modifier = Modifier
                     .padding(
                         vertical = if (isCollapsed) 2.dp else 10.dp,
                         horizontal = 16.dp,
                     ),
+                factory = { TextView(it).apply {
+                    val typeface: Typeface? = ResourcesCompat.getFont(context,
+                        tech.relaycorp.letro.R.font.inter_regular)
+                    setTypeface(typeface)
+                    setTextColor(Color.BLACK)
+                } },
+                update = { it.text = spannedText }
             )
+//            Text(
+//                text = if (isCollapsed) message.text.replace("[\\r\\n]+".toRegex(), " ") else message.text,
+//                color = MaterialTheme.colorScheme.onSurface,
+//                style = MaterialTheme.typography.bodyMedium,
+//                maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
+//                overflow = TextOverflow.Ellipsis,
+//                modifier = Modifier
+//                    .padding(
+//                        vertical = if (isCollapsed) 2.dp else 10.dp,
+//                        horizontal = 16.dp,
+//                    ),
+//            )
         }
         if (!isCollapsed) {
             Column {
@@ -287,7 +310,7 @@ private fun MessageInfoView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
+                .border(1.dp,MaterialTheme.colorScheme.outlineVariant,RoundedCornerShape(6.dp))
                 .padding(8.dp),
         ) {
             Column {
