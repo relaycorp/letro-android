@@ -13,12 +13,17 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.main.ui.MainActivity
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
 import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.utils.android.LifecycleObserver
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import javax.inject.Inject
 
 interface PushManager {
@@ -26,25 +31,26 @@ interface PushManager {
     fun showPush(
         pushData: PushData,
     )
-
-    fun createNotificationChannelsForAccounts(
-        accounts: List<String>,
-    )
 }
 
 class PushManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val permissionManager: PushPermissionManager,
     private val channels: List<PushChannel>,
+    private val accountRepository: AccountRepository,
+    dispatchers: Dispatchers,
 ) : PushManager {
+
+    private val scope = CoroutineScope(dispatchers.Main)
 
     private val notificationManager by lazy { NotificationManagerCompat.from(context) }
     private var isAppInForeground = false
+    private var currentAccount: Account? = null
 
     private val lifecycleObserver = LifecycleObserver(
         onStart = {
             isAppInForeground = true
-            notificationManager.cancelAll()
+            clearNotificationsForCurrentAccount()
         },
         onStop = {
             isAppInForeground = false
@@ -52,13 +58,24 @@ class PushManagerImpl @Inject constructor(
     )
 
     init {
+        scope.launch(dispatchers.IO) {
+            accountRepository.allAccounts.collect {
+                createNotificationChannelsForAccounts(it.map { it.accountId })
+            }
+        }
+        scope.launch(dispatchers.Main) {
+            accountRepository.currentAccount.collect {
+                currentAccount = it
+                clearNotificationsForCurrentAccount()
+            }
+        }
         ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
     }
 
     @SuppressLint("MissingPermission")
     override fun showPush(pushData: PushData) {
-        if (isAppInForeground) {
-            Log.i(TAG, "Don't show push, because app is in foreground")
+        if (isAppInForeground && currentAccount?.accountId == pushData.recipientAccountId) {
+            Log.i(TAG, "Don't show push, because app is in foreground, and recipient account is active")
             return
         }
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -99,7 +116,15 @@ class PushManagerImpl @Inject constructor(
         }
     }
 
-    override fun createNotificationChannelsForAccounts(accounts: List<String>) {
+    private fun clearNotificationsForCurrentAccount() {
+        notificationManager.activeNotifications
+            .filter { currentAccount?.accountId != null && it.notification.group == currentAccount?.accountId }
+            .forEach {
+                notificationManager.cancel(it.id)
+            }
+    }
+
+    private fun createNotificationChannelsForAccounts(accounts: List<String>) {
         accounts.forEach {
             createGroupedNotificationChannels(it)
         }

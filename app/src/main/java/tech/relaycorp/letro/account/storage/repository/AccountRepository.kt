@@ -12,7 +12,6 @@ import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.account.registration.utils.AccountIdBuilder
 import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.main.MainViewModel
-import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.letro.utils.i18n.normaliseString
@@ -65,7 +64,6 @@ interface AccountRepository {
 
 class AccountRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
-    private val pushManager: PushManager,
     private val accountIdBuilder: AccountIdBuilder,
     private val logger: Logger,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -88,7 +86,6 @@ class AccountRepositoryImpl @Inject constructor(
         }
         databaseScope.launch {
             _allAccounts.collect { list ->
-                pushManager.createNotificationChannelsForAccounts(list.map { it.accountId })
                 logger.d(MainViewModel.TAG, "AccountRepository.emit(currentAccount)")
                 _currentAccount.emit(
                     list.firstOrNull { it.isCurrent },

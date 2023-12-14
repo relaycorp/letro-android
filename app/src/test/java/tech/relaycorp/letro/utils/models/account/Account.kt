@@ -44,7 +44,6 @@ fun createAccountRepository(
     ioDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
 ) = AccountRepositoryImpl(
     accountDao = accountDao,
-    pushManager = mockk(relaxed = true),
     logger = createLogger(),
     ioDispatcher = ioDispatcher,
     accountIdBuilder = createAccountIdBuilder(),
