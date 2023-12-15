@@ -90,6 +90,7 @@ class AwalaWrapperImpl @Inject constructor(
                 recipientEndpoint = thirdPartyEndpoint,
             ),
         )
+        logger.i(AwalaManagerImpl.TAG, "sendMessage(): Message sent (${outgoingMessage.type})")
     }
 
     override suspend fun importServerThirdPartyEndpoint(connectionParams: Int): PublicThirdPartyEndpoint {
