@@ -30,10 +30,6 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState>
         get() = _uiState
 
-    private val _deleteAccountConfirmationDialog = MutableStateFlow(DeleteAccountDialogState())
-    val deleteAccountConfirmationDialog: StateFlow<DeleteAccountDialogState>
-        get() = _deleteAccountConfirmationDialog
-
     init {
         viewModelScope.launch(dispatchers.IO) {
             accountRepository.allAccounts
@@ -50,31 +46,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onAccountDeleteClick(account: Account) {
-        _deleteAccountConfirmationDialog.update {
-            it.copy(
-                isShown = true,
-                account = account,
-            )
-        }
-    }
-
-    fun onConfirmAccountDeleteClick(account: Account) {
-        onConfirmAccountDeleteDialogDismissed()
-        viewModelScope.launch {
-            accountRepository.deleteAccount(account)
-        }
-    }
-
-    fun onConfirmAccountDeleteDialogDismissed() {
-        _deleteAccountConfirmationDialog.update {
-            it.copy(
-                isShown = false,
-                account = null,
-            )
-        }
-    }
-
     companion object {
         const val MAX_FREE_ACCOUNTS = 2
     }
@@ -86,11 +57,6 @@ data class SettingsUiState(
         createdAccounts = 0,
         maxFreeAccounts = MAX_FREE_ACCOUNTS,
     ),
-)
-
-data class DeleteAccountDialogState(
-    val isShown: Boolean = false,
-    val account: Account? = null,
 )
 
 sealed interface SettingsAccountsInfoViewType {

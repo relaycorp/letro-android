@@ -43,6 +43,9 @@
 
     <string name="top_bar_change_account">Change account</string>
     <string name="settings">Settings</string>
+    <string name="account">Account</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="set_profile_photo">Set profile photo</string>
 
     <string name="no_browser">There is no app to open this link</string>
     <string name="no_app_to_share">There is no app to share your id</string>

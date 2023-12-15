@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6340f742c3d415930e9f148ec4f421e7",
+    "identityHash": "bf9fb8084257ac32879b120680ac12fa",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `accountType` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpointId` TEXT, `veraidAuthEndpointId` TEXT, `status` INTEGER NOT NULL, `token` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `accountType` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpointId` TEXT, `veraidAuthEndpointId` TEXT, `status` INTEGER NOT NULL, `token` TEXT, `avatarPath` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -83,6 +83,12 @@
           {
             "fieldPath": "token",
             "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "avatarPath",
+            "columnName": "avatarPath",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -452,7 +458,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6340f742c3d415930e9f148ec4f421e7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bf9fb8084257ac32879b120680ac12fa')"
     ]
   }
 }

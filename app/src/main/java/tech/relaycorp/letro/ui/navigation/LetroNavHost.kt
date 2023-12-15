@@ -48,6 +48,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.account.SwitchAccountViewModel
+import tech.relaycorp.letro.account.manage.AccountManageScreen
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
@@ -654,7 +655,19 @@ fun LetroNavHost(
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
                                 onBackClick = { navController.popBackStackSafe() },
+                                openAccountManageScreen = {
+                                    navController.navigate(Route.AccountManage.getRouteName(it.id))
+                                },
+                            )
+                        }
+                        composable(
+                            route = Route.AccountManage.name +
+                                "?${Route.AccountManage.ACCOUNT_ID}={${Route.AccountManage.ACCOUNT_ID}}",
+                        ) {
+                            AccountManageScreen(
+                                onBackClick = { navController.popBackStackSafe() },
                                 onAccountDeleted = {
+                                    navController.popBackStackSafe()
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.accountDeleted)
                                 },
                             )
