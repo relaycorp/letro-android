@@ -90,18 +90,18 @@ class ContactsRepositoryImpl @Inject constructor(
         )
 
         if (existingContact == null || existingContact.status <= ContactPairingStatus.REQUEST_SENT) {
+            val account = accountRepository.getByVeraidId(contact.ownerVeraId) ?: run {
+                logger.w(TAG, "Account not found for VeraId ${contact.ownerVeraId}")
+                return
+            }
             if (contact.isPrivateEndpoint) {
-                val account = accountRepository.getByVeraidId(contact.ownerVeraId) ?: run {
-                    logger.w(TAG, "Account not found for VeraId ${contact.ownerVeraId}")
-                    return
-                }
                 val veraidMemberBundle = account.veraidMemberBundle ?: run {
                     logger.w(TAG, "Account ${contact.ownerVeraId} has no member bundle")
                     return
                 }
                 val memberIdBundle = MemberIdBundle.deserialise(veraidMemberBundle)
                 val request = ContactPairingRequest(
-                    awalaManager.getFirstPartyPublicKey().encoded,
+                    awalaManager.getFirstPartyPublicKey(account).encoded,
                     contact.contactVeraId,
                 )
                 val veraidKeyPair = account.veraidPrivateKey.deserialiseKeyPair()
@@ -112,6 +112,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         content = requestSerialised,
                     ),
                     recipient = AwalaEndpoint.Public(),
+                    senderAccount = account,
                 )
             } else {
                 awalaManager.sendMessage(
@@ -120,6 +121,7 @@ class ContactsRepositoryImpl @Inject constructor(
                         content = contact.contactVeraId.toByteArray(),
                     ),
                     recipient = AwalaEndpoint.Public(),
+                    senderAccount = account,
                 )
             }
             if (existingContact == null) {
@@ -140,8 +142,13 @@ class ContactsRepositoryImpl @Inject constructor(
 
     @Throws(AwaladroidException::class)
     override suspend fun deleteContact(contact: Contact) {
+        val account = accountRepository.getByVeraidId(contact.ownerVeraId) ?: run {
+            logger.w(TAG, "Account not found for VeraId ${contact.ownerVeraId}")
+            return
+        }
         contact.contactEndpointId?.let {
             awalaManager.revokeAuthorization(
+                ownerAccount = account,
                 if (contact.isPrivateEndpoint) AwalaEndpoint.Private(contact.contactEndpointId) else AwalaEndpoint.Public(contact.contactEndpointId),
             )
         }

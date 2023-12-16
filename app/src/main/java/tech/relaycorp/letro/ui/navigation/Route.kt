@@ -85,12 +85,11 @@ sealed class Route(
         isStatusBarPrimaryColor = true,
     ) {
 
-        @IntDef(TYPE_FATAL_ERROR, TYPE_NON_FATAL_ERROR, TYPE_NEED_TO_OPEN_AWALA)
+        @IntDef(TYPE_FATAL_ERROR, TYPE_NON_FATAL_ERROR)
         annotation class Type
         companion object {
             const val TYPE_FATAL_ERROR = 0
             const val TYPE_NON_FATAL_ERROR = 1
-            const val TYPE_NEED_TO_OPEN_AWALA = 2
 
             internal const val NAME_PREFIX = "awala_initialization_error_"
         }

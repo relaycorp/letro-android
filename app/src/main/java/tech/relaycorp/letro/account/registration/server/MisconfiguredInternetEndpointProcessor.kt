@@ -31,7 +31,7 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
                 status = AccountStatus.ERROR_LINKING,
             )
         }
-        accountRepository.getByAwalaEndpoint(domain).forEach {
+        accountRepository.getByAwalaDomain(domain).forEach {
             accountRepository.updateAccount(
                 account = it,
                 status = AccountStatus.ERROR_LINKING,

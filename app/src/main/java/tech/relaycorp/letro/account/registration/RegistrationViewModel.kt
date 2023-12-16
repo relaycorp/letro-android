@@ -4,18 +4,23 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.awaladroid.AwaladroidException
+import tech.relaycorp.awaladroid.GatewayUnregisteredException
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.registration.storage.DuplicateAccountIdException
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
 import tech.relaycorp.letro.account.registration.utils.RegistrationDomainProvider
+import tech.relaycorp.letro.awala.AwalaManagerImpl
 import tech.relaycorp.letro.base.BaseViewModel
 import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
+import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import javax.inject.Inject
 
@@ -23,6 +28,7 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val registrationRepository: RegistrationRepository,
     private val domainProvider: RegistrationDomainProvider,
+    private val logger: Logger,
     dispatchers: Dispatchers,
 ) : BaseViewModel(dispatchers) {
 
@@ -33,6 +39,10 @@ class RegistrationViewModel @Inject constructor(
     )
     val uiState: StateFlow<RegistrationScreenUiState>
         get() = _uiState
+
+    private val _showOpenAwalaSnackbar = MutableSharedFlow<Unit>()
+    val showOpenAwalaSnackbar: Flow<Unit>
+        get() = _showOpenAwalaSnackbar
 
     fun onUsernameInput(username: String) {
         val isValidText = !username.contains(" ") && !username.contains("@") && username.length <= USER_NAME_MAX_LENGTH
@@ -71,6 +81,9 @@ class RegistrationViewModel @Inject constructor(
                     domainName = uiState.value.domain,
                     locale = domainProvider.getDomainLocale(),
                 )
+            } catch (e: GatewayUnregisteredException) {
+                logger.e(AwalaManagerImpl.TAG, "Failed to register endpoint", e)
+                _showOpenAwalaSnackbar.emit(Unit)
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
                 showSnackbarDebounced.emit(

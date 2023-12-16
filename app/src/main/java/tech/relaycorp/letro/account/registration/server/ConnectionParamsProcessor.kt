@@ -45,7 +45,12 @@ class ConnectionParamsProcessor @Inject constructor(
         )
 
         try {
-            awalaManager.authorizePublicThirdPartyEndpoint(publicThirdPartyEndpoint)
+            accountsToUpdate.forEach {
+                awalaManager.authorizePublicThirdPartyEndpoint(
+                    account = it,
+                    thirdPartyEndpoint = publicThirdPartyEndpoint,
+                )
+            }
         } catch (e: AwaladroidException) {
             Log.w(TAG, e)
             contactsToUpdate.forEach {
@@ -91,6 +96,7 @@ class ConnectionParamsProcessor @Inject constructor(
                     recipient = AwalaEndpoint.Public(
                         nodeId = publicThirdPartyEndpoint.nodeId,
                     ),
+                    senderAccount = account,
                 )
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)

@@ -27,6 +27,7 @@ data class Account(
     val domain: String,
     val isCurrent: Boolean,
     @AccountType val accountType: Int,
+    val firstPartyEndpointNodeId: String,
     // TODO: Encrypt key when integrating VeraId (https://relaycorp.atlassian.net/browse/LTR-55)
     val veraidPrivateKey: ByteArray,
     val veraidMemberBundle: ByteArray? = null,

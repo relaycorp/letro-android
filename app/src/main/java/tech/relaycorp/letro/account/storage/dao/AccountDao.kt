@@ -15,6 +15,9 @@ interface AccountDao {
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT")
     fun getAll(): Flow<List<Account>>
 
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT")
+    suspend fun getAllSync(): List<Account>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: Account)
 

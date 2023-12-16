@@ -20,8 +20,8 @@ import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.utils.Logger
-import java.lang.Exception
 import javax.inject.Inject
+import kotlin.Exception
 
 interface AwalaWrapper {
     suspend fun setUp()
@@ -135,12 +135,12 @@ class AwalaWrapperImpl @Inject constructor(
     }
 
     override suspend fun loadNonNullPublicFirstPartyEndpoint(nodeId: String?): FirstPartyEndpoint {
-        if (nodeId == null) throw Exception("nodeId for loading FirstPartyEndpoint is null")
+        if (nodeId == null) throw AwalaException("nodeId for loading FirstPartyEndpoint is null")
         return FirstPartyEndpoint.load(nodeId) ?: throw AwalaException("FirstPartyEndpoint couldn't be loaded")
     }
 
     override suspend fun loadNonNullPublicThirdPartyEndpoint(nodeId: String?): PublicThirdPartyEndpoint {
-        if (nodeId == null) throw Exception("nodeId for loading ThirdPartyEndpoint is null")
+        if (nodeId == null) throw AwalaException("nodeId for loading ThirdPartyEndpoint is null")
         return PublicThirdPartyEndpoint.load(nodeId) ?: throw AwalaException("ThirdPartyEndpoint couldn't be loaded")
     }
 
@@ -152,4 +152,6 @@ class AwalaWrapperImpl @Inject constructor(
     }
 }
 
-class AwalaException(message: String) : AwaladroidException(message)
+open class AwalaException(message: String) : AwaladroidException(message)
+
+class FirstPartyEndpointRegisteringException(cause: Exception) : AwaladroidException("Couldn't register first party endpoint", cause)

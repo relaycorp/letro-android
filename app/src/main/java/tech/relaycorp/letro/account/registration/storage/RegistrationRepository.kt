@@ -43,19 +43,21 @@ class RegistrationRepositoryImpl @Inject constructor(
             locale,
             keyPair.public,
         )
-        awalaManager
+        val firstPartyEndpointNodeId = awalaManager
             .sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.AccountCreationRequest,
                     content = creationRequest.serialise(keyPair.private),
                 ),
                 recipient = AwalaEndpoint.Public(),
+                senderAccount = null,
             )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
             domainName = domainName,
             locale = locale,
             veraidPrivateKey = keyPair.private,
+            firstPartyEndpointNodeId = firstPartyEndpointNodeId,
         )
     }
 
@@ -67,12 +69,13 @@ class RegistrationRepositoryImpl @Inject constructor(
             throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
         }
         val keyPair = generateRSAKeyPair()
-        awalaManager.sendMessage(
+        val firstPartyEndpointNodeId = awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
                 type = MessageType.ConnectionParamsRequest,
                 content = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint.toByteArray() else domainName.toByteArray(),
             ),
             recipient = AwalaEndpoint.Public(),
+            senderAccount = null,
         )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
@@ -80,6 +83,7 @@ class RegistrationRepositoryImpl @Inject constructor(
             awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             veraidPrivateKey = keyPair.private,
             token = token,
+            firstPartyEndpointNodeId = firstPartyEndpointNodeId,
         )
     }
 

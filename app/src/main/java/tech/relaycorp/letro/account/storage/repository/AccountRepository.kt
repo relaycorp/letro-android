@@ -26,6 +26,7 @@ interface AccountRepository {
         requestedUserName: String,
         domainName: String,
         veraidPrivateKey: PrivateKey,
+        firstPartyEndpointNodeId: String,
         awalaEndpoint: String? = null,
         locale: Locale? = null,
         token: String? = null,
@@ -43,8 +44,8 @@ interface AccountRepository {
         domain: String,
     ): List<Account>
 
-    suspend fun getByAwalaEndpoint(
-        awalaEndpoint: String,
+    suspend fun getByAwalaDomain(
+        awalaDomain: String,
     ): List<Account>
 
     suspend fun updateAccount(account: Account, accountId: String, veraidBundle: ByteArray)
@@ -118,6 +119,7 @@ class AccountRepositoryImpl @Inject constructor(
         requestedUserName: String,
         domainName: String,
         veraidPrivateKey: PrivateKey,
+        firstPartyEndpointNodeId: String,
         awalaEndpoint: String?,
         locale: Locale?,
         token: String?,
@@ -135,6 +137,7 @@ class AccountRepositoryImpl @Inject constructor(
                 token = token,
                 status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
                 accountType = if (token != null) AccountType.LINKED_EXISTING else AccountType.CREATED_FROM_SCRATCH,
+                firstPartyEndpointNodeId = firstPartyEndpointNodeId,
             ),
         )
     }
@@ -199,8 +202,8 @@ class AccountRepositoryImpl @Inject constructor(
         return accountDao.getByDomain(domain)
     }
 
-    override suspend fun getByAwalaEndpoint(awalaEndpoint: String): List<Account> {
-        return accountDao.getByAwalaEndpoint(awalaEndpoint)
+    override suspend fun getByAwalaDomain(awalaDomain: String): List<Account> {
+        return accountDao.getByAwalaEndpoint(awalaDomain)
     }
 
     private suspend fun markAllExistingAccountsAsNonCurrent() {

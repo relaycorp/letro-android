@@ -13,11 +13,12 @@ abstract class ServerMessageProcessor<T : AwalaIncomingMessageContent>(
 
     override suspend fun isFromExpectedSender(
         content: T,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {
         val thirdPartyEndpointNodeId = try {
-            awalaManager.getServerThirdPartyEndpoint()?.nodeId
+            awalaManager.getServerThirdPartyEndpoint(recipientNodeId)?.nodeId
         } catch (e: AwaladroidException) {
             null
         }

@@ -53,7 +53,6 @@ import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
 import tech.relaycorp.letro.account.ui.SwitchAccountsBottomSheet
 import tech.relaycorp.letro.awala.ui.error.AwalaInitializationError
-import tech.relaycorp.letro.awala.ui.error.AwalaInitializationErrorViewModel.Companion.CONFIGURE_ENDPOINTS_ON_RESUME
 import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgress
 import tech.relaycorp.letro.awala.ui.notinstalled.AwalaNotInstalledScreen
 import tech.relaycorp.letro.base.utils.SnackbarString
@@ -311,21 +310,6 @@ fun LetroNavHost(
                             )
                         }
                         composable(
-                            route = "${Route.AwalaInitializationError.NAME_PREFIX}${Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA}",
-                            arguments = listOf(
-                                navArgument(CONFIGURE_ENDPOINTS_ON_RESUME) {
-                                    this.type = NavType.BoolType
-                                    defaultValue = true
-                                    nullable = false
-                                },
-                            ),
-                        ) {
-                            AwalaInitializationError(
-                                type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
-                                onOpenAwalaClick = onOpenAwalaClick,
-                            )
-                        }
-                        composable(
                             route = Route.Registration.name +
                                 "?${Route.Registration.WITH_BACK_BUTTON}={${Route.Registration.WITH_BACK_BUTTON}}",
                             arguments = listOf(
@@ -346,6 +330,17 @@ fun LetroNavHost(
                                         snackbarHostState = snackbarHostState,
                                         scope = scope,
                                         stringsProvider = stringsProvider.snackbar,
+                                    )
+                                },
+                                showOpenAwalaSnackbar = {
+                                    showSnackbar(
+                                        scope = scope,
+                                        snackbarHostState = snackbarHostState,
+                                        message = stringsProvider.snackbar.awalaIsntFullySetup,
+                                        actionLabel = stringsProvider.snackbar.openAwala,
+                                        onActionPerformed = {
+                                            onOpenAwalaClick()
+                                        },
                                     )
                                 },
                                 onBackClick = if (withBackButton) {

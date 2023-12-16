@@ -54,6 +54,7 @@ class NewConversationProcessor @Inject constructor(
 
     override suspend fun isFromExpectedSender(
         content: AwalaIncomingMessageContent.NewMessage,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {
