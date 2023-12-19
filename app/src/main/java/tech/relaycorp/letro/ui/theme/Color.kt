@@ -59,13 +59,6 @@ object LetroColor {
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant3 else Neutral8
 
-    val WarningContainer: Color
-        @Composable
-        get() = if (isSystemInDarkTheme()) SurfaceContainer else Color(0xFFFFEEDA)
-
-    val Warning: Color
-        get() = Color(0xFFF9B564)
-
     @Composable
     fun statusBarUnderDialogOverlay(): Color {
         return if (isSystemInDarkTheme()) Color(0xFF1C1B1F) else Color(0xFF4A3C99)

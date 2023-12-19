@@ -132,8 +132,8 @@ private fun AccountsBlock(
             )
         }
         LetroInfoView(
-            backgroundColor = if (accountsInfoView is SettingsAccountsInfoViewType.Warning) LetroColor.WarningContainer else LetroColor.SurfaceContainer,
-            infoIconColor = if (accountsInfoView is SettingsAccountsInfoViewType.Warning) LetroColor.Warning else MaterialTheme.colorScheme.onSurfaceVariant,
+            backgroundColor = LetroColor.SurfaceContainer,
+            infoIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             iconModifier = Modifier.size(20.dp),
             modifier = Modifier
                 .padding(
