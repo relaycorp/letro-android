@@ -73,7 +73,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                             recipientVeraId = message.recipientVeraId,
                             senderDisplayName = if (isOutgoing) message.ownerVeraId else contactDisplayName,
                             recipientDisplayName = if (isOutgoing) contactDisplayName else message.ownerVeraId,
-                            senderAvatarPath = if (isOutgoing) contact?.avatarFilePath else owner.avatarPath,
+                            senderAvatarPath = if (isOutgoing) owner.avatarPath else contact?.avatarFilePath,
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = message.text,

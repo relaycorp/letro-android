@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
@@ -37,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +51,7 @@ import tech.relaycorp.letro.conversation.attachments.ui.Attachment
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.model.ExtendedMessage
 import tech.relaycorp.letro.conversation.viewing.ConversationViewModel
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.Elevation2
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
@@ -144,7 +148,6 @@ fun ConversationScreen(
                     val isLastMessage = position == conversation.messages.size - 1
                     Message(
                         message = message,
-                        isCollapsable = conversation.messages.size > 1,
                         isLastMessage = isLastMessage,
                         onAttachmentClick = { onAttachmentClick(it.fileId) },
                     )
@@ -165,7 +168,6 @@ fun ConversationScreen(
 @Composable
 private fun Message(
     message: ExtendedMessage,
-    isCollapsable: Boolean,
     isLastMessage: Boolean,
     onAttachmentClick: (AttachmentInfo) -> Unit,
 ) {
@@ -177,86 +179,111 @@ private fun Message(
             .fillMaxWidth()
             .applyIf(isCollapsed) {
                 height(CollapsedMessageHeight)
-            }
-            .applyIf(isCollapsable && isCollapsed) {
-                clickable { isCollapsed = !isCollapsed }
-            }
-            .padding(
-                vertical = 8.dp,
-            ),
+            },
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth()
-                .applyIf(isCollapsable && !isCollapsed) {
-                    clickable { isCollapsed = !isCollapsed }
-                }
+                .clickable { isCollapsed = !isCollapsed }
                 .padding(
-                    horizontal = 16.dp,
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
                 ),
         ) {
-            Text(
-                text = if (message.isOutgoing) message.senderVeraId else message.contactDisplayName,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            LetroAvatar(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp),
+                    .clip(CircleShape)
+                    .size(48.dp),
+                filePath = message.senderAvatarPath,
             )
-            Text(
-                text = message.sentAtBriefFormatted,
-                style = if (isCollapsed) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        AnimatedVisibility(visible = !isCollapsed) {
             Column {
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(
                             horizontal = 16.dp,
-                            vertical = 2.dp,
-                        )
-                        .clickable { isDetailsCollapsed = !isDetailsCollapsed },
-                )
-                AnimatedVisibility(visible = !isDetailsCollapsed) {
+                        ),
+                ) {
+                    Text(
+                        text = if (message.isOutgoing) message.senderVeraId else message.contactDisplayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp),
+                    )
+                    Text(
+                        text = message.sentAtBriefFormatted,
+                        style = if (isCollapsed) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                AnimatedVisibility(visible = !isCollapsed) {
                     Column {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        MessageInfoView(
-                            message = message,
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(id = if (isDetailsCollapsed) R.string.show_more else R.string.show_less),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .padding(
                                     horizontal = 16.dp,
+                                    vertical = 2.dp,
                                 )
-                                .fillMaxWidth(),
+                                .clickable { isDetailsCollapsed = !isDetailsCollapsed },
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(26.dp))
+                if (isCollapsed) {
+                    Text(
+                        text = message.text.replace("[\\r\\n]+".toRegex(), " "),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(
+                                vertical = 2.dp,
+                                horizontal = 16.dp,
+                            ),
+                    )
+                }
             }
         }
-        SelectionContainer {
-            Text(
-                text = if (isCollapsed) message.text.replace("[\\r\\n]+".toRegex(), " ") else message.text,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = if (isCollapsed) 1 else Int.MAX_VALUE,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(
-                        vertical = if (isCollapsed) 2.dp else 10.dp,
-                        horizontal = 16.dp,
-                    ),
-            )
+        AnimatedVisibility(visible = !isDetailsCollapsed && !isCollapsed) {
+            Column {
+                Spacer(modifier = Modifier.height(12.dp))
+                MessageInfoView(
+                    message = message,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                        )
+                        .fillMaxWidth(),
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (!isCollapsed) {
+            SelectionContainer {
+                Text(
+                    text = message.text,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(
+                            vertical = 10.dp,
+                            horizontal = 16.dp,
+                        ),
+                )
+            }
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
                 message.attachments.forEachIndexed { index, attachment ->
@@ -270,6 +297,9 @@ private fun Message(
                         attachment = attachment,
                         onAttachmentClick = { onAttachmentClick(attachment) },
                     )
+                    if (index == message.attachments.size - 1) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }
