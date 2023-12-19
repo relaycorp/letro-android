@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -19,10 +20,12 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.main.ui.MainActivity
+import tech.relaycorp.letro.push.model.LargeIcon
 import tech.relaycorp.letro.push.model.PushChannel
 import tech.relaycorp.letro.push.model.PushData
 import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.utils.android.LifecycleObserver
+import tech.relaycorp.letro.utils.android.toCircle
 import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import javax.inject.Inject
 
@@ -89,9 +92,9 @@ class PushManagerImpl @Inject constructor(
             putExtra(KEY_PUSH_ACTION, Action.OpenMainPage(groupName))
             action = KEY_PUSH_ACTION
         }
-
         val notification = NotificationCompat.Builder(context, pushData.channelId)
             .setSmallIcon(R.drawable.letro_notification_icon)
+            .setLargeIcon(pushData.largeIcon)
             .setContentTitle(pushData.title)
             .setContentText(pushData.text)
             .setContentIntent(PendingIntent.getActivity(context, pushData.notificationId, intent, PendingIntent.FLAG_IMMUTABLE))
@@ -106,6 +109,7 @@ class PushManagerImpl @Inject constructor(
             .setContentText(context.resources.getQuantityString(R.plurals.new_notifications_group_count, notificationsInGroupCount, notificationsInGroupCount))
             .setGroup(groupName)
             .setGroupSummary(true)
+            .setLargeIcon(pushData.largeIcon)
             .setContentIntent(PendingIntent.getActivity(context, groupName.hashCode(), groupIntent, PendingIntent.FLAG_IMMUTABLE))
             .setAutoCancel(true)
             .build()
@@ -113,6 +117,18 @@ class PushManagerImpl @Inject constructor(
         if (permissionManager.isPermissionGranted()) {
             notificationManager.notify(pushData.notificationId, notification)
             notificationManager.notify(groupName.hashCode(), summaryNotification)
+        }
+    }
+
+    private fun NotificationCompat.Builder.setLargeIcon(icon: LargeIcon?): NotificationCompat.Builder {
+        return when (icon) {
+            is LargeIcon.File -> {
+                BitmapFactory.decodeFile(icon.path)?.toCircle()?.let { bitmap ->
+                    return@let setLargeIcon(bitmap)
+                } ?: this
+            }
+            is LargeIcon.DefaultAvatar -> setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.default_profile_picture))
+            else -> this
         }
     }
 
