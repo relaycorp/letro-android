@@ -30,6 +30,7 @@ import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.NEW_CONVERSATION
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel.ScreenType.Companion.REPLY_TO_EXISTING_CONVERSATION
+import tech.relaycorp.letro.conversation.di.ConversationFileConverterAnnotation
 import tech.relaycorp.letro.conversation.di.MessageSizeLimitBytes
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
@@ -51,7 +52,7 @@ class ComposeNewMessageViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
     private val conversationsRepository: ConversationsRepository,
-    private val fileConverter: FileConverter,
+    @ConversationFileConverterAnnotation private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
     private val savedStateHandle: SavedStateHandle,
     private val contactSuggestsManager: ContactSuggestsManager,
@@ -73,6 +74,7 @@ class ComposeNewMessageViewModel @Inject constructor(
             sender = conversation?.ownerVeraId ?: "",
             recipientDisplayedText = conversation?.contactDisplayName ?: "",
             recipientAccountId = conversation?.contactVeraId ?: "",
+            recipientAvatarPath = conversation?.contactAvatarPath,
             subject = conversation?.subject ?: "",
             showNoSubjectText = conversation != null && conversation.subject.isNullOrEmpty(),
             showRecipientAsChip = conversation != null,
@@ -186,6 +188,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 it.copy(
                     recipientDisplayedText = contact.alias ?: contact.contactVeraId,
                     recipientAccountId = contact.contactVeraId,
+                    recipientAvatarPath = contact.avatarFilePath,
                     suggestedContacts = null,
                     showRecipientIsNotYourContactError = false,
                     showRecipientAsChip = true,
@@ -201,6 +204,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                 it.copy(
                     recipientDisplayedText = "",
                     recipientAccountId = "",
+                    recipientAvatarPath = null,
                     suggestedContacts = null,
                     showRecipientIsNotYourContactError = false,
                     showRecipientAsChip = false,
@@ -349,6 +353,7 @@ class ComposeNewMessageViewModel @Inject constructor(
                         it.copy(
                             recipientDisplayedText = requestedContact.alias ?: requestedContact.contactVeraId,
                             recipientAccountId = requestedContact.contactVeraId,
+                            recipientAvatarPath = requestedContact.avatarFilePath,
                             isSendButtonEnabled = isSendButtonEnabled(recipientAccountId = requestedContact.contactVeraId),
                             showRecipientAsChip = true,
                         )
@@ -405,6 +410,7 @@ data class NewMessageUiState(
     val sender: String = "",
     val recipientDisplayedText: String = "",
     val recipientAccountId: String = "",
+    val recipientAvatarPath: String? = null,
     val subject: String = "",
     val messageText: String = "",
     val showRecipientIsNotYourContactError: Boolean = false,

@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.account.registration.server
 
 import tech.relaycorp.letro.account.model.Account
+import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
@@ -19,16 +20,20 @@ class VeraIdMemberBundleProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.VeraIdMemberBundle,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val memberIdBundle = content.bundle
         val member = content.member
         getAccountsToUpdate(memberIdBundle, member)
             .forEach { account ->
+
                 accountRepository.updateAccount(
-                    account = account,
-                    accountId = if (member.userName.isNullOrEmpty()) member.orgName else "${member.userName}@${member.orgName}",
-                    veraidBundle = content.bundleSerialised,
+                    account = account.copy(
+                        accountId = if (member.userName.isNullOrEmpty()) member.orgName else "${member.userName}@${member.orgName}",
+                        veraidMemberBundle = content.bundleSerialised,
+                        status = AccountStatus.CREATED,
+                    ),
                 )
             }
     }

@@ -1,9 +1,12 @@
 package tech.relaycorp.letro.account.manage
 
-import androidx.compose.foundation.Image
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,18 +22,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.common.LetroActionBarWithBackAction
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroTransparentButton
 import tech.relaycorp.letro.ui.common.text.BoldText
 import tech.relaycorp.letro.ui.theme.LabelLargeProminent
@@ -40,12 +45,26 @@ import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 fun AccountManageScreen(
     onBackClick: () -> Unit,
     onAccountDeleted: () -> Unit,
+    showSnackbar: (SnackbarString) -> Unit,
     viewModel: AccountManageViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val confirmAccountDeleteDialogState by viewModel.deleteAccountConfirmationDialog.collectAsState()
 
     val confirmAccountDeleteDialog = confirmAccountDeleteDialogState
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            viewModel.onAvatarPicked(it?.toString())
+        },
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.showSnackbar.collect {
+            showSnackbar(it)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -64,7 +83,11 @@ fun AccountManageScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        ProfilePhotoBlock(currentAvatarFilePath = uiState.value.account?.avatarPath)
+        ProfilePhotoBlock(
+            currentAvatarFilePath = uiState.value.account?.avatarPath,
+            onPickPhotoClick = { photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onDeletePhotoClick = { viewModel.onAvatarDeleteClick() },
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -92,6 +115,8 @@ fun AccountManageScreen(
 @Composable
 private fun ProfilePhotoBlock(
     currentAvatarFilePath: String?,
+    onPickPhotoClick: () -> Unit,
+    onDeletePhotoClick: () -> Unit,
 ) {
     AccountManageBlock(
         title = stringResource(id = R.string.profile_photo),
@@ -100,16 +125,16 @@ private fun ProfilePhotoBlock(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            LetroAvatar(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(170.dp)
+                    .align(Alignment.CenterHorizontally),
+                filePath = currentAvatarFilePath,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
             if (currentAvatarFilePath == null) {
-                Image(
-                    painter = painterResource(id = R.drawable.default_profile_picture),
-                    contentDescription = stringResource(id = R.string.profile_photo),
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(170.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
-                Modifier.height(8.dp)
                 LetroTransparentButton(
                     modifier = Modifier
                         .padding(
@@ -119,10 +144,31 @@ private fun ProfilePhotoBlock(
                         .align(Alignment.CenterHorizontally),
                     text = stringResource(id = R.string.set_profile_photo),
                     icon = R.drawable.ic_edit_18,
-                    onClick = { /* TODO: pick photo */ },
+                    onClick = onPickPhotoClick,
                 )
             } else {
-                // TODO: block if there is a photo
+                Row {
+                    LetroTransparentButton(
+                        modifier = Modifier
+                            .padding(
+                                vertical = 10.dp,
+                                horizontal = 16.dp,
+                            ),
+                        text = stringResource(id = R.string.change),
+                        icon = R.drawable.ic_edit_18,
+                        onClick = onPickPhotoClick,
+                    )
+                    LetroTransparentButton(
+                        modifier = Modifier
+                            .padding(
+                                vertical = 10.dp,
+                                horizontal = 16.dp,
+                            ),
+                        text = stringResource(id = R.string.remove),
+                        icon = R.drawable.ic_delete_18,
+                        onClick = onDeletePhotoClick,
+                    )
+                }
             }
         }
     }

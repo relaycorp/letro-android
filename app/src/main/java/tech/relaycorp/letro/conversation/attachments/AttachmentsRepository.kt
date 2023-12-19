@@ -2,8 +2,9 @@ package tech.relaycorp.letro.conversation.attachments
 
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
-import tech.relaycorp.letro.conversation.attachments.filepicker.FileSaver
+import tech.relaycorp.letro.conversation.attachments.filepicker.FileManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.di.ConversationFileConverterAnnotation
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.dao.AttachmentsDao
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
@@ -19,8 +20,8 @@ interface AttachmentsRepository {
 
 class AttachmentsRepositoryImpl @Inject constructor(
     private val attachmentsDao: AttachmentsDao,
-    private val fileSaver: FileSaver,
-    private val fileConverter: FileConverter,
+    private val fileManager: FileManager,
+    @ConversationFileConverterAnnotation private val fileConverter: FileConverter,
 ) : AttachmentsRepository {
 
     override val attachments: Flow<List<Attachment>>
@@ -40,7 +41,7 @@ class AttachmentsRepositoryImpl @Inject constructor(
         attachmentsDao.insert(
             attachments
                 .map { file ->
-                    val path = fileSaver.save(file)
+                    val path = fileManager.save(file)
                     Attachment(
                         fileId = file.id,
                         path = path,

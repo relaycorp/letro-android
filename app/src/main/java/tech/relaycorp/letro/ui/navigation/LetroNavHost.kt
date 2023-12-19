@@ -255,6 +255,7 @@ fun LetroNavHost(
                                     accountVeraId = currentAccount,
                                     accountStatus = uiState.accountStatus,
                                     domain = uiState.domain ?: "",
+                                    avatarFilePath = uiState.avatarFilePath,
                                     showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
                                     onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
                                     onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
@@ -670,6 +671,7 @@ fun LetroNavHost(
                                     navController.popBackStackSafe()
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.accountDeleted)
                                 },
+                                showSnackbar = { showSnackbar(it, snackbarHostState, scope, stringsProvider.snackbar) },
                             )
                         }
                     }

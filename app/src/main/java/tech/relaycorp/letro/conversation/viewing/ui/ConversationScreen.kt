@@ -499,6 +499,7 @@ private fun MessageInfo_Preview() {
                 sentAtBriefFormatted = "15 Aug",
                 sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
                 sentAtUtc = nowUTC(),
+                senderAvatarPath = null,
             ),
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -515,6 +516,7 @@ private fun MessageInfo_Preview() {
                 sentAtBriefFormatted = "15 Aug",
                 sentAtDetailedFormatted = "15 Aug 2023, 10:06am",
                 sentAtUtc = nowUTC(),
+                senderAvatarPath = null,
             ),
         )
     }

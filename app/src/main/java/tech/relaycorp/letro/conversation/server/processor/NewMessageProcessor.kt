@@ -26,6 +26,7 @@ class NewMessageProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.NewMessage,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         if (content.isNewConversation) {

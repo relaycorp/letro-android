@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -23,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,6 +36,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.ui.common.LetroActionBarWithBackAction
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroInfoView
 import tech.relaycorp.letro.ui.common.LetroTransparentButton
 import tech.relaycorp.letro.ui.theme.LetroColor
@@ -110,6 +113,7 @@ private fun AccountsBlock(
         for (i in accounts.indices) {
             Account(
                 accountId = accounts[i].accountId,
+                avatarFilePath = accounts[i].avatarPath,
                 accountStatus = accounts[i].status,
                 onClick = { onAccountClick(accounts[i]) },
             )
@@ -159,6 +163,7 @@ private fun AccountsBlock(
 @Composable
 private fun Account(
     accountId: String,
+    avatarFilePath: String?,
     @AccountStatus accountStatus: Int,
     onClick: () -> Unit,
 ) {
@@ -172,10 +177,11 @@ private fun Account(
                 vertical = ELEMENT_VERTICAL_PADDING,
             ),
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.default_profile_picture),
-            contentDescription = null,
-            modifier = Modifier.size(40.dp),
+        LetroAvatar(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(40.dp),
+            filePath = avatarFilePath,
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
@@ -308,6 +314,7 @@ private fun Account_Preview() {
     Account(
         accountId = "test@account.id",
         accountStatus = AccountStatus.CREATED,
+        avatarFilePath = null,
         onClick = {},
     )
 }

@@ -7,11 +7,9 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
-import tech.relaycorp.letro.conversation.di.MessageSizeLimitBytes
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import java.util.UUID
-import javax.inject.Inject
 import kotlin.jvm.Throws
 
 interface FileConverter {
@@ -22,9 +20,9 @@ interface FileConverter {
 }
 
 @Suppress("NAME_SHADOWING")
-class FileConverterImpl @Inject constructor(
+abstract class DefaultFileConverter(
     private val contentResolver: ContentResolver,
-    @MessageSizeLimitBytes private val messageSizeLimitBytes: Int,
+    private val fileSizeLimitBytes: Int,
 ) : FileConverter {
 
     @Throws(FileSizeExceedsLimitException::class)
@@ -35,12 +33,12 @@ class FileConverterImpl @Inject constructor(
             val sizeColumnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
             if (sizeColumnIndex > -1) {
                 val fileSize = cursor.getString(sizeColumnIndex)?.toLongOrNull() ?: return null
-                if (fileSize >= messageSizeLimitBytes) {
-                    throw FileSizeExceedsLimitException(fileSize, messageSizeLimitBytes)
+                if (fileSize >= fileSizeLimitBytes) {
+                    throw FileSizeExceedsLimitException(fileSize, fileSizeLimitBytes)
                 }
                 contentResolver.openInputStream(uri).use {
                     it ?: return null // TODO: log error?
-                    val bufferedStream = it.buffered(messageSizeLimitBytes)
+                    val bufferedStream = it.buffered(fileSizeLimitBytes)
                     val bytes = bufferedStream.readBytes()
                     val extension = getFileExtension(uri)
                     val fileName = getFileName(uri) ?: UNKNOWN_FILE_NAME

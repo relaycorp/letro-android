@@ -45,4 +45,10 @@ sealed interface AwalaIncomingMessageContent {
     class ContactPairingAuthorization(
         val authData: ByteArray,
     ) : AwalaIncomingMessageContent
+
+    open class ContactPhotoUpdated(
+        val photo: ByteArray,
+    ) : AwalaIncomingMessageContent
+
+    class ContactPhotoDeleted : ContactPhotoUpdated(ByteArray(0))
 }

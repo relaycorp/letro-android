@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,20 +21,24 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.ui.common.shimmer.Shimmer
 import tech.relaycorp.letro.ui.theme.LetroColor
+import tech.relaycorp.letro.ui.theme.LetroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LetroTopBar(
     accountVeraId: String,
     @AccountStatus accountStatus: Int,
+    avatarFilePath: String?,
     domain: String,
     showAccountIdAsShimmer: Boolean,
     modifier: Modifier = Modifier,
@@ -74,6 +79,13 @@ fun LetroTopBar(
                             )
                         }
                     } else {
+                        LetroAvatar(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(26.dp),
+                            filePath = avatarFilePath,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = accountVeraId,
                             style = MaterialTheme.typography.titleMedium,
@@ -106,11 +118,8 @@ fun LetroTopBar(
                         }
                         else -> {}
                     }
-                    Spacer(
-                        modifier = Modifier.width(6.dp),
-                    )
                     Icon(
-                        painter = painterResource(id = R.drawable.arrow_down),
+                        painter = painterResource(id = R.drawable.ic_down_24),
                         contentDescription = stringResource(id = R.string.top_bar_change_account),
                         tint = LetroColor.OnSurfaceContainerHigh,
                     )
@@ -129,5 +138,21 @@ fun LetroTopBar(
                 containerColor = LetroColor.SurfaceContainerHigh,
             ),
         )
+    }
+}
+
+@Preview
+@Composable
+private fun LetroTopBar_Preview() {
+    LetroTheme {
+        LetroTopBar(
+            accountVeraId = "account@vera.id",
+            accountStatus = AccountStatus.CREATED,
+            avatarFilePath = null,
+            domain = "",
+            showAccountIdAsShimmer = false,
+            onChangeAccountClicked = { /*TODO*/ },
+        ) {
+        }
     }
 }

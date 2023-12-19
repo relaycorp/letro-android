@@ -27,6 +27,7 @@ class NewConversationProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.NewMessage,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val conversation = content.conversation

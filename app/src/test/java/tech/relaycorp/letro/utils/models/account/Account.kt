@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.utils.models.account
 
+import androidx.lifecycle.SavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -9,13 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import tech.relaycorp.letro.account.manage.AccountManageViewModel
+import tech.relaycorp.letro.account.manage.avatar.AvatarRepository
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.account.registration.utils.AccountIdBuilderImpl
 import tech.relaycorp.letro.account.storage.dao.AccountDao
+import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.account.storage.repository.AccountRepositoryImpl
+import tech.relaycorp.letro.utils.coroutines.Dispatchers
 import tech.relaycorp.letro.utils.models.utils.createLogger
+import tech.relaycorp.letro.utils.models.utils.dispatchers
 import kotlin.random.Random
 
 fun createAccount(
@@ -23,6 +29,7 @@ fun createAccount(
     requestedUserName: String = "account",
     normalisedLocale: String = "test.id",
     isCurrent: Boolean = true,
+    avatarPath: String? = null,
     @AccountStatus status: Int = AccountStatus.CREATED,
 ) = Account(
     id = Random.nextLong(),
@@ -34,6 +41,7 @@ fun createAccount(
     veraidPrivateKey = ByteArray(0),
     status = status,
     accountType = AccountType.CREATED_FROM_SCRATCH,
+    avatarPath = avatarPath,
 )
 
 @ExperimentalCoroutinesApi
@@ -99,3 +107,16 @@ fun createAccountDao(
         }
     }
 }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun createAccountManageViewModel(
+    accountRepository: AccountRepository = createAccountRepository(),
+    avatarRepository: AvatarRepository = mockk(relaxed = true),
+    savedStateHandle: SavedStateHandle = SavedStateHandle(),
+    dispatchers: Dispatchers = dispatchers(),
+) = AccountManageViewModel(
+    accountRepository = accountRepository,
+    avatarRepository = avatarRepository,
+    savedStateHandle = savedStateHandle,
+    dispatchers = dispatchers,
+)

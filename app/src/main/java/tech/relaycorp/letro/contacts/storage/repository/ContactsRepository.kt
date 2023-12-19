@@ -32,6 +32,7 @@ interface ContactsRepository {
     val contactsState: StateFlow<ContactsState>
     val contactDeleteEvents: SharedFlow<Long>
     fun getContacts(ownerVeraId: String): Flow<List<Contact>>
+    fun getContactsSync(ownerVeraId: String): List<Contact>
     fun getContactById(id: Long): Contact?
 
     suspend fun deleteContact(contact: Contact)
@@ -76,6 +77,11 @@ class ContactsRepositoryImpl @Inject constructor(
     override fun getContacts(ownerVeraId: String): Flow<List<Contact>> {
         return contacts
             .map { it.filter { it.ownerVeraId == ownerVeraId } }
+    }
+
+    override fun getContactsSync(ownerVeraId: String): List<Contact> {
+        return contacts.value
+            .filter { it.ownerVeraId == ownerVeraId }
     }
 
     override fun getContactById(id: Long): Contact? {
