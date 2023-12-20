@@ -24,4 +24,5 @@ data class Attachment(
     val fileId: UUID,
     val path: String,
     val messageId: Long,
+    val conversationId: UUID,
 )

@@ -180,7 +180,11 @@ class ConversationsRepositoryImpl @Inject constructor(
         val messageId = messagesDao.insert(message)
 
         if (attachments.isNotEmpty()) {
-            attachmentsRepository.saveAttachments(messageId, attachments)
+            attachmentsRepository.saveAttachments(
+                conversationId = conversation.conversationId,
+                messageId = messageId,
+                attachments = attachments,
+            )
         }
     }
 
@@ -226,7 +230,11 @@ class ConversationsRepositoryImpl @Inject constructor(
 
         val messageId = messagesDao.insert(message)
         if (attachments.isNotEmpty()) {
-            attachmentsRepository.saveAttachments(messageId, attachments)
+            attachmentsRepository.saveAttachments(
+                conversationId = conversation.conversationId,
+                messageId = messageId,
+                attachments = attachments,
+            )
         }
     }
 
@@ -248,6 +256,7 @@ class ConversationsRepositoryImpl @Inject constructor(
         scope.launch {
             val conversationId = UUID.fromString(conversationId)
             val conversation = _conversations.value.find { it.conversationId == conversationId } ?: return@launch
+            attachmentsRepository.deleteAttachments(conversation.conversationId)
             conversationsDao.delete(conversation)
         }
     }

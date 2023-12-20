@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2f9666bb22c27898cb30b8d28e7f2738",
+    "identityHash": "9a53ad6abd5037bc17cdb5f3e8f661da",
     "entities": [
       {
         "tableName": "account",
@@ -412,7 +412,7 @@
       },
       {
         "tableName": "attachments",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fileId` BLOB NOT NULL, `path` TEXT NOT NULL, `messageId` INTEGER NOT NULL, FOREIGN KEY(`messageId`) REFERENCES `messages`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fileId` BLOB NOT NULL, `path` TEXT NOT NULL, `messageId` INTEGER NOT NULL, `conversationId` BLOB NOT NULL, FOREIGN KEY(`messageId`) REFERENCES `messages`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -436,6 +436,12 @@
             "fieldPath": "messageId",
             "columnName": "messageId",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conversationId",
+            "columnName": "conversationId",
+            "affinity": "BLOB",
             "notNull": true
           }
         ],
@@ -464,7 +470,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f9666bb22c27898cb30b8d28e7f2738')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9a53ad6abd5037bc17cdb5f3e8f661da')"
     ]
   }
 }

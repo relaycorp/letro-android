@@ -41,7 +41,12 @@ class NewMessageProcessor @Inject constructor(
             )
         }
         val messageId = messagesDao.insert(content.message)
-        attachmentsRepository.saveMessageAttachments(messageId, content.attachments)
+        attachmentsRepository.saveMessageAttachments(
+            conversationId = content.conversation.conversationId,
+            messageId = messageId,
+            attachments = content.attachments,
+        )
+
         pushManager.showPush(
             PushData(
                 title = content.contact.alias ?: content.message.senderVeraId,

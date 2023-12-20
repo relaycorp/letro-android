@@ -38,7 +38,11 @@ class NewConversationProcessor @Inject constructor(
         conversationsDao.createNewConversation(conversation)
         val messageId = messagesDao.insert(message)
 
-        attachmentsRepository.saveMessageAttachments(messageId, content.attachments)
+        attachmentsRepository.saveMessageAttachments(
+            conversationId = conversation.conversationId,
+            messageId = messageId,
+            attachments = content.attachments,
+        )
 
         pushManager.showPush(
             PushData(
