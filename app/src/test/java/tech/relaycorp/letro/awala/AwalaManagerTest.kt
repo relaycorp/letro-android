@@ -31,8 +31,6 @@ class AwalaManagerTest {
         coVerifyAll {
             awala.setUp()
             awala.bindGateway()
-            awala.receiveMessages()
-            messagesFlow.collect(any())
         }
     }
 
