@@ -5,18 +5,26 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
 import javax.inject.Inject
 
-interface FileSaver {
+interface FileManager {
     fun save(file: File.FileWithContent): String
+    fun delete(path: String)
 }
 
-class FileSaverImpl @Inject constructor(
+class FileManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-) : FileSaver {
+) : FileManager {
 
     override fun save(file: File.FileWithContent): String {
         val fileOutput = getFileOutput(file)
         fileOutput.writeBytes(file.content)
         return fileOutput.absolutePath
+    }
+
+    override fun delete(path: String) {
+        val file = java.io.File(path)
+        if (file.exists()) {
+            file.delete()
+        }
     }
 
     private fun getFileOutput(file: File.FileWithContent): java.io.File {

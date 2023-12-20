@@ -11,6 +11,7 @@ data class ExtendedMessage(
     val isOutgoing: Boolean,
     val contactDisplayName: String,
     val senderDisplayName: String,
+    val senderAvatarPath: String?,
     val recipientDisplayName: String,
     val text: String,
     val sentAtUtc: ZonedDateTime,

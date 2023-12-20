@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,6 +40,7 @@ import tech.relaycorp.letro.conversation.list.ConversationsListViewModel
 import tech.relaycorp.letro.conversation.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.model.ExtendedMessage
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroEmptyListStub
 import tech.relaycorp.letro.ui.common.bottomsheet.BottomSheetAction
 import tech.relaycorp.letro.ui.common.bottomsheet.LetroActionsBottomSheet
@@ -140,69 +143,80 @@ private fun Conversation(
                 horizontal = 16.dp,
             ),
     ) {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LetroAvatar(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(40.dp),
+                filePath = conversation.contactAvatarPath,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
                 Row(
-                    modifier = Modifier
-                        .padding(end = 6.dp)
-                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .weight(1f),
+                    ) {
+                        Text(
+                            text = conversation.contactDisplayName,
+                            style = if (!conversation.isRead) MaterialTheme.typography.BodyLargeProminent else MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (conversation.totalMessagesFormattedText != null) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = conversation.totalMessagesFormattedText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(
+                                        top = 3.dp,
+                                    ),
+                            )
+                        }
+                    }
                     Text(
-                        text = conversation.contactDisplayName,
-                        style = if (!conversation.isRead) MaterialTheme.typography.BodyLargeProminent else MaterialTheme.typography.bodyLarge,
+                        text = conversation.lastMessageFormattedTimestamp,
+                        style = if (!conversation.isRead) MaterialTheme.typography.LabelSmallProminent else MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    if (conversation.totalMessagesFormattedText != null) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = conversation.totalMessagesFormattedText,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(
-                                    top = 3.dp,
-                                ),
-                        )
-                    }
                 }
-                Text(
-                    text = conversation.lastMessageFormattedTimestamp,
-                    style = if (!conversation.isRead) MaterialTheme.typography.LabelSmallProminent else MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(modifier = Modifier.height(3.dp))
-            Row {
-                Text(
-                    text = conversation.subject ?: noSubjectText,
-                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = " - ",
-                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
-                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                val messageDisplayedText = if (conversation.messages.last().text.isNotEmptyOrBlank()) conversation.messages.last().text else conversation.messages.last().attachments.firstOrNull()?.name ?: ""
-                Text(
-                    text = messageDisplayedText.replace("[\\r\\n]+".toRegex(), " "),
-                    style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
-                    color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Spacer(modifier = Modifier.height(3.dp))
+                Row {
+                    Text(
+                        text = conversation.subject ?: noSubjectText,
+                        style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = " - ",
+                        style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
+                        color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    val messageDisplayedText = if (conversation.messages.last().text.isNotEmptyOrBlank()) conversation.messages.last().text else conversation.messages.last().attachments.firstOrNull()?.name ?: ""
+                    Text(
+                        text = messageDisplayedText.replace("[\\r\\n]+".toRegex(), " "),
+                        style = if (!conversation.isRead) MaterialTheme.typography.BodyMediumProminent else MaterialTheme.typography.bodyMedium,
+                        color = if (!conversation.isRead) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
@@ -290,6 +304,7 @@ fun Conversation_Preview() {
         senderVeraId = "ft@applepie.rocks",
         recipientVeraId = "contact@vera.id",
         senderDisplayName = "Sender",
+        senderAvatarPath = null,
         recipientDisplayName = "Recipient",
         isOutgoing = true,
         contactDisplayName = "Alias",
@@ -315,6 +330,7 @@ fun Conversation_Preview() {
                     message,
                 ),
                 isArchived = false,
+                contactAvatarPath = null,
             ),
             noSubjectText = "(No subject)",
         ) {
@@ -340,6 +356,7 @@ fun Conversation_Preview() {
                     ),
                 ),
                 isArchived = false,
+                contactAvatarPath = null,
             ),
             noSubjectText = "(No subject)",
         ) {
@@ -365,6 +382,7 @@ fun Conversation_Preview() {
                     ),
                 ),
                 isArchived = false,
+                contactAvatarPath = null,
             ),
             noSubjectText = "(No subject)",
         ) {

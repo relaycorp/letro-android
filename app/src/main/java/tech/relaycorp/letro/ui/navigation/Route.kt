@@ -146,6 +146,19 @@ sealed class Route(
             if (prefilledContactAccountId.isNotEmptyOrBlank()) "&$KEY_PREFILLED_ACCOUNT_ID_ENCODED=${prefilledContactAccountId.encodeToUTF()}" else ""
     }
 
+    object AccountManage : Route(
+        name = "account_manage_route",
+        showTopBar = false,
+        isStatusBarPrimaryColor = false,
+    ) {
+        const val ACCOUNT_ID = "account_id"
+
+        fun getRouteName(
+            accountId: Long,
+        ) = "${AccountManage.name}?" +
+            "$ACCOUNT_ID=$accountId"
+    }
+
     object Home : Route(
         name = "home_route",
         showTopBar = true,
@@ -215,6 +228,7 @@ fun String?.toRoute(): Route {
             it.startsWith(Route.CreateNewMessage.name) -> Route.CreateNewMessage
             it.startsWith(Route.Conversation.name) -> Route.Conversation
             it.startsWith(Route.Settings.name) -> Route.Settings
+            it.startsWith(Route.AccountManage.name) -> Route.AccountManage
             else -> throw IllegalArgumentException("Define the Route by the name of the Route $it")
         }
     }

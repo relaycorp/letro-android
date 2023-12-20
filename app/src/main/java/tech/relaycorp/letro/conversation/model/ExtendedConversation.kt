@@ -8,6 +8,7 @@ data class ExtendedConversation(
     val ownerVeraId: String,
     val contactVeraId: String,
     val contactDisplayName: String,
+    val contactAvatarPath: String?,
     val subject: String?,
     val lastMessageSentAtUtc: ZonedDateTime,
     val lastMessageFormattedTimestamp: String,

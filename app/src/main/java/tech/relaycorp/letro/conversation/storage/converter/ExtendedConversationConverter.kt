@@ -1,8 +1,10 @@
 package tech.relaycorp.letro.conversation.storage.converter
 
+import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.utils.AttachmentInfoConverter
+import tech.relaycorp.letro.conversation.di.ConversationFileConverterAnnotation
 import tech.relaycorp.letro.conversation.model.ExtendedConversation
 import tech.relaycorp.letro.conversation.model.ExtendedMessage
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
@@ -18,7 +20,7 @@ interface ExtendedConversationConverter {
         messages: List<Message>,
         contacts: List<Contact>,
         attachments: List<Attachment>,
-        ownerVeraId: String,
+        owner: Account,
     ): List<ExtendedConversation>
 
     suspend fun updateTimestamps(
@@ -28,7 +30,7 @@ interface ExtendedConversationConverter {
 
 class ExtendedConversationConverterImpl @Inject constructor(
     private val messageTimestampFormatter: MessageTimestampFormatter,
-    private val fileConverter: FileConverter,
+    @ConversationFileConverterAnnotation private val fileConverter: FileConverter,
     private val attachmentInfoConverter: AttachmentInfoConverter,
 ) : ExtendedConversationConverter {
 
@@ -37,7 +39,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
         messages: List<Message>,
         contacts: List<Contact>,
         attachments: List<Attachment>,
-        ownerVeraId: String,
+        owner: Account,
     ): List<ExtendedConversation> {
         val conversationsMap = hashMapOf<UUID, Conversation>()
         conversations.forEach { conversationsMap[it.conversationId] = it }
@@ -58,18 +60,20 @@ class ExtendedConversationConverterImpl @Inject constructor(
                 if (messagesToConversation[conversation.conversationId].isNullOrEmpty()) {
                     return@mapNotNull null
                 }
-                val contactDisplayName = contacts.find { it.contactVeraId == conversation.contactVeraId }?.alias ?: conversation.contactVeraId
+                val contact = contacts.find { it.contactVeraId == conversation.contactVeraId }
+                val contactDisplayName = contact?.alias ?: conversation.contactVeraId
                 val lastMessage = messagesToConversation[conversation.conversationId]!!.last()
                 val extendedMessagesList = sortedMessages
                     .filter { it.conversationId == conversation.conversationId }
                     .map { message ->
-                        val isOutgoing = ownerVeraId == message.senderVeraId
+                        val isOutgoing = owner.accountId == message.senderVeraId
                         ExtendedMessage(
                             conversationId = conversation.conversationId,
                             senderVeraId = message.senderVeraId,
                             recipientVeraId = message.recipientVeraId,
                             senderDisplayName = if (isOutgoing) message.ownerVeraId else contactDisplayName,
                             recipientDisplayName = if (isOutgoing) contactDisplayName else message.ownerVeraId,
+                            senderAvatarPath = if (isOutgoing) owner.avatarPath else contact?.avatarFilePath,
                             isOutgoing = isOutgoing,
                             contactDisplayName = contactDisplayName,
                             text = message.text,
@@ -84,6 +88,7 @@ class ExtendedConversationConverterImpl @Inject constructor(
                     ownerVeraId = conversation.ownerVeraId,
                     contactVeraId = conversation.contactVeraId,
                     contactDisplayName = contactDisplayName,
+                    contactAvatarPath = contact?.avatarFilePath,
                     subject = conversation.subject,
                     lastMessageSentAtUtc = lastMessage.sentAtUtc,
                     lastMessageFormattedTimestamp = messageTimestampFormatter.formatBrief(lastMessage.sentAtUtc.toSystemTimeZone()),

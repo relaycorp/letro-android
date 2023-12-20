@@ -47,15 +47,7 @@ interface AccountRepository {
         awalaEndpoint: String,
     ): List<Account>
 
-    suspend fun updateAccount(account: Account, accountId: String, veraidBundle: ByteArray)
-    suspend fun updateAccount(
-        account: Account,
-        @AccountStatus status: Int,
-    )
-    suspend fun updateAccount(
-        account: Account,
-        publicThirdPartyEndpointNodeId: String,
-    )
+    suspend fun updateAccount(account: Account)
 
     suspend fun deleteAccount(account: Account)
     suspend fun switchAccount(newCurrentAccount: Account): Boolean
@@ -158,38 +150,8 @@ class AccountRepositoryImpl @Inject constructor(
         accountDao.deleteAccount(account)
     }
 
-    override suspend fun updateAccount(
-        account: Account,
-        accountId: String,
-        veraidBundle: ByteArray,
-    ) {
-        accountDao.update(
-            account.copy(
-                accountId = accountId,
-                veraidMemberBundle = veraidBundle,
-                status = AccountStatus.CREATED,
-            ),
-        )
-    }
-
-    override suspend fun updateAccount(
-        account: Account,
-        @AccountStatus status: Int,
-    ) {
-        accountDao.update(
-            account.copy(
-                status = status,
-            ),
-        )
-    }
-
-    override suspend fun updateAccount(account: Account, publicThirdPartyEndpointNodeId: String) {
-        accountDao.update(
-            account.copy(
-                veraidAuthEndpointId = publicThirdPartyEndpointNodeId,
-                token = null,
-            ),
-        )
+    override suspend fun updateAccount(account: Account) {
+        accountDao.update(account)
     }
 
     override suspend fun getByVeraidId(id: String): Account? {

@@ -296,7 +296,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                         messages = messagesOfCurrentAccount,
                         contacts = contacts.filter { it.ownerVeraId == account.accountId },
                         attachments = attachments.filter { messageIdsOfCurrentAccount.contains(it.messageId) },
-                        ownerVeraId = account.accountId,
+                        owner = account,
                     ).also { logger.d(TAG, "Emitting Extended conversations after formatting with size: ${it.size}") },
                 )
             }.collect()

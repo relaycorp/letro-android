@@ -7,6 +7,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.ACCOUNT_CREATION_ID_ALREADY_EXISTS
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.ACCOUNT_LINKING_ID_ALREADY_EXISTS
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.AVATAR_TOO_BIG_ERROR
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.FILE_TOO_BIG_ERROR
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.SEND_MESSAGE_ERROR
 import javax.inject.Inject
@@ -32,6 +33,7 @@ interface SnackbarStringsProvider {
         FILE_TOO_BIG_ERROR,
         ACCOUNT_LINKING_ID_ALREADY_EXISTS,
         ACCOUNT_CREATION_ID_ALREADY_EXISTS,
+        AVATAR_TOO_BIG_ERROR,
     )
     annotation class Type {
         companion object {
@@ -39,6 +41,7 @@ interface SnackbarStringsProvider {
             const val FILE_TOO_BIG_ERROR = 1
             const val ACCOUNT_LINKING_ID_ALREADY_EXISTS = 2
             const val ACCOUNT_CREATION_ID_ALREADY_EXISTS = 3
+            const val AVATAR_TOO_BIG_ERROR = 4
         }
     }
 }
@@ -88,6 +91,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
             FILE_TOO_BIG_ERROR -> activity.getString(R.string.file_too_big_error_message)
             ACCOUNT_LINKING_ID_ALREADY_EXISTS -> activity.getString(R.string.you_already_waiting_for_id, *string.args)
             ACCOUNT_CREATION_ID_ALREADY_EXISTS -> activity.getString(R.string.you_already_have_account_with_this_id)
+            AVATAR_TOO_BIG_ERROR -> activity.getString(R.string.avatar_too_big_error_message)
             else -> throw IllegalStateException("Unknown type $type")
         }
     }

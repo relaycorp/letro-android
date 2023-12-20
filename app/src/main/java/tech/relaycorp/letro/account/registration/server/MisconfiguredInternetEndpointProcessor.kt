@@ -22,19 +22,22 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.MisconfiguredInternetEndpoint,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val domain = content.domain
         accountRepository.getByDomain(domain).forEach {
             accountRepository.updateAccount(
-                account = it,
-                status = AccountStatus.ERROR_LINKING,
+                account = it.copy(
+                    status = AccountStatus.ERROR_LINKING,
+                ),
             )
         }
         accountRepository.getByAwalaEndpoint(domain).forEach {
             accountRepository.updateAccount(
-                account = it,
-                status = AccountStatus.ERROR_LINKING,
+                account = it.copy(
+                    status = AccountStatus.ERROR_LINKING,
+                ),
             )
         }
         contactsDao.getContactsWithNoEndpoint(

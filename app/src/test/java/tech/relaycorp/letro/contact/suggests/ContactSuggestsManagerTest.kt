@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import tech.relaycorp.letro.contacts.suggest.ContactSuggestsManagerImpl
+import tech.relaycorp.letro.utils.models.account.createAccount
 import tech.relaycorp.letro.utils.models.contact.createContact
 import tech.relaycorp.letro.utils.models.conversation.createConversation
 import tech.relaycorp.letro.utils.models.conversation.createExtendedConversationConverter
@@ -68,6 +69,7 @@ class ContactSuggestsManagerTest {
         )
         val messages = listOf(messageFromLatest, messageFromSecond, messageFromThird)
 
+        val owner = createAccount(accountId = contactFromLatestConversation.ownerVeraId)
         val sortedContacts = contactsSuggestsManager.orderByRelevance(
             contacts = unsortedContacts,
             conversations = extendedConversationConverter.convert(
@@ -75,7 +77,7 @@ class ContactSuggestsManagerTest {
                 messages = messages,
                 contacts = unsortedContacts,
                 attachments = emptyList(),
-                ownerVeraId = contactFromLatestConversation.ownerVeraId,
+                owner = owner,
             ),
         )
 

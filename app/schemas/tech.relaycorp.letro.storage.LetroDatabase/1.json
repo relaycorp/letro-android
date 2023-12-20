@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6340f742c3d415930e9f148ec4f421e7",
+    "identityHash": "2f9666bb22c27898cb30b8d28e7f2738",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `accountType` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpointId` TEXT, `veraidAuthEndpointId` TEXT, `status` INTEGER NOT NULL, `token` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `requestedUserName` TEXT NOT NULL, `normalisedLocale` TEXT, `domain` TEXT NOT NULL, `isCurrent` INTEGER NOT NULL, `accountType` INTEGER NOT NULL, `veraidPrivateKey` BLOB NOT NULL, `veraidMemberBundle` BLOB, `awalaEndpointId` TEXT, `veraidAuthEndpointId` TEXT, `status` INTEGER NOT NULL, `token` TEXT, `avatarPath` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -85,6 +85,12 @@
             "columnName": "token",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "avatarPath",
+            "columnName": "avatarPath",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -108,7 +114,7 @@
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `isPrivateEndpoint` INTEGER NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerVeraId` TEXT NOT NULL, `contactVeraId` TEXT NOT NULL, `isPrivateEndpoint` INTEGER NOT NULL, `alias` TEXT, `contactEndpointId` TEXT, `status` INTEGER NOT NULL, `avatarFilePath` TEXT, FOREIGN KEY(`ownerVeraId`) REFERENCES `account`(`accountId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -151,6 +157,12 @@
             "columnName": "status",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "avatarFilePath",
+            "columnName": "avatarFilePath",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -452,7 +464,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6340f742c3d415930e9f148ec4f421e7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f9666bb22c27898cb30b8d28e7f2738')"
     ]
   }
 }

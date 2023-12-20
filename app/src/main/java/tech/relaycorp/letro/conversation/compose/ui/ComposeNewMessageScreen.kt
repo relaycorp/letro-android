@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -61,6 +64,7 @@ import tech.relaycorp.letro.contacts.ui.ContactView
 import tech.relaycorp.letro.conversation.attachments.ui.Attachment
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.common.LetroTextField
 import tech.relaycorp.letro.ui.theme.Elevation2
@@ -263,6 +267,7 @@ fun ComposeNewMessageScreen(
                             ) {
                                 RecipientChipView(
                                     text = uiState.recipientDisplayedText,
+                                    avatarPath = uiState.recipientAvatarPath,
                                     onRemoveClick = {
                                         viewModel.onRecipientRemoveClick()
                                         recipientTextFieldValueState = TextFieldValue()
@@ -439,10 +444,12 @@ private fun suggestContactsList(
 @Composable
 private fun RecipientChipView(
     text: String,
+    avatarPath: String?,
     onRemoveClick: () -> Unit,
     isEditable: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val shape = RoundedCornerShape(80.dp)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -452,13 +459,25 @@ private fun RecipientChipView(
                 } else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                     alpha = 0.06F,
                 ),
-                shape = RoundedCornerShape(80.dp),
+                shape = shape,
             )
+            .applyIf(isEditable) {
+                border(1.dp, LetroColor.SurfaceContainer, shape)
+            }
             .padding(
-                horizontal = 12.dp,
-                vertical = 6.dp,
+                start = 2.dp,
+                end = 12.dp,
+                top = 6.dp,
+                bottom = 6.dp,
             ),
     ) {
+        LetroAvatar(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(26.dp),
+            filePath = avatarPath,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,

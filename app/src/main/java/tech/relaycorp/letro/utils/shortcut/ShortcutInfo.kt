@@ -2,6 +2,7 @@ package tech.relaycorp.letro.utils.shortcut
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -27,10 +28,16 @@ fun List<Contact>.toShortcutInfo(
     context: Context,
     intentBuilder: (Contact) -> Intent,
 ): List<ShortcutInfoCompat> {
-    val bitmap = ContextCompat.getDrawable(context, R.drawable.share_direct_target)?.toBitmap() ?: return emptyList()
-    val icon = IconCompat.createWithAdaptiveBitmap(bitmap)
+    val defaultBitmap = ContextCompat.getDrawable(context, R.drawable.share_direct_target)?.toBitmap() ?: return emptyList()
+    val defaultIcon = IconCompat.createWithAdaptiveBitmap(defaultBitmap)
     return arrayListOf<ShortcutInfoCompat>().apply {
         this@toShortcutInfo.forEach { contact ->
+            val icon = if (contact.avatarFilePath != null) {
+                val bitmap = BitmapFactory.decodeFile(contact.avatarFilePath)
+                IconCompat.createWithAdaptiveBitmap(bitmap)
+            } else {
+                defaultIcon
+            }
             add(contact.toShortcutInfo(context, icon, intentBuilder))
         }
     }

@@ -18,6 +18,7 @@ class AccountCreationProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.AccountCreation,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val veraidKeyPair = content.account.veraidPrivateKey.deserialiseKeyPair()
@@ -26,16 +27,19 @@ class AccountCreationProcessor @Inject constructor(
         } catch (exc: InvalidAccountCreationException) {
             logger.w(TAG, "Invalid account creation (${content.accountCreation})", exc)
             accountRepository.updateAccount(
-                account = content.account,
-                status = AccountStatus.ERROR_CREATION,
+                account = content.account.copy(
+                    status = AccountStatus.ERROR_CREATION,
+                ),
             )
             return
         }
 
         accountRepository.updateAccount(
-            content.account,
-            content.accountCreation.assignedUserId,
-            content.accountCreation.veraidBundle,
+            content.account.copy(
+                accountId = content.accountCreation.assignedUserId,
+                veraidMemberBundle = content.accountCreation.veraidBundle,
+                status = AccountStatus.CREATED,
+            ),
         )
         logger.i(TAG, "Completed account creation (${content.accountCreation})")
     }

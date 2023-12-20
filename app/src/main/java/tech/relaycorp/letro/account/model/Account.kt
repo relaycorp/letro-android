@@ -34,6 +34,7 @@ data class Account(
     val veraidAuthEndpointId: String? = null,
     @AccountStatus val status: Int = CREATION_WAITING,
     val token: String? = null,
+    val avatarPath: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -57,6 +58,7 @@ data class Account(
         if (status != other.status) return false
         if (domain != other.domain) return false
         if (token != other.token) return false
+        if (avatarPath != other.avatarPath) return false
 
         return true
     }
