@@ -12,7 +12,7 @@
 
     <string name="onboarding_create_account_id_placeholder">Username</string>
     <string name="onboarding_create_account_username_unavailable_hint">If your preferred username is unavailable, we’ll pick a similar one for you.</string>
-    <string name="onboarding_create_account_wrong_username_hint">The username cannot contain spaces or at signs (@), or exceed 16 characters.</string>
+    <string name="onboarding_create_account_wrong_username_hint">The username cannot contain spaces or at signs (@), or exceed 20 characters.</string>
     <string name="onboarding_create_account_terms_and_services">By requesting an account, you agree to our Terms and Conditions.</string>
     <string name="onboarding_create_account_terms_and_services_link_text">Terms and Conditions</string>
     <string name="onboarding_create_account_button">Create account</string>
