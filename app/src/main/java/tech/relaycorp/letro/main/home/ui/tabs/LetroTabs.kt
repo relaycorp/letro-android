@@ -44,10 +44,11 @@ fun LetroTabs(
         stringResource(id = R.string.notifications),
     )
     val tabCounters = uiState.tabCounters
+    val isDarkTabs = uiState.selectedConversations > 0
 
     ScrollableTabRowFillMaxWidth(
         selectedTabIndex = uiState.currentTab,
-        containerColor = LetroColor.SurfaceContainerHigh,
+        containerColor = if (isDarkTabs) LetroColor.SurfaceContainerMedium else LetroColor.SurfaceContainerHigh,
         edgePadding = 9.dp,
         indicator = {
             Surface(
@@ -75,6 +76,7 @@ fun LetroTabs(
                 },
                 text = title,
                 badge = tabCounters[index],
+                isDarkTabs = isDarkTabs,
                 modifier = Modifier
                     .padding(horizontal = 0.dp)
                     .alpha(if (uiState.currentTab == index) 1f else 0.6f),
@@ -90,6 +92,7 @@ private fun CounterTab(
     onClick: () -> Unit,
     text: String,
     badge: String? = null,
+    isDarkTabs: Boolean = false,
 ) {
     Tab(
         selected = selected,
@@ -107,7 +110,10 @@ private fun CounterTab(
                 Spacer(modifier = Modifier.width(4.dp))
                 AnimatedContent(targetState = badge != null, label = "LetroTabsBadgeVisibility") { isBadgeVisible ->
                     if (isBadgeVisible && badge != null) {
-                        TabBadge(text = badge)
+                        TabBadge(
+                            text = badge,
+                            isDarkTabs = isDarkTabs,
+                        )
                     }
                 }
             }
@@ -121,6 +127,7 @@ private fun CounterTab(
 @Composable
 private fun TabBadge(
     text: String,
+    isDarkTabs: Boolean,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -137,7 +144,7 @@ private fun TabBadge(
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
-            color = LetroColor.SurfaceContainerHigh,
+            color = if (isDarkTabs) LetroColor.SurfaceContainerMedium else LetroColor.SurfaceContainerHigh,
             maxLines = 1,
         )
     }

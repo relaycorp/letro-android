@@ -96,6 +96,9 @@
     <string name="snackbar_conversation_deleted">Conversation deleted.</string>
     <string name="snackbar_conversation_archived">Conversation archived.</string>
     <string name="snackbar_conversation_unarchived">Conversation unarchived.</string>
+    <string name="snackbar_conversations_deleted">Conversations deleted.</string>
+    <string name="snackbar_conversations_archived">Conversations archived.</string>
+    <string name="snackbar_conversations_unarchived">Conversations unarchived.</string>
 
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
@@ -120,12 +123,14 @@
     <string name="content_description_recipient_clear">Clear recipient</string>
     <string name="reply">Reply</string>
     <string name="delete_conversation">Delete conversation</string>
+    <string name="delete_conversations">Delete conversations</string>
 
     <string name="conversations_empty_inbox_stub">Nothing new for you.</string>
     <string name="conversations_empty_sent_stub">Nothing sent yet.</string>
     <string name="conversations_empty_archive_stub">Nothing new in archive.</string>
 
     <string name="delete_conversation_dialog_message">Are you sure you want to permanently delete this conversation?</string>
+    <string name="delete_conversations_dialog_message">Are you sure you want to permanently delete these conversations?</string>
 
     <string name="no_subject">(No subject)</string>
 

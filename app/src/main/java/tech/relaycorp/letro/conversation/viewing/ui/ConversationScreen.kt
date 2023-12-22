@@ -22,14 +22,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,8 +52,6 @@ import tech.relaycorp.letro.conversation.viewing.ConversationViewModel
 import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.common.LetroButton
 import tech.relaycorp.letro.ui.theme.Elevation2
-import tech.relaycorp.letro.ui.theme.LabelLargeProminent
-import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.ui.utils.ConversationsStringsProvider
 import tech.relaycorp.letro.utils.compose.toDp
 import tech.relaycorp.letro.utils.ext.applyIf
@@ -458,58 +454,6 @@ private fun ConversationToolbar(
             modifier = Modifier.width(16.dp),
         )
     }
-}
-
-@Composable
-private fun DeleteConversationDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmClick: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        title = {
-            Text(
-                text = stringResource(id = R.string.delete_conversation),
-                style = MaterialTheme.typography.TitleMediumProminent,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        },
-        text = {
-            Text(
-                text = stringResource(id = R.string.delete_conversation_dialog_message),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmClick()
-                },
-            ) {
-                Text(
-                    text = stringResource(id = R.string.delete),
-                    style = MaterialTheme.typography.LabelLargeProminent,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                },
-            ) {
-                Text(
-                    text = stringResource(id = R.string.cancel),
-                    style = MaterialTheme.typography.LabelLargeProminent,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-    )
 }
 
 @Preview(showBackground = true)

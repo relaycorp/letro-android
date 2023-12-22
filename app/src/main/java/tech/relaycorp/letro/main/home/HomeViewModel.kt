@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
+import tech.relaycorp.letro.conversation.list.selection.ConversationSelector
 import tech.relaycorp.letro.main.home.badge.UnreadBadgesManager
 import tech.relaycorp.letro.main.home.ui.HomeFloatingActionButtonConfig
 import javax.inject.Inject
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val unreadBadgesManager: UnreadBadgesManager,
     private val contactsRepository: ContactsRepository,
+    private val conversationSelector: ConversationSelector,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -53,6 +55,15 @@ class HomeViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         floatingActionButtonConfig = getFloatingActionButtonConfig(),
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            conversationSelector.selectedConversations.collect { selectedConversations ->
+                _uiState.update {
+                    it.copy(
+                        selectedConversations = selectedConversations.size,
                     )
                 }
             }
@@ -157,6 +168,7 @@ data class HomeUiState(
     val tabCounters: Map<Int, String?> = emptyMap(),
     val floatingActionButtonConfig: HomeFloatingActionButtonConfig? = HomeFloatingActionButtonConfig.ChatListFloatingActionButtonConfig,
     val isAddContactFloatingMenuVisible: Boolean = false,
+    val selectedConversations: Int = 0,
 )
 
 const val TAB_CHATS = 0
