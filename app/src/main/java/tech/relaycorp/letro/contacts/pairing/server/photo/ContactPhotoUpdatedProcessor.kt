@@ -6,7 +6,7 @@ import tech.relaycorp.letro.awala.processor.AwalaMessageProcessor
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import tech.relaycorp.letro.utils.Logger
 import java.util.UUID
 import javax.inject.Inject
@@ -37,9 +37,9 @@ class ContactPhotoUpdatedProcessor @Inject constructor(
                 File.FileWithContent(
                     id = UUID.randomUUID(),
                     name = contacts.first().contactVeraId,
-                    extension = FileExtension.Image(),
-                    size = content.photo.size.toLong(),
-                    content = content.photo,
+                    type = FileType.Image(content.photo.extension),
+                    size = content.photo.photo.size.toLong(),
+                    content = content.photo.photo,
                 ),
             )
         }

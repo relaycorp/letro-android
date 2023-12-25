@@ -58,7 +58,7 @@ fun Activity.openFile(file: File.FileWithoutContent) {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 setDataAndType(
                     FileProvider.getUriForFile(this@openFile, AUTHORITY, file.toFile()),
-                    file.extension.mimeType,
+                    file.type.mimeType,
                 )
             },
         )

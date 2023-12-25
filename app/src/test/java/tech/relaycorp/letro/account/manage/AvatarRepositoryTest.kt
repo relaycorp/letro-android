@@ -16,7 +16,7 @@ import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import tech.relaycorp.letro.utils.models.account.createAccount
 import tech.relaycorp.letro.utils.models.contact.createContact
 import java.util.UUID
@@ -40,9 +40,13 @@ class AvatarRepositoryTest {
         contactsRepository = contactsRepository,
         awalaManager = awalaManager,
         fileConverter = mockk(relaxed = true) {
-            coEvery { getFile(newAvatarUri) } returns File.FileWithContent(UUID.randomUUID(), "file_name", FileExtension.Image(), 0L, ByteArray(0))
+            coEvery { getFile(newAvatarUri) } returns File.FileWithContent(UUID.randomUUID(), "file_name", FileType.Image(""), 0L, ByteArray(0))
         },
         fileManager = fileManager,
+        messageEncoder = mockk(relaxed = true) {
+            coEvery { encode(any(), any()) } returns ByteArray(0)
+        },
+        contactsNotifierThread = UnconfinedTestDispatcher(),
     )
 
     private val scope = CoroutineScope(UnconfinedTestDispatcher())

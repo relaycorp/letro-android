@@ -8,6 +8,7 @@ import tech.relaycorp.letro.base.utils.SnackbarString
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.ACCOUNT_CREATION_ID_ALREADY_EXISTS
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.ACCOUNT_LINKING_ID_ALREADY_EXISTS
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.AVATAR_TOO_BIG_ERROR
+import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.AVATAR_UNSUPPORTED_FORMAT
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.CONVERSATIONS_ARCHIVED
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.CONVERSATIONS_DELETED
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider.Type.Companion.CONVERSATIONS_UNARCHIVED
@@ -40,6 +41,7 @@ interface SnackbarStringsProvider {
         CONVERSATIONS_DELETED,
         CONVERSATIONS_ARCHIVED,
         CONVERSATIONS_UNARCHIVED,
+        AVATAR_UNSUPPORTED_FORMAT,
     )
     annotation class Type {
         companion object {
@@ -51,6 +53,7 @@ interface SnackbarStringsProvider {
             const val CONVERSATIONS_DELETED = 5
             const val CONVERSATIONS_ARCHIVED = 6
             const val CONVERSATIONS_UNARCHIVED = 7
+            const val AVATAR_UNSUPPORTED_FORMAT = 8
         }
     }
 }
@@ -104,6 +107,7 @@ class SnackbarStringsProviderImpl @Inject constructor(
             CONVERSATIONS_DELETED -> activity.getString(R.string.snackbar_conversations_deleted)
             CONVERSATIONS_ARCHIVED -> activity.getString(R.string.snackbar_conversations_archived)
             CONVERSATIONS_UNARCHIVED -> activity.getString(R.string.snackbar_conversations_unarchived)
+            AVATAR_UNSUPPORTED_FORMAT -> activity.getString(R.string.avatar_unsupported_type)
             else -> throw IllegalStateException("Unknown type $type")
         }
     }

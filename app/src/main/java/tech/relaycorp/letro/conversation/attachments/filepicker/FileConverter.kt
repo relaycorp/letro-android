@@ -6,7 +6,7 @@ import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Attachment
 import java.util.UUID
@@ -45,7 +45,7 @@ abstract class DefaultFileConverter(
                     return File.FileWithContent(
                         id = UUID.randomUUID(),
                         name = fileName,
-                        extension = extension,
+                        type = extension,
                         size = bytes.size.toLong(),
                         content = bytes,
                     )
@@ -73,7 +73,7 @@ abstract class DefaultFileConverter(
         return File.FileWithContent(
             id = UUID.randomUUID(),
             name = attachmentAwalaWrapper.fileName,
-            extension = FileExtension.fromMimeType(attachmentAwalaWrapper.mimeType),
+            type = FileType.fromMimeType(attachmentAwalaWrapper.extension, attachmentAwalaWrapper.mimeType),
             size = attachmentAwalaWrapper.content.size.toLong(),
             content = attachmentAwalaWrapper.content,
         )
@@ -92,15 +92,18 @@ abstract class DefaultFileConverter(
         return null
     }
 
-    private fun getFileExtension(uri: Uri): FileExtension {
-        return when (MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri))) {
-            "pdf" -> FileExtension.Pdf()
-            "png", "jpg", "jpeg", "webp", "gif" -> FileExtension.Image()
-            "mp3", "wav", "aac", "pcm" -> FileExtension.Audio()
-            "mp4", "mov", "wmv", "avi" -> FileExtension.Video()
+    private fun getFileExtension(uri: Uri): FileType {
+        return when (val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri))) {
+            "pdf" -> FileType.Pdf(extension)
+            "png", "jpg", "jpeg", "webp", "gif" -> FileType.Image(extension)
+            "mp3", "wav", "aac", "pcm" -> FileType.Audio(extension)
+            "mp4", "mov", "wmv", "avi" -> FileType.Video(extension)
             else -> {
                 val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-                FileExtension.fromMimeType(MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension))
+                FileType.fromMimeType(
+                    extension = extension,
+                    mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension),
+                )
             }
         }
     }
