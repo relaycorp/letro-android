@@ -38,8 +38,8 @@ val Typography = Typography(
     headlineSmall = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
-        lineHeight = 30.sp,
+        fontSize = 25.sp,
+        lineHeight = 31.sp,
         letterSpacing = (-0.25).sp,
     ),
     titleLarge = TextStyle(

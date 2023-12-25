@@ -42,6 +42,7 @@ object AwalaModule {
         contactPairingAuthorizationProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPairingAuthorization>,
         @NewConversationAwalaProcessor newConversationProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>,
         @NewMessageAwalaProcessor newMessageProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.NewMessage>,
+        contactPhotoUpdateProcessor: AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPhotoUpdated>,
         logger: Logger,
     ): AwalaCommonMessageProcessor {
         val processors = mapOf(
@@ -53,6 +54,8 @@ object AwalaModule {
             MessageType.ContactPairingAuthorization to contactPairingAuthorizationProcessor,
             MessageType.NewConversation to newConversationProcessor,
             MessageType.NewMessage to newMessageProcessor,
+            MessageType.ContactPhotoUpdated to contactPhotoUpdateProcessor,
+            MessageType.ContactPhotoDeleted to contactPhotoUpdateProcessor,
         )
         return AwalaCommonMessageProcessorImpl(
             processors = processors,

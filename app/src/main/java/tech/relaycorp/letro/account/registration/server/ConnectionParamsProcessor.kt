@@ -33,6 +33,7 @@ class ConnectionParamsProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ConnectionParams,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val publicThirdPartyEndpoint = PublicThirdPartyEndpoint.import(content.connectionParams)
@@ -58,7 +59,11 @@ class ConnectionParamsProcessor @Inject constructor(
                 contactPairingNotificationManager.showFailedPairingNotification(it)
             }
             accountsToUpdate.forEach {
-                accountsRepository.updateAccount(it, AccountStatus.ERROR_LINKING)
+                accountsRepository.updateAccount(
+                    it.copy(
+                        status = AccountStatus.ERROR_LINKING,
+                    ),
+                )
             }
             return
         }
@@ -85,8 +90,10 @@ class ConnectionParamsProcessor @Inject constructor(
             )
             try {
                 accountsRepository.updateAccount(
-                    account = account,
-                    publicThirdPartyEndpointNodeId = publicThirdPartyEndpoint.nodeId,
+                    account.copy(
+                        veraidAuthEndpointId = publicThirdPartyEndpoint.nodeId,
+                        token = null,
+                    ),
                 )
                 awalaManager.sendMessage(
                     outgoingMessage = AwalaOutgoingMessage(
@@ -100,7 +107,7 @@ class ConnectionParamsProcessor @Inject constructor(
                 )
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
-                accountsRepository.updateAccount(account, AccountStatus.ERROR_LINKING)
+                accountsRepository.updateAccount(account.copy(status = AccountStatus.ERROR_LINKING))
             }
         }
     }

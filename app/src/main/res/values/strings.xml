@@ -43,6 +43,11 @@
 
     <string name="top_bar_change_account">Change account</string>
     <string name="settings">Settings</string>
+    <string name="account">Account</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="set_profile_photo">Set profile photo</string>
+    <string name="change">Change</string>
+    <string name="remove">Remove</string>
 
     <string name="no_browser">There is no app to open this link</string>
     <string name="no_app_to_share">There is no app to share your id</string>
@@ -91,6 +96,9 @@
     <string name="snackbar_conversation_deleted">Conversation deleted.</string>
     <string name="snackbar_conversation_archived">Conversation archived.</string>
     <string name="snackbar_conversation_unarchived">Conversation unarchived.</string>
+    <string name="snackbar_conversations_deleted">Conversations deleted.</string>
+    <string name="snackbar_conversations_archived">Conversations archived.</string>
+    <string name="snackbar_conversations_unarchived">Conversations unarchived.</string>
 
     <string name="delete_contact_dialog_title">Delete contact</string>
     <string name="delete_contact_dialog_message">Are you sure you want to delete %s from your contact list?</string>
@@ -115,12 +123,14 @@
     <string name="content_description_recipient_clear">Clear recipient</string>
     <string name="reply">Reply</string>
     <string name="delete_conversation">Delete conversation</string>
+    <string name="delete_conversations">Delete conversations</string>
 
     <string name="conversations_empty_inbox_stub">Nothing new for you.</string>
     <string name="conversations_empty_sent_stub">Nothing sent yet.</string>
     <string name="conversations_empty_archive_stub">Nothing new in archive.</string>
 
     <string name="delete_conversation_dialog_message">Are you sure you want to permanently delete this conversation?</string>
+    <string name="delete_conversations_dialog_message">Are you sure you want to permanently delete these conversations?</string>
 
     <string name="no_subject">(No subject)</string>
 
@@ -188,6 +198,7 @@
     <string name="we_could_not_claim_your_account">We couldn&#8217;t claim your account</string>
     <string name="you_need_to_contact_your_it_team_at">You need to contact your IT team at %s</string>
     <string name="file_too_big_error_message">This file exceeds the 8 MB limit</string>
+    <string name="avatar_too_big_error_message">Image can’t exceed 5 MB</string>
 
     <string name="you_using_x_of_y_free_accounts">You are using %d of %d free accounts</string>
     <string name="you_hit_the_limit_of_accounts">You’ve hit the limit of %d free accounts</string>

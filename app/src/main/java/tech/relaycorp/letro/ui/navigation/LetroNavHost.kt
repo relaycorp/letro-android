@@ -48,6 +48,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.relaycorp.letro.account.SwitchAccountViewModel
+import tech.relaycorp.letro.account.manage.AccountManageScreen
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.ui.RegistrationScreen
 import tech.relaycorp.letro.account.registration.ui.UseExistingAccountScreen
@@ -64,7 +65,10 @@ import tech.relaycorp.letro.contacts.ui.WelcomeToLetroScreen
 import tech.relaycorp.letro.conversation.attachments.dto.GsonAttachments
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.conversation.compose.ui.ComposeNewMessageScreen
+import tech.relaycorp.letro.conversation.list.ConversationsListViewModel
+import tech.relaycorp.letro.conversation.list.section.ConversationSectionInfo
 import tech.relaycorp.letro.conversation.viewing.ui.ConversationScreen
+import tech.relaycorp.letro.conversation.viewing.ui.DeleteConversationDialog
 import tech.relaycorp.letro.main.MainViewModel
 import tech.relaycorp.letro.main.home.HomeViewModel
 import tech.relaycorp.letro.main.home.TAB_CONTACTS
@@ -75,6 +79,7 @@ import tech.relaycorp.letro.settings.SettingsScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreen
 import tech.relaycorp.letro.ui.actionTaking.ActionTakingScreenUIStateModel
 import tech.relaycorp.letro.ui.common.LetroTopBar
+import tech.relaycorp.letro.ui.common.LetroTopBarConfiguration
 import tech.relaycorp.letro.ui.theme.LetroColor
 import tech.relaycorp.letro.ui.utils.SnackbarStringsProvider
 import tech.relaycorp.letro.ui.utils.StringsProvider
@@ -93,6 +98,7 @@ fun LetroNavHost(
     mainViewModel: MainViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = hiltViewModel(),
+    conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
@@ -110,6 +116,9 @@ fun LetroNavHost(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var isAwalaInitialized by remember { mutableStateOf(false) }
+
+    val isArchiveFolderActive by conversationsListViewModel.conversationSectionState.collectAsState()
+    val isConfirmConversationsDeletingDialogVisible by conversationsListViewModel.isConfirmDeleteConversationsDialogVisible.collectAsState()
 
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -245,19 +254,40 @@ fun LetroNavHost(
                         onDismissRequest = { switchAccountViewModel.onSwitchAccountDialogDismissed() },
                     )
                 }
+                if (isConfirmConversationsDeletingDialogVisible) {
+                    DeleteConversationDialog(
+                        isSingleConversation = homeUiState.selectedConversations == 1,
+                        onDismissRequest = { conversationsListViewModel.onDeleteConversationDialogDismissed() },
+                        onConfirmClick = { conversationsListViewModel.onConfirmConversationsDeleteClicked() },
+                    )
+                }
                 Column {
                     AnimatedVisibility(visible = currentRoute.showTopBar && currentAccount != null) {
                         if (currentAccount != null) {
                             Column {
-                                LetroTopBar(
-                                    accountVeraId = currentAccount,
-                                    accountStatus = uiState.accountStatus,
-                                    domain = uiState.domain ?: "",
-                                    showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
-                                    onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
-                                    onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
-                                )
-                                if (currentRoute.showHomeTabs) {
+                                when {
+                                    homeUiState.selectedConversations > 0 -> LetroTopBar(
+                                        config = LetroTopBarConfiguration.ConversationsEditMode(
+                                            selectedConversations = homeUiState.selectedConversations,
+                                            isArchiveFolder = isArchiveFolderActive.currentSection == ConversationSectionInfo.Archived,
+                                            onCancelClick = { conversationsListViewModel.onCancelConversationsSelectionClick() },
+                                            onArchiveClick = { conversationsListViewModel.onArchiveSelectedConversationsClick() },
+                                            onDeleteClick = { conversationsListViewModel.onDeleteSelectedConversationsClick() },
+                                        ),
+                                    )
+                                    else -> LetroTopBar(
+                                        config = LetroTopBarConfiguration.Common(
+                                            accountVeraId = currentAccount,
+                                            accountStatus = uiState.accountStatus,
+                                            domain = uiState.domain ?: "",
+                                            avatarFilePath = uiState.avatarFilePath,
+                                            showAccountIdAsShimmer = uiState.showTopBarAccountIdAsShimmer,
+                                            onChangeAccountClicked = { switchAccountViewModel.onSwitchAccountsClick() },
+                                            onSettingsClicked = { navController.navigateSingleTop(Route.Settings) },
+                                        ),
+                                    )
+                                }
+                                if (currentRoute.showHomeTabs && homeUiState.selectedConversations <= 0) {
                                     LetroTabs(
                                         viewModel = homeViewModel,
                                     )
@@ -491,6 +521,7 @@ fun LetroNavHost(
                         composable(Route.Home.name) {
                             HomeScreen(
                                 homeViewModel = homeViewModel,
+                                conversationsListViewModel = conversationsListViewModel,
                                 snackbarHostState = snackbarHostState,
                                 stringsProvider = stringsProvider,
                                 onConversationClick = {
@@ -649,9 +680,22 @@ fun LetroNavHost(
                                 onNotificationsClick = onGoToNotificationsSettingsClick,
                                 onTermsAndConditionsClick = { mainViewModel.onTermsAndConditionsClick() },
                                 onBackClick = { navController.popBackStackSafe() },
+                                openAccountManageScreen = {
+                                    navController.navigate(Route.AccountManage.getRouteName(it.id))
+                                },
+                            )
+                        }
+                        composable(
+                            route = Route.AccountManage.name +
+                                "?${Route.AccountManage.ACCOUNT_ID}={${Route.AccountManage.ACCOUNT_ID}}",
+                        ) {
+                            AccountManageScreen(
+                                onBackClick = { navController.popBackStackSafe() },
                                 onAccountDeleted = {
+                                    navController.popBackStackSafe()
                                     snackbarHostState.showSnackbar(scope, stringsProvider.snackbar.accountDeleted)
                                 },
+                                showSnackbar = { showSnackbar(it, snackbarHostState, scope, stringsProvider.snackbar) },
                             )
                         }
                     }
@@ -679,7 +723,11 @@ fun LetroNavHost(
                 } else {
                     systemUiController.isStatusBarVisible = currentRoute.isStatusBarVisible
                     systemUiController.setStatusBarColor(
-                        if (currentRoute.isStatusBarPrimaryColor) LetroColor.SurfaceContainerHigh else MaterialTheme.colorScheme.surface,
+                        when {
+                            homeUiState.selectedConversations > 0 -> LetroColor.SurfaceContainerMedium
+                            currentRoute.isStatusBarPrimaryColor -> LetroColor.SurfaceContainerHigh
+                            else -> MaterialTheme.colorScheme.surface
+                        },
                     )
                 }
             }
@@ -688,6 +736,7 @@ fun LetroNavHost(
             if (
                 floatingActionButtonConfig != null &&
                 !homeUiState.isAddContactFloatingMenuVisible &&
+                homeUiState.selectedConversations <= 0 &&
                 currentRoute == Route.Home
             ) {
                 FloatingActionButton(

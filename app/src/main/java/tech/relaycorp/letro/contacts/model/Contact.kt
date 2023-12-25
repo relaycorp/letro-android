@@ -35,6 +35,7 @@ data class Contact(
     val alias: String? = null,
     val contactEndpointId: String? = null,
     @ContactPairingStatus val status: Int = UNPAIRED,
+    val avatarFilePath: String? = null,
 )
 
 @IntDef(UNPAIRED, REQUEST_SENT, MATCH, AUTHORIZATION_SENT, COMPLETED)

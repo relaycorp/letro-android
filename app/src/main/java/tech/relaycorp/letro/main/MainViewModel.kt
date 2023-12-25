@@ -27,6 +27,7 @@ import tech.relaycorp.letro.conversation.attachments.AttachmentsRepository
 import tech.relaycorp.letro.conversation.attachments.dto.AttachmentToShare
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.di.ConversationFileConverterAnnotation
 import tech.relaycorp.letro.conversation.storage.repository.ConversationsRepository
 import tech.relaycorp.letro.main.di.MainViewModelActionProcessorThread
 import tech.relaycorp.letro.main.di.RootNavigationDebounceMs
@@ -49,7 +50,7 @@ class MainViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val contactsRepository: ContactsRepository,
     private val attachmentsRepository: AttachmentsRepository,
-    private val fileConverter: FileConverter,
+    @ConversationFileConverterAnnotation private val fileConverter: FileConverter,
     private val conversationsRepository: ConversationsRepository,
     private val uriToActionConverter: UriToActionConverter,
     private val logger: Logger,
@@ -119,6 +120,7 @@ class MainViewModel @Inject constructor(
                             currentAccount = account.accountId,
                             domain = account.domain,
                             accountStatus = account.status,
+                            avatarFilePath = account.avatarPath,
                         )
                     } else {
                         it
@@ -289,6 +291,7 @@ data class MainUiState(
     val currentAccount: String? = null,
     val domain: String? = null,
     @AccountStatus val accountStatus: Int = AccountStatus.CREATED,
+    val avatarFilePath: String? = null,
     val showTopBarAccountIdAsShimmer: Boolean = false,
     val canSendMessages: Boolean = false,
 )

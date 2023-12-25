@@ -17,13 +17,17 @@ abstract class AwalaMessageProcessor<T : AwalaIncomingMessageContent>(
             return
         }
         if (isFromExpectedSender(content, message.recipientEndpoint.nodeId, message.senderEndpoint.nodeId, awalaManager)) {
-            handleMessage(content, awalaManager)
+            handleMessage(content, message.senderEndpoint.nodeId, awalaManager)
         } else {
             logger.w(TAG, "There is a message processor to process the message ${message.type}, but it came from unexpected sender")
         }
     }
 
-    protected abstract suspend fun handleMessage(content: T, awalaManager: AwalaManager)
+    protected abstract suspend fun handleMessage(
+        content: T,
+        senderNodeId: String,
+        awalaManager: AwalaManager,
+    )
     protected abstract suspend fun isFromExpectedSender(
         content: T,
         recipientNodeId: String,

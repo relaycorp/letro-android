@@ -21,6 +21,7 @@ class ContactPairingMatchProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ContactPairingMatch,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val contact = contactsDao.getContact(

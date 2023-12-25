@@ -8,5 +8,15 @@ data class PushData(
     val action: Action,
     val notificationId: Int,
     val recipientAccountId: String,
+    val largeIcon: LargeIcon? = null,
     @PushChannel.ChannelId val channelId: String = PushChannel.ChannelId.ID_CONVERSATIONS,
 )
+
+sealed class LargeIcon {
+
+    class File(
+        val path: String,
+    ) : LargeIcon()
+
+    class DefaultAvatar : LargeIcon()
+}

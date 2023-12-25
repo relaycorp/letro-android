@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import tech.relaycorp.letro.contacts.ContactsViewModel
@@ -25,6 +26,7 @@ import tech.relaycorp.letro.notification.ui.NotificationClickAction
 import tech.relaycorp.letro.notification.ui.NotificationsScreen
 import tech.relaycorp.letro.ui.common.animation.swipeAnimation
 import tech.relaycorp.letro.ui.utils.StringsProvider
+import tech.relaycorp.letro.utils.compose.showSnackbar
 
 @Composable
 fun HomeScreen(
@@ -37,11 +39,12 @@ fun HomeScreen(
     onPairWithOthersClick: () -> Unit,
     onShareIdClick: () -> Unit,
     onStartConversationClick: (Contact) -> Unit,
-    conversationsListViewModel: ConversationsListViewModel = hiltViewModel(),
+    conversationsListViewModel: ConversationsListViewModel,
     contactsViewModel: ContactsViewModel = hiltViewModel(),
     notificationsViewModel: NotificationsViewModel = hiltViewModel(),
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         notificationsViewModel.actions.collect {
@@ -59,8 +62,9 @@ fun HomeScreen(
             TAB_CHATS -> Column {
                 ConversationsListScreen(
                     conversationsStringsProvider = stringsProvider.conversations,
-                    onConversationClick = onConversationClick,
+                    openConversation = onConversationClick,
                     viewModel = conversationsListViewModel,
+                    showSnackbar = { snackbarHostState.showSnackbar(scope, stringsProvider.snackbar, it) },
                 )
             }
             TAB_CONTACTS -> ContactsScreen(

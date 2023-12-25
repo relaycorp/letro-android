@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 val Primary1 = Color(0xFF250070)
 val Primary2 = Color(0xFF7058E2)
 val Primary3 = Color(0xFFA596EF)
+val Primary6 = Color(0xFF4834A6)
 val Secondary1 = Color(0xFF00034F)
 val Secondary2 = Color(0xFF64B5FF)
 val Secondary5 = Color(0xFFD1E4FF)
@@ -43,6 +44,10 @@ object LetroColor {
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant8 else Neutral8
 
+    val SurfaceContainerMedium: Color
+        @Composable
+        get() = if (isSystemInDarkTheme()) NeutralVariant3 else Primary6
+
     val SurfaceContainer: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant4 else Neutral6
@@ -58,13 +63,6 @@ object LetroColor {
     val SurfaceContainerLow: Color
         @Composable
         get() = if (isSystemInDarkTheme()) NeutralVariant3 else Neutral8
-
-    val WarningContainer: Color
-        @Composable
-        get() = if (isSystemInDarkTheme()) SurfaceContainer else Color(0xFFFFEEDA)
-
-    val Warning: Color
-        get() = Color(0xFFF9B564)
 
     @Composable
     fun statusBarUnderDialogOverlay(): Color {

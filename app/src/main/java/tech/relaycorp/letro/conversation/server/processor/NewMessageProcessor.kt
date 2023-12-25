@@ -9,6 +9,7 @@ import tech.relaycorp.letro.conversation.storage.dao.ConversationsDao
 import tech.relaycorp.letro.conversation.storage.dao.MessagesDao
 import tech.relaycorp.letro.push.PushManager
 import tech.relaycorp.letro.push.PushNewMessageTextFormatter
+import tech.relaycorp.letro.push.model.LargeIcon
 import tech.relaycorp.letro.push.model.PushData
 import tech.relaycorp.letro.ui.navigation.Action
 import tech.relaycorp.letro.utils.Logger
@@ -26,6 +27,7 @@ class NewMessageProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.NewMessage,
+        senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         if (content.isNewConversation) {
@@ -39,7 +41,12 @@ class NewMessageProcessor @Inject constructor(
             )
         }
         val messageId = messagesDao.insert(content.message)
-        attachmentsRepository.saveMessageAttachments(messageId, content.attachments)
+        attachmentsRepository.saveMessageAttachments(
+            conversationId = content.conversation.conversationId,
+            messageId = messageId,
+            attachments = content.attachments,
+        )
+
         pushManager.showPush(
             PushData(
                 title = content.contact.alias ?: content.message.senderVeraId,
@@ -50,6 +57,7 @@ class NewMessageProcessor @Inject constructor(
                 ),
                 recipientAccountId = content.conversation.ownerVeraId,
                 notificationId = messageId.toInt(),
+                largeIcon = if (content.contact.avatarFilePath != null) LargeIcon.File(content.contact.avatarFilePath) else LargeIcon.DefaultAvatar(),
             ),
         )
     }
