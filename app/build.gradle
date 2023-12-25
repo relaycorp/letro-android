@@ -142,7 +142,7 @@ dependencies {
     testImplementation 'io.kotest:kotest-assertions-core:5.8.0'
     testImplementation "io.mockk:mockk:1.13.8"
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:1.9.21"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:1.9.22"
 }
 
 // Allow references to generated code
