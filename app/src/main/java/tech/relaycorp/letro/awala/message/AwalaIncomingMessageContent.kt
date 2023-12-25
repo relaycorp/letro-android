@@ -3,6 +3,7 @@ package tech.relaycorp.letro.awala.message
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.conversation.server.dto.AttachmentAwalaWrapper
+import tech.relaycorp.letro.conversation.server.dto.PhotoAwalaWrapper
 import tech.relaycorp.letro.conversation.storage.entity.Conversation
 import tech.relaycorp.letro.conversation.storage.entity.Message
 import tech.relaycorp.veraid.Member
@@ -47,8 +48,8 @@ sealed interface AwalaIncomingMessageContent {
     ) : AwalaIncomingMessageContent
 
     open class ContactPhotoUpdated(
-        val photo: ByteArray,
+        val photo: PhotoAwalaWrapper,
     ) : AwalaIncomingMessageContent
 
-    class ContactPhotoDeleted : ContactPhotoUpdated(ByteArray(0))
+    class ContactPhotoDeleted : ContactPhotoUpdated(PhotoAwalaWrapper(ByteArray(0), ""))
 }

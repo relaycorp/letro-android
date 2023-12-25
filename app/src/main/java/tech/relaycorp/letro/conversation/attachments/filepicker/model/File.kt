@@ -5,17 +5,17 @@ import java.util.UUID
 sealed class File(
     val id: UUID,
     val name: String,
-    val extension: FileExtension,
+    val type: FileType,
     val size: Long,
 ) {
 
     class FileWithContent(
         id: UUID,
         name: String,
-        extension: FileExtension,
+        type: FileType,
         size: Long,
         val content: ByteArray,
-    ) : File(id, name, extension, size) {
+    ) : File(id, name, type, size) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -24,7 +24,7 @@ sealed class File(
 
             if (id != other.id) return false
             if (name != other.name) return false
-            if (extension != other.extension) return false
+            if (type != other.type) return false
             if (size != other.size) return false
             if (!content.contentEquals(other.content)) return false
 
@@ -34,7 +34,7 @@ sealed class File(
         override fun hashCode(): Int {
             var result = id.hashCode()
             result = 31 * result + name.hashCode()
-            result = 31 * result + extension.hashCode()
+            result = 31 * result + type.hashCode()
             result = 31 * result + size.hashCode()
             result = 31 * result + content.contentHashCode()
             return result
@@ -44,7 +44,7 @@ sealed class File(
     class FileWithoutContent(
         id: UUID,
         name: String,
-        extension: FileExtension,
+        extension: FileType,
         size: Long,
         val path: String,
     ) : File(id, name, extension, size) {
@@ -60,7 +60,7 @@ sealed class File(
 
             if (id != other.id) return false
             if (name != other.name) return false
-            if (extension != other.extension) return false
+            if (type != other.type) return false
             if (size != other.size) return false
             if (path != other.path) return false
 
@@ -70,7 +70,7 @@ sealed class File(
         override fun hashCode(): Int {
             var result = id.hashCode()
             result = 31 * result + name.hashCode()
-            result = 31 * result + extension.hashCode()
+            result = 31 * result + type.hashCode()
             result = 31 * result + size.hashCode()
             result = 31 * result + path.hashCode()
             return result

@@ -12,7 +12,7 @@ import tech.relaycorp.letro.account.model.AccountType
 import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import tech.relaycorp.letro.conversation.compose.ComposeNewMessageViewModel
 import tech.relaycorp.letro.utils.models.account.createAccountRepository
 import tech.relaycorp.letro.utils.models.contact.createContactsRepository
@@ -59,7 +59,7 @@ class ComposeNewMessageViewModelTest {
                     File.FileWithContent(
                         id = UUID.randomUUID(),
                         name = "file_name",
-                        extension = FileExtension.Image(),
+                        type = FileType.Image(""),
                         size = 6_000_000L,
                         content = ByteArray(0),
                     )

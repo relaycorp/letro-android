@@ -5,7 +5,7 @@ import androidx.annotation.DrawableRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.relaycorp.letro.R
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
-import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileExtension
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import tech.relaycorp.letro.conversation.attachments.ui.AttachmentInfo
 import tech.relaycorp.letro.utils.files.bytesToKb
 import tech.relaycorp.letro.utils.files.bytesToMb
@@ -49,11 +49,11 @@ class AttachmentInfoConverterImpl @Inject constructor(
     }
 
     @DrawableRes
-    private fun getIcon(file: File): Int = when (file.extension) {
-        is FileExtension.Pdf -> R.drawable.attachment_pdf
-        is FileExtension.Image -> R.drawable.attachment_image
-        is FileExtension.Video -> R.drawable.attachment_video
-        is FileExtension.Audio -> R.drawable.attachment_audio
-        is FileExtension.Other -> R.drawable.attachment_default
+    private fun getIcon(file: File): Int = when (file.type) {
+        is FileType.Pdf -> R.drawable.attachment_pdf
+        is FileType.Image -> R.drawable.attachment_image
+        is FileType.Video -> R.drawable.attachment_video
+        is FileType.Audio -> R.drawable.attachment_audio
+        is FileType.Other -> R.drawable.attachment_default
     }
 }

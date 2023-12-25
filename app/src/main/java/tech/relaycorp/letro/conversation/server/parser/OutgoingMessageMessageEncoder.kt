@@ -39,7 +39,8 @@ class OutgoingMessageMessageEncoderImpl @Inject constructor() : OutgoingMessageM
                     AttachmentAwalaWrapper(
                         fileName = it.name,
                         content = it.content,
-                        mimeType = it.extension.mimeType,
+                        extension = it.type.extension,
+                        mimeType = it.type.mimeType,
                     )
                 },
             ),
@@ -61,7 +62,8 @@ class OutgoingMessageMessageEncoderImpl @Inject constructor() : OutgoingMessageM
                     AttachmentAwalaWrapper(
                         fileName = it.name,
                         content = it.content,
-                        mimeType = it.extension.mimeType,
+                        extension = it.type.extension,
+                        mimeType = it.type.mimeType,
                     )
                 },
             ),
