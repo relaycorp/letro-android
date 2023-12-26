@@ -30,13 +30,13 @@ class RegistrationViewModelTest {
     }
 
     @Test
-    fun `Test that userName can't be more than 16 symbols (is error state and proceed button is disabled`() {
+    fun `Test that userName can't be more than 20 symbols (is error state and proceed button is disabled)`() {
         val viewModel = createRegistrationViewModel()
         viewModel.uiState.value.username shouldBe ""
-        val seventeenSymbols = "12345678901234567"
-        viewModel.onUsernameInput(seventeenSymbols)
+        val twentyOneSymbols = "123456789012345678901"
+        viewModel.onUsernameInput(twentyOneSymbols)
         with(viewModel.uiState.value) {
-            username shouldBe seventeenSymbols
+            username shouldBe twentyOneSymbols
             isError shouldBe true
             isCreateAccountButtonEnabled shouldBe false
         }
