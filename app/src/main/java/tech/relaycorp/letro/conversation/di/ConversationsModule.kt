@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.components.SingletonComponent
 import tech.relaycorp.awaladroid.messaging.Message
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
@@ -14,6 +16,8 @@ import tech.relaycorp.letro.conversation.attachments.ConversationFileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.list.onboarding.ConversationsOnboardingManager
 import tech.relaycorp.letro.conversation.list.onboarding.ConversationsOnboardingManagerImpl
+import tech.relaycorp.letro.conversation.list.selection.ConversationSelector
+import tech.relaycorp.letro.conversation.list.selection.ConversationSelectorImpl
 import tech.relaycorp.letro.conversation.server.parser.NewConversationMessageParser
 import tech.relaycorp.letro.conversation.server.parser.NewConversationMessageParserImpl
 import tech.relaycorp.letro.conversation.server.parser.NewMessageMessageParser
@@ -124,6 +128,16 @@ object ConversationsModule {
             impl: ConversationFileConverter,
         ): FileConverter
     }
+}
+
+@Module
+@InstallIn(ActivityRetainedComponent::class)
+interface ConversationActivityRetainedModule {
+    @Binds
+    @ActivityRetainedScoped
+    fun bindConversationSelector(
+        impl: ConversationSelectorImpl,
+    ): ConversationSelector
 }
 
 @Qualifier

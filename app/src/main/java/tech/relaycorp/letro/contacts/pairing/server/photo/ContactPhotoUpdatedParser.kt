@@ -1,7 +1,9 @@
 package tech.relaycorp.letro.contacts.pairing.server.photo
 
+import com.google.gson.Gson
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.parser.AwalaMessageParser
+import tech.relaycorp.letro.conversation.server.dto.PhotoAwalaWrapper
 import javax.inject.Inject
 
 interface ContactPhotoUpdatedParser :
@@ -10,10 +12,13 @@ interface ContactPhotoUpdatedParser :
 class ContactPhotoUpdatedParserImpl @Inject constructor() : ContactPhotoUpdatedParser {
 
     override suspend fun parse(content: ByteArray): AwalaIncomingMessageContent.ContactPhotoUpdated {
-        return if (content.isEmpty()) {
+        val photo = Gson().fromJson(content.decodeToString(), PhotoAwalaWrapper::class.java)
+        return if (photo.photo.isEmpty()) {
             AwalaIncomingMessageContent.ContactPhotoDeleted()
         } else {
-            AwalaIncomingMessageContent.ContactPhotoUpdated(content)
+            AwalaIncomingMessageContent.ContactPhotoUpdated(
+                photo = photo,
+            )
         }
     }
 }

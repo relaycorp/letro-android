@@ -2,12 +2,12 @@ package tech.relaycorp.letro.conversation.list.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import tech.relaycorp.letro.conversation.model.ExtendedConversation
+import tech.relaycorp.letro.conversation.list.ConversationUiModel
 
 sealed interface ConversationsListContent {
 
     data class Conversations(
-        val conversations: List<ExtendedConversation>,
+        val conversations: List<ConversationUiModel>,
     ) : ConversationsListContent
 
     data class Empty(

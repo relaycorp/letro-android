@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.manage.avatar.AvatarRepository
+import tech.relaycorp.letro.account.manage.avatar.UnsupportedAvatarFormatException
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.base.BaseViewModel
@@ -58,6 +60,14 @@ class AccountManageViewModel @Inject constructor(
                 showSnackbarDebounced.emit(
                     SnackbarString(SnackbarStringsProvider.Type.AVATAR_TOO_BIG_ERROR),
                 )
+            } catch (e: AwaladroidException) {
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                )
+            } catch (e: UnsupportedAvatarFormatException) {
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.AVATAR_UNSUPPORTED_FORMAT),
+                )
             }
         }
     }
@@ -65,7 +75,13 @@ class AccountManageViewModel @Inject constructor(
     fun onAvatarDeleteClick() {
         viewModelScope.launch(dispatchers.IO) {
             val account = account ?: return@launch
-            avatarRepository.deleteAvatar(account)
+            try {
+                avatarRepository.deleteAvatar(account)
+            } catch (e: AwaladroidException) {
+                showSnackbarDebounced.emit(
+                    SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
+                )
+            }
         }
     }
 
