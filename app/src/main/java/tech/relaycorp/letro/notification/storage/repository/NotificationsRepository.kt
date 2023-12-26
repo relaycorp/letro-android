@@ -5,10 +5,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
+import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.notification.converter.ExtendedNotificationConverter
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.storage.dao.NotificationsDao
@@ -29,6 +31,7 @@ interface NotificationsRepository {
 class NotificationsRepositoryImpl @Inject constructor(
     private val notificationsDao: NotificationsDao,
     private val accountRepository: AccountRepository,
+    private val contactsRepository: ContactsRepository,
     private val extendedNotificationConverter: ExtendedNotificationConverter,
     private val timeChangedProvider: DeviceTimeChangedProvider,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -43,12 +46,16 @@ class NotificationsRepositoryImpl @Inject constructor(
 
     private var notificationsCollectionJob: Job? = null
 
+    private var currentAccount: Account? = null
+
     private val timeChangedListener = object : OnDeviceTimeChangedListener {
         override fun onChanged() {
-            _extendedNotifications.emitOn(
-                _notifications.value.map { extendedNotificationConverter.convert(it) },
-                scope,
-            )
+            currentAccount?.let { account ->
+                _extendedNotifications.emitOn(
+                    _notifications.value.map { extendedNotificationConverter.convert(it, contactsRepository.getContactsSync(account.accountId)) },
+                    scope,
+                )
+            }
         }
     }
 
@@ -56,6 +63,7 @@ class NotificationsRepositoryImpl @Inject constructor(
         timeChangedProvider.addListener(timeChangedListener)
         scope.launch {
             accountRepository.currentAccount.collect {
+                currentAccount = it
                 if (it != null) {
                     startCollectNotifications(it)
                 } else {
@@ -83,15 +91,15 @@ class NotificationsRepositoryImpl @Inject constructor(
         notificationsCollectionJob?.cancel()
         notificationsCollectionJob = null
         notificationsCollectionJob = scope.launch {
-            notificationsDao.getAll().collect {
-                val notificationsFiltered = it
+            combine(notificationsDao.getAll(), contactsRepository.getContacts(currentAccount.accountId)) { notifications, contacts ->
+                val notificationsFiltered = notifications
                     .filter { it.ownerId == currentAccount.accountId && it.timestampUtc.isLessThanWeeksAgo(OLD_NOTIFICATIONS_FILTER_WEEKS) }
                     .sortedByDescending { it.timestampUtc }
                 _notifications.emit(notificationsFiltered)
                 _extendedNotifications.emit(
-                    notificationsFiltered.map { extendedNotificationConverter.convert(it) },
+                    notificationsFiltered.map { extendedNotificationConverter.convert(it, contacts) },
                 )
-            }
+            }.collect {}
         }
     }
 }

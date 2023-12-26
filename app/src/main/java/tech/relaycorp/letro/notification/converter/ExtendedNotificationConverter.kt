@@ -2,6 +2,7 @@ package tech.relaycorp.letro.notification.converter
 
 import androidx.annotation.StringRes
 import tech.relaycorp.letro.R
+import tech.relaycorp.letro.contacts.model.Contact
 import tech.relaycorp.letro.notification.model.ExtendedNotification
 import tech.relaycorp.letro.notification.storage.entity.Notification
 import tech.relaycorp.letro.notification.storage.entity.NotificationType
@@ -9,14 +10,14 @@ import tech.relaycorp.letro.utils.time.toSystemTimeZone
 import javax.inject.Inject
 
 interface ExtendedNotificationConverter {
-    fun convert(notification: Notification): ExtendedNotification
+    fun convert(notification: Notification, contacts: List<Contact>): ExtendedNotification
 }
 
 class ExtendedNotificationConverterImpl @Inject constructor(
     private val dateFormatter: ExtendedNotificationDateFormatter,
 ) : ExtendedNotificationConverter {
 
-    override fun convert(notification: Notification): ExtendedNotification {
+    override fun convert(notification: Notification, contacts: List<Contact>): ExtendedNotification {
         return ExtendedNotification(
             id = notification.id,
             type = notification.type,
@@ -25,6 +26,7 @@ class ExtendedNotificationConverterImpl @Inject constructor(
             bottomText = notification.contactVeraId,
             date = dateFormatter.format(notification.timestampUtc.toSystemTimeZone()),
             isRead = notification.isRead,
+            imageFilePath = contacts.find { it.contactVeraId == notification.contactVeraId }?.avatarFilePath,
         )
     }
 
