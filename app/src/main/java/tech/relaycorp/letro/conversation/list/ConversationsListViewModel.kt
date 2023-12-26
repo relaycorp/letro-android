@@ -100,14 +100,17 @@ class ConversationsListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            accountRepository.currentAccount.collect {
-                currentAccount = it
-                if (it != null) {
-                    _isOnboardingMessageVisible.emit(!conversationsOnboardingManager.isOnboardingMessageWasShown(it.accountId))
+            combine(
+                accountRepository.currentAccount,
+                conversationSelector.selectedConversations,
+            ) { account, selectedConversations ->
+                currentAccount = account
+                if (account != null) {
+                    _isOnboardingMessageVisible.emit(!conversationsOnboardingManager.isOnboardingMessageWasShown(account.accountId) && selectedConversations.isEmpty())
                 } else {
                     _isOnboardingMessageVisible.emit(false)
                 }
-            }
+            }.collect {}
         }
         viewModelScope.launch {
             unreadBadgesManager.unreadConversations.collect { unreadMessages ->
