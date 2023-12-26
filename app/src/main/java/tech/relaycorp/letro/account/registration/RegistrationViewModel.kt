@@ -100,7 +100,7 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private companion object {
-        private const val USER_NAME_MAX_LENGTH = 16
+        private const val USER_NAME_MAX_LENGTH = 20
     }
 }
 
