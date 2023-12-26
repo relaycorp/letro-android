@@ -1,19 +1,27 @@
 package tech.relaycorp.letro.account.manage.avatar
 
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.letro.account.di.AvatarFileConverterAnnotation
+import tech.relaycorp.letro.account.di.ContactsNewAvatarNotifierThread
 import tech.relaycorp.letro.account.model.Account
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
+import tech.relaycorp.letro.contacts.pairing.server.photo.parser.ContactPhotoUpdatedMessageEncoder
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileConverter
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileManager
 import tech.relaycorp.letro.conversation.attachments.filepicker.FileSizeExceedsLimitException
 import tech.relaycorp.letro.conversation.attachments.filepicker.model.File
+import tech.relaycorp.letro.conversation.attachments.filepicker.model.FileType
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 interface AvatarRepository {
     suspend fun saveAvatar(
@@ -21,7 +29,7 @@ interface AvatarRepository {
         avatarUri: String,
     )
 
-    suspend fun deleteAvatar(account: Account)
+    suspend fun deleteAvatar(account: Account, notifyContacts: Boolean = true)
 }
 
 class AvatarRepositoryImpl @Inject constructor(
@@ -30,41 +38,46 @@ class AvatarRepositoryImpl @Inject constructor(
     private val awalaManager: AwalaManager,
     @AvatarFileConverterAnnotation private val fileConverter: FileConverter,
     private val fileManager: FileManager,
+    private val messageEncoder: ContactPhotoUpdatedMessageEncoder,
+    @ContactsNewAvatarNotifierThread private val contactsNotifierThread: CoroutineContext,
 ) : AvatarRepository {
 
-    @Throws(FileSizeExceedsLimitException::class)
+    @Throws(FileSizeExceedsLimitException::class, UnsupportedAvatarFormatException::class, AwaladroidException::class)
     override suspend fun saveAvatar(account: Account, avatarUri: String) {
         val file = fileConverter.getFile(avatarUri) ?: return
-        val filePath = fileManager.save(
-            File.FileWithContent(
-                id = UUID.randomUUID(),
-                name = account.accountId,
-                extension = file.extension,
-                size = file.content.size.toLong(),
-                content = file.content,
-            ),
+        if (file.type !is FileType.Image || file.type.extension.lowercase() !in supportedAvatarTypes) {
+            throw UnsupportedAvatarFormatException()
+        }
+        val fileToSave = File.FileWithContent(
+            id = UUID.randomUUID(),
+            name = account.accountId,
+            type = file.type,
+            size = file.content.size.toLong(),
+            content = file.content,
         )
+        val filePath = fileManager.save(fileToSave)
 
         updateAccountAndNotifyContacts(
             account = account,
             avatarFilePath = filePath,
-            avatarContent = file.content,
+            file = fileToSave,
         )
     }
 
-    override suspend fun deleteAvatar(account: Account) {
+    override suspend fun deleteAvatar(account: Account, notifyContacts: Boolean) {
         val avatar = account.avatarPath ?: return
         fileManager.delete(avatar)
         updateAccountAndNotifyContacts(
             account = account,
             avatarFilePath = null,
-            avatarContent = ByteArray(0),
+            file = null,
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private suspend fun updateAccountAndNotifyContacts(
         account: Account,
-        avatarContent: ByteArray,
+        file: File.FileWithContent?,
         avatarFilePath: String?,
     ) {
         // Set new avatar locally
@@ -80,13 +93,17 @@ class AvatarRepositoryImpl @Inject constructor(
         }
 
         // Notify contacts
-        contactsRepository.getContactsSync(account.accountId)
-            .forEach {
-                it.contactEndpointId ?: return@forEach
-                awalaManager.sendMessage(
-                    outgoingMessage = AwalaOutgoingMessage(
-                        type = MessageType.ContactPhotoUpdated,
-                        content = avatarContent,
+        GlobalScope.launch(contactsNotifierThread) {
+            contactsRepository.getContactsSync(account.accountId)
+                .forEach {
+                    it.contactEndpointId ?: return@forEach
+                    awalaManager.sendMessage(
+                        outgoingMessage = AwalaOutgoingMessage(
+                            type = MessageType.ContactPhotoUpdated,
+                            content = messageEncoder.encode(
+                                photo = file?.content,
+                                extension = file?.type?.extension,
+                            ),
                     ),
                     recipient = AwalaEndpoint.Private(
                         nodeId = it.contactEndpointId,
@@ -96,3 +113,10 @@ class AvatarRepositoryImpl @Inject constructor(
             }
     }
 }
+
+    private companion object {
+        private val supportedAvatarTypes = ("png, jpeg, jpg, webp")
+    }
+}
+
+class UnsupportedAvatarFormatException : IllegalStateException("Unsupported avatar type. Supported types: png, jpeg, webp")

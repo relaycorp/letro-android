@@ -20,6 +20,7 @@ data class MessageAwalaWrapper(
 data class AttachmentAwalaWrapper(
     val fileName: String,
     val content: ByteArray,
+    val extension: String,
     val mimeType: String,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -30,6 +31,7 @@ data class AttachmentAwalaWrapper(
 
         if (fileName != other.fileName) return false
         if (!content.contentEquals(other.content)) return false
+        if (extension != other.extension) return false
         if (mimeType != other.mimeType) return false
 
         return true
@@ -39,6 +41,28 @@ data class AttachmentAwalaWrapper(
         var result = fileName.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + mimeType.hashCode()
+        result = 31 * result + extension.hashCode()
+        return result
+    }
+}
+
+data class PhotoAwalaWrapper(
+    val photo: ByteArray,
+    val extension: String,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PhotoAwalaWrapper
+
+        if (!photo.contentEquals(other.photo)) return false
+        return extension == other.extension
+    }
+
+    override fun hashCode(): Int {
+        var result = photo.contentHashCode()
+        result = 31 * result + extension.hashCode()
         return result
     }
 }

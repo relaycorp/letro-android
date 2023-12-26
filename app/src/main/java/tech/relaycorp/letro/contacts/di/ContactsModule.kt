@@ -18,6 +18,8 @@ import tech.relaycorp.letro.contacts.pairing.server.match.ContactPairingMatchPro
 import tech.relaycorp.letro.contacts.pairing.server.photo.ContactPhotoUpdatedParser
 import tech.relaycorp.letro.contacts.pairing.server.photo.ContactPhotoUpdatedParserImpl
 import tech.relaycorp.letro.contacts.pairing.server.photo.ContactPhotoUpdatedProcessor
+import tech.relaycorp.letro.contacts.pairing.server.photo.parser.ContactPhotoUpdatedMessageEncoder
+import tech.relaycorp.letro.contacts.pairing.server.photo.parser.ContactPhotoUpdatedMessageEncoderImpl
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepository
 import tech.relaycorp.letro.contacts.storage.repository.ContactsRepositoryImpl
@@ -62,6 +64,11 @@ object ContactsModule {
         fun bindContactPhotoUpdatedProcessor(
             impl: ContactPhotoUpdatedProcessor,
         ): AwalaMessageProcessor<AwalaIncomingMessageContent.ContactPhotoUpdated>
+
+        @Binds
+        fun bindContactPhotoUpdatedMessageEncoder(
+            impl: ContactPhotoUpdatedMessageEncoderImpl,
+        ): ContactPhotoUpdatedMessageEncoder
 
         @Binds
         fun bindContactPhotoUpdatedParser(
