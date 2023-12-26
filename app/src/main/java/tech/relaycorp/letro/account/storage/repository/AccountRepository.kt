@@ -27,6 +27,7 @@ interface AccountRepository {
         domainName: String,
         veraidPrivateKey: PrivateKey,
         firstPartyEndpointNodeId: String,
+        thirdPartyEndpointNodeId: String,
         awalaEndpoint: String? = null,
         locale: Locale? = null,
         token: String? = null,
@@ -112,6 +113,7 @@ class AccountRepositoryImpl @Inject constructor(
         domainName: String,
         veraidPrivateKey: PrivateKey,
         firstPartyEndpointNodeId: String,
+        thirdPartyEndpointNodeId: String,
         awalaEndpoint: String?,
         locale: Locale?,
         token: String?,
@@ -130,6 +132,7 @@ class AccountRepositoryImpl @Inject constructor(
                 status = if (token != null) AccountStatus.LINKING_WAITING else AccountStatus.CREATION_WAITING,
                 accountType = if (token != null) AccountType.LINKED_EXISTING else AccountType.CREATED_FROM_SCRATCH,
                 firstPartyEndpointNodeId = firstPartyEndpointNodeId,
+                thirdPartyServerEndpointNodeId = thirdPartyEndpointNodeId,
             ),
         )
     }

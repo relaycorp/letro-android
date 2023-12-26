@@ -43,7 +43,7 @@ class RegistrationRepositoryImpl @Inject constructor(
             locale,
             keyPair.public,
         )
-        val firstPartyEndpointNodeId = awalaManager
+        val nodeIds = awalaManager
             .sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.AccountCreationRequest,
@@ -55,9 +55,10 @@ class RegistrationRepositoryImpl @Inject constructor(
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
             domainName = domainName,
-            locale = locale,
             veraidPrivateKey = keyPair.private,
-            firstPartyEndpointNodeId = firstPartyEndpointNodeId,
+            firstPartyEndpointNodeId = nodeIds.firstParty,
+            thirdPartyEndpointNodeId = nodeIds.thirdParty,
+            locale = locale,
         )
     }
 
@@ -69,7 +70,7 @@ class RegistrationRepositoryImpl @Inject constructor(
             throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
         }
         val keyPair = generateRSAKeyPair()
-        val firstPartyEndpointNodeId = awalaManager.sendMessage(
+        val nodeIds = awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
                 type = MessageType.ConnectionParamsRequest,
                 content = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint.toByteArray() else domainName.toByteArray(),
@@ -80,10 +81,11 @@ class RegistrationRepositoryImpl @Inject constructor(
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
             domainName = domainName,
-            awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             veraidPrivateKey = keyPair.private,
+            firstPartyEndpointNodeId = nodeIds.firstParty,
+            thirdPartyEndpointNodeId = nodeIds.thirdParty,
+            awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             token = token,
-            firstPartyEndpointNodeId = firstPartyEndpointNodeId,
         )
     }
 

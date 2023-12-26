@@ -3,7 +3,6 @@
 package tech.relaycorp.letro.awala
 
 import android.content.Context
-import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.awaladroid.Awala
@@ -28,7 +27,8 @@ interface AwalaWrapper {
     suspend fun bindGateway()
     suspend fun registerFirstPartyEndpoint(): FirstPartyEndpoint
     suspend fun importServerThirdPartyEndpoint(
-        @RawRes connectionParams: Int,
+        connectionParams: ByteArray,
+        firstPartyEndpoint: FirstPartyEndpoint,
     ): PublicThirdPartyEndpoint
     fun receiveMessages(): Flow<IncomingMessage>
 
@@ -90,16 +90,12 @@ class AwalaWrapperImpl @Inject constructor(
                 recipientEndpoint = thirdPartyEndpoint,
             ),
         )
-        logger.i(AwalaManagerImpl.TAG, "sendMessage(): Message sent (${outgoingMessage.type})")
+        logger.i(AwalaManagerImpl.TAG, "Message sent (${outgoingMessage.type})")
     }
 
-    override suspend fun importServerThirdPartyEndpoint(connectionParams: Int): PublicThirdPartyEndpoint {
+    override suspend fun importServerThirdPartyEndpoint(connectionParams: ByteArray, firstPartyEndpoint: FirstPartyEndpoint): PublicThirdPartyEndpoint {
         return try {
-            PublicThirdPartyEndpoint.import(
-                context.resources.openRawResource(connectionParams).use {
-                    it.readBytes()
-                },
-            )
+            PublicThirdPartyEndpoint.import(connectionParams, firstPartyEndpoint)
         } catch (e: InvalidThirdPartyEndpoint) {
             throw InvalidConnectionParams(e)
         }
@@ -131,7 +127,7 @@ class AwalaWrapperImpl @Inject constructor(
             )
             is AwalaEndpoint.Public -> loadNonNullPublicThirdPartyEndpoint(thirdPartyEndpoint.nodeId)
         }
-        thirdPartyEndpoint.delete()
+        thirdPartyEndpoint.delete(firstPartyEndpoint)
     }
 
     override suspend fun loadNonNullPublicFirstPartyEndpoint(nodeId: String?): FirstPartyEndpoint {

@@ -171,45 +171,6 @@ class RootNavigationTest {
     }
 
     @Test
-    fun `Test that 'Awala non fatal initialization error' is being opened, if we couldn't register first party endpoint`() {
-        val awalaManager = createAwalaManager(
-            awalaInitializationResult = AwalaInitializationResult.CRASH_ON_FIRST_PARTY_ENDPOINT_REGISTRATION,
-            ioDispatcher = dispatcher,
-        )
-        val accountRepository = createAccountRepository()
-        val contactsRepository = createContactsRepository(
-            accountRepository = accountRepository,
-            awalaManager = awalaManager,
-        )
-        val viewModel = createMainViewModel(
-            awalaManager = awalaManager,
-            accountRepository = accountRepository,
-            contactsRepository = contactsRepository,
-        )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
-    }
-
-    @Test
-    fun `Test that 'Awala non fatal initialization error' is being opened, if we couldn't register third party endpoint`() {
-        val awalaManager = createAwalaManager(
-            awalaInitializationResult = AwalaInitializationResult.CRASH_ON_IMPORT_SERVER_THIRD_PARTY_ENDPOINT,
-            ioDispatcher = dispatcher,
-        )
-        val accountRepository = createAccountRepository(ioDispatcher = dispatcher)
-        val contactsRepository = createContactsRepository(
-            accountRepository = accountRepository,
-            awalaManager = awalaManager,
-            ioDispatcher = dispatcher,
-        )
-        val viewModel = createMainViewModel(
-            awalaManager = awalaManager,
-            accountRepository = accountRepository,
-            contactsRepository = contactsRepository,
-        )
-        viewModel.rootNavigationScreen.value shouldBe RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
-    }
-
-    @Test
     fun `Test that 'Awala fatal initialization error' is being opened, if we caught android security library exception while setting up Awala`() {
         val awalaManager = createAwalaManager(
             awalaInitializationResult = AwalaInitializationResult.ANDROID_SECURITY_LIBRARY_CRASH,

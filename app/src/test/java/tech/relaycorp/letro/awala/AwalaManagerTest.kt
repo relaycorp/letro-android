@@ -36,14 +36,12 @@ class AwalaManagerTest {
         val awala = mockk<AwalaWrapper>(relaxed = true)
         val awalaManager = createAwalaManager(
             awalaRepository = object : AwalaRepository {
-                override fun getServerFirstPartyEndpointNodeId(): String {
+                override suspend fun getServerThirdPartyEndpointNodeId(firstPartyEndpointNodeId: String): String? {
                     return ""
                 }
-                override fun getServerThirdPartyEndpointNodeId(): String {
-                    return ""
+                override suspend fun hasRegisteredEndpoints(): Boolean {
+                    return true
                 }
-                override fun saveServerFirstPartyEndpointNodeId(nodeId: String) = Unit
-                override fun saveServerThirdPartyEndpointNodeId(nodeId: String) = Unit
             },
             awala = awala,
         )
@@ -57,6 +55,7 @@ class AwalaManagerTest {
             awalaManager.sendMessage(
                 outgoingMessage = message,
                 recipient = recipient,
+                senderAccount = null,
             )
         }
         coVerify {

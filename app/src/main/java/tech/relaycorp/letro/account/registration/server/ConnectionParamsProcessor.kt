@@ -4,7 +4,6 @@ import android.util.Base64
 import android.util.Log
 import com.google.gson.Gson
 import tech.relaycorp.awaladroid.AwaladroidException
-import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
 import tech.relaycorp.letro.account.model.AccountStatus
 import tech.relaycorp.letro.account.registration.server.dto.PublicKeyImportData
 import tech.relaycorp.letro.account.storage.repository.AccountRepository
@@ -33,10 +32,11 @@ class ConnectionParamsProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ConnectionParams,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
-        val publicThirdPartyEndpoint = PublicThirdPartyEndpoint.import(content.connectionParams)
+        val publicThirdPartyEndpoint = awalaManager.importPublicThirdPartyEndpoint(content.connectionParams, recipientNodeId)
 
         val accountsToUpdate = accountsRepository.allAccounts.value
             .filter { (it.domain == publicThirdPartyEndpoint.internetAddress || it.awalaEndpointId == publicThirdPartyEndpoint.internetAddress) && it.token?.isNotEmptyOrBlank() == true && it.status != AccountStatus.CREATED }

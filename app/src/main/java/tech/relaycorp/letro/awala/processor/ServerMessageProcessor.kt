@@ -18,7 +18,7 @@ abstract class ServerMessageProcessor<T : AwalaIncomingMessageContent>(
         awalaManager: AwalaManager,
     ): Boolean {
         val thirdPartyEndpointNodeId = try {
-            awalaManager.getServerThirdPartyEndpoint(recipientNodeId)?.nodeId
+            awalaManager.getServerThirdPartyEndpoint(recipientNodeId).nodeId
         } catch (e: AwaladroidException) {
             null
         }

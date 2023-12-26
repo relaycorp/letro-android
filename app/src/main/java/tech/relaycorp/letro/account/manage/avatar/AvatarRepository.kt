@@ -104,15 +104,15 @@ class AvatarRepositoryImpl @Inject constructor(
                                 photo = file?.content,
                                 extension = file?.type?.extension,
                             ),
-                    ),
-                    recipient = AwalaEndpoint.Private(
-                        nodeId = it.contactEndpointId,
-                    ),
-                    senderAccount = account,
-                )
-            }
+                        ),
+                        recipient = AwalaEndpoint.Private(
+                            nodeId = it.contactEndpointId,
+                        ),
+                        senderAccount = account,
+                    )
+                }
+        }
     }
-}
 
     private companion object {
         private val supportedAvatarTypes = ("png, jpeg, jpg, webp")

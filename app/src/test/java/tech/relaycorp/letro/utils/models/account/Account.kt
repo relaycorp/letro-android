@@ -42,6 +42,8 @@ fun createAccount(
     status = status,
     accountType = AccountType.CREATED_FROM_SCRATCH,
     avatarPath = avatarPath,
+    firstPartyEndpointNodeId = "",
+    thirdPartyServerEndpointNodeId = "",
 )
 
 @ExperimentalCoroutinesApi

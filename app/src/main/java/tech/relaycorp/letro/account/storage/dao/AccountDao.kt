@@ -42,6 +42,9 @@ interface AccountDao {
     @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE awalaEndpointId=:awalaEndpoint")
     suspend fun getByAwalaEndpoint(awalaEndpoint: String): List<Account>
 
+    @Query("SELECT * FROM $TABLE_NAME_ACCOUNT WHERE firstPartyEndpointNodeId=:firstPartyEndpointNodeId")
+    suspend fun getByFirstPartyEndpointNodeId(firstPartyEndpointNodeId: String): Account?
+
     @Delete
     suspend fun deleteAccount(account: Account)
 }

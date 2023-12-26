@@ -182,7 +182,6 @@ class ContactsRepositoryImpl @Inject constructor(
     }
 
     private suspend fun updateContactsState(account: Account?) {
-        logger.d(MainViewModel.TAG, "ContactsRepository.emit(pairedContactExist)")
         account ?: run {
             _contactsState.emit(ContactsState())
             return
@@ -200,6 +199,7 @@ class ContactsRepositoryImpl @Inject constructor(
                 totalCount = contactsOfThisAccount.size,
             ),
         )
+        logger.d(MainViewModel.TAG, "ContactsRepository._contactsState.emit($contactsState)")
     }
 
     private fun getContactRequestHasEverBeenSentKey(

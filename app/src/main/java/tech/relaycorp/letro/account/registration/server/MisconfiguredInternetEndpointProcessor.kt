@@ -22,6 +22,7 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.MisconfiguredInternetEndpoint,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {

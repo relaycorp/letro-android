@@ -26,11 +26,12 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ContactPairingAuthorization,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val nodeId = try {
-            awalaManager.importPrivateThirdPartyAuth(content.authData)
+            awalaManager.importPrivateThirdPartyAuth(content.authData, recipientNodeId)
         } catch (e: InvalidAuthorizationException) {
             Log.w(TAG, e)
             return

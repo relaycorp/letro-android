@@ -61,7 +61,7 @@ class AvatarRepositoryTest {
             accountRepository.updateAccount(any<Account>())
             fileManager.save(any())
             fileManager.delete("old_avatar")
-            awalaManager.sendMessage(any(), any())
+            awalaManager.sendMessage(any(), any(), any())
         }
     }
 
@@ -74,7 +74,7 @@ class AvatarRepositoryTest {
         coVerifyAll {
             accountRepository.updateAccount(any())
             fileManager.delete("old_avatar")
-            awalaManager.sendMessage(any(), any())
+            awalaManager.sendMessage(any(), any(), any())
         }
     }
 }
