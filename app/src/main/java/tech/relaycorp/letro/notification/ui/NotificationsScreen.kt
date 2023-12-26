@@ -11,15 +11,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +33,7 @@ import tech.relaycorp.letro.R
 import tech.relaycorp.letro.notification.NotificationsViewModel
 import tech.relaycorp.letro.notification.converter.NotificationDateInfo
 import tech.relaycorp.letro.notification.model.ExtendedNotification
+import tech.relaycorp.letro.ui.common.LetroAvatar
 import tech.relaycorp.letro.ui.theme.TitleMediumProminent
 import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 import tech.relaycorp.letro.utils.time.nowUTC
@@ -89,6 +95,7 @@ private fun LazyListScope.notificationsBlock(
                 formatArgs = arrayOf(it.date.value),
             ),
             isRead = it.isRead,
+            image = it.imageFilePath,
             onClick = { onClick(it) },
         )
     }
@@ -100,10 +107,10 @@ private fun Notification(
     bottomText: String,
     date: String,
     isRead: Boolean,
+    image: String?,
     onClick: () -> Unit,
 ) {
-    Column(
-        verticalArrangement = Arrangement.Center,
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(66.dp)
@@ -112,30 +119,42 @@ private fun Notification(
             .padding(
                 horizontal = 16.dp,
             ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row {
+        LetroAvatar(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(40.dp),
+            filePath = image,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Row {
+                Text(
+                    text = upperText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = date,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = upperText,
-                style = MaterialTheme.typography.bodyMedium,
+                text = bottomText,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text = date,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = bottomText,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }
 
@@ -146,14 +165,14 @@ private fun Notifications_Preview() {
         notificationsBlock(
             title = R.string.unread,
             notifications = listOf(
-                ExtendedNotification(id = 0L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, nowUTC()), ownerId = "", isRead = false),
+                ExtendedNotification(id = 0L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_days, nowUTC()), ownerId = "", isRead = false, imageFilePath = null),
             ),
             onClick = {},
         )
         notificationsBlock(
             title = R.string.read,
             notifications = listOf(
-                ExtendedNotification(id = 2L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, nowUTC()), ownerId = "", isRead = true),
+                ExtendedNotification(id = 2L, type = 0, upperText = R.string.you_re_now_connected_to, bottomText = "jamesbond@cuppa.uk", date = NotificationDateInfo(1L, R.string.notification_time_weeks, nowUTC()), ownerId = "", isRead = true, imageFilePath = null),
             ),
             onClick = {},
         )

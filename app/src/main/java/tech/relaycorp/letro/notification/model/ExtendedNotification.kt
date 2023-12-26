@@ -12,4 +12,5 @@ data class ExtendedNotification(
     val bottomText: String,
     val date: NotificationDateInfo,
     val isRead: Boolean,
+    val imageFilePath: String?,
 )
