@@ -1,6 +1,7 @@
 package tech.relaycorp.letro.contacts.pairing.server.match
 
 import tech.relaycorp.awaladroid.AwaladroidException
+import tech.relaycorp.letro.account.storage.dao.AccountDao
 import tech.relaycorp.letro.awala.AwalaManager
 import tech.relaycorp.letro.awala.message.AwalaIncomingMessageContent
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
@@ -12,6 +13,7 @@ import javax.inject.Inject
 
 class ContactPairingMatchProcessor @Inject constructor(
     private val contactsDao: ContactsDao,
+    private val accountDao: AccountDao,
     private val contactPairingNotificationManager: ContactPairingNotificationManager,
     parser: ContactPairingMatchParser,
     logger: Logger,
@@ -19,19 +21,26 @@ class ContactPairingMatchProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ContactPairingMatch,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val contact = contactsDao.getContact(
             ownerVeraId = content.ownerVeraId,
             contactVeraId = content.contactVeraId,
-        )
-        if (contact == null) {
+        ) ?: run {
             logger.w(TAG, "Contact ${content.contactVeraId} not found (account: ${content.ownerVeraId})")
             return
         }
+        val ownerAccount = accountDao.getByVeraidId(contact.ownerVeraId) ?: run {
+            logger.w(TAG, "No account ${contact.ownerVeraId} found in a database")
+            return
+        }
         val contactEndpointId = try {
-            awalaManager.authorizeContact(content.contactEndpointPublicKey)
+            awalaManager.authorizeContact(
+                ownerAccount = ownerAccount,
+                thirdPartyPublicKey = content.contactEndpointPublicKey,
+            )
         } catch (exc: AwaladroidException) {
             contactsDao.deleteContact(contact)
             contactPairingNotificationManager.showFailedPairingNotification(contact)

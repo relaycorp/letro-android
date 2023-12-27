@@ -3,7 +3,6 @@
 package tech.relaycorp.letro.awala
 
 import android.content.Context
-import androidx.annotation.RawRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.awaladroid.Awala
@@ -20,15 +19,16 @@ import tech.relaycorp.letro.awala.message.AwalaEndpoint
 import tech.relaycorp.letro.awala.message.AwalaOutgoingMessage
 import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.utils.Logger
-import java.lang.Exception
 import javax.inject.Inject
+import kotlin.Exception
 
 interface AwalaWrapper {
     suspend fun setUp()
     suspend fun bindGateway()
     suspend fun registerFirstPartyEndpoint(): FirstPartyEndpoint
     suspend fun importServerThirdPartyEndpoint(
-        @RawRes connectionParams: Int,
+        connectionParams: ByteArray,
+        firstPartyEndpoint: FirstPartyEndpoint,
     ): PublicThirdPartyEndpoint
     fun receiveMessages(): Flow<IncomingMessage>
 
@@ -90,16 +90,12 @@ class AwalaWrapperImpl @Inject constructor(
                 recipientEndpoint = thirdPartyEndpoint,
             ),
         )
-        logger.i(AwalaManagerImpl.TAG, "sendMessage(): Message sent (${outgoingMessage.type})")
+        logger.i(AwalaManagerImpl.TAG, "Message sent (${outgoingMessage.type})")
     }
 
-    override suspend fun importServerThirdPartyEndpoint(connectionParams: Int): PublicThirdPartyEndpoint {
+    override suspend fun importServerThirdPartyEndpoint(connectionParams: ByteArray, firstPartyEndpoint: FirstPartyEndpoint): PublicThirdPartyEndpoint {
         return try {
-            PublicThirdPartyEndpoint.import(
-                context.resources.openRawResource(connectionParams).use {
-                    it.readBytes()
-                },
-            )
+            PublicThirdPartyEndpoint.import(connectionParams, firstPartyEndpoint)
         } catch (e: InvalidThirdPartyEndpoint) {
             throw InvalidConnectionParams(e)
         }
@@ -131,16 +127,16 @@ class AwalaWrapperImpl @Inject constructor(
             )
             is AwalaEndpoint.Public -> loadNonNullPublicThirdPartyEndpoint(thirdPartyEndpoint.nodeId)
         }
-        thirdPartyEndpoint.delete()
+        thirdPartyEndpoint.delete(firstPartyEndpoint)
     }
 
     override suspend fun loadNonNullPublicFirstPartyEndpoint(nodeId: String?): FirstPartyEndpoint {
-        if (nodeId == null) throw Exception("nodeId for loading FirstPartyEndpoint is null")
+        if (nodeId == null) throw AwalaException("nodeId for loading FirstPartyEndpoint is null")
         return FirstPartyEndpoint.load(nodeId) ?: throw AwalaException("FirstPartyEndpoint couldn't be loaded")
     }
 
     override suspend fun loadNonNullPublicThirdPartyEndpoint(nodeId: String?): PublicThirdPartyEndpoint {
-        if (nodeId == null) throw Exception("nodeId for loading ThirdPartyEndpoint is null")
+        if (nodeId == null) throw AwalaException("nodeId for loading ThirdPartyEndpoint is null")
         return PublicThirdPartyEndpoint.load(nodeId) ?: throw AwalaException("ThirdPartyEndpoint couldn't be loaded")
     }
 
@@ -152,4 +148,6 @@ class AwalaWrapperImpl @Inject constructor(
     }
 }
 
-class AwalaException(message: String) : AwaladroidException(message)
+open class AwalaException(message: String) : AwaladroidException(message)
+
+class FirstPartyEndpointRegisteringException(cause: Exception) : AwaladroidException("Couldn't register first party endpoint", cause)

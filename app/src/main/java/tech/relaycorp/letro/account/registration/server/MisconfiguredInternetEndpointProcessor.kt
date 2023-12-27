@@ -22,6 +22,7 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.MisconfiguredInternetEndpoint,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
@@ -33,7 +34,7 @@ class MisconfiguredInternetEndpointProcessor @Inject constructor(
                 ),
             )
         }
-        accountRepository.getByAwalaEndpoint(domain).forEach {
+        accountRepository.getByAwalaDomain(domain).forEach {
             accountRepository.updateAccount(
                 account = it.copy(
                     status = AccountStatus.ERROR_LINKING,

@@ -20,6 +20,7 @@ class ContactPhotoUpdatedProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ContactPhotoUpdated,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
@@ -58,6 +59,7 @@ class ContactPhotoUpdatedProcessor @Inject constructor(
 
     override suspend fun isFromExpectedSender(
         content: AwalaIncomingMessageContent.ContactPhotoUpdated,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {

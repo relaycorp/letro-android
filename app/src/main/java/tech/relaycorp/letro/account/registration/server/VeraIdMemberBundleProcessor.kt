@@ -20,6 +20,7 @@ class VeraIdMemberBundleProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.VeraIdMemberBundle,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
@@ -40,6 +41,7 @@ class VeraIdMemberBundleProcessor @Inject constructor(
 
     override suspend fun isFromExpectedSender(
         content: AwalaIncomingMessageContent.VeraIdMemberBundle,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {

@@ -28,6 +28,7 @@ class NewConversationProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.NewMessage,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
@@ -61,6 +62,7 @@ class NewConversationProcessor @Inject constructor(
 
     override suspend fun isFromExpectedSender(
         content: AwalaIncomingMessageContent.NewMessage,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ): Boolean {

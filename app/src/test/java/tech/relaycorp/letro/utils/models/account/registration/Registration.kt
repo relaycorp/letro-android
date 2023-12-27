@@ -1,5 +1,6 @@
 package tech.relaycorp.letro.utils.models.account.registration
 
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import tech.relaycorp.letro.account.registration.RegistrationViewModel
 import tech.relaycorp.letro.account.registration.storage.RegistrationRepository
@@ -24,6 +25,7 @@ fun createRegistrationViewModel(
     registrationRepository = registrationRepository,
     domainProvider = domainProvider,
     dispatchers = dispatchers,
+    logger = mockk(relaxed = true),
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)

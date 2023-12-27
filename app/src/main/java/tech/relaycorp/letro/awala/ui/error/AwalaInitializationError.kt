@@ -29,19 +29,12 @@ import tech.relaycorp.letro.awala.ui.initialization.AwalaInitializationInProgres
 import tech.relaycorp.letro.ui.common.LetroButtonMaxWidthFilled
 import tech.relaycorp.letro.ui.common.LetroTopTitle
 import tech.relaycorp.letro.ui.navigation.Route
-import tech.relaycorp.letro.utils.compose.DoOnLifecycleEvent
 
 @Composable
 fun AwalaInitializationError(
     @Route.AwalaInitializationError.Type type: Int,
-    onOpenAwalaClick: (() -> Unit)? = null,
     viewModel: AwalaInitializationErrorViewModel = hiltViewModel(),
 ) {
-    DoOnLifecycleEvent(
-        onResume = { viewModel.onScreenResumed() },
-        onDestroy = { viewModel.onScreenDestroyed() },
-    )
-
     val showAwalaInitialization by viewModel.isAwalaInitializingShown.collectAsState()
 
     Crossfade(targetState = showAwalaInitialization, label = "AwalaInitializationError") { showAwalaInitialization ->
@@ -62,7 +55,7 @@ fun AwalaInitializationError(
                     Image(painter = painterResource(id = R.drawable.awala_initialization_error), contentDescription = null)
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = stringResource(id = if (type == Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA) R.string.awala_isnt_fully_setup_yet else R.string.we_failed_to_set_up_awala),
+                        text = stringResource(id = R.string.we_failed_to_set_up_awala),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -72,12 +65,6 @@ fun AwalaInitializationError(
                             LetroButtonMaxWidthFilled(
                                 text = stringResource(id = R.string.try_again),
                                 onClick = { viewModel.onTryAgainClick() },
-                            )
-                        }
-                        Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA -> {
-                            LetroButtonMaxWidthFilled(
-                                text = stringResource(id = R.string.open_awala),
-                                onClick = { onOpenAwalaClick?.invoke() },
                             )
                         }
                         Route.AwalaInitializationError.TYPE_FATAL_ERROR -> {
@@ -115,13 +102,5 @@ private fun AwalaInitializationFatalError_Preview() {
 private fun AwalaInitializationNonFatalError_Preview() {
     AwalaInitializationError(
         type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR,
-    )
-}
-
-@Composable
-@Preview
-private fun AwalaInitializationNeedOpenAwalaError_Preview() {
-    AwalaInitializationError(
-        type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA,
     )
 }

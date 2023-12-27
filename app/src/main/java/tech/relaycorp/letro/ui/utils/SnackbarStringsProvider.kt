@@ -29,6 +29,8 @@ interface SnackbarStringsProvider {
     val youNeedAtLeastOneContact: String
     val youNoLongerConnected: String
     val addContact: String
+    val awalaIsntFullySetup: String
+    val openAwala: String
 
     fun get(string: SnackbarString): String
 
@@ -96,6 +98,12 @@ class SnackbarStringsProviderImpl @Inject constructor(
 
     override val youNoLongerConnected: String
         get() = activity.getString(R.string.you_cannot_reply_not_connected)
+
+    override val awalaIsntFullySetup: String
+        get() = activity.getString(R.string.awala_isnt_fully_setup_yet)
+
+    override val openAwala: String
+        get() = activity.getString(R.string.open_awala)
 
     override fun get(string: SnackbarString): String {
         return when (val type = string.type) {

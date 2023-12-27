@@ -43,19 +43,22 @@ class RegistrationRepositoryImpl @Inject constructor(
             locale,
             keyPair.public,
         )
-        awalaManager
+        val nodeIds = awalaManager
             .sendMessage(
                 outgoingMessage = AwalaOutgoingMessage(
                     type = MessageType.AccountCreationRequest,
                     content = creationRequest.serialise(keyPair.private),
                 ),
                 recipient = AwalaEndpoint.Public(),
+                senderAccount = null,
             )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
             domainName = domainName,
-            locale = locale,
             veraidPrivateKey = keyPair.private,
+            firstPartyEndpointNodeId = nodeIds.firstParty,
+            thirdPartyEndpointNodeId = nodeIds.thirdParty,
+            locale = locale,
         )
     }
 
@@ -67,18 +70,21 @@ class RegistrationRepositoryImpl @Inject constructor(
             throw DuplicateAccountIdException(accountIdBuilder.build(requestedUserName, domainName))
         }
         val keyPair = generateRSAKeyPair()
-        awalaManager.sendMessage(
+        val nodeIds = awalaManager.sendMessage(
             outgoingMessage = AwalaOutgoingMessage(
                 type = MessageType.ConnectionParamsRequest,
                 content = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint.toByteArray() else domainName.toByteArray(),
             ),
             recipient = AwalaEndpoint.Public(),
+            senderAccount = null,
         )
         accountRepository.createAccount(
             requestedUserName = requestedUserName,
             domainName = domainName,
-            awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             veraidPrivateKey = keyPair.private,
+            firstPartyEndpointNodeId = nodeIds.firstParty,
+            thirdPartyEndpointNodeId = nodeIds.thirdParty,
+            awalaEndpoint = if (awalaEndpoint.isNotEmptyOrBlank()) awalaEndpoint else null,
             token = token,
         )
     }

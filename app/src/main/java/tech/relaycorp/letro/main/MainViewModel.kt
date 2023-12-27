@@ -144,11 +144,11 @@ class MainViewModel @Inject constructor(
                         showTopBarAccountIdAsShimmer = currentAccount?.status == AccountStatus.LINKING_WAITING || currentAccount?.status == AccountStatus.ERROR_LINKING && !currentAccount.token.isNullOrEmpty(),
                     )
                 }
+                val currentRootNavigation = _rootNavigationScreen.value
                 val rootNavigationScreen = when {
                     awalaInitializationState == AwalaInitializationState.AWALA_NOT_INSTALLED -> RootNavigationScreen.AwalaNotInstalled
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_NONFATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NON_FATAL_ERROR)
                     awalaInitializationState == AwalaInitializationState.INITIALIZATION_FATAL_ERROR -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_FATAL_ERROR)
-                    awalaInitializationState == AwalaInitializationState.COULD_NOT_REGISTER_FIRST_PARTY_ENDPOINT -> RootNavigationScreen.AwalaInitializationError(type = Route.AwalaInitializationError.TYPE_NEED_TO_OPEN_AWALA)
                     awalaInitializationState < AwalaInitializationState.INITIALIZED -> RootNavigationScreen.AwalaInitializing
                     currentAccount == null -> RootNavigationScreen.Registration
                     currentAccount.status == AccountStatus.CREATION_WAITING -> RootNavigationScreen.AccountCreationWaiting
@@ -157,7 +157,7 @@ class MainViewModel @Inject constructor(
                     currentAccount.status == AccountStatus.ERROR_CREATION -> RootNavigationScreen.AccountCreationFailed
                     !contactsState.isPairRequestWasEverSent -> RootNavigationScreen.WelcomeToLetro(
                         withAnimation = navigationHandledWithLastAccount == currentAccount.id &&
-                            (_rootNavigationScreen.value == RootNavigationScreen.AccountCreationWaiting || _rootNavigationScreen.value == RootNavigationScreen.AccountLinkingWaiting || _rootNavigationScreen.value is RootNavigationScreen.WelcomeToLetro),
+                            (currentRootNavigation == RootNavigationScreen.AccountCreationWaiting || currentRootNavigation == RootNavigationScreen.AccountLinkingWaiting || currentRootNavigation is RootNavigationScreen.WelcomeToLetro && currentRootNavigation.withAnimation),
                     )
                     !contactsState.isPairedContactExist && conversations.isEmpty() -> RootNavigationScreen.NoContactsScreen
                     else -> RootNavigationScreen.Home

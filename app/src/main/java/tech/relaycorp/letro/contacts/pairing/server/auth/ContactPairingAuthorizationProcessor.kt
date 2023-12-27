@@ -26,11 +26,12 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
 
     override suspend fun handleMessage(
         content: AwalaIncomingMessageContent.ContactPairingAuthorization,
+        recipientNodeId: String,
         senderNodeId: String,
         awalaManager: AwalaManager,
     ) {
         val nodeId = try {
-            awalaManager.importPrivateThirdPartyAuth(content.authData)
+            awalaManager.importPrivateThirdPartyAuth(content.authData, recipientNodeId)
         } catch (e: InvalidAuthorizationException) {
             Log.w(TAG, e)
             return
@@ -47,20 +48,23 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
                 ),
             )
             contactPairingNotificationManager.showSuccessPairingNotification(contact)
-            contact.contactEndpointId?.let {
-                accountsDao.getByVeraidId(contact.ownerVeraId)?.avatarPath?.let { avatar ->
-                    val avatarFile = File(avatar)
-                    if (avatarFile.exists()) {
-                        awalaManager.sendMessage(
-                            outgoingMessage = AwalaOutgoingMessage(
-                                type = MessageType.ContactPhotoUpdated,
-                                content = avatarFile.readBytes(),
-                            ),
-                            recipient = AwalaEndpoint.Private(
-                                nodeId = contact.contactEndpointId,
-                            ),
-                        )
-                    }
+
+            if (contact.contactEndpointId == null) return@forEach
+
+            accountsDao.getByVeraidId(contact.ownerVeraId)?.let { account ->
+                account.avatarPath ?: return@let
+                val avatarFile = File(account.avatarPath)
+                if (avatarFile.exists()) {
+                    awalaManager.sendMessage(
+                        outgoingMessage = AwalaOutgoingMessage(
+                            type = MessageType.ContactPhotoUpdated,
+                            content = avatarFile.readBytes(),
+                        ),
+                        recipient = AwalaEndpoint.Private(
+                            nodeId = contact.contactEndpointId,
+                        ),
+                        senderAccount = account,
+                    )
                 }
             }
         }

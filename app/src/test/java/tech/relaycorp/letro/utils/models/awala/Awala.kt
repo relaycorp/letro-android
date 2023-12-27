@@ -22,14 +22,12 @@ import kotlin.coroutines.EmptyCoroutineContext
 internal fun createAwalaManager(
     awalaInitializationResult: AwalaInitializationResult = AwalaInitializationResult.SUCCESS,
     awalaRepository: AwalaRepository = mockk<AwalaRepository>().also {
-        every { it.getServerFirstPartyEndpointNodeId() } answers {
-            if (awalaInitializationResult != AwalaInitializationResult.CRASH_ON_FIRST_PARTY_ENDPOINT_REGISTRATION) "" else null
-        }
-        every { it.getServerThirdPartyEndpointNodeId() } answers {
+        coEvery { it.getServerThirdPartyEndpointNodeId(any()) } answers {
             if (awalaInitializationResult != AwalaInitializationResult.CRASH_ON_IMPORT_SERVER_THIRD_PARTY_ENDPOINT) "" else null
         }
-        every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
-        every { it.saveServerFirstPartyEndpointNodeId(any()) } returns Unit
+        coEvery { it.hasRegisteredEndpoints() } answers {
+            awalaInitializationResult != AwalaInitializationResult.CRASH_ON_FIRST_PARTY_ENDPOINT_REGISTRATION
+        }
     },
     awala: AwalaWrapper = createAwalaWrapper(awalaInitializationResult),
     ioDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
@@ -40,6 +38,7 @@ internal fun createAwalaManager(
     awala = awala,
     ioDispatcher = ioDispatcher,
     awalaThreadContext = EmptyCoroutineContext,
+    context = mockk(relaxed = true),
 )
 
 private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationResult) = mockk<AwalaWrapper> {
@@ -68,7 +67,7 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
         }
     }
 
-    coEvery { importServerThirdPartyEndpoint(any()) } answers {
+    coEvery { importServerThirdPartyEndpoint(any(), any()) } answers {
         if (awalaInitializationResult == AwalaInitializationResult.CRASH_ON_IMPORT_SERVER_THIRD_PARTY_ENDPOINT) {
             throw SetupPendingException()
         } else {

@@ -39,6 +39,8 @@ class ComposeNewMessageViewModelTest {
                         veraidPrivateKey = ByteArray(0),
                         status = AccountStatus.CREATED,
                         accountType = AccountType.CREATED_FROM_SCRATCH,
+                        firstPartyEndpointNodeId = "",
+                        thirdPartyServerEndpointNodeId = "",
                     ),
                 ),
             ),

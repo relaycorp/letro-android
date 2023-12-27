@@ -108,6 +108,7 @@ class AvatarRepositoryImpl @Inject constructor(
                         recipient = AwalaEndpoint.Private(
                             nodeId = it.contactEndpointId,
                         ),
+                        senderAccount = account,
                     )
                 }
         }

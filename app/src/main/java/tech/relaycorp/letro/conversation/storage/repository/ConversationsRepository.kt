@@ -143,6 +143,10 @@ class ConversationsRepositoryImpl @Inject constructor(
             logger.w(TAG, "Recipient endpoint id is null")
             return
         }
+        val ownerAccount = accountRepository.getByVeraidId(ownerVeraId) ?: run {
+            logger.w(TAG, "Account not found for VeraId $ownerVeraId")
+            return
+        }
         val conversation = Conversation(
             ownerVeraId = ownerVeraId,
             contactVeraId = recipient.contactVeraId,
@@ -175,6 +179,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     nodeId = recipientNodeId,
                 )
             },
+            senderAccount = ownerAccount,
         )
         conversationsDao.createNewConversation(conversation)
         val messageId = messagesDao.insert(message)
@@ -198,6 +203,11 @@ class ConversationsRepositoryImpl @Inject constructor(
             .find { it.conversationId == conversationId } ?: return
         val recipient = contacts.value
             .find { it.contactVeraId == conversation.contactVeraId && it.ownerVeraId == conversation.ownerVeraId }
+
+        val ownerAccount = accountRepository.getByVeraidId(conversation.ownerVeraId) ?: run {
+            logger.w(TAG, "Account not found for VeraId ${conversation.ownerVeraId}")
+            return
+        }
 
         val recipientNodeId = recipient?.contactEndpointId ?: return
         val message = Message(
@@ -226,6 +236,7 @@ class ConversationsRepositoryImpl @Inject constructor(
                     nodeId = recipientNodeId,
                 )
             },
+            senderAccount = ownerAccount,
         )
 
         val messageId = messagesDao.insert(message)
