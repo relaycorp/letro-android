@@ -26,6 +26,7 @@ import tech.relaycorp.letro.utils.Logger
 import tech.relaycorp.letro.utils.crypto.deserialiseKeyPair
 import tech.relaycorp.letro.utils.di.IODispatcher
 import tech.relaycorp.veraid.pki.MemberIdBundle
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 interface ContactsRepository {
@@ -61,6 +62,8 @@ class ContactsRepositoryImpl @Inject constructor(
     private val _contactDeleteEvents: MutableSharedFlow<Long> = MutableSharedFlow()
     override val contactDeleteEvents: SharedFlow<Long>
         get() = _contactDeleteEvents
+
+    private var isCollectingAccountsFlow = AtomicBoolean(false) // TODO: fix it, subscribe not from flow?
 
     init {
         scope.launch {
@@ -173,6 +176,9 @@ class ContactsRepositoryImpl @Inject constructor(
     }
 
     private fun startCollectAccountFlow() {
+        if (isCollectingAccountsFlow.getAndSet(true)) {
+            return
+        }
         scope.launch {
             accountRepository.currentAccount.collect {
                 currentAccount = it
