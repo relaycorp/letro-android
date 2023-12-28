@@ -182,12 +182,12 @@ class ContactsRepositoryImpl @Inject constructor(
         scope.launch {
             accountRepository.currentAccount.collect {
                 currentAccount = it
-                updateContactsState(it)
+                updateContactsState(it, afterAccountUpdating = true)
             }
         }
     }
 
-    private suspend fun updateContactsState(account: Account?) {
+    private suspend fun updateContactsState(account: Account?, afterAccountUpdating: Boolean = false) {
         account ?: run {
             _contactsState.emit(ContactsState())
             return
@@ -197,6 +197,13 @@ class ContactsRepositoryImpl @Inject constructor(
         val isPairedContactExist = contactsOfThisAccount.any {
             it.status == ContactPairingStatus.COMPLETED
         }
+
+        // We need to force update this flag, because it's updated only after user clicks on "Got it" button on the ManageContactScreen, and sometimes user doesn't click on it (close app/change account etc.)
+        if (afterAccountUpdating && contactsOfThisAccount.isNotEmpty()) {
+            saveRequestWasOnceSent()
+            return
+        }
+
         val isPairRequestWasEverSent = preferences.getBoolean(getContactRequestHasEverBeenSentKey(account.accountId), false)
         _contactsState.emit(
             ContactsState(
