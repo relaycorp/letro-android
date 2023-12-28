@@ -58,7 +58,7 @@ fun createContactsRepository(
     },
     accountRepository = accountRepository,
     awalaManager = awalaManager,
-    preferences = mockk<Preferences>().also {
+    preferences = mockk<Preferences>(relaxed = true).also {
         every { it.getBoolean(any(), any()) } returns isSentPairRequestOnce
     },
     logger = createLogger(),
