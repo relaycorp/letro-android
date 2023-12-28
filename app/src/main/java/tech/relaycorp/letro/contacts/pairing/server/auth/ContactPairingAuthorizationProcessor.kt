@@ -38,9 +38,22 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
         }
 
         Log.d(TAG, "Contact auth received ($nodeId).")
-        contactsDao.getContactsByContactEndpointId(
+
+        val recipientAccount = accountsDao.getByFirstPartyEndpointNodeId(recipientNodeId) ?: run {
+            Log.d(TAG, "Couldn't find account of recipient $recipientNodeId")
+            return
+        }
+
+        val contacts = contactsDao.getContactsByContactEndpointId(
             contactEndpointId = nodeId,
-        ).forEach { contact ->
+        ).filter { it.ownerVeraId == recipientAccount.accountId }
+
+        if (contacts.isEmpty()) {
+            Log.d(TAG, "Couldn't find contacts with nodeId=$nodeId (${recipientAccount.accountId})")
+            return
+        }
+
+        contacts.forEach { contact ->
             Log.d(TAG, "Update status for nodeId=$nodeId")
             contactsDao.update(
                 contact.copy(
@@ -50,10 +63,8 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
             contactPairingNotificationManager.showSuccessPairingNotification(contact)
 
             if (contact.contactEndpointId == null) return@forEach
-
-            accountsDao.getByVeraidId(contact.ownerVeraId)?.let { account ->
-                account.avatarPath ?: return@let
-                val avatarFile = File(account.avatarPath)
+            recipientAccount.avatarPath?.let { avatarPath ->
+                val avatarFile = File(avatarPath)
                 if (avatarFile.exists()) {
                     awalaManager.sendMessage(
                         outgoingMessage = AwalaOutgoingMessage(
@@ -63,7 +74,7 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
                         recipient = AwalaEndpoint.Private(
                             nodeId = contact.contactEndpointId,
                         ),
-                        senderAccount = account,
+                        senderAccount = recipientAccount,
                     )
                 }
             }
