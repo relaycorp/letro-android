@@ -453,6 +453,7 @@ private fun RecipientChipView(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .height(32.dp)
             .background(
                 color = if (isEditable) {
                     MaterialTheme.colorScheme.surfaceVariant
@@ -467,14 +468,14 @@ private fun RecipientChipView(
             .padding(
                 start = 2.dp,
                 end = 12.dp,
-                top = 6.dp,
-                bottom = 6.dp,
+                top = 2.dp,
+                bottom = 2.dp,
             ),
     ) {
         LetroAvatar(
             modifier = Modifier
                 .clip(CircleShape)
-                .size(26.dp),
+                .size(28.dp),
             filePath = avatarPath,
         )
         Spacer(modifier = Modifier.width(8.dp))
