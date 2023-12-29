@@ -64,7 +64,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.settledPage }.collect { page ->
+        snapshotFlow { pagerState.currentPage }.collect { page ->
             homeViewModel.onTabClick(page)
         }
     }
