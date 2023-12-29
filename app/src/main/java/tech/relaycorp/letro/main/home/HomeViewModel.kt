@@ -174,4 +174,3 @@ data class HomeUiState(
 const val TAB_CHATS = 0
 const val TAB_CONTACTS = 1
 const val TAB_NOTIFICATIONS = 2
-const val TABS_COUNT = 3
