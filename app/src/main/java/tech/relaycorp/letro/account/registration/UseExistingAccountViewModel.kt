@@ -3,6 +3,7 @@ package tech.relaycorp.letro.account.registration
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -92,22 +93,27 @@ class UseExistingAccountViewModel @Inject constructor(
         }
         viewModelScope.launch(dispatchers.IO) {
             try {
-                _uiState.update { it.copy(isSendingMessage = true) }
+                updateIsSendingMessage(true)
                 registrationRepository.loginToExistingAccount(
                     uiState.value.domain,
                     uiState.value.awalaEndpoint,
                     uiState.value.token,
                 )
+                delay(2000L)
+                updateIsSendingMessage(false)
             } catch (e: AwaladroidException) {
                 showSnackbarDebounced.emit(
                     SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
                 )
+                updateIsSendingMessage(false)
             } catch (e: DuplicateAccountIdException) {
                 showSnackbarDebounced.emit(
-                    SnackbarString(SnackbarStringsProvider.Type.ACCOUNT_LINKING_ID_ALREADY_EXISTS, args = arrayOf(_uiState.value.domain)),
+                    SnackbarString(
+                        SnackbarStringsProvider.Type.ACCOUNT_LINKING_ID_ALREADY_EXISTS,
+                        args = arrayOf(_uiState.value.domain),
+                    ),
                 )
-            } finally {
-                _uiState.update { it.copy(isSendingMessage = false) }
+                updateIsSendingMessage(false)
             }
         }
     }
@@ -119,6 +125,14 @@ class UseExistingAccountViewModel @Inject constructor(
     ) = token.isNotEmptyOrBlank() && domain.isNotEmptyOrBlank() && domain.matches(CorrectDomainRegex) && (
         endpoint.isEmpty() || endpoint.isNotEmptyOrBlank() && endpoint.matches(CorrectDomainRegex)
         )
+
+    private fun updateIsSendingMessage(isSendingMessage: Boolean) {
+        _uiState.update {
+            it.copy(
+                isSendingMessage = isSendingMessage,
+            )
+        }
+    }
 }
 
 data class UseExistingAccountUiState(

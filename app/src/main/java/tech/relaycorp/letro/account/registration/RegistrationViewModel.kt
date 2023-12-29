@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,37 +71,40 @@ class RegistrationViewModel @Inject constructor(
             return
         }
         viewModelScope.launch(dispatchers.IO) {
-            _uiState.update {
-                it.copy(
-                    isSendingMessage = true,
-                )
-            }
+            updateIsSendingMessage(true)
             try {
                 registrationRepository.createNewAccount(
                     requestedUserName = uiState.value.username,
                     domainName = uiState.value.domain,
                     locale = domainProvider.getDomainLocale(),
                 )
+                delay(2000L)
+                updateIsSendingMessage(false)
             } catch (e: GatewayUnregisteredException) {
                 logger.e(AwalaManagerImpl.TAG, "Failed to register endpoint", e)
                 _showOpenAwalaSnackbar.emit(Unit)
+                updateIsSendingMessage(false)
             } catch (e: AwaladroidException) {
                 Log.w(TAG, e)
                 showSnackbarDebounced.emit(
                     SnackbarString(SnackbarStringsProvider.Type.SEND_MESSAGE_ERROR),
                 )
+                updateIsSendingMessage(false)
             } catch (e: DuplicateAccountIdException) {
                 Log.w(TAG, e)
                 showSnackbarDebounced.emit(
                     SnackbarString(SnackbarStringsProvider.Type.ACCOUNT_LINKING_ID_ALREADY_EXISTS),
                 )
-            } finally {
-                _uiState.update {
-                    it.copy(
-                        isSendingMessage = false,
-                    )
-                }
+                updateIsSendingMessage(false)
             }
+        }
+    }
+
+    private fun updateIsSendingMessage(isSendingMessage: Boolean) {
+        _uiState.update {
+            it.copy(
+                isSendingMessage = isSendingMessage,
+            )
         }
     }
 
