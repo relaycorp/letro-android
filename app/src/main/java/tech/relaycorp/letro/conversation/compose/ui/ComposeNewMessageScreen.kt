@@ -380,7 +380,7 @@ fun ComposeNewMessageScreen(
                                         .then(Modifier)
                                         .applyIf(attachments.isEmpty()) {
                                             defaultMinSize(
-                                                minHeight = 500.dp,
+                                                minHeight = 250.dp,
                                             )
                                         }
                                         .onFocusChanged { viewModel.onMessageTextFieldFocused(it.isFocused) },
