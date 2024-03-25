@@ -115,7 +115,7 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
     // Utils:
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     implementation 'com.google.code.gson:gson:2.10.1'
 
     def accompanist_permissions_version = "0.32.0"
