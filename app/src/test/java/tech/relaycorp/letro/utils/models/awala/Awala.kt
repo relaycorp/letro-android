@@ -4,6 +4,7 @@ import io.mockk.ConstantAnswer
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.TestDispatcher
@@ -52,12 +53,17 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
             ConstantAnswer(Unit)
         }
     }
-    coEvery { bindGateway(any(), any()) } answers {
+
+    val onSuccessBindCallable = slot<() -> Unit>()
+    val onFailureBindCallable = slot<(GatewayBindingException) -> Unit>()
+    every { bindGateway(capture(onSuccessBindCallable), capture(onFailureBindCallable)) } answers {
         if (awalaInitializationResult == AwalaInitializationResult.CRASH_ON_GATEAWAY_BINDING) {
-            throw GatewayBindingException("Gateway binding exception")
+            val exc = GatewayBindingException("Gateway binding exception")
+            onFailureBindCallable.captured(exc)
         } else {
-            ConstantAnswer(Unit)
+            onSuccessBindCallable.captured()
         }
+        ConstantAnswer(Unit)
     }
     coEvery { registerFirstPartyEndpoint() } answers {
         if (awalaInitializationResult == AwalaInitializationResult.CRASH_ON_FIRST_PARTY_ENDPOINT_REGISTRATION) {
