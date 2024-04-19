@@ -5,6 +5,10 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+plugins {
+    id 'com.gradle.develocity' version '3.17.2'
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -13,5 +17,15 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
+
 rootProject.name = "Letro"
 include ':app'
+
+def isCI = System.getenv('CI') != null
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
+        uploadInBackground = !isCI
+    }
+}
