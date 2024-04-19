@@ -52,7 +52,7 @@ private fun createAwalaWrapper(awalaInitializationResult: AwalaInitializationRes
             ConstantAnswer(Unit)
         }
     }
-    coEvery { bindGateway() } answers {
+    coEvery { bindGateway(any(), any()) } answers {
         if (awalaInitializationResult == AwalaInitializationResult.CRASH_ON_GATEAWAY_BINDING) {
             throw GatewayBindingException("Gateway binding exception")
         } else {

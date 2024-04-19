@@ -6,6 +6,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,7 +18,6 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import tech.relaycorp.awaladroid.AwaladroidException
 import tech.relaycorp.awaladroid.EncryptionInitializationException
-import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PrivateThirdPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.PublicThirdPartyEndpoint
@@ -141,7 +141,7 @@ class AwalaManagerImpl @Inject constructor(
                     return@withContext
                 }
                 _awalaInitializationState.emit(AWALA_SET_UP)
-                initializeGateway()
+                initializeGatewayAsync()
                 awalaSetupJob = null
             }
         }
@@ -330,24 +330,29 @@ class AwalaManagerImpl @Inject constructor(
     }
 
     override fun initializeGatewayAsync() {
-        awalaScope.launch(awalaThreadContext) {
+        awalaScope.launch(Dispatchers.Main) {
             initializeGateway()
         }
     }
 
-    private suspend fun initializeGateway() {
-        withContext(awalaThreadContext) {
-            try {
-                logger.i(TAG, "GatewayClient binding...")
-                awala.bindGateway()
-                startReceivingMessages()
-                _awalaInitializationState.emit(INITIALIZED)
-            } catch (exp: GatewayBindingException) {
-                logger.i(TAG, "GatewayClient cannot be bound: $exp")
-                _awalaUnsuccessfulBindings.emit(Unit)
-                _awalaInitializationState.emit(AWALA_NOT_INSTALLED)
-            }
-        }
+    private fun initializeGateway() {
+        logger.i(TAG, "Binding to Awala gateway...")
+        awala.bindGateway(
+            onBindSuccessful = {
+                awalaScope.launch(awalaThreadContext) {
+                    startReceivingMessages()
+                    _awalaInitializationState.emit(INITIALIZED)
+                    logger.i(TAG, "Binding complete")
+                }
+            },
+            onBindFailure = {
+                awalaScope.launch(awalaThreadContext) {
+                    logger.i(TAG, "GatewayClient cannot be bound: $it")
+                    _awalaUnsuccessfulBindings.emit(Unit)
+                    _awalaInitializationState.emit(AWALA_NOT_INSTALLED)
+                }
+            },
+        )
     }
 
     @Throws(AwaladroidException::class)
