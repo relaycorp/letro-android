@@ -23,10 +23,10 @@
     <issue id="InvalidPackage">
         <!-- Ignore errors about BC importing javax.naming because we don't use those modules -->
         <ignore path="**/bcpkix-*.jar" />
+        <!-- It reports that the Awala SDK is using IntellijIdeaDebugDetector indirectly, which isn't the case -->
+        <ignore path="**/ktor-utils-jvm-*.jar" />
     </issue>
     <issue id="IconDuplicates">
         <ignore path="**/awala_initialization_error.webp" />
     </issue>
-    <!-- TODO: remove after uploading https://letro.app/.well-known/assetlinks.json -->
-    <issue id="AppLinksAutoVerify" severity="warning" />
 </lint>

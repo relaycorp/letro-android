@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.awaladroid.Awala
 import tech.relaycorp.awaladroid.AwaladroidException
+import tech.relaycorp.awaladroid.GatewayBindingException
 import tech.relaycorp.awaladroid.GatewayClient
 import tech.relaycorp.awaladroid.endpoint.FirstPartyEndpoint
 import tech.relaycorp.awaladroid.endpoint.InvalidThirdPartyEndpoint
@@ -24,7 +25,10 @@ import kotlin.Exception
 
 interface AwalaWrapper {
     suspend fun setUp()
-    suspend fun bindGateway()
+    fun bindGateway(
+        onBindSuccessful: () -> Unit,
+        onBindFailure: (GatewayBindingException) -> Unit,
+    )
     suspend fun registerFirstPartyEndpoint(): FirstPartyEndpoint
     suspend fun importServerThirdPartyEndpoint(
         connectionParams: ByteArray,
@@ -64,8 +68,11 @@ class AwalaWrapperImpl @Inject constructor(
         Awala.setUp(context)
     }
 
-    override suspend fun bindGateway() {
-        GatewayClient.bind()
+    override fun bindGateway(
+        onBindSuccessful: () -> Unit,
+        onBindFailure: (GatewayBindingException) -> Unit,
+    ) {
+        GatewayClient.bindAutomatically(onBindSuccessful, onBindFailure = onBindFailure)
     }
 
     override suspend fun registerFirstPartyEndpoint(): FirstPartyEndpoint {
