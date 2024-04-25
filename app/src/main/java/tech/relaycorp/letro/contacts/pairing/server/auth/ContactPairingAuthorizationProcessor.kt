@@ -11,6 +11,7 @@ import tech.relaycorp.letro.awala.message.MessageType
 import tech.relaycorp.letro.awala.processor.ServerMessageProcessor
 import tech.relaycorp.letro.contacts.model.ContactPairingStatus
 import tech.relaycorp.letro.contacts.pairing.notification.ContactPairingNotificationManager
+import tech.relaycorp.letro.contacts.pairing.server.photo.parser.ContactPhotoUpdatedMessageEncoder
 import tech.relaycorp.letro.contacts.storage.dao.ContactsDao
 import tech.relaycorp.letro.utils.Logger
 import java.io.File
@@ -20,6 +21,7 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
     private val contactsDao: ContactsDao,
     private val contactPairingNotificationManager: ContactPairingNotificationManager,
     private val accountsDao: AccountDao,
+    private val messageEncoder: ContactPhotoUpdatedMessageEncoder,
     parser: ContactPairingAuthorizationParser,
     logger: Logger,
 ) : ServerMessageProcessor<AwalaIncomingMessageContent.ContactPairingAuthorization>(parser, logger) {
@@ -69,7 +71,10 @@ class ContactPairingAuthorizationProcessor @Inject constructor(
                     awalaManager.sendMessage(
                         outgoingMessage = AwalaOutgoingMessage(
                             type = MessageType.ContactPhotoUpdated,
-                            content = avatarFile.readBytes(),
+                            content = messageEncoder.encode(
+                                photo = avatarFile.readBytes(),
+                                extension = avatarFile.extension,
+                            ),
                         ),
                         recipient = AwalaEndpoint.Private(
                             nodeId = contact.contactEndpointId,
