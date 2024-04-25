@@ -56,7 +56,7 @@
     <string name="pair_request_was_already_sent_hint">You already tried to connect with them, but we can send another request if you want.</string>
     <string name="pair_request_already_paired">You two are already connected.</string>
     <string name="pair_request_already_in_progress">Your pairing with this user is already under way.</string>
-    <string name="pair_request_invalid_id">Enter an id like “alice@example.com“ or “example.com“.</string>
+    <string name="pair_request_invalid_id">Domain names, such as “example.com“, are supported too.</string>
 
     <string name="conversations">Conversations</string>
     <string name="contacts">Contacts</string>
@@ -153,9 +153,6 @@
 
     <string name="content_description_delete_attachment">Delete attachment</string>
 
-    <string name="new_contact_id_hint">james.bond@mi6.gov.uk</string>
-    <string name="new_contact_alias_hint">James Bond</string>
-
     <string name="message_exceeds_limit_megabytes">This message exceeds the 8 MB limit by %s MB.</string>
     <string name="message_exceeds_limit_kilobytes">This message exceeds the 8 MB limit by %s KB.</string>
     <string name="message_exceeds_limit_bytes">This message exceeds the 8 MB limit by %s bytes.</string>
@@ -169,7 +166,7 @@
 
     <string name="manage_accounts">Manage accounts</string>
     <string name="add_another_account">Add another account</string>
-    <string name="about_letro">About letro</string>
+    <string name="about_letro">About Letro</string>
     <string name="app_version_x">App version (%s)</string>
     <string name="terms_and_conditions">Terms &amp; Conditions</string>
     <string name="delete_account">Delete account</string>
@@ -190,9 +187,9 @@
     <string name="token">Token</string>
     <string name="use_existing_account_hint">If you have any questions about these fields, you should contact your IT team.</string>
     <string name="confirm_details">Confirm details</string>
-    <string name="use_existing_account_domain_hint" translatable="false">acme.com</string>
-    <string name="use_existing_account_awala_endpoint_hint" translatable="false">gb.relaycorp.cloud</string>
-    <string name="use_existing_account_token_hint">652d398b188aa3cfbcb7e1bb</string>
+    <string name="use_existing_account_domain_hint">your-company.com</string>
+    <string name="use_existing_account_awala_endpoint_hint">relaycorp.cloud</string>
+    <string name="use_existing_account_token_hint" translatable="false">652d398b188aa3cfbcb7e1bb</string>
     <string name="account_creation_failed">Account creation failed</string>
     <string name="account_linking_failed">Account linking failed</string>
     <string name="we_could_not_claim_your_account">We couldn&#8217;t claim your account</string>
@@ -210,5 +207,7 @@
     <string name="file_size_kilobytes" translatable="false">%s KB</string>
     <string name="file_size_bytes" translatable="false">%s B</string>
     <string name="url_letro_terms_and_conditions" translatable="false">https://letro.app/en/legal/tos/</string>
+    <string name="new_contact_id_hint">alice@example.com</string>
+    <string name="new_contact_alias_hint">Alice Smith</string>
 
 </resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Letro</string>
+    <string name="onboarding_waiting_title">Hang tight!</string>
+    <string name="new_contact_id_hint">phoebe@smelly.cat</string>
+    <string name="new_contact_alias_hint">Phoebe Buffay</string>
+    <string name="pair_request_invalid_id">Domain names, such as “weather.com,“ are supported too.</string>
+    <string name="use_existing_account_domain_hint">your-company.us</string>
+    <string name="use_existing_account_awala_endpoint_hint">us.relaycorp.cloud</string>
+</resources>

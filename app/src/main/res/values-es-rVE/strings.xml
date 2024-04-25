@@ -49,4 +49,6 @@
     <string name="general_navigate_back">Regresar</string>
     <string name="new_contact_id_hint">teresa.carreño@pianistas.org.ve</string>
     <string name="new_contact_alias_hint">Teresa Carreño</string>
+    <string name="use_existing_account_domain_hint">tu-compañía.com.ve</string>
+    <string name="use_existing_account_awala_endpoint_hint">ve.relaycorp.cloud</string>
 </resources>

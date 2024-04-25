@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Letro</string>
+    <string name="onboarding_waiting_title">Hold on a tick!</string>
+    <string name="new_contact_id_hint">bond.james@mi6.gov.uk</string>
+    <string name="new_contact_alias_hint">James Bond</string>
+    <string name="pair_request_invalid_id">Domain names, such as “bbc.co.uk“, are supported too.</string>
+    <string name="use_existing_account_domain_hint">your-company.co.uk</string>
+    <string name="use_existing_account_awala_endpoint_hint">gb.relaycorp.cloud</string>
+</resources>
