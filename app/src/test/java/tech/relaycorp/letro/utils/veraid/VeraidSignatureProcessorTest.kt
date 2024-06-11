@@ -22,11 +22,13 @@ import tech.relaycorp.veraid.SignatureException
 import tech.relaycorp.veraid.pki.MemberIdBundle
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 class VeraidSignatureProcessorTest {
     private val stubPlaintext = "plaintext".toByteArray()
 
+    val clockDriftTolerance = 5.minutes.toJavaDuration()
     val ninetyDays = 90.days.toJavaDuration()
 
     @Nested
@@ -97,6 +99,35 @@ class VeraidSignatureProcessorTest {
         }
 
         @Test
+        fun `Signature creation date should be within a few minutes in the past`() {
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
+            val timeBefore = ZonedDateTime.now()
+
+            processor.produce(
+                stubPlaintext,
+                mockMemberIdBundle,
+                VERAID_MEMBER_KEY_PAIR.private,
+            )
+
+            val timeAfter = ZonedDateTime.now()
+            verify {
+                generator(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    match {
+                        timeBefore.minus(clockDriftTolerance) <= it &&
+                            it <= timeAfter.minus(clockDriftTolerance)
+                    },
+                    any(),
+                )
+            }
+        }
+
+        @Test
         fun `Signature should expire in 90 days`() {
             val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
             val processor = VeraidSignatureProcessor(generator)
@@ -118,7 +149,7 @@ class VeraidSignatureProcessorTest {
                     match {
                         timeBefore.plus(ninetyDays) <= it && it <= timeAfter.plus(ninetyDays)
                     },
-                    match { timeBefore <= it && it <= timeAfter },
+                    any(),
                     any(),
                 )
             }
