@@ -22,6 +22,7 @@ import tech.relaycorp.veraid.SignatureException
 import tech.relaycorp.veraid.pki.MemberIdBundle
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 class VeraidSignatureProcessorTest {
@@ -91,6 +92,35 @@ class VeraidSignatureProcessorTest {
                     any(),
                     any(),
                     any(),
+                    any(),
+                )
+            }
+        }
+
+        @Test
+        fun `Signature creation date should be within 5 minutes of now`() {
+            val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
+            val processor = VeraidSignatureProcessor(generator)
+            val timeBefore = ZonedDateTime.now()
+
+            processor.produce(
+                stubPlaintext,
+                mockMemberIdBundle,
+                VERAID_MEMBER_KEY_PAIR.private,
+            )
+
+            val timeAfter = ZonedDateTime.now()
+            verify {
+                generator(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    match {
+                        timeBefore.minus(5.minutes.toJavaDuration()) <= it &&
+                            it <= timeAfter.plus(5.minutes.toJavaDuration())
+                    },
                     any(),
                 )
             }

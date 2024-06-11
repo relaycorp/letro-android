@@ -8,6 +8,7 @@ import tech.relaycorp.veraid.pki.MemberIdBundle
 import java.security.PrivateKey
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 typealias BundleGenerator = (
@@ -26,6 +27,7 @@ class VeraidSignatureProcessor(
     private val bundleGenerator: BundleGenerator = SignatureBundle.Companion::generate,
     private val bundleDeserialiser: BundleDeserialiser = SignatureBundle.Companion::deserialise,
 ) {
+    private val bundleClockDriftTolerance = 5.minutes.toJavaDuration()
     private val bundleTtl = 90.days.toJavaDuration()
 
     @Throws(VeraidSignatureException::class)
@@ -34,7 +36,7 @@ class VeraidSignatureProcessor(
         memberIdBundle: MemberIdBundle,
         memberPrivateKey: PrivateKey,
     ): ByteArray {
-        val creationDate = ZonedDateTime.now()
+        val creationDate = ZonedDateTime.now().minus(bundleClockDriftTolerance)
         val signatureBundle = try {
             bundleGenerator(
                 plaintext,
