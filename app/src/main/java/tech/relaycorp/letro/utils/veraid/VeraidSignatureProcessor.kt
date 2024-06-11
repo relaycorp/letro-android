@@ -36,15 +36,15 @@ class VeraidSignatureProcessor(
         memberIdBundle: MemberIdBundle,
         memberPrivateKey: PrivateKey,
     ): ByteArray {
-        val creationDate = ZonedDateTime.now().minus(bundleClockDriftTolerance)
+        val now = ZonedDateTime.now()
         val signatureBundle = try {
             bundleGenerator(
                 plaintext,
                 LetroOids.LETRO_VERAID_OID,
                 memberIdBundle,
                 memberPrivateKey,
-                creationDate.plus(bundleTtl),
-                creationDate,
+                now.plus(bundleTtl),
+                now.minus(bundleClockDriftTolerance),
                 true,
             )
         } catch (exc: SignatureException) {

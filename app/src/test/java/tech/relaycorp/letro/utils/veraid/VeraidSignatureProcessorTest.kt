@@ -28,6 +28,7 @@ import kotlin.time.toJavaDuration
 class VeraidSignatureProcessorTest {
     private val stubPlaintext = "plaintext".toByteArray()
 
+    val clockDriftTolerance = 5.minutes.toJavaDuration()
     val ninetyDays = 90.days.toJavaDuration()
 
     @Nested
@@ -98,7 +99,7 @@ class VeraidSignatureProcessorTest {
         }
 
         @Test
-        fun `Signature creation date should be within 5 minutes of now`() {
+        fun `Signature creation date should be within a few minutes in the past`() {
             val generator = mockSignatureBundleGenerator(Result.success(stubSignatureBundle))
             val processor = VeraidSignatureProcessor(generator)
             val timeBefore = ZonedDateTime.now()
@@ -118,8 +119,8 @@ class VeraidSignatureProcessorTest {
                     any(),
                     any(),
                     match {
-                        timeBefore.minus(5.minutes.toJavaDuration()) <= it &&
-                            it <= timeAfter.plus(5.minutes.toJavaDuration())
+                        timeBefore.minus(clockDriftTolerance) <= it &&
+                            it <= timeAfter.minus(clockDriftTolerance)
                     },
                     any(),
                 )
@@ -148,7 +149,7 @@ class VeraidSignatureProcessorTest {
                     match {
                         timeBefore.plus(ninetyDays) <= it && it <= timeAfter.plus(ninetyDays)
                     },
-                    match { timeBefore <= it && it <= timeAfter },
+                    any(),
                     any(),
                 )
             }
