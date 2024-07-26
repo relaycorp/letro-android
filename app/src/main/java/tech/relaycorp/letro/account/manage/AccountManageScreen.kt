@@ -164,7 +164,7 @@ private fun ProfilePhotoBlock(
                                 vertical = 10.dp,
                                 horizontal = 16.dp,
                             ),
-                        text = stringResource(id = R.string.remove),
+                        text = stringResource(id = R.string.delete),
                         icon = R.drawable.ic_delete_18,
                         onClick = onDeletePhotoClick,
                     )

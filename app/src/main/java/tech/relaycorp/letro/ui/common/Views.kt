@@ -47,7 +47,7 @@ fun CustomViewsPreview() {
             HyperlinkText(
                 fullText = stringResource(id = R.string.onboarding_create_account_terms_and_services),
                 hyperLinks = mapOf(
-                    stringResource(id = R.string.onboarding_create_account_terms_and_services_link_text)
+                    stringResource(id = R.string.terms_and_conditions)
                         to stringResource(id = R.string.url_letro_terms_and_conditions),
                 ),
             )

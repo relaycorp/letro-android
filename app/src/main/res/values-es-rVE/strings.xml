@@ -11,7 +11,6 @@
     <string name="onboarding_create_account_username_unavailable_hint">Si tu nombre de usuario preferido está tomado, escogeremos uno parecido.</string>
     <string name="onboarding_create_account_wrong_username_hint">El nombre de usuario no puede contener espacio o arrobas (@), ni tener más de 20 caracteres.</string>
     <string name="onboarding_create_account_terms_and_services">Al solicitar una cuenta, estás aceptando nuestros Términos y Condiciones.</string>
-    <string name="onboarding_create_account_terms_and_services_link_text">Términos y Condiciones</string>
     <string name="onboarding_create_account_button">Crear cuenta</string>
     <string name="onboarding_create_account_or">Alternativamente</string>
     <string name="you_already_have_account_with_this_id">Ya tienes una cuenta con este identificador.</string>
@@ -37,14 +36,13 @@
     <string name="profile_photo">Foto de perfil</string>
     <string name="set_profile_photo">Establecer foto de perfil</string>
     <string name="change">Cambiar</string>
-    <string name="remove">Eliminar</string>
     <string name="no_browser">No hay ninguna app para abrir este enlace</string>
     <string name="no_app_to_share">No hay ninguna app para compartir tu identificador</string>
     <string name="no_app_to_open_file">No hay ninguna app para abrir este archivo</string>
     <string name="pair_request_was_already_sent_hint">Ya intentaste conectar con este usuario, pero podemos intentarlo nuevamente si quieres.</string>
     <string name="pair_request_already_paired">Ustedes dos ya están conectados.</string>
     <string name="pair_request_already_in_progress">La conexión con este usuario ya está en progreso.</string>
-    <string name="pair_request_invalid_id">También se admiten nombres de dominio, como "ejemplo.com".</string>
+    <string name="pair_request_invalid_id">También se admiten nombres de dominio, como “ejemplo.com“.</string>
     <string name="conversations">Conversaciones</string>
     <string name="contacts">Contactos</string>
     <string name="notifications">Notificaciones</string>
