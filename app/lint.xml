@@ -29,4 +29,7 @@
     <issue id="IconDuplicates">
         <ignore path="**/awala_initialization_error.webp" />
     </issue>
+
+    <!-- We can't currently control the version of Android SDK tools in CI so this can fail there -->
+    <issue id="OldTargetApi" severity="ignore" />
 </lint>
